@@ -94,6 +94,7 @@ const services = [
     homeService: true,
     priceFrom: 120000,
     icon: "crown",
+    highlighted: true,
     order: 1,
   },
   {

@@ -11,6 +11,7 @@ export const SERVICES_QUERY = `*[_type == "service"] | order(order asc) {
   homeService,
   priceFrom,
   icon,
+  highlighted,
   "imageUrl": image.asset->url
 }`;
 
@@ -27,6 +28,7 @@ export const SERVICE_BY_SLUG_QUERY = `*[_type == "service" && slug.current == $s
   homeService,
   priceFrom,
   icon,
+  highlighted,
   "imageUrl": image.asset->url
 }`;
 

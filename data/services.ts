@@ -23,6 +23,7 @@ export interface Service {
   priceFrom?: number;
   icon: LucideIcon;
   imageUrl?: string;
+  highlighted?: boolean;
 }
 
 export const services: Service[] = [
@@ -47,6 +48,7 @@ export const services: Service[] = [
     homeService: true,
     priceFrom: 120000,
     icon: Crown,
+    highlighted: true,
   },
   {
     id: "traditional",

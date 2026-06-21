@@ -53,6 +53,7 @@ interface RawService {
   homeService: boolean;
   priceFrom?: number;
   icon: string;
+  highlighted?: boolean;
   imageUrl?: string;
 }
 
@@ -72,6 +73,7 @@ export const getServices = cache(async (): Promise<Service[]> => {
     priceFrom: s.priceFrom,
     icon: iconMap[s.icon] ?? Sparkles,
     imageUrl: s.imageUrl,
+    highlighted: s.highlighted ?? false,
   }));
 });
 
@@ -92,6 +94,7 @@ export const getServiceBySlug = cache(async (slug: string): Promise<Service | nu
     priceFrom: s.priceFrom,
     icon: iconMap[s.icon] ?? Sparkles,
     imageUrl: s.imageUrl,
+    highlighted: s.highlighted ?? false,
   };
 });
 
