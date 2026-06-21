@@ -1,3 +1,4 @@
+import { getPortfolioItems } from "@/sanity/fetch";
 import { Hero } from "@/components/sections/Hero";
 import { TrustStrip } from "@/components/sections/TrustStrip";
 import { PortfolioPreview } from "@/components/sections/PortfolioPreview";
@@ -10,10 +11,12 @@ import { BookingProcess } from "@/components/sections/BookingProcess";
 import { FAQSection } from "@/components/sections/FAQSection";
 import { CTASection } from "@/components/sections/CTASection";
 
-export default function HomePage() {
+export default async function HomePage() {
+  const portfolioItems = await getPortfolioItems();
+
   return (
     <>
-      <Hero />
+      <Hero portfolioItems={portfolioItems} />
       <TrustStrip />
       <PortfolioPreview />
       <ServicesOverview />

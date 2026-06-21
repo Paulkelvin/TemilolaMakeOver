@@ -1,6 +1,5 @@
 import Image from "next/image";
-import { services } from "@/data/services";
-import { faqItems } from "@/data/faq";
+import { getServices, getFaqItems } from "@/sanity/fetch";
 import { servicesPageCopy, seoCopy } from "@/data/copy";
 import { buildWhatsAppUrl } from "@/lib/whatsapp";
 import { createPageMetadata } from "@/lib/metadata";
@@ -13,7 +12,6 @@ import { Button } from "@/components/ui/Button";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Reveal } from "@/components/ui/Reveal";
 import { Container } from "@/components/ui/Container";
-import { portfolioItems } from "@/data/portfolio";
 import { StaggerGrid, StaggerItem } from "@/components/ui/Reveal";
 import { ServiceCard } from "@/components/sections/ServiceCard";
 import { Check, Clock, Home } from "lucide-react";
@@ -25,7 +23,8 @@ export const metadata = createPageMetadata({
   path: "/services",
 });
 
-export default function ServicesPage() {
+export default async function ServicesPage() {
+  const [services, faqItems] = await Promise.all([getServices(), getFaqItems()]);
   const copy = servicesPageCopy;
 
   return (
@@ -60,7 +59,7 @@ export default function ServicesPage() {
       </SectionWrapper>
 
       {services.map((service, index) => {
-        const image = portfolioItems[index % portfolioItems.length];
+        const imageUrl = (service as { imageUrl?: string }).imageUrl;
         const whatsappUrl = buildWhatsAppUrl({
           intent: "service",
           service: service.name,
@@ -142,13 +141,19 @@ export default function ServicesPage() {
                   className={index % 2 === 1 ? "lg:order-1" : ""}
                 >
                   <div className="relative aspect-[4/5] rounded-3xl overflow-hidden border border-border shadow-lg">
-                    <Image
-                      src={image.src}
-                      alt={`${service.name} — Temilola Makeup Lagos`}
-                      fill
-                      sizes="(max-width: 1024px) 100vw, 50vw"
-                      className="object-cover"
-                    />
+                    {imageUrl ? (
+                      <Image
+                        src={imageUrl}
+                        alt={`${service.name} — Temilola Makeup Lagos`}
+                        fill
+                        sizes="(max-width: 1024px) 100vw, 50vw"
+                        className="object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-bg-blush flex items-center justify-center">
+                        <span className="text-text-muted text-sm">{service.name}</span>
+                      </div>
+                    )}
                   </div>
                 </Reveal>
               </div>

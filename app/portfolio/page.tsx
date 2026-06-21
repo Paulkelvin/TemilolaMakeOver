@@ -1,3 +1,4 @@
+import { getPortfolioItems, getPortfolioCategories } from "@/sanity/fetch";
 import { portfolioPageCopy, seoCopy } from "@/data/copy";
 import { createPageMetadata } from "@/lib/metadata";
 import { PageHero } from "@/components/sections/PageHero";
@@ -15,7 +16,11 @@ export const metadata = createPageMetadata({
   path: "/portfolio",
 });
 
-export default function PortfolioPage() {
+export default async function PortfolioPage() {
+  const [items, categories] = await Promise.all([
+    getPortfolioItems(),
+    getPortfolioCategories(),
+  ]);
   const copy = portfolioPageCopy;
   const url = buildWhatsAppUrl({ intent: "look", look: "Portfolio inspiration" });
 
@@ -32,7 +37,11 @@ export default function PortfolioPage() {
           <Reveal className="mb-10 max-w-2xl mx-auto text-center">
             <p className="text-text-muted leading-relaxed">{copy.intro}</p>
           </Reveal>
-          <PortfolioGallery bookLookLabel={copy.galleryCta} />
+          <PortfolioGallery
+            items={items}
+            categories={categories}
+            bookLookLabel={copy.galleryCta}
+          />
           <Reveal className="mt-12 text-center">
             <p className="text-text-muted mb-4">{copy.midCta.text}</p>
             <Button href={url} external variant="primary" size="lg">

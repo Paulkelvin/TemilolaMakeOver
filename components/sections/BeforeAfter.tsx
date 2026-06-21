@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { portfolioItems } from "@/data/portfolio";
+import { getTransformations } from "@/sanity/fetch";
 import { homeCopy } from "@/data/copy";
 import { buildWhatsAppUrl } from "@/lib/whatsapp";
 import { SectionHeading } from "@/components/ui/SectionHeading";
@@ -8,20 +8,11 @@ import { Button } from "@/components/ui/Button";
 import { Reveal } from "@/components/ui/Reveal";
 import { BeforeAfterSlider } from "./BeforeAfterSlider";
 
-const beforeItems = portfolioItems.filter(
-  (p) => p.category === "Before & After"
-);
-const pair1 = beforeItems[0] ?? portfolioItems[8];
-const pair2 = beforeItems[1] ?? portfolioItems[11];
 const copy = homeCopy.beforeAfter;
 
-const pairs = [
-  { before: pair1, after: portfolioItems[0] },
-  { before: pair2, after: portfolioItems[1] },
-  { before: portfolioItems[9], after: portfolioItems[4] },
-];
-
-export function BeforeAfter() {
+export async function BeforeAfter() {
+  const transformations = await getTransformations();
+  const pairs = transformations.slice(0, 3);
   const url = buildWhatsAppUrl({ intent: "booking" });
 
   return (
@@ -36,16 +27,10 @@ export function BeforeAfter() {
 
         <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
           {pairs.map((pair, i) => (
-            <Reveal key={i} delay={i * 0.1}>
+            <Reveal key={pair.id} delay={i * 0.1}>
               <BeforeAfterSlider
-                before={{
-                  src: pair.before.src,
-                  alt: `Before makeup — ${pair.before.title}`,
-                }}
-                after={{
-                  src: pair.after.src,
-                  alt: `After makeup — ${pair.after.title}`,
-                }}
+                before={{ src: pair.beforeUrl, alt: pair.beforeAlt }}
+                after={{ src: pair.afterUrl, alt: pair.afterAlt }}
               />
             </Reveal>
           ))}

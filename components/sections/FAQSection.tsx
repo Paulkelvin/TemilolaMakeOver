@@ -1,4 +1,4 @@
-import { faqItems } from "@/data/faq";
+import { getFaqItems } from "@/sanity/fetch";
 import { homeCopy } from "@/data/copy";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { SectionWrapper } from "@/components/ui/BackgroundDecor";
@@ -8,7 +8,8 @@ interface FAQSectionProps {
   limit?: number;
 }
 
-export function FAQSection({ limit = 8 }: FAQSectionProps) {
+export async function FAQSection({ limit = 8 }: FAQSectionProps) {
+  const faqItems = await getFaqItems();
   const copy = homeCopy.faq;
 
   return (

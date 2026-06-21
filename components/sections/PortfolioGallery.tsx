@@ -5,28 +5,28 @@ import Image from "next/image";
 import Lightbox from "yet-another-react-lightbox";
 import "yet-another-react-lightbox/styles.css";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  portfolioItems,
-  portfolioCategories,
-  type PortfolioCategory,
-} from "@/data/portfolio";
+import type { PortfolioItem, PortfolioCategory } from "@/data/portfolio";
 import { buildWhatsAppUrl } from "@/lib/whatsapp";
 import { Badge } from "@/components/ui/Badge";
 import { GalleryFilter } from "@/components/ui/GalleryFilter";
 import { trackEvent, analyticsEvents } from "@/lib/analytics";
 
 interface PortfolioGalleryProps {
+  items: PortfolioItem[];
+  categories: PortfolioCategory[];
   bookLookLabel?: string;
 }
 
-export function PortfolioGallery({ bookLookLabel = "Book This Look" }: PortfolioGalleryProps) {
+export function PortfolioGallery({
+  items,
+  categories,
+  bookLookLabel = "Book This Look",
+}: PortfolioGalleryProps) {
   const [filter, setFilter] = useState<PortfolioCategory | "All">("All");
   const [lightboxIndex, setLightboxIndex] = useState(-1);
 
   const filtered =
-    filter === "All"
-      ? portfolioItems
-      : portfolioItems.filter((p) => p.category === filter);
+    filter === "All" ? items : items.filter((p) => p.category === filter);
 
   const slides = filtered.map((p) => ({ src: p.src, alt: p.alt }));
 
@@ -37,7 +37,7 @@ export function PortfolioGallery({ bookLookLabel = "Book This Look" }: Portfolio
   return (
     <>
       <GalleryFilter
-        categories={portfolioCategories}
+        categories={categories}
         active={filter}
         onChange={setFilter}
         className="mb-10"
@@ -67,13 +67,15 @@ export function PortfolioGallery({ bookLookLabel = "Book This Look" }: Portfolio
                 aria-label={`View ${item.title}`}
               >
                 <div className="relative aspect-[3/4]">
-                  <Image
-                    src={item.src}
-                    alt={item.alt}
-                    fill
-                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                    className="object-cover transition-transform duration-700 group-hover:scale-105"
-                  />
+                  {item.src && (
+                    <Image
+                      src={item.src}
+                      alt={item.alt}
+                      fill
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                      className="object-cover transition-transform duration-700 group-hover:scale-105"
+                    />
+                  )}
                 </div>
                 <div className="absolute inset-0 bg-gradient-to-t from-luxury-dark/70 via-luxury-dark/25 to-transparent opacity-100 group-hover:from-luxury-dark/85 transition-all duration-500 flex flex-col justify-end p-4">
                   <Badge variant="outline" className="w-fit">

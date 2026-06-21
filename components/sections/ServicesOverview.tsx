@@ -1,4 +1,4 @@
-import { services } from "@/data/services";
+import { getServices } from "@/sanity/fetch";
 import { homeCopy } from "@/data/copy";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { SectionWrapper } from "@/components/ui/BackgroundDecor";
@@ -7,7 +7,9 @@ import { StaggerGrid, StaggerItem } from "@/components/ui/Reveal";
 
 const copy = homeCopy.services;
 
-export function ServicesOverview() {
+export async function ServicesOverview() {
+  const services = await getServices();
+
   return (
     <SectionWrapper id="services" variant="blush" className="py-12 md:py-20">
       <div className="mx-auto max-w-7xl px-4 md:px-6 lg:px-8">

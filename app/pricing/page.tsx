@@ -1,6 +1,7 @@
-import { packages, pricingFactors } from "@/data/packages";
+import { getPackages } from "@/sanity/fetch";
 import { siteConfig } from "@/lib/site-config";
 import { pricingPageCopy, seoCopy } from "@/data/copy";
+import { pricingFactors } from "@/data/packages";
 import { createPageMetadata } from "@/lib/metadata";
 import { PageHero } from "@/components/sections/PageHero";
 import { SectionWrapper } from "@/components/ui/BackgroundDecor";
@@ -19,7 +20,8 @@ export const metadata = createPageMetadata({
   path: "/pricing",
 });
 
-export default function PricingPage() {
+export default async function PricingPage() {
+  const packages = await getPackages();
   const copy = pricingPageCopy;
   const quoteUrl = buildWhatsAppUrl({ intent: "quote" });
 

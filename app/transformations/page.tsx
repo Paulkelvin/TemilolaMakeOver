@@ -1,21 +1,10 @@
+import { getTransformations } from "@/sanity/fetch";
 import { createPageMetadata } from "@/lib/metadata";
-import { portfolioItems } from "@/data/portfolio";
 import { PageHero } from "@/components/sections/PageHero";
 import { SectionWrapper } from "@/components/ui/BackgroundDecor";
 import { Container } from "@/components/ui/Container";
 import { BeforeAfterSlider } from "@/components/sections/BeforeAfterSlider";
 import { CTASection } from "@/components/sections/CTASection";
-
-const beforeItems = portfolioItems.filter((item) => item.category === "Before & After");
-
-const sliderPairs = [
-  { before: beforeItems[0] ?? portfolioItems[8], after: portfolioItems[0] },
-  { before: beforeItems[1] ?? portfolioItems[11], after: portfolioItems[1] },
-  { before: portfolioItems[9], after: portfolioItems[4] },
-  { before: portfolioItems[7], after: portfolioItems[3] },
-  { before: portfolioItems[6], after: portfolioItems[2] },
-  { before: portfolioItems[10], after: portfolioItems[5] },
-];
 
 export const metadata = createPageMetadata({
   title: "Before & After Transformations | Temilola Makeup",
@@ -24,7 +13,9 @@ export const metadata = createPageMetadata({
   path: "/transformations",
 });
 
-export default function TransformationsPage() {
+export default async function TransformationsPage() {
+  const transformations = await getTransformations();
+
   return (
     <>
       <PageHero
@@ -36,17 +27,11 @@ export default function TransformationsPage() {
       <SectionWrapper>
         <Container>
           <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-            {sliderPairs.map((pair, index) => (
+            {transformations.map((pair) => (
               <BeforeAfterSlider
-                key={`${pair.before.id}-${pair.after.id}-${index}`}
-                before={{
-                  src: pair.before.src,
-                  alt: `Before makeup — ${pair.before.title}`,
-                }}
-                after={{
-                  src: pair.after.src,
-                  alt: `After makeup — ${pair.after.title}`,
-                }}
+                key={pair.id}
+                before={{ src: pair.beforeUrl, alt: pair.beforeAlt }}
+                after={{ src: pair.afterUrl, alt: pair.afterAlt }}
               />
             ))}
           </div>
@@ -61,4 +46,3 @@ export default function TransformationsPage() {
     </>
   );
 }
-

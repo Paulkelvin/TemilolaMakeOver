@@ -22,6 +22,7 @@ export interface Service {
   homeService: boolean;
   priceFrom?: number;
   icon: LucideIcon;
+  imageUrl?: string;
 }
 
 export const services: Service[] = [

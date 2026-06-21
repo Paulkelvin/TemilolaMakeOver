@@ -1,5 +1,5 @@
 import { Star } from "lucide-react";
-import { testimonials } from "@/data/testimonials";
+import { getTestimonials } from "@/sanity/fetch";
 import { homeCopy } from "@/data/copy";
 import { buildWhatsAppUrl } from "@/lib/whatsapp";
 import { SectionHeading } from "@/components/ui/SectionHeading";
@@ -9,7 +9,8 @@ import { Reveal, StaggerGrid, StaggerItem } from "@/components/ui/Reveal";
 
 const copy = homeCopy.testimonials;
 
-export function Testimonials() {
+export async function Testimonials() {
+  const testimonials = await getTestimonials();
   const url = buildWhatsAppUrl({ intent: "availability" });
 
   return (

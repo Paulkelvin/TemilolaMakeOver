@@ -1,4 +1,4 @@
-import { packages } from "@/data/packages";
+import { getPackages } from "@/sanity/fetch";
 import { homeCopy } from "@/data/copy";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { SectionWrapper } from "@/components/ui/BackgroundDecor";
@@ -6,12 +6,14 @@ import { PricingCard } from "./PricingCard";
 import { Button } from "@/components/ui/Button";
 import { Reveal, StaggerGrid, StaggerItem } from "@/components/ui/Reveal";
 
-const previewPackages = packages.filter(
-  (p) => !["bridesmaids", "home-service"].includes(p.id)
-);
 const copy = homeCopy.pricing;
 
-export function PricingPreview() {
+export async function PricingPreview() {
+  const allPackages = await getPackages();
+  const previewPackages = allPackages.filter(
+    (p) => !["pkg-bridesmaids", "pkg-home-service"].includes(p.id)
+  );
+
   return (
     <SectionWrapper id="pricing" variant="blush">
       <div className="mx-auto max-w-7xl px-4 md:px-6 lg:px-8">

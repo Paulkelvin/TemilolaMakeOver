@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { getPortfolioItems } from "@/sanity/fetch";
 import { aboutPageCopy, seoCopy } from "@/data/copy";
 import { createPageMetadata } from "@/lib/metadata";
 import { buildWhatsAppUrl } from "@/lib/whatsapp";
@@ -8,7 +9,6 @@ import { CTASection } from "@/components/sections/CTASection";
 import { Button } from "@/components/ui/Button";
 import { Reveal } from "@/components/ui/Reveal";
 import { Container } from "@/components/ui/Container";
-import { portfolioItems } from "@/data/portfolio";
 import { Heart, Award, Sparkles } from "lucide-react";
 import { siteConfig } from "@/lib/site-config";
 
@@ -36,7 +36,8 @@ const values = [
   },
 ];
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  const portfolioItems = await getPortfolioItems();
   const copy = aboutPageCopy;
   const url = buildWhatsAppUrl({ intent: "availability" });
   const portrait = portfolioItems[0];
@@ -54,14 +55,18 @@ export default function AboutPage() {
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
             <Reveal>
               <div className="relative aspect-[4/5] rounded-3xl overflow-hidden border border-border shadow-xl corner-accent">
-                <Image
-                  src={portrait.src}
-                  alt={`${siteConfig.artistName} — professional makeup artist in Lagos`}
-                  fill
-                  sizes="(max-width: 1024px) 100vw, 50vw"
-                  className="object-cover"
-                  priority
-                />
+                {portrait?.src ? (
+                  <Image
+                    src={portrait.src}
+                    alt={`${siteConfig.artistName} — professional makeup artist in Lagos`}
+                    fill
+                    sizes="(max-width: 1024px) 100vw, 50vw"
+                    className="object-cover"
+                    priority
+                  />
+                ) : (
+                  <div className="w-full h-full bg-bg-blush" />
+                )}
               </div>
             </Reveal>
 

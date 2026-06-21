@@ -1,4 +1,4 @@
-import { bookingSteps } from "@/data/booking-steps";
+import { getBookingSteps } from "@/sanity/fetch";
 import { homeCopy } from "@/data/copy";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { SectionWrapper } from "@/components/ui/BackgroundDecor";
@@ -7,7 +7,9 @@ import { Reveal, StaggerGrid, StaggerItem } from "@/components/ui/Reveal";
 
 const copy = homeCopy.bookingProcess;
 
-export function BookingProcess() {
+export async function BookingProcess() {
+  const bookingSteps = await getBookingSteps();
+
   return (
     <SectionWrapper id="how-it-works">
       <div className="mx-auto max-w-7xl px-4 md:px-6 lg:px-8">
@@ -19,7 +21,7 @@ export function BookingProcess() {
 
         <StaggerGrid className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
           {bookingSteps.map((step) => (
-            <StaggerItem key={step.step}>
+            <StaggerItem key={step.id}>
               <div className="relative rounded-2xl border border-border bg-card p-8 text-center hover:shadow-lg transition-all duration-500">
                 <span className="inline-flex w-12 h-12 items-center justify-center rounded-full bg-accent-rose/10 text-accent-rose font-display text-xl font-semibold mb-4">
                   {step.step}

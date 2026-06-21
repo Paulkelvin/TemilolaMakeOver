@@ -6,18 +6,23 @@ import { buildWhatsAppUrl } from "@/lib/whatsapp";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { ImageCollage } from "@/components/sections/ImageCollage";
-import { portfolioItems } from "@/data/portfolio";
 import { analyticsEvents } from "@/lib/analytics";
 import { Container } from "@/components/ui/Container";
+import type { PortfolioItem } from "@/data/portfolio";
 
-const heroMain = portfolioItems[0];
-const heroFloat = portfolioItems[5];
-const heroDetail = portfolioItems[2];
+interface HeroProps {
+  portfolioItems: PortfolioItem[];
+}
+
 const { hero } = homeCopy;
 
-export function Hero() {
+export function Hero({ portfolioItems }: HeroProps) {
   const reduced = useReducedMotion();
   const availabilityUrl = buildWhatsAppUrl({ intent: "availability" });
+
+  const heroMain = portfolioItems[0];
+  const heroFloat = portfolioItems[5] ?? portfolioItems[0];
+  const heroDetail = portfolioItems[2] ?? portfolioItems[0];
 
   return (
     <section className="relative min-h-[100svh] flex items-center pt-20 md:pt-24 pb-6 md:pb-8 overflow-hidden bg-bg-cream">
@@ -86,21 +91,23 @@ export function Hero() {
             </motion.p>
           </div>
 
-          <div>
-            <ImageCollage
-              main={{ src: heroMain.src, alt: heroMain.alt }}
-              secondary={{ src: heroFloat.src, alt: heroFloat.alt }}
-              tertiary={{ src: heroDetail.src, alt: heroDetail.alt }}
-              badges={hero.badges.map((label, i) => ({
-                label,
-                variant: (i < 2 ? "outline" : i === 2 ? "rose" : "gold") as
-                  | "outline"
-                  | "rose"
-                  | "gold",
-              }))}
-              priority
-            />
-          </div>
+          {heroMain?.src && (
+            <div>
+              <ImageCollage
+                main={{ src: heroMain.src, alt: heroMain.alt }}
+                secondary={{ src: heroFloat.src, alt: heroFloat.alt }}
+                tertiary={heroDetail ? { src: heroDetail.src, alt: heroDetail.alt } : undefined}
+                badges={hero.badges.map((label, i) => ({
+                  label,
+                  variant: (i < 2 ? "outline" : i === 2 ? "rose" : "gold") as
+                    | "outline"
+                    | "rose"
+                    | "gold",
+                }))}
+                priority
+              />
+            </div>
+          )}
         </div>
       </Container>
     </section>
