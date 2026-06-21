@@ -139,18 +139,18 @@ export function PortfolioPreviewClient({ items, footnote, ctaLabel }: Props) {
               className="portfolio-overlay-gallery relative z-10 w-full max-w-5xl mx-4 md:mx-8"
               onClick={(e) => e.stopPropagation()}
             >
-              {/* Close */}
-              <button
-                onClick={(e) => closeGallery(e)}
-                className="absolute -top-12 right-0 md:right-0 text-white/70 hover:text-white transition-colors p-2"
-                aria-label="Close gallery"
-              >
-                <X className="w-6 h-6" />
-              </button>
-
-              {/* Counter */}
-              <div className="absolute -top-12 left-0 md:left-0 text-white/60 text-sm font-medium">
-                {activeIndex + 1} / {items.length}
+              {/* Top bar: counter + close */}
+              <div className="flex items-center justify-between mb-3">
+                <div className="text-white/60 text-sm font-medium">
+                  {activeIndex + 1} / {items.length}
+                </div>
+                <button
+                  onClick={(e) => closeGallery(e)}
+                  className="text-white/70 hover:text-white transition-colors p-2 -mr-2"
+                  aria-label="Close gallery"
+                >
+                  <X className="w-7 h-7" />
+                </button>
               </div>
 
               {/* Main image */}

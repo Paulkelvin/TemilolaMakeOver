@@ -20,7 +20,7 @@ export function Hero({ portfolioItems }: HeroProps) {
   const reduced = useReducedMotion();
   const availabilityUrl = buildWhatsAppUrl({ intent: "availability" });
 
-  const heroMain = portfolioItems[0];
+  const heroMain = portfolioItems[1] ?? portfolioItems[0];
   const heroFloat = portfolioItems[5] ?? portfolioItems[0];
   const heroDetail = portfolioItems[2] ?? portfolioItems[0];
 
