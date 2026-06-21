@@ -14,20 +14,20 @@ export function PricingCard({ pkg }: PricingCardProps) {
   const highlights = pkg.features.slice(0, 4);
 
   return (
+    <div className={cn("relative", isPopular && "mt-4")}>
+      {isPopular && (
+        <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10">
+          <span className="inline-block px-4 py-1 text-[10px] font-bold uppercase tracking-[0.15em] bg-accent-rose text-white rounded-full shadow-md">
+            Most Booked
+          </span>
+        </div>
+      )}
     <article
       className={cn(
         "group relative flex flex-col items-center text-center rounded-2xl border p-6 md:p-8 transition-all duration-500 overflow-hidden bg-card text-text-primary border-border shadow-sm hover:shadow-lg hover:-translate-y-1",
         isPopular && "ring-2 ring-accent-rose md:scale-105"
       )}
     >
-      {isPopular && (
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2">
-          <span className="inline-block px-4 py-1 text-[10px] font-bold uppercase tracking-[0.15em] bg-accent-rose text-white rounded-full shadow-md">
-            Most Booked
-          </span>
-        </div>
-      )}
-
       <div className="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-accent-rose/60 via-accent-gold/40 to-transparent" />
 
       <h3 className="font-display text-xl md:text-2xl font-medium text-text-primary">
@@ -70,5 +70,6 @@ export function PricingCard({ pkg }: PricingCardProps) {
         Request Quote <ArrowRight className="w-4 h-4" />
       </a>
     </article>
+    </div>
   );
 }
