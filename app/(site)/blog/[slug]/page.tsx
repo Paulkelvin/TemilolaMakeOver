@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { PortableText } from "@portabletext/react";
 import { getBlogPostBySlug, getBlogPosts } from "@/sanity/fetch";
 import { createPageMetadata } from "@/lib/metadata";
+import { BlogPostJsonLd, BreadcrumbJsonLd } from "@/lib/seo/structured-data";
 import { PageHero } from "@/components/sections/PageHero";
 import { SectionWrapper } from "@/components/ui/BackgroundDecor";
 import { CTASection } from "@/components/sections/CTASection";
@@ -49,6 +50,21 @@ export default async function BlogPostPage({
 
   return (
     <>
+      <BlogPostJsonLd
+        title={post.title}
+        description={post.excerpt}
+        slug={post.slug}
+        publishedAt={post.publishedAt}
+        author={post.author}
+        coverImageUrl={post.coverImageUrl}
+      />
+      <BreadcrumbJsonLd
+        items={[
+          { name: "Home", href: "/" },
+          { name: "Blog", href: "/blog" },
+          { name: post.title, href: `/blog/${post.slug}` },
+        ]}
+      />
       <PageHero
         label={post.category}
         title={post.title}

@@ -33,10 +33,16 @@ export const metadata: Metadata = {
   keywords: [
     "makeup artist in Lagos",
     "bridal makeup Lagos",
+    "bridal makeup artist Lagos",
     "event makeup artist Lagos",
-    "home service makeup artist",
+    "home service makeup artist Lagos",
     "soft glam makeup Lagos",
     "wedding makeup artist Lagos",
+    "traditional bridal makeup Lagos",
+    "makeup artist near me Lagos",
+    "professional makeup artist Nigeria",
+    "birthday makeup Lagos",
+    "photoshoot makeup Lagos",
   ],
   openGraph: {
     type: "website",
@@ -53,7 +59,26 @@ export const metadata: Metadata = {
     description: seoCopy.home.description,
     images: ["/opengraph-image"],
   },
-  robots: { index: true, follow: true },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+  other: {
+    "theme-color": "#FFF8F2",
+    "apple-mobile-web-app-title": siteConfig.shortBrand,
+  },
+  verification: {
+    ...(process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION && {
+      google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION,
+    }),
+  },
 };
 
 export default function RootLayout({

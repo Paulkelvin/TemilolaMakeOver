@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { getServiceBySlug, getServices } from "@/sanity/fetch";
 import { buildWhatsAppUrl } from "@/lib/whatsapp";
 import { createPageMetadata } from "@/lib/metadata";
+import { ServiceJsonLd, BreadcrumbJsonLd } from "@/lib/seo/structured-data";
 import { formatPrice } from "@/lib/utils";
 import { PageHero } from "@/components/sections/PageHero";
 import { SectionWrapper } from "@/components/ui/BackgroundDecor";
@@ -49,6 +50,19 @@ export default async function ServiceDetailPage({
 
   return (
     <>
+      <ServiceJsonLd
+        name={service.name}
+        description={service.description}
+        slug={service.slug}
+        priceFrom={service.priceFrom}
+      />
+      <BreadcrumbJsonLd
+        items={[
+          { name: "Home", href: "/" },
+          { name: "Services", href: "/services" },
+          { name: service.name, href: `/services/${service.slug}` },
+        ]}
+      />
       <PageHero
         label={service.bestFor}
         title={service.name}

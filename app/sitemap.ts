@@ -1,24 +1,41 @@
 import type { MetadataRoute } from "next";
 import { siteConfig } from "@/lib/site-config";
+import { getServices } from "@/sanity/fetch";
+import { getBlogPosts } from "@/sanity/fetch";
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = siteConfig.url;
-  const routes = [
-    "",
-    "/services",
-    "/portfolio",
-    "/pricing",
-    "/about",
-    "/book",
-    "/transformations",
-    "/blog",
-    "/privacy-policy",
+
+  const staticRoutes: MetadataRoute.Sitemap = [
+    { url: base, lastModified: new Date(), changeFrequency: "weekly", priority: 1 },
+    { url: `${base}/services`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.9 },
+    { url: `${base}/portfolio`, lastModified: new Date(), changeFrequency: "weekly", priority: 0.9 },
+    { url: `${base}/pricing`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.8 },
+    { url: `${base}/about`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.7 },
+    { url: `${base}/blog`, lastModified: new Date(), changeFrequency: "weekly", priority: 0.8 },
+    { url: `${base}/book`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.9 },
+    { url: `${base}/transformations`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.7 },
+    { url: `${base}/privacy-policy`, lastModified: new Date(), changeFrequency: "yearly", priority: 0.3 },
   ];
 
-  return routes.map((route) => ({
-    url: `${base}${route}`,
+  const [services, blogPosts] = await Promise.all([
+    getServices(),
+    getBlogPosts(),
+  ]);
+
+  const serviceRoutes: MetadataRoute.Sitemap = services.map((s) => ({
+    url: `${base}/services/${s.slug}`,
     lastModified: new Date(),
-    changeFrequency: route === "" ? "weekly" : "monthly",
-    priority: route === "" ? 1 : 0.8,
+    changeFrequency: "monthly" as const,
+    priority: 0.8,
   }));
+
+  const blogRoutes: MetadataRoute.Sitemap = blogPosts.map((p) => ({
+    url: `${base}/blog/${p.slug}`,
+    lastModified: new Date(p.publishedAt),
+    changeFrequency: "monthly" as const,
+    priority: 0.7,
+  }));
+
+  return [...staticRoutes, ...serviceRoutes, ...blogRoutes];
 }

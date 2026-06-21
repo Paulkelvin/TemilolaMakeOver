@@ -220,6 +220,29 @@ const transformationPairs = [
   },
 ];
 
+// Blog post cover images
+const blogImages: {
+  docId: string;
+  photoId: string;
+  alt: string;
+}[] = [
+  {
+    docId: "blog-post-1",
+    photoId: "photo-1519741497674-611481863552",
+    alt: "Bride getting makeup done — when to book your bridal makeup artist",
+  },
+  {
+    docId: "blog-post-2",
+    photoId: "photo-1487412947147-5cebf100ffc2",
+    alt: "Soft glam vs bold glam makeup comparison",
+  },
+  {
+    docId: "blog-post-3",
+    photoId: "photo-1596462502278-27bfdc403348",
+    alt: "Skin preparation before makeup application",
+  },
+];
+
 async function fetchImageBuffer(photoId: string): Promise<Buffer> {
   const url = `https://images.unsplash.com/${photoId}?w=900&h=1125&fit=crop&auto=format&q=80`;
   const res = await fetch(url);
@@ -326,12 +349,29 @@ async function seedTransformations() {
   }
 }
 
+async function seedBlogImages() {
+  console.log("\n── Blog Cover Images ────────────────────────");
+  for (const item of blogImages) {
+    try {
+      const assetId = await uploadImage(item.photoId, item.docId);
+      await client
+        .patch(item.docId)
+        .set({ coverImage: imageRef(assetId) })
+        .commit();
+      console.log(`  ✓ ${item.docId}`);
+    } catch (err) {
+      console.error(`  ✗ ${item.docId}:`, err);
+    }
+  }
+}
+
 async function main() {
   console.log("Seeding images to Sanity (project: " + projectId + ")...");
   await seedPortfolioImages();
   await seedServiceImages();
   await seedAboutImage();
   await seedTransformations();
+  await seedBlogImages();
   console.log("\nDone! All images seeded.\n");
 }
 
