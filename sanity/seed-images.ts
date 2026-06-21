@@ -30,7 +30,7 @@ const portfolioImages: {
 }[] = [
   {
     docId: "portfolio-1",
-    photoId: "photo-1522337360788-8b13dee7a37a",
+    photoId: "photo-1457972729786-0411a3b2b626",
     title: "Elegant Bridal Glow",
     alt: "Soft glam bridal makeup — Temilola Makeup Lagos",
   },
@@ -60,31 +60,31 @@ const portfolioImages: {
   },
   {
     docId: "portfolio-6",
-    photoId: "photo-1485893086445-ed758652e7d0",
+    photoId: "photo-1516975080664-ed2fc6a32937",
     title: "Classic Bridal Beauty",
     alt: "Bridal soft glam — wedding makeup Lagos",
   },
   {
     docId: "portfolio-7",
-    photoId: "photo-1515377903753-eed2fbe0adbc",
+    photoId: "photo-1503236823255-94609f598e71",
     title: "Party Soft Glam",
     alt: "Soft glam party makeup — event makeup artist",
   },
   {
     docId: "portfolio-8",
-    photoId: "photo-1509964199908-096666b472b0",
+    photoId: "photo-1560869713-7d0a29430803",
     title: "Birthday Statement",
     alt: "Bold glam birthday makeup — Lagos",
   },
   {
     docId: "portfolio-9",
-    photoId: "photo-1492106087820-35c06a48e704",
+    photoId: "photo-1512496015851-a90fb38ba796",
     title: "Bridal Transformation",
     alt: "Before and after makeup transformation",
   },
   {
     docId: "portfolio-10",
-    photoId: "photo-1515886657613-9f3525f0cc0b",
+    photoId: "photo-1526045478516-99145907023c",
     title: "Fashion Forward",
     alt: "Photoshoot glam makeup — professional artist",
   },
@@ -110,7 +110,7 @@ const serviceImages: {
 }[] = [
   {
     docId: "service-bridal",
-    photoId: "photo-1522337360788-8b13dee7a37a",
+    photoId: "photo-1562322140-8baeececf3df",
     alt: "Bridal makeup by Temilola",
   },
   {
@@ -130,7 +130,7 @@ const serviceImages: {
   },
   {
     docId: "service-birthday",
-    photoId: "photo-1509964199908-096666b472b0",
+    photoId: "photo-1560869713-7d0a29430803",
     alt: "Birthday glam makeup by Temilola",
   },
   {
@@ -140,7 +140,7 @@ const serviceImages: {
   },
   {
     docId: "service-home",
-    photoId: "photo-1485893086445-ed758652e7d0",
+    photoId: "photo-1516975080664-ed2fc6a32937",
     alt: "Home service makeup by Temilola",
   },
   {
@@ -158,7 +158,7 @@ const serviceImages: {
 // About page / hero image
 const aboutImage = {
   docId: "pageCopy-about",
-  photoId: "photo-1515377903753-eed2fbe0adbc",
+  photoId: "photo-1503236823255-94609f598e71",
   alt: "Temilola — professional makeup artist in Lagos",
 };
 
@@ -166,8 +166,8 @@ const aboutImage = {
 const transformationPairs = [
   {
     docId: "transformation-1",
-    beforePhotoId: "photo-1492106087820-35c06a48e704",
-    afterPhotoId: "photo-1522337360788-8b13dee7a37a",
+    beforePhotoId: "photo-1512496015851-a90fb38ba796",
+    afterPhotoId: "photo-1562322140-8baeececf3df",
     title: "Bridal Transformation",
     beforeAlt: "Before bridal makeup",
     afterAlt: "After bridal makeup — Elegant Bridal Glow",
@@ -184,7 +184,7 @@ const transformationPairs = [
   },
   {
     docId: "transformation-3",
-    beforePhotoId: "photo-1515886657613-9f3525f0cc0b",
+    beforePhotoId: "photo-1526045478516-99145907023c",
     afterPhotoId: "photo-1524504388940-b1c1722653e1",
     title: "Editorial Transformation",
     beforeAlt: "Before photoshoot makeup",
@@ -193,7 +193,7 @@ const transformationPairs = [
   },
   {
     docId: "transformation-4",
-    beforePhotoId: "photo-1509964199908-096666b472b0",
+    beforePhotoId: "photo-1560869713-7d0a29430803",
     afterPhotoId: "photo-1519741497674-611481863552",
     title: "Traditional Glam",
     beforeAlt: "Before traditional makeup",
@@ -202,7 +202,7 @@ const transformationPairs = [
   },
   {
     docId: "transformation-5",
-    beforePhotoId: "photo-1515377903753-eed2fbe0adbc",
+    beforePhotoId: "photo-1503236823255-94609f598e71",
     afterPhotoId: "photo-1596462502278-27bfdc403348",
     title: "Event Glam Transformation",
     beforeAlt: "Before event glam makeup",
@@ -212,7 +212,7 @@ const transformationPairs = [
   {
     docId: "transformation-6",
     beforePhotoId: "photo-1531746020798-e6953c6e8e04",
-    afterPhotoId: "photo-1485893086445-ed758652e7d0",
+    afterPhotoId: "photo-1516975080664-ed2fc6a32937",
     title: "Cultural Elegance",
     beforeAlt: "Before traditional styling",
     afterAlt: "After traditional glam and gele",
