@@ -251,6 +251,16 @@ const blogImages: {
     photoId: "photo-1524504388940-b1c1722653e1",
     alt: "Soft glam makeup look Lagos",
   },
+  {
+    docId: "blog-post-6",
+    photoId: "photo-1516975080664-ed2fc6a32937",
+    alt: "Soft glam makeup tutorial step by step",
+  },
+  {
+    docId: "blog-post-7",
+    photoId: "photo-1503236823255-94609f598e71",
+    alt: "How to make makeup last all day Lagos heat",
+  },
 ];
 
 async function fetchImageBuffer(photoId: string): Promise<Buffer> {
