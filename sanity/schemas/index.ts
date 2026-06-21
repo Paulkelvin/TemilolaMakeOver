@@ -1,0 +1,25 @@
+import { siteConfigSchema } from "./siteConfig";
+import { serviceSchema } from "./service";
+import { pricingPackageSchema } from "./pricingPackage";
+import { portfolioItemSchema } from "./portfolioItem";
+import { testimonialSchema } from "./testimonial";
+import { faqSchema } from "./faq";
+import { bookingStepSchema } from "./bookingStep";
+import { whyChooseUsSchema } from "./whyChooseUs";
+import { transformationSchema } from "./transformation";
+import { pageCopySchema } from "./pageCopy";
+import { aboutValueSchema } from "./aboutValue";
+
+export const schemaTypes = [
+  siteConfigSchema,
+  serviceSchema,
+  pricingPackageSchema,
+  portfolioItemSchema,
+  testimonialSchema,
+  faqSchema,
+  bookingStepSchema,
+  whyChooseUsSchema,
+  transformationSchema,
+  pageCopySchema,
+  aboutValueSchema,
+];
