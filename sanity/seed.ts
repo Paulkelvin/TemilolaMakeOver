@@ -1122,14 +1122,16 @@ const blogPosts = [
         _type: "block",
         _key: "bp1-b5",
         style: "normal",
-        markDefs: [],
+        markDefs: [
+          { _type: "link", _key: "bp1-l1", href: "/blog/how-much-does-bridal-makeup-cost-in-lagos" },
+          { _type: "link", _key: "bp1-l2", href: "/blog/preparing-your-skin-before-makeup-application" },
+        ],
         children: [
-          {
-            _type: "span",
-            _key: "bp1-b5-s1",
-            text: "If you are reading this and your wedding is coming up, do not panic — just act now. Send a message with your date, location, and the look you are dreaming of. I will check availability and guide you through the next steps so your wedding morning feels calm, prepared, and beautiful.",
-            marks: [],
-          },
+          { _type: "span", _key: "bp1-b5-s1", text: "If you are reading this and your wedding is coming up, do not panic — just act now. Before you book, you may want to read our ", marks: [] },
+          { _type: "span", _key: "bp1-b5-s2", text: "bridal makeup cost guide for Lagos", marks: ["bp1-l1"] },
+          { _type: "span", _key: "bp1-b5-s3", text: " so you know what to budget. And to make sure your skin is ready for your trial and wedding day, check out our guide on ", marks: [] },
+          { _type: "span", _key: "bp1-b5-s4", text: "preparing your skin before makeup application", marks: ["bp1-l2"] },
+          { _type: "span", _key: "bp1-b5-s5", text: ". Send a message with your date, location, and the look you are dreaming of — I will check availability and guide you through the next steps.", marks: [] },
         ],
       },
     ],
@@ -1206,14 +1208,16 @@ const blogPosts = [
         _type: "block",
         _key: "bp2-b5",
         style: "normal",
-        markDefs: [],
+        markDefs: [
+          { _type: "link", _key: "bp2-l1", href: "/blog/what-is-soft-glam-makeup" },
+          { _type: "link", _key: "bp2-l2", href: "/blog/soft-glam-makeup-tutorial-step-by-step" },
+        ],
         children: [
-          {
-            _type: "span",
-            _key: "bp2-b5-s1",
-            text: "The best advice I can give is to communicate openly with your makeup artist. Share reference photos, describe the venue and lighting, and be honest about your comfort level. A skilled artist can find the sweet spot between soft and bold — giving you definition where it matters while keeping the overall feel aligned with your personality. There is no wrong choice, only the right one for you and your event.",
-            marks: [],
-          },
+          { _type: "span", _key: "bp2-b5-s1", text: "The best advice I can give is to communicate openly with your makeup artist. If you are leaning towards soft glam, read our detailed guide on ", marks: [] },
+          { _type: "span", _key: "bp2-b5-s2", text: "what soft glam makeup actually is", marks: ["bp2-l1"] },
+          { _type: "span", _key: "bp2-b5-s3", text: " or follow our ", marks: [] },
+          { _type: "span", _key: "bp2-b5-s4", text: "step-by-step soft glam tutorial", marks: ["bp2-l2"] },
+          { _type: "span", _key: "bp2-b5-s5", text: " to see the full process. Share reference photos, describe the venue and lighting, and be honest about your comfort level. There is no wrong choice, only the right one for you and your event.", marks: [] },
         ],
       },
     ],
@@ -1290,14 +1294,16 @@ const blogPosts = [
         _type: "block",
         _key: "bp3-b5",
         style: "normal",
-        markDefs: [],
+        markDefs: [
+          { _type: "link", _key: "bp3-l1", href: "/blog/how-to-make-makeup-last-all-day-lagos-heat" },
+          { _type: "link", _key: "bp3-l2", href: "/blog/how-early-should-you-book-your-bridal-makeup-artist" },
+        ],
         children: [
-          {
-            _type: "span",
-            _key: "bp3-b5-s1",
-            text: "As a professional tip, I always begin every session with my own skin prep routine — gentle cleansing, toning, and a hydrating primer tailored to each client. But the better your skin arrives, the better the result. Think of it as teamwork: you handle the days before, and I handle the morning of. Together, we create a base that holds beautifully from the first photo to the last moment of your event.",
-            marks: [],
-          },
+          { _type: "span", _key: "bp3-b5-s1", text: "As a professional tip, I always begin every session with my own skin prep routine — gentle cleansing, toning, and a hydrating primer tailored to each client. Good prep is also the key to ", marks: [] },
+          { _type: "span", _key: "bp3-b5-s2", text: "making your makeup last all day in Lagos heat", marks: ["bp3-l1"] },
+          { _type: "span", _key: "bp3-b5-s3", text: ". The better your skin arrives, the better the result. Ready to book? Here is ", marks: [] },
+          { _type: "span", _key: "bp3-b5-s4", text: "how early you should book your bridal makeup artist", marks: ["bp3-l2"] },
+          { _type: "span", _key: "bp3-b5-s5", text: " so you do not miss out on your ideal date.", marks: [] },
         ],
       },
     ],
@@ -1329,7 +1335,7 @@ const blogPosts = [
       { _type: "block", _key: "bp4-b9", style: "normal", markDefs: [], children: [{ _type: "span", _key: "bp4-b9-s1", text: "My advice to every bride is this: allocate 10 to 15 percent of your total wedding budget to hair and makeup. Start your search three to six months before your date, especially if your wedding falls during peak season which is November through January in Lagos. Book early, secure your date with a deposit, and schedule your trial at least two weeks before the wedding.", marks: [] }] },
       { _type: "block", _key: "bp4-b10", style: "normal", markDefs: [], children: [{ _type: "span", _key: "bp4-b10-s1", text: "If budget is tight, consider having only yourself done professionally and letting your girls handle their own makeup. Or ask your artist about group discounts — at Temilola Makeup, we offer special rates for bridal party packages that cover multiple faces.", marks: [] }] },
       { _type: "block", _key: "bp4-h5", style: "h2", markDefs: [], children: [{ _type: "span", _key: "bp4-h5-s1", text: "Ready to Get Your Custom Quote?", marks: [] }] },
-      { _type: "block", _key: "bp4-b11", style: "normal", markDefs: [], children: [{ _type: "span", _key: "bp4-b11-s1", text: "Every wedding is different, and I would rather give you an accurate quote than a one-size-fits-all number. Send me a message with your wedding date, location, number of faces, and the style you are going for. I will get back to you within 24 hours with a detailed quote and availability. Your wedding morning should feel calm, pampered, and beautiful — and that starts with booking the right artist.", marks: [] }] },
+      { _type: "block", _key: "bp4-b11", style: "normal", markDefs: [{ _type: "link", _key: "bp4-l1", href: "/blog/how-early-should-you-book-your-bridal-makeup-artist" }, { _type: "link", _key: "bp4-l2", href: "/blog/what-is-soft-glam-makeup" }], children: [{ _type: "span", _key: "bp4-b11-s1", text: "Every wedding is different, and I would rather give you an accurate quote than a one-size-fits-all number. Not sure when to start looking? Read about ", marks: [] }, { _type: "span", _key: "bp4-b11-s2", text: "how early you should book your bridal makeup artist", marks: ["bp4-l1"] }, { _type: "span", _key: "bp4-b11-s3", text: ". Interested in the most popular bridal look right now? Find out ", marks: [] }, { _type: "span", _key: "bp4-b11-s4", text: "why every Lagos bride is requesting soft glam", marks: ["bp4-l2"] }, { _type: "span", _key: "bp4-b11-s5", text: ". Send me a message with your wedding date, location, number of faces, and the style you are going for — I will get back to you within 24 hours.", marks: [] }] },
     ],
   },
   {
@@ -1358,7 +1364,7 @@ const blogPosts = [
       { _type: "block", _key: "bp5-h4", style: "h2", markDefs: [], children: [{ _type: "span", _key: "bp5-h4-s1", text: "Who Does Soft Glam Work Best For?", marks: [] }] },
       { _type: "block", _key: "bp5-b10", style: "normal", markDefs: [], children: [{ _type: "span", _key: "bp5-b10-s1", text: "Honestly? Everyone. But it is especially popular with brides who want timeless wedding photos that will not look dated in ten years, event guests who want to look polished without looking like they are trying too hard, professionals attending corporate events or brand launches, and anyone who values skin-first makeup where the focus is on a healthy glow rather than heavy coverage.", marks: [] }] },
       { _type: "block", _key: "bp5-h5", style: "h2", markDefs: [], children: [{ _type: "span", _key: "bp5-h5-s1", text: "How to Book Your Soft Glam Session", marks: [] }] },
-      { _type: "block", _key: "bp5-b12", style: "normal", markDefs: [], children: [{ _type: "span", _key: "bp5-b12-s1", text: "Soft glam is one of my signature services at Temilola Makeup. Whether it is for your wedding day, a birthday dinner, a photoshoot, or any event where you want to look effortlessly stunning, I would love to create a look tailored to your skin, your outfit, and your vibe. Send me a message with your event date and details, and let us make it happen.", marks: [] }] },
+      { _type: "block", _key: "bp5-b12", style: "normal", markDefs: [{ _type: "link", _key: "bp5-l1", href: "/blog/soft-glam-makeup-tutorial-step-by-step" }, { _type: "link", _key: "bp5-l2", href: "/blog/soft-glam-vs-bold-glam-choosing-your-event-look" }], children: [{ _type: "span", _key: "bp5-b12-s1", text: "Want to try it yourself? Follow our ", marks: [] }, { _type: "span", _key: "bp5-b12-s2", text: "step-by-step soft glam makeup tutorial", marks: ["bp5-l1"] }, { _type: "span", _key: "bp5-b12-s3", text: " for the full breakdown. Still deciding between soft and bold? Our guide on ", marks: [] }, { _type: "span", _key: "bp5-b12-s4", text: "soft glam vs bold glam", marks: ["bp5-l2"] }, { _type: "span", _key: "bp5-b12-s5", text: " will help you choose. Or if you want it done professionally, soft glam is one of my signature services at Temilola Makeup — send me a message with your event date and details.", marks: [] }] },
     ],
   },
   {
@@ -1411,7 +1417,7 @@ const blogPosts = [
       { _type: "block", _key: "bp6-b18", style: "normal", markDefs: [], children: [{ _type: "span", _key: "bp6-b18-s1", text: "Here is a detail most tutorials skip: fixing spray and setting spray are two different products. A fixing spray locks your makeup in place. A setting spray gives your finish a dewy or matte quality. Use your fixing spray first, then follow with a setting spray for the finish you want. For a soft glam look, I recommend a matte fixing spray on your centre and a dewy setting spray on the sides of your face — this gives you that gorgeous glow peeking through on the cheeks while keeping everything locked down.", marks: [] }] },
 
       { _type: "block", _key: "bp6-h10", style: "h2", markDefs: [], children: [{ _type: "span", _key: "bp6-h10-s1", text: "Want This Look Done Professionally?", marks: [] }] },
-      { _type: "block", _key: "bp6-b19", style: "normal", markDefs: [], children: [{ _type: "span", _key: "bp6-b19-s1", text: "Soft glam is one of my most-booked services at Temilola Makeup. Whether it is for a wedding, birthday, date night, or any event where you want to look effortlessly polished, I tailor every soft glam look to your skin tone, features, and personal style. Home service available across Lagos — send me a message to check availability for your date.", marks: [] }] },
+      { _type: "block", _key: "bp6-b19", style: "normal", markDefs: [{ _type: "link", _key: "bp6-l1", href: "/blog/how-to-make-makeup-last-all-day-lagos-heat" }, { _type: "link", _key: "bp6-l2", href: "/blog/preparing-your-skin-before-makeup-application" }], children: [{ _type: "span", _key: "bp6-b19-s1", text: "Want your soft glam to last all day? Read our pro tips on ", marks: [] }, { _type: "span", _key: "bp6-b19-s2", text: "how to make your makeup last in Lagos heat", marks: ["bp6-l1"] }, { _type: "span", _key: "bp6-b19-s3", text: ". And for the best results, make sure you ", marks: [] }, { _type: "span", _key: "bp6-b19-s4", text: "prepare your skin properly before application", marks: ["bp6-l2"] }, { _type: "span", _key: "bp6-b19-s5", text: ". Soft glam is one of my most-booked services at Temilola Makeup — home service available across Lagos. Send me a message to check availability for your date.", marks: [] }] },
     ],
   },
   {
@@ -1458,7 +1464,7 @@ const blogPosts = [
       { _type: "block", _key: "bp7-b14", style: "normal", markDefs: [], children: [{ _type: "span", _key: "bp7-b14-s1", text: "Your brushes, sponges, and powder puffs directly affect how your makeup applies and how long it lasts. Use a soft, bouncy sponge that does not absorb too much product. Use a powder puff for under-eye setting rather than a brush. Use a fluffy brush for bronzer so you do not pick up too much product. The right tools give you control — and control is what makes makeup last.", marks: [] }] },
 
       { _type: "block", _key: "bp7-h9", style: "h2", markDefs: [], children: [{ _type: "span", _key: "bp7-h9-s1", text: "Need Heat-Proof Makeup for Your Event?", marks: [] }] },
-      { _type: "block", _key: "bp7-b15", style: "normal", markDefs: [], children: [{ _type: "span", _key: "bp7-b15-s1", text: "Every look I create at Temilola Makeup is designed to last from your first photo to your last dance — even outdoors in Lagos weather. I use professional-grade products and setting techniques that keep your face flawless for 10 to 12 hours. Whether it is a wedding, a birthday, or an all-day event, your makeup will hold. Book your session and let me take the worry out of your glam.", marks: [] }] },
+      { _type: "block", _key: "bp7-b15", style: "normal", markDefs: [{ _type: "link", _key: "bp7-l1", href: "/blog/soft-glam-makeup-tutorial-step-by-step" }, { _type: "link", _key: "bp7-l2", href: "/blog/preparing-your-skin-before-makeup-application" }], children: [{ _type: "span", _key: "bp7-b15-s1", text: "Now that you know the setting secrets, try putting them into practice with our ", marks: [] }, { _type: "span", _key: "bp7-b15-s2", text: "soft glam makeup tutorial", marks: ["bp7-l1"] }, { _type: "span", _key: "bp7-b15-s3", text: ". And remember — longevity starts the night before. Read our guide on ", marks: [] }, { _type: "span", _key: "bp7-b15-s4", text: "preparing your skin before makeup application", marks: ["bp7-l2"] }, { _type: "span", _key: "bp7-b15-s5", text: " for the full prep routine. Every look I create at Temilola Makeup is designed to last 10 to 12 hours — book your session and let me take the worry out of your glam.", marks: [] }] },
     ],
   },
 ];

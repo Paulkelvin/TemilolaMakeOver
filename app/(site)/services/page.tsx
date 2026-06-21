@@ -10,6 +10,8 @@ import { Container } from "@/components/ui/Container";
 import { StaggerGrid, StaggerItem } from "@/components/ui/Reveal";
 import { ServiceCard } from "@/components/sections/ServiceCard";
 import { homeCopy } from "@/data/copy";
+import Link from "next/link";
+import { Reveal } from "@/components/ui/Reveal";
 
 export const metadata = createPageMetadata({
   title: seoCopy.services.title,
@@ -43,6 +45,28 @@ export default async function ServicesPage() {
 
       <SectionWrapper>
         <Container>
+          <Reveal className="mb-12 rounded-2xl border border-border bg-bg-blush p-6 md:p-8">
+            <h3 className="font-display text-xl md:text-2xl text-text-primary mb-3">
+              Not sure which look is right for you?
+            </h3>
+            <p className="text-sm text-text-muted leading-relaxed mb-4">
+              Read our popular guides to help you decide:
+            </p>
+            <div className="flex flex-wrap gap-3">
+              <Link href="/blog/soft-glam-vs-bold-glam-choosing-your-event-look" className="text-sm font-medium text-accent-rose hover:underline">
+                Soft Glam vs Bold Glam →
+              </Link>
+              <span className="text-border">·</span>
+              <Link href="/blog/what-is-soft-glam-makeup" className="text-sm font-medium text-accent-rose hover:underline">
+                What Is Soft Glam? →
+              </Link>
+              <span className="text-border">·</span>
+              <Link href="/blog/preparing-your-skin-before-makeup-application" className="text-sm font-medium text-accent-rose hover:underline">
+                How to Prep Your Skin →
+              </Link>
+            </div>
+          </Reveal>
+
           <SectionHeading
             label="FAQ"
             title="Common Questions About Services"

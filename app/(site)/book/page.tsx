@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { bookPageCopy, seoCopy } from "@/data/copy";
 import { createPageMetadata } from "@/lib/metadata";
 import { PageHero } from "@/components/sections/PageHero";
@@ -47,6 +48,23 @@ export default function BookPage() {
 
       <SectionWrapper variant="blush">
         <Container size="narrow">
+          <Reveal className="mb-12 rounded-2xl border border-border bg-card p-6 text-center">
+            <h3 className="font-display text-xl text-text-primary mb-3">
+              Helpful reads while you wait
+            </h3>
+            <div className="flex flex-wrap justify-center gap-x-4 gap-y-2">
+              <Link href="/blog/how-much-does-bridal-makeup-cost-in-lagos" className="text-sm text-accent-rose font-medium hover:underline">
+                Bridal Makeup Cost Guide
+              </Link>
+              <Link href="/blog/preparing-your-skin-before-makeup-application" className="text-sm text-accent-rose font-medium hover:underline">
+                How to Prep Your Skin
+              </Link>
+              <Link href="/blog/how-to-make-makeup-last-all-day-lagos-heat" className="text-sm text-accent-rose font-medium hover:underline">
+                Make Makeup Last All Day
+              </Link>
+            </div>
+          </Reveal>
+
           <Reveal className="text-center">
             <h2 className="font-display text-2xl md:text-3xl text-text-primary mb-4">
               {copy.afterSubmit.title}

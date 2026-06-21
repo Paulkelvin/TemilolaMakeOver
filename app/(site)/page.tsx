@@ -9,6 +9,7 @@ import { Testimonials } from "@/components/sections/Testimonials";
 import { BookingProcess } from "@/components/sections/BookingProcess";
 import { FAQSection } from "@/components/sections/FAQSection";
 import { CTASection } from "@/components/sections/CTASection";
+import { BlogPreview } from "@/components/sections/BlogPreview";
 
 export default async function HomePage() {
   const portfolioItems = await getPortfolioItems();
@@ -23,6 +24,7 @@ export default async function HomePage() {
       <WhyChooseUs />
       <Testimonials />
       <BookingProcess />
+      <BlogPreview />
       <FAQSection limit={8} />
       <CTASection />
     </>
