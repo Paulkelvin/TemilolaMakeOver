@@ -31,6 +31,7 @@ interface BookingFormProps {
 export function BookingForm({ className }: BookingFormProps) {
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [errorMsg, setErrorMsg] = useState("");
+  const [step, setStep] = useState(1);
 
   const {
     register,
@@ -48,6 +49,13 @@ export function BookingForm({ className }: BookingFormProps) {
       message: "",
     },
   });
+
+  const step1Fields = ["name", "phone", "email", "service", "eventType"] as const;
+
+  async function goToStep2() {
+    const valid = await trigger(step1Fields as unknown as (keyof BookingFormValues)[]);
+    if (valid) setStep(2);
+  }
 
   async function onSubmit(data: BookingFormValues) {
     setStatus("loading");
@@ -81,6 +89,7 @@ export function BookingForm({ className }: BookingFormProps) {
       trackEvent(analyticsEvents.formSubmit, { location: "booking_page" });
       setStatus("success");
       reset();
+      setStep(1);
     } catch (err) {
       setStatus("error");
       setErrorMsg(err instanceof Error ? err.message : "Please try again");
@@ -129,163 +138,216 @@ export function BookingForm({ className }: BookingFormProps) {
       onSubmit={handleSubmit(onSubmit)}
       noValidate
       className={cn(
-        "rounded-2xl border border-border bg-card p-6 md:p-8 space-y-5 shadow-card",
+        "rounded-2xl border border-border bg-card p-6 md:p-8 shadow-card",
         className
       )}
     >
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-        <FormField label="Full Name" htmlFor="name" error={errors.name?.message} required>
-          <input
-            id="name"
-            {...register("name")}
-            className={cn(inputStyles, errors.name && "border-red-400")}
-            placeholder="Your name"
-            aria-invalid={!!errors.name}
-            aria-describedby={errors.name ? "name-error" : undefined}
-          />
-        </FormField>
-        <FormField label="Phone Number" htmlFor="phone" error={errors.phone?.message} required>
-          <input
-            id="phone"
-            type="tel"
-            {...register("phone")}
-            className={cn(inputStyles, errors.phone && "border-red-400")}
-            placeholder="+234 ..."
-            aria-invalid={!!errors.phone}
-          />
-        </FormField>
+      {/* Step indicators */}
+      <div className="flex items-center gap-3 mb-6">
+        <div className="flex items-center gap-2">
+          <span className={cn(
+            "w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-colors",
+            "bg-accent-rose text-white"
+          )}>
+            1
+          </span>
+          <span className="text-sm font-medium text-text-primary hidden sm:inline">Your Info</span>
+        </div>
+        <div className={cn(
+          "flex-1 h-0.5 rounded-full transition-colors",
+          step === 2 ? "bg-accent-rose" : "bg-border"
+        )} />
+        <div className="flex items-center gap-2">
+          <span className={cn(
+            "w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-colors",
+            step === 2 ? "bg-accent-rose text-white" : "bg-bg-blush text-text-muted"
+          )}>
+            2
+          </span>
+          <span className="text-sm font-medium text-text-muted hidden sm:inline">Event Details</span>
+        </div>
       </div>
 
-      <FormField label="Email" htmlFor="email" error={errors.email?.message}>
-        <input
-          id="email"
-          type="email"
-          {...register("email")}
-          className={inputStyles}
-          placeholder="you@email.com (optional)"
-        />
-      </FormField>
+      {/* Step 1: Personal info & service selection */}
+      <div className={cn("space-y-5", step !== 1 && "hidden")}>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+          <FormField label="Full Name" htmlFor="name" error={errors.name?.message} required>
+            <input
+              id="name"
+              {...register("name")}
+              className={cn(inputStyles, errors.name && "border-red-400")}
+              placeholder="Your name"
+              aria-invalid={!!errors.name}
+              aria-describedby={errors.name ? "name-error" : undefined}
+            />
+          </FormField>
+          <FormField label="Phone Number" htmlFor="phone" error={errors.phone?.message} required>
+            <input
+              id="phone"
+              type="tel"
+              {...register("phone")}
+              className={cn(inputStyles, errors.phone && "border-red-400")}
+              placeholder="+234 ..."
+              aria-invalid={!!errors.phone}
+            />
+          </FormField>
+        </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-        <FormField label="Service Needed" htmlFor="service" error={errors.service?.message} required>
-          <select
-            id="service"
-            {...register("service")}
-            className={cn(inputStyles, errors.service && "border-red-400")}
-            aria-invalid={!!errors.service}
-          >
-            <option value="">Select a service</option>
-            {services.map((s) => (
-              <option key={s.id} value={s.name}>
-                {s.name}
-              </option>
-            ))}
-          </select>
-        </FormField>
-        <FormField label="Event Type" htmlFor="eventType" error={errors.eventType?.message} required>
-          <select
-            id="eventType"
-            {...register("eventType")}
-            className={cn(inputStyles, errors.eventType && "border-red-400")}
-            aria-invalid={!!errors.eventType}
-          >
-            <option value="">Select event type</option>
-            {eventTypes.map((t) => (
-              <option key={t} value={t}>
-                {t}
-              </option>
-            ))}
-          </select>
-        </FormField>
-      </div>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-        <FormField label="Event Date" htmlFor="eventDate" error={errors.eventDate?.message} required>
+        <FormField label="Email" htmlFor="email" error={errors.email?.message}>
           <input
-            id="eventDate"
-            type="date"
-            {...register("eventDate")}
-            className={cn(inputStyles, errors.eventDate && "border-red-400")}
-            aria-invalid={!!errors.eventDate}
-          />
-        </FormField>
-        <FormField
-          label="Number of Faces"
-          htmlFor="numberOfFaces"
-          error={errors.numberOfFaces?.message}
-          required
-        >
-          <input
-            id="numberOfFaces"
-            type="number"
-            min={1}
-            {...register("numberOfFaces", { valueAsNumber: true })}
-            className={cn(inputStyles, errors.numberOfFaces && "border-red-400")}
-            aria-invalid={!!errors.numberOfFaces}
-          />
-        </FormField>
-      </div>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-        <FormField
-          label="Event Location"
-          htmlFor="eventLocation"
-          error={errors.eventLocation?.message}
-          required
-        >
-          <input
-            id="eventLocation"
-            {...register("eventLocation")}
-            className={cn(inputStyles, errors.eventLocation && "border-red-400")}
-            placeholder="Venue or area in Lagos"
-            aria-invalid={!!errors.eventLocation}
-          />
-        </FormField>
-        <FormField label="Preferred Time" htmlFor="preferredTime">
-          <input
-            id="preferredTime"
-            {...register("preferredTime")}
+            id="email"
+            type="email"
+            {...register("email")}
             className={inputStyles}
-            placeholder="e.g. 8:00 AM"
+            placeholder="you@email.com (optional)"
           />
         </FormField>
-      </div>
 
-      <FormField label="Message / Inspiration" htmlFor="message">
-        <textarea
-          id="message"
-          rows={4}
-          {...register("message")}
-          className={cn(inputStyles, "resize-none")}
-          placeholder="Share your vision, reference links, or inspiration..."
-        />
-      </FormField>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+          <FormField label="Service Needed" htmlFor="service" error={errors.service?.message} required>
+            <select
+              id="service"
+              {...register("service")}
+              className={cn(inputStyles, errors.service && "border-red-400")}
+              aria-invalid={!!errors.service}
+            >
+              <option value="">Select a service</option>
+              {services.map((s) => (
+                <option key={s.id} value={s.name}>
+                  {s.name}
+                </option>
+              ))}
+            </select>
+          </FormField>
+          <FormField label="Event Type" htmlFor="eventType" error={errors.eventType?.message} required>
+            <select
+              id="eventType"
+              {...register("eventType")}
+              className={cn(inputStyles, errors.eventType && "border-red-400")}
+              aria-invalid={!!errors.eventType}
+            >
+              <option value="">Select event type</option>
+              {eventTypes.map((t) => (
+                <option key={t} value={t}>
+                  {t}
+                </option>
+              ))}
+            </select>
+          </FormField>
+        </div>
 
-      {status === "error" && (
-        <p className="text-sm text-red-600" role="alert">
-          {errorMsg}
-        </p>
-      )}
-
-      <div className="flex flex-col gap-3">
         <Button
-          type="submit"
+          type="button"
           variant="primary"
           size="lg"
           className="w-full"
-          disabled={status === "loading"}
+          onClick={goToStep2}
         >
-          {status === "loading" ? "Sending..." : bookPageCopy.form.submitCta}
+          Continue
         </Button>
-        <Button
-          type="button"
-          variant="whatsapp"
-          size="lg"
-          className="w-full"
-          onClick={sendViaWhatsApp}
-        >
-          {bookPageCopy.form.whatsappCta}
-        </Button>
+      </div>
+
+      {/* Step 2: Event details & message */}
+      <div className={cn("space-y-5", step !== 2 && "hidden")}>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+          <FormField label="Event Date" htmlFor="eventDate" error={errors.eventDate?.message} required>
+            <input
+              id="eventDate"
+              type="date"
+              {...register("eventDate")}
+              className={cn(inputStyles, errors.eventDate && "border-red-400")}
+              aria-invalid={!!errors.eventDate}
+            />
+          </FormField>
+          <FormField
+            label="Number of Faces"
+            htmlFor="numberOfFaces"
+            error={errors.numberOfFaces?.message}
+            required
+          >
+            <input
+              id="numberOfFaces"
+              type="number"
+              min={1}
+              {...register("numberOfFaces", { valueAsNumber: true })}
+              className={cn(inputStyles, errors.numberOfFaces && "border-red-400")}
+              aria-invalid={!!errors.numberOfFaces}
+            />
+          </FormField>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+          <FormField
+            label="Event Location"
+            htmlFor="eventLocation"
+            error={errors.eventLocation?.message}
+            required
+          >
+            <input
+              id="eventLocation"
+              {...register("eventLocation")}
+              className={cn(inputStyles, errors.eventLocation && "border-red-400")}
+              placeholder="Venue or area in Lagos"
+              aria-invalid={!!errors.eventLocation}
+            />
+          </FormField>
+          <FormField label="Preferred Time" htmlFor="preferredTime">
+            <input
+              id="preferredTime"
+              {...register("preferredTime")}
+              className={inputStyles}
+              placeholder="e.g. 8:00 AM"
+            />
+          </FormField>
+        </div>
+
+        <FormField label="Message / Inspiration" htmlFor="message">
+          <textarea
+            id="message"
+            rows={4}
+            {...register("message")}
+            className={cn(inputStyles, "resize-none")}
+            placeholder="Share your vision, reference links, or inspiration..."
+          />
+        </FormField>
+
+        {status === "error" && (
+          <p className="text-sm text-red-600" role="alert">
+            {errorMsg}
+          </p>
+        )}
+
+        <div className="flex flex-col gap-3">
+          <div className="grid grid-cols-2 gap-3">
+            <Button
+              type="button"
+              variant="secondary"
+              size="lg"
+              className="w-full"
+              onClick={() => setStep(1)}
+            >
+              Back
+            </Button>
+            <Button
+              type="submit"
+              variant="primary"
+              size="lg"
+              className="w-full"
+              disabled={status === "loading"}
+            >
+              {status === "loading" ? "Sending..." : bookPageCopy.form.submitCta}
+            </Button>
+          </div>
+          <Button
+            type="button"
+            variant="whatsapp"
+            size="lg"
+            className="w-full"
+            onClick={sendViaWhatsApp}
+          >
+            {bookPageCopy.form.whatsappCta}
+          </Button>
+        </div>
       </div>
     </form>
   );
