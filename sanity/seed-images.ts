@@ -241,6 +241,16 @@ const blogImages: {
     photoId: "photo-1596462502278-27bfdc403348",
     alt: "Skin preparation before makeup application",
   },
+  {
+    docId: "blog-post-4",
+    photoId: "photo-1457972729786-0411a3b2b626",
+    alt: "Bridal makeup cost guide Lagos",
+  },
+  {
+    docId: "blog-post-5",
+    photoId: "photo-1524504388940-b1c1722653e1",
+    alt: "Soft glam makeup look Lagos",
+  },
 ];
 
 async function fetchImageBuffer(photoId: string): Promise<Buffer> {
