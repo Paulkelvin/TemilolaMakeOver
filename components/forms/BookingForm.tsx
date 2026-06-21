@@ -318,26 +318,15 @@ export function BookingForm({ className }: BookingFormProps) {
         )}
 
         <div className="flex flex-col gap-3">
-          <div className="grid grid-cols-2 gap-3">
-            <Button
-              type="button"
-              variant="secondary"
-              size="lg"
-              className="w-full"
-              onClick={() => setStep(1)}
-            >
-              Back
-            </Button>
-            <Button
-              type="submit"
-              variant="primary"
-              size="lg"
-              className="w-full"
-              disabled={status === "loading"}
-            >
-              {status === "loading" ? "Sending..." : bookPageCopy.form.submitCta}
-            </Button>
-          </div>
+          <Button
+            type="submit"
+            variant="primary"
+            size="lg"
+            className="w-full"
+            disabled={status === "loading"}
+          >
+            {status === "loading" ? "Sending..." : bookPageCopy.form.submitCta}
+          </Button>
           <Button
             type="button"
             variant="whatsapp"
@@ -347,6 +336,13 @@ export function BookingForm({ className }: BookingFormProps) {
           >
             {bookPageCopy.form.whatsappCta}
           </Button>
+          <button
+            type="button"
+            className="text-sm font-medium text-text-muted hover:text-accent-rose transition-colors py-2"
+            onClick={() => setStep(1)}
+          >
+            ← Back to previous step
+          </button>
         </div>
       </div>
     </form>

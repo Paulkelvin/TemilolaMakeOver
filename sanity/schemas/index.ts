@@ -9,6 +9,7 @@ import { whyChooseUsSchema } from "./whyChooseUs";
 import { transformationSchema } from "./transformation";
 import { pageCopySchema } from "./pageCopy";
 import { aboutValueSchema } from "./aboutValue";
+import { blogPostSchema } from "./blogPost";
 
 export const schemaTypes = [
   siteConfigSchema,
@@ -22,4 +23,5 @@ export const schemaTypes = [
   transformationSchema,
   pageCopySchema,
   aboutValueSchema,
+  blogPostSchema,
 ];

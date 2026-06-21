@@ -20,6 +20,8 @@ import {
   BOOKING_STEPS_QUERY,
   WHY_CHOOSE_US_QUERY,
   TRANSFORMATIONS_QUERY,
+  BLOG_POSTS_QUERY,
+  BLOG_POST_BY_SLUG_QUERY,
 } from "./queries";
 import type { Service } from "@/data/services";
 import type { Package } from "@/data/packages";
@@ -227,6 +229,61 @@ export interface Transformation {
 
 export const getTransformations = cache(async (): Promise<Transformation[]> => {
   return client.fetch(TRANSFORMATIONS_QUERY, {}, REVALIDATE);
+});
+
+// ─── Blog Posts ──────────────────────────────────────────────────────────────
+export interface BlogPost {
+  id: string;
+  title: string;
+  slug: string;
+  excerpt: string;
+  body?: any[];
+  category: string;
+  coverImageUrl?: string;
+  author: string;
+  publishedAt: string;
+}
+
+interface RawBlogPost {
+  _id: string;
+  title: string;
+  slug: string;
+  excerpt: string;
+  body?: any[];
+  category: string;
+  coverImageUrl?: string;
+  author: string;
+  publishedAt: string;
+}
+
+export const getBlogPosts = cache(async (): Promise<BlogPost[]> => {
+  const raw: RawBlogPost[] = await client.fetch(BLOG_POSTS_QUERY, {}, REVALIDATE);
+  return raw.map((p) => ({
+    id: p._id,
+    title: p.title,
+    slug: p.slug,
+    excerpt: p.excerpt,
+    category: p.category,
+    coverImageUrl: p.coverImageUrl,
+    author: p.author ?? "Temilola",
+    publishedAt: p.publishedAt,
+  }));
+});
+
+export const getBlogPostBySlug = cache(async (slug: string): Promise<BlogPost | null> => {
+  const p: RawBlogPost | null = await client.fetch(BLOG_POST_BY_SLUG_QUERY, { slug }, REVALIDATE);
+  if (!p) return null;
+  return {
+    id: p._id,
+    title: p.title,
+    slug: p.slug,
+    excerpt: p.excerpt,
+    body: p.body,
+    category: p.category,
+    coverImageUrl: p.coverImageUrl,
+    author: p.author ?? "Temilola",
+    publishedAt: p.publishedAt,
+  };
 });
 
 // ─── Portfolio categories (derived) ─────────────────────────────────────────

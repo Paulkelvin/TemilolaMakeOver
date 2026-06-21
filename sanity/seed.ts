@@ -1048,6 +1048,262 @@ const pageCopyDocs = [
   },
 ];
 
+// ─── Blog Posts ────────────────────────────────────────────────────────
+const blogPosts = [
+  {
+    _id: "blog-post-1",
+    _type: "blogPost",
+    title: "How Early Should You Book Your Bridal Makeup Artist?",
+    slug: { _type: "slug", current: "how-early-should-you-book-your-bridal-makeup-artist" },
+    excerpt:
+      "Timing is everything when it comes to bridal beauty. Here's when to start your search and why early booking matters.",
+    category: "Bridal Tips",
+    author: "Temilola",
+    publishedAt: "2026-06-15T10:00:00Z",
+    order: 1,
+    body: [
+      {
+        _type: "block",
+        _key: "bp1-b1",
+        style: "normal",
+        markDefs: [],
+        children: [
+          {
+            _type: "span",
+            _key: "bp1-b1-s1",
+            text: "Your wedding day is one of the most photographed moments of your life, and the right makeup artist can make or break how you feel from morning prep to the last dance. But here is the thing most brides learn too late: the best artists get booked months in advance. If you are planning a wedding in Lagos, especially during peak season, starting your search early is not just smart — it is essential.",
+            marks: [],
+          },
+        ],
+      },
+      {
+        _type: "block",
+        _key: "bp1-b2",
+        style: "normal",
+        markDefs: [],
+        children: [
+          {
+            _type: "span",
+            _key: "bp1-b2-s1",
+            text: "Ideally, you should begin looking for your bridal makeup artist three to six months before your wedding date. This gives you enough time to research portfolios, read reviews, and reach out for consultations. Popular dates — Saturdays in December, Easter weekends, and Valentine's season — fill up fastest. If your wedding falls on one of these dates, consider booking even earlier to avoid disappointment.",
+            marks: [],
+          },
+        ],
+      },
+      {
+        _type: "block",
+        _key: "bp1-b3",
+        style: "normal",
+        markDefs: [],
+        children: [
+          {
+            _type: "span",
+            _key: "bp1-b3-s1",
+            text: "Early booking also gives you the advantage of scheduling a trial session. A trial lets you and your artist test your desired look, adjust for your skin type, and ensure the final result matches your outfit, jewellery, and venue lighting. Without a trial, you are leaving your wedding-day face to chance — and no bride wants that kind of surprise.",
+            marks: [],
+          },
+        ],
+      },
+      {
+        _type: "block",
+        _key: "bp1-b4",
+        style: "normal",
+        markDefs: [],
+        children: [
+          {
+            _type: "span",
+            _key: "bp1-b4-s1",
+            text: "What happens if you book late? You may end up settling for whoever is available rather than choosing the artist whose style genuinely matches your vision. Last-minute bookings can also mean rushed consultations, no trial session, and added stress during an already busy planning period. Your makeup artist should be someone you trust and feel comfortable with — and that relationship takes a little time to build.",
+            marks: [],
+          },
+        ],
+      },
+      {
+        _type: "block",
+        _key: "bp1-b5",
+        style: "normal",
+        markDefs: [],
+        children: [
+          {
+            _type: "span",
+            _key: "bp1-b5-s1",
+            text: "If you are reading this and your wedding is coming up, do not panic — just act now. Send a message with your date, location, and the look you are dreaming of. I will check availability and guide you through the next steps so your wedding morning feels calm, prepared, and beautiful.",
+            marks: [],
+          },
+        ],
+      },
+    ],
+  },
+  {
+    _id: "blog-post-2",
+    _type: "blogPost",
+    title: "Soft Glam vs Bold Glam: Choosing Your Event Look",
+    slug: { _type: "slug", current: "soft-glam-vs-bold-glam-choosing-your-event-look" },
+    excerpt:
+      "Not sure which direction to take for your next event? Here's how to decide between soft glam and bold glam.",
+    category: "Event Glam",
+    author: "Temilola",
+    publishedAt: "2026-06-10T10:00:00Z",
+    order: 2,
+    body: [
+      {
+        _type: "block",
+        _key: "bp2-b1",
+        style: "normal",
+        markDefs: [],
+        children: [
+          {
+            _type: "span",
+            _key: "bp2-b1-s1",
+            text: "One of the most common questions I get from clients is: should I go soft glam or bold glam? The answer depends on several factors — your event, your personal style, and how you want to feel when you walk into the room. Both looks are stunning, but they serve different purposes and create different impressions.",
+            marks: [],
+          },
+        ],
+      },
+      {
+        _type: "block",
+        _key: "bp2-b2",
+        style: "normal",
+        markDefs: [],
+        children: [
+          {
+            _type: "span",
+            _key: "bp2-b2-s1",
+            text: "Soft glam is all about enhancing your natural beauty with a polished, romantic finish. Think diffused contour, a luminous glow, neutral or warm-toned eyeshadow, and lashes that open the eyes without overpowering them. This look works beautifully for engagements, bridal showers, graduation dinners, and intimate celebrations where you want to look effortlessly elegant. It photographs well in natural light and feels comfortable to wear for long hours.",
+            marks: [],
+          },
+        ],
+      },
+      {
+        _type: "block",
+        _key: "bp2-b3",
+        style: "normal",
+        markDefs: [],
+        children: [
+          {
+            _type: "span",
+            _key: "bp2-b3-s1",
+            text: "Bold glam, on the other hand, is about definition and drama. Sculpted contour, deeper lip colours, more pigmented eyeshadow, and full lashes create a look that commands attention. This is the choice for parties, red carpet events, milestone birthdays, and any occasion where flash photography and dramatic lighting are involved. Bold glam reads powerfully on camera and holds up under artificial lighting that can wash out softer looks.",
+            marks: [],
+          },
+        ],
+      },
+      {
+        _type: "block",
+        _key: "bp2-b4",
+        style: "normal",
+        markDefs: [],
+        children: [
+          {
+            _type: "span",
+            _key: "bp2-b4-s1",
+            text: "Lighting and photography play a bigger role than most people realise. Natural daylight is forgiving and flatters soft glam beautifully. But indoor events with overhead lights, flash photography, or coloured stage lighting can flatten soft makeup and make it appear like you are wearing very little. If your event is indoors with heavy photography, bold glam often translates better in the final images — even if it feels slightly more dramatic in person.",
+            marks: [],
+          },
+        ],
+      },
+      {
+        _type: "block",
+        _key: "bp2-b5",
+        style: "normal",
+        markDefs: [],
+        children: [
+          {
+            _type: "span",
+            _key: "bp2-b5-s1",
+            text: "The best advice I can give is to communicate openly with your makeup artist. Share reference photos, describe the venue and lighting, and be honest about your comfort level. A skilled artist can find the sweet spot between soft and bold — giving you definition where it matters while keeping the overall feel aligned with your personality. There is no wrong choice, only the right one for you and your event.",
+            marks: [],
+          },
+        ],
+      },
+    ],
+  },
+  {
+    _id: "blog-post-3",
+    _type: "blogPost",
+    title: "Preparing Your Skin Before Makeup Application",
+    slug: { _type: "slug", current: "preparing-your-skin-before-makeup-application" },
+    excerpt:
+      "Great makeup starts before the first brush touches your face. Follow these steps for a flawless, long-lasting finish.",
+    category: "Skin Prep",
+    author: "Temilola",
+    publishedAt: "2026-06-05T10:00:00Z",
+    order: 3,
+    body: [
+      {
+        _type: "block",
+        _key: "bp3-b1",
+        style: "normal",
+        markDefs: [],
+        children: [
+          {
+            _type: "span",
+            _key: "bp3-b1-s1",
+            text: "The secret to makeup that looks smooth, blends seamlessly, and lasts all day is not just the products or the technique — it is the skin underneath. No matter how talented your makeup artist is, dry patches, excess oil, or dehydrated skin will affect how foundation sits and how long your look holds. Preparing your skin properly is the foundation of a flawless finish.",
+            marks: [],
+          },
+        ],
+      },
+      {
+        _type: "block",
+        _key: "bp3-b2",
+        style: "normal",
+        markDefs: [],
+        children: [
+          {
+            _type: "span",
+            _key: "bp3-b2-s1",
+            text: "Hydration starts from the inside. In the days leading up to your event, drink plenty of water and eat water-rich foods. On the morning of your appointment, apply a lightweight moisturiser suited to your skin type. If you have oily skin, use a gel-based moisturiser; if your skin runs dry, opt for something richer but non-greasy. Allow it to absorb fully before any makeup is applied — rushing this step is one of the most common mistakes.",
+            marks: [],
+          },
+        ],
+      },
+      {
+        _type: "block",
+        _key: "bp3-b3",
+        style: "normal",
+        markDefs: [],
+        children: [
+          {
+            _type: "span",
+            _key: "bp3-b3-s1",
+            text: "Cleansing is equally important. Arrive at your session with a clean, product-free face. Avoid applying heavy creams, sunscreen with a white cast, or leftover makeup from the night before. A gentle cleanser removes impurities without stripping your skin, giving your artist a clean canvas to work with. If your artist applies primer, it will adhere much better to freshly cleansed skin.",
+            marks: [],
+          },
+        ],
+      },
+      {
+        _type: "block",
+        _key: "bp3-b4",
+        style: "normal",
+        markDefs: [],
+        children: [
+          {
+            _type: "span",
+            _key: "bp3-b4-s1",
+            text: "There are a few things to avoid in the 48 hours before your makeup session. Skip harsh exfoliants, new skincare products you have never tried, facial waxing, and anything that could cause irritation or redness. Trying a new product too close to your event is risky — if your skin reacts, there is no time to recover. Stick with your trusted routine and let your skin be calm and settled.",
+            marks: [],
+          },
+        ],
+      },
+      {
+        _type: "block",
+        _key: "bp3-b5",
+        style: "normal",
+        markDefs: [],
+        children: [
+          {
+            _type: "span",
+            _key: "bp3-b5-s1",
+            text: "As a professional tip, I always begin every session with my own skin prep routine — gentle cleansing, toning, and a hydrating primer tailored to each client. But the better your skin arrives, the better the result. Think of it as teamwork: you handle the days before, and I handle the morning of. Together, we create a base that holds beautifully from the first photo to the last moment of your event.",
+            marks: [],
+          },
+        ],
+      },
+    ],
+  },
+];
+
 // ─── Seed function ──────────────────────────────────────────────────────
 async function seed() {
   console.log("Seeding Sanity...\n");
@@ -1063,6 +1319,7 @@ async function seed() {
     ...whyChooseUsItems,
     ...aboutValues,
     ...pageCopyDocs,
+    ...blogPosts,
   ];
 
   let created = 0;

@@ -26,7 +26,7 @@ export function ServiceCard({
   return (
     <article
       className={cn(
-        "group relative flex flex-col rounded-2xl border p-6 md:p-8 transition-all duration-500 overflow-hidden",
+        "group relative flex flex-col items-center text-center rounded-2xl border p-6 md:p-8 transition-all duration-500 overflow-hidden",
         isPopular
           ? "bg-luxury-dark text-white border-luxury-dark shadow-xl md:scale-105"
           : "bg-card text-text-primary border-border shadow-sm hover:shadow-lg hover:-translate-y-1",
@@ -45,7 +45,7 @@ export function ServiceCard({
         <div className="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-accent-rose/60 via-accent-gold/40 to-transparent" />
       )}
 
-      <Link href={`/services/${service.slug}`} className="block flex-grow">
+      <Link href={`/services/${service.slug}`} className="block flex-grow w-full">
         <h3 className={cn(
           "font-display text-xl md:text-2xl font-medium",
           isPopular ? "text-white mt-2" : "text-text-primary"
@@ -78,11 +78,11 @@ export function ServiceCard({
         )}
 
         <div className={cn(
-          "my-6 h-px",
+          "my-6 h-px w-full",
           isPopular ? "bg-white/15" : "bg-border"
         )} />
 
-        <ul className="space-y-3">
+        <ul className="space-y-3 text-left">
           {highlights.map((item) => (
             <li
               key={item}
@@ -91,17 +91,14 @@ export function ServiceCard({
                 isPopular ? "text-white/80" : "text-text-muted"
               )}
             >
-              <Check className={cn(
-                "w-4 h-4 mt-0.5 shrink-0",
-                isPopular ? "text-accent-gold" : "text-accent-gold"
-              )} />
+              <Check className="w-4 h-4 mt-0.5 shrink-0 text-accent-gold" />
               <span>{item}</span>
             </li>
           ))}
         </ul>
       </Link>
 
-      <div className="mt-8">
+      <div className="mt-8 w-full">
         <a
           href={whatsappUrl}
           target="_blank"

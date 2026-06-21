@@ -37,4 +37,4 @@ export function FormField({
 }
 
 export const inputStyles =
-  "w-full rounded-xl border border-border bg-bg-cream px-4 py-3 text-sm text-text-primary placeholder:text-text-muted/60 focus:border-accent-rose focus:ring-1 focus:ring-accent-rose/30 transition-colors min-h-[44px] aria-invalid:border-red-400 aria-invalid:ring-red-200";
+  "w-full max-w-full rounded-xl border border-border bg-bg-cream px-4 py-3 text-base text-text-primary placeholder:text-text-muted/60 focus:border-accent-rose focus:ring-1 focus:ring-accent-rose/30 transition-colors min-h-[44px] aria-invalid:border-red-400 aria-invalid:ring-red-200";
