@@ -4,6 +4,7 @@ import "../globals.css";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { WhatsAppFab } from "@/components/layout/WhatsAppFab";
+import { BackToTop } from "@/components/ui/BackToTop";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { FAQPageJsonLd, WebSiteJsonLd } from "@/lib/seo/structured-data";
 import { seoCopy } from "@/data/copy";
@@ -137,6 +138,7 @@ export default function RootLayout({
         <main>{children}</main>
         <Footer />
         <WhatsAppFab />
+        <BackToTop />
       </body>
     </html>
   );

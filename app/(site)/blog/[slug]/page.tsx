@@ -5,11 +5,15 @@ import { PortableText } from "@portabletext/react";
 import { getBlogPostBySlug, getBlogPosts } from "@/sanity/fetch";
 import { createPageMetadata } from "@/lib/metadata";
 import { BlogPostJsonLd, BreadcrumbJsonLd } from "@/lib/seo/structured-data";
+import { estimateReadingTime } from "@/lib/reading-time";
 import { PageHero } from "@/components/sections/PageHero";
 import { SectionWrapper } from "@/components/ui/BackgroundDecor";
 import { CTASection } from "@/components/sections/CTASection";
 import { Reveal } from "@/components/ui/Reveal";
 import { Container } from "@/components/ui/Container";
+import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
+import { RelatedPosts } from "@/components/sections/RelatedPosts";
+import { Clock } from "lucide-react";
 
 export async function generateStaticParams() {
   const posts = await getBlogPosts();
@@ -45,8 +49,22 @@ export default async function BlogPostPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const post = await getBlogPostBySlug(slug);
+  const [post, allPosts] = await Promise.all([
+    getBlogPostBySlug(slug),
+    getBlogPosts(),
+  ]);
   if (!post) notFound();
+
+  const readingTime = estimateReadingTime(post.body);
+
+  const related = allPosts
+    .filter((p) => p.slug !== slug)
+    .sort((a, b) => {
+      const aMatch = a.category === post.category ? 1 : 0;
+      const bMatch = b.category === post.category ? 1 : 0;
+      return bMatch - aMatch;
+    })
+    .slice(0, 3);
 
   return (
     <>
@@ -73,13 +91,25 @@ export default async function BlogPostPage({
 
       <SectionWrapper>
         <Container size="narrow">
+          <Breadcrumbs
+            items={[
+              { label: "Home", href: "/" },
+              { label: "Blog", href: "/blog" },
+              { label: post.title },
+            ]}
+          />
           <Reveal>
             <div className="flex items-center gap-3 mb-8 text-sm text-text-muted">
               <span>By {post.author}</span>
-              <span className="text-border">·</span>
+              <span className="text-border">&middot;</span>
               <time dateTime={post.publishedAt}>
                 {formatDate(post.publishedAt)}
               </time>
+              <span className="text-border">&middot;</span>
+              <span className="flex items-center gap-1">
+                <Clock className="w-3.5 h-3.5" />
+                {readingTime} min read
+              </span>
             </div>
 
             {post.coverImageUrl && (
@@ -106,12 +136,14 @@ export default async function BlogPostPage({
                 href="/blog"
                 className="text-sm font-medium text-accent-rose hover:underline"
               >
-                ← Back to all articles
+                &larr; Back to all articles
               </Link>
             </div>
           </Reveal>
         </Container>
       </SectionWrapper>
+
+      <RelatedPosts posts={related} />
 
       <CTASection location="blog_post" />
     </>

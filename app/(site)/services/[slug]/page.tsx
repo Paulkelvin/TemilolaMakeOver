@@ -11,6 +11,7 @@ import { CTASection } from "@/components/sections/CTASection";
 import { Button } from "@/components/ui/Button";
 import { Reveal } from "@/components/ui/Reveal";
 import { Container } from "@/components/ui/Container";
+import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 import { Check, Clock, Home } from "lucide-react";
 
 export async function generateStaticParams() {
@@ -71,6 +72,13 @@ export default async function ServiceDetailPage({
 
       <SectionWrapper>
         <Container>
+          <Breadcrumbs
+            items={[
+              { label: "Home", href: "/" },
+              { label: "Services", href: "/services" },
+              { label: service.name },
+            ]}
+          />
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <Reveal>
               <h2 className="font-display text-2xl md:text-3xl font-medium text-text-primary">
