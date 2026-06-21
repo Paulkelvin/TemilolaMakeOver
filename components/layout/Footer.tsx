@@ -3,6 +3,7 @@ import { Share2 } from "lucide-react";
 import { siteConfig, navLinks } from "@/lib/site-config";
 import { buildWhatsAppUrl } from "@/lib/whatsapp";
 import { analyticsEvents } from "@/lib/analytics";
+import { CopyButton } from "@/components/ui/CopyButton";
 
 export function Footer() {
   const whatsappUrl = buildWhatsAppUrl({ intent: "booking" });
@@ -71,7 +72,7 @@ export function Footer() {
                   WhatsApp Booking
                 </a>
               </li>
-              <li>
+              <li className="flex items-center gap-1.5">
                 <a
                   href={`tel:${siteConfig.phoneRaw}`}
                   className="hover:text-white transition-colors"
@@ -79,14 +80,16 @@ export function Footer() {
                 >
                   {siteConfig.phone}
                 </a>
+                <CopyButton text={siteConfig.phone} />
               </li>
-              <li>
+              <li className="flex items-center gap-1.5">
                 <a
                   href={`mailto:${siteConfig.email}`}
                   className="hover:text-white transition-colors"
                 >
                   {siteConfig.email}
                 </a>
+                <CopyButton text={siteConfig.email} />
               </li>
               <li className="text-white/50">{siteConfig.serviceArea}</li>
               <li className="text-white/50">{siteConfig.hours}</li>

@@ -49,7 +49,7 @@ export function PricingCard({ pkg }: PricingCardProps) {
 
       <div className="my-6 h-px w-full bg-border" />
 
-      <ul className="space-y-3 w-full text-left flex-grow">
+      <ul className="space-y-3 inline-block text-left flex-grow">
         {highlights.map((f) => (
           <li
             key={f}

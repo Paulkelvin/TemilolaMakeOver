@@ -26,7 +26,7 @@ export default function BookPage() {
 
       <SectionWrapper>
         <Container>
-          <div className="grid lg:grid-cols-5 gap-10 lg:gap-12">
+          <div id="booking-form" className="scroll-mt-24 grid lg:grid-cols-5 gap-10 lg:gap-12">
             <div className="lg:col-span-3">
               <Reveal>
                 <h2 className="font-display text-2xl text-text-primary mb-2">

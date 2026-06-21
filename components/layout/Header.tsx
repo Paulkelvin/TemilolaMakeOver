@@ -85,7 +85,16 @@ export function Header() {
               aria-expanded={menuOpen}
               onClick={() => setMenuOpen(!menuOpen)}
             >
-              {menuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              <span className="relative w-6 h-6 flex items-center justify-center">
+                <Menu className={cn(
+                  "w-6 h-6 absolute transition-all duration-300",
+                  menuOpen ? "opacity-0 rotate-90 scale-75" : "opacity-100 rotate-0 scale-100"
+                )} />
+                <X className={cn(
+                  "w-6 h-6 absolute transition-all duration-300",
+                  menuOpen ? "opacity-100 rotate-0 scale-100" : "opacity-0 -rotate-90 scale-75"
+                )} />
+              </span>
             </button>
           </div>
         </div>

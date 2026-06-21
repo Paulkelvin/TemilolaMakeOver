@@ -62,7 +62,7 @@ export function ServiceCard({
 
         <div className="my-6 h-px w-full bg-border" />
 
-        <ul className="space-y-3 text-left">
+        <ul className="space-y-3 inline-block text-left">
           {highlights.map((item) => (
             <li
               key={item}

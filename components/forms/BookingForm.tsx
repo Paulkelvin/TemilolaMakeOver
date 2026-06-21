@@ -105,6 +105,9 @@ export function BookingForm({ className }: BookingFormProps) {
   }
 
   if (status === "success") {
+    const selectedService = services.find(
+      (s) => s.name === getValues("service")
+    );
     return (
       <div
         className={cn(
@@ -121,6 +124,24 @@ export function BookingForm({ className }: BookingFormProps) {
         <p className="mt-3 text-text-muted leading-relaxed">
           {bookPageCopy.success}
         </p>
+
+        <div className="mt-6 rounded-xl bg-bg-blush border border-border p-5 text-left">
+          <p className="text-sm text-text-primary font-medium mb-1">
+            Want to secure your date instantly?
+          </p>
+          <p className="text-xs text-text-muted leading-relaxed">
+            Pay your deposit now to lock in your booking. A 50% deposit is required to confirm your date.
+          </p>
+          {selectedService?.slug && (
+            <a
+              href={`/services/${selectedService.slug}`}
+              className="inline-block mt-3 text-xs font-medium text-accent-rose hover:underline"
+            >
+              See what&apos;s included in your service →
+            </a>
+          )}
+        </div>
+
         <Button
           variant="secondary"
           size="md"
@@ -138,7 +159,7 @@ export function BookingForm({ className }: BookingFormProps) {
       onSubmit={handleSubmit(onSubmit)}
       noValidate
       className={cn(
-        "rounded-2xl border border-border bg-card p-6 md:p-8 shadow-card",
+        "rounded-2xl border border-border bg-card p-5 md:p-8 shadow-card overflow-hidden",
         className
       )}
     >
