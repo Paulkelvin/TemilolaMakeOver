@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { getTransformations } from "@/sanity/fetch";
 import { homeCopy } from "@/data/copy";
 import { buildWhatsAppUrl } from "@/lib/whatsapp";
@@ -43,12 +42,6 @@ export async function BeforeAfter() {
           <Button href="/transformations" variant="secondary" size="lg">
             See More Transformations
           </Button>
-          <Link
-            href="/transformations"
-            className="text-sm font-medium text-accent-rose hover:underline sm:hidden"
-          >
-            See more
-          </Link>
         </Reveal>
       </div>
     </SectionWrapper>

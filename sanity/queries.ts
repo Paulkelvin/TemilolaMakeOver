@@ -14,6 +14,22 @@ export const SERVICES_QUERY = `*[_type == "service"] | order(order asc) {
   "imageUrl": image.asset->url
 }`;
 
+export const SERVICE_BY_SLUG_QUERY = `*[_type == "service" && slug.current == $slug][0] {
+  _id,
+  name,
+  "slug": slug.current,
+  shortDescription,
+  description,
+  whoFor,
+  bestFor,
+  included,
+  duration,
+  homeService,
+  priceFrom,
+  icon,
+  "imageUrl": image.asset->url
+}`;
+
 export const PACKAGES_QUERY = `*[_type == "pricingPackage"] | order(order asc) {
   _id,
   name,

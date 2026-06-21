@@ -12,6 +12,7 @@ import {
 import { client } from "./client";
 import {
   SERVICES_QUERY,
+  SERVICE_BY_SLUG_QUERY,
   PACKAGES_QUERY,
   PORTFOLIO_QUERY,
   TESTIMONIALS_QUERY,
@@ -72,6 +73,26 @@ export const getServices = cache(async (): Promise<Service[]> => {
     icon: iconMap[s.icon] ?? Sparkles,
     imageUrl: s.imageUrl,
   }));
+});
+
+export const getServiceBySlug = cache(async (slug: string): Promise<Service | null> => {
+  const s: RawService | null = await client.fetch(SERVICE_BY_SLUG_QUERY, { slug }, REVALIDATE);
+  if (!s) return null;
+  return {
+    id: s._id,
+    name: s.name,
+    slug: s.slug,
+    shortDescription: s.shortDescription,
+    description: s.description,
+    whoFor: s.whoFor,
+    bestFor: s.bestFor,
+    included: s.included ?? [],
+    duration: s.duration,
+    homeService: s.homeService ?? false,
+    priceFrom: s.priceFrom,
+    icon: iconMap[s.icon] ?? Sparkles,
+    imageUrl: s.imageUrl,
+  };
 });
 
 // ─── Packages ────────────────────────────────────────────────────────────────

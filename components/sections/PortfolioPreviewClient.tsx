@@ -14,7 +14,7 @@ interface Props {
   ctaLabel: string;
 }
 
-const VISIBLE_COUNT = 6;
+const VISIBLE_COUNT = 3;
 
 export function PortfolioPreviewClient({ items, footnote, ctaLabel }: Props) {
   const previewItems = items.slice(0, VISIBLE_COUNT);
@@ -27,7 +27,10 @@ export function PortfolioPreviewClient({ items, footnote, ctaLabel }: Props) {
     setGalleryOpen(true);
   }, []);
 
-  const closeGallery = useCallback(() => setGalleryOpen(false), []);
+  const closeGallery = useCallback((e?: React.MouseEvent | KeyboardEvent) => {
+    if (e && 'stopPropagation' in e) e.stopPropagation();
+    setGalleryOpen(false);
+  }, []);
 
   const goNext = useCallback(() => {
     setActiveIndex((i) => (i + 1) % items.length);
@@ -54,20 +57,18 @@ export function PortfolioPreviewClient({ items, footnote, ctaLabel }: Props) {
 
   return (
     <>
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-2 gap-3">
         {previewItems.map((item, i) => {
           const isLast = i === VISIBLE_COUNT - 1 && remainingCount > 0;
           return (
             <Reveal
               key={item.id}
               delay={i * 0.05}
-              className={
-                i === 0 ? "col-span-2 md:col-span-1 md:row-span-2" : ""
-              }
+              className={i === 0 ? "row-span-2" : ""}
             >
               <div
                 className={`group relative overflow-hidden rounded-2xl border border-border bg-card shadow-sm hover:shadow-lg transition-all duration-500 cursor-pointer ${
-                  i === 0 ? "aspect-[4/3] md:aspect-[3/4]" : "aspect-square"
+                  i === 0 ? "aspect-[3/4] h-full" : "aspect-[4/3]"
                 }`}
                 onClick={() => openGallery(i)}
                 onKeyDown={(e) => e.key === "Enter" && openGallery(i)}
@@ -82,15 +83,15 @@ export function PortfolioPreviewClient({ items, footnote, ctaLabel }: Props) {
                     fill
                     sizes={
                       i === 0
-                        ? "(max-width: 768px) 100vw, 33vw"
-                        : "(max-width: 768px) 50vw, 33vw"
+                        ? "(max-width: 768px) 100vw, 50vw"
+                        : "(max-width: 768px) 50vw, 50vw"
                     }
                     className="object-cover transition-transform duration-700 group-hover:scale-105"
                   />
                 )}
 
                 {isLast ? (
-                  <div className="absolute inset-0 bg-luxury-dark/65 flex flex-col items-center justify-center gap-2 transition-colors duration-300 group-hover:bg-luxury-dark/75">
+                  <div className="absolute inset-0 bg-luxury-dark/55 flex flex-col items-center justify-center gap-2 transition-colors duration-300 group-hover:bg-luxury-dark/70">
                     <span className="font-display text-3xl md:text-4xl font-medium text-white">
                       +{remainingCount}
                     </span>
@@ -128,7 +129,7 @@ export function PortfolioPreviewClient({ items, footnote, ctaLabel }: Props) {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
             className="fixed inset-0 z-[100] flex items-center justify-center"
-            onClick={closeGallery}
+            onClick={(e) => closeGallery(e)}
           >
             {/* Backdrop */}
             <div className="absolute inset-0 bg-luxury-dark/92 backdrop-blur-sm" />
@@ -140,7 +141,7 @@ export function PortfolioPreviewClient({ items, footnote, ctaLabel }: Props) {
             >
               {/* Close */}
               <button
-                onClick={closeGallery}
+                onClick={(e) => closeGallery(e)}
                 className="absolute -top-12 right-0 md:right-0 text-white/70 hover:text-white transition-colors p-2"
                 aria-label="Close gallery"
               >

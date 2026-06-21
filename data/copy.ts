@@ -48,7 +48,7 @@ export const homeCopy = {
       location,
     ],
     primaryCta: "Check Availability",
-    secondaryCta: "View Makeup Looks",
+    secondaryCta: "Book Your Transformation",
   },
   trustStrip: [
     "Bridal Glam",

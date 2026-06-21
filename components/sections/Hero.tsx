@@ -76,7 +76,7 @@ export function Hero({ portfolioItems }: HeroProps) {
               >
                 {hero.primaryCta}
               </Button>
-              <Button href="/portfolio" variant="secondary" size="lg">
+              <Button href="/book" variant="secondary" size="lg">
                 {hero.secondaryCta}
               </Button>
             </motion.div>
