@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "seed": "tsx sanity/seed.ts"
+    "seed": "tsx sanity/seed.ts",
+    "seed:images": "tsx sanity/seed-images.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.4.0",
