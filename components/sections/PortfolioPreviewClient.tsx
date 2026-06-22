@@ -63,7 +63,6 @@ export function PortfolioPreviewClient({ items, footnote, ctaLabel }: Props) {
           return (
             <Reveal
               key={item.id}
-              delay={i * 0.05}
               className={i === 0 ? "row-span-2" : ""}
             >
               <div

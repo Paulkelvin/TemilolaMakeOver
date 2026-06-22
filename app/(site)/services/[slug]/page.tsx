@@ -140,7 +140,7 @@ export default async function ServiceDetailPage({
               </div>
             </Reveal>
 
-            <Reveal delay={0.1}>
+            <Reveal>
               <div className="relative aspect-[4/5] rounded-3xl overflow-hidden border border-border shadow-lg">
                 {imageUrl ? (
                   <Image

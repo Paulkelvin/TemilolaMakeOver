@@ -38,7 +38,7 @@ export default function BookPage() {
               </Reveal>
             </div>
             <div className="lg:col-span-2">
-              <Reveal delay={0.1}>
+              <Reveal>
                 <ContactCard />
               </Reveal>
             </div>

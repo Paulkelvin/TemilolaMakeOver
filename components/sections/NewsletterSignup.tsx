@@ -5,13 +5,26 @@ import { Send } from "lucide-react";
 
 export function NewsletterSignup() {
   const [email, setEmail] = useState("");
-  const [status, setStatus] = useState<"idle" | "success">("idle");
+  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!email) return;
-    setStatus("success");
-    setEmail("");
+
+    setStatus("loading");
+    try {
+      const res = await fetch("/api/newsletter", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+
+      if (!res.ok) throw new Error();
+      setStatus("success");
+      setEmail("");
+    } catch {
+      setStatus("error");
+    }
   }
 
   return (
@@ -34,17 +47,24 @@ export function NewsletterSignup() {
             type="email"
             required
             placeholder="your@email.com"
+            aria-label="Email address for newsletter"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             className="flex-1 min-w-0 rounded-full border border-border bg-bg-cream px-4 py-2.5 text-sm text-text-primary placeholder:text-text-muted/60 focus:border-accent-rose focus:ring-1 focus:ring-accent-rose/30 transition-colors"
           />
           <button
             type="submit"
-            className="shrink-0 rounded-full bg-accent-rose hover:bg-accent-rose-dark text-white px-5 py-2.5 text-sm font-medium transition-colors flex items-center gap-2"
+            disabled={status === "loading"}
+            className="shrink-0 rounded-full bg-accent-rose hover:bg-accent-rose-dark text-white px-5 py-2.5 text-sm font-medium transition-colors flex items-center gap-2 disabled:opacity-60"
           >
             <Send className="w-4 h-4" />
-            <span className="hidden sm:inline">Subscribe</span>
+            <span className="hidden sm:inline">
+              {status === "loading" ? "Sending..." : "Subscribe"}
+            </span>
           </button>
+          {status === "error" && (
+            <p className="text-xs text-red-500 mt-1">Something went wrong. Try again.</p>
+          )}
         </form>
       )}
     </div>

@@ -61,6 +61,9 @@ export function BookingForm({ className }: BookingFormProps) {
     setStatus("loading");
     setErrorMsg("");
 
+    const honeypotEl = document.getElementById("website_url") as HTMLInputElement | null;
+    if (honeypotEl?.value) return;
+
     const payload = {
       name: data.name,
       phone: data.phone,
@@ -163,6 +166,11 @@ export function BookingForm({ className }: BookingFormProps) {
         className
       )}
     >
+      <div className="absolute -left-[9999px]" aria-hidden="true">
+        <label htmlFor="website_url">Website</label>
+        <input type="text" id="website_url" name="website_url" tabIndex={-1} autoComplete="off" />
+      </div>
+
       {/* Step indicators */}
       <div className="flex items-center gap-3 mb-6">
         <div className="flex items-center gap-2">

@@ -75,6 +75,7 @@ export function BlogListClient({ posts, postsPerPage = POSTS_PER_PAGE }: BlogLis
           <input
             type="text"
             placeholder="Search articles..."
+            aria-label="Search blog articles"
             value={search}
             onChange={(e) => handleSearchChange(e.target.value)}
             className="w-full pl-10 pr-4 py-2.5 rounded-full border border-border bg-card text-sm text-text-primary placeholder:text-text-muted/60 focus:border-accent-rose focus:ring-1 focus:ring-accent-rose/30 transition-colors"

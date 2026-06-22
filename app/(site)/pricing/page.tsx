@@ -75,7 +75,7 @@ export default async function PricingPage() {
               </ul>
             </Reveal>
 
-            <Reveal delay={0.1}>
+            <Reveal>
               <div className="space-y-6">
                 <div className="rounded-2xl border border-border bg-bg-blush p-6">
                   <h3 className="font-display text-xl text-text-primary">

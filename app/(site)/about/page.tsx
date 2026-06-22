@@ -71,7 +71,7 @@ export default async function AboutPage() {
               </div>
             </Reveal>
 
-            <Reveal delay={0.1}>
+            <Reveal>
               <h2 className="font-display text-3xl md:text-4xl font-medium text-text-primary">
                 {copy.intro.title}
               </h2>
@@ -101,7 +101,7 @@ export default async function AboutPage() {
 
           <div className="grid md:grid-cols-3 gap-6">
             {values.map((v, i) => (
-              <Reveal key={v.title} delay={i * 0.1}>
+              <Reveal key={v.title}>
                 <div className="rounded-2xl border border-border bg-card p-8 text-center h-full">
                   <v.icon className="w-8 h-8 text-accent-rose mx-auto mb-4" strokeWidth={1.5} />
                   <h3 className="font-display text-xl text-text-primary">{v.title}</h3>

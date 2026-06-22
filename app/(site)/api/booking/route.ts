@@ -19,18 +19,52 @@ function validate(body: unknown): body is BookingPayload {
   return (
     typeof b.name === "string" &&
     b.name.trim().length > 0 &&
+    b.name.trim().length <= 100 &&
     typeof b.phone === "string" &&
-    b.phone.trim().length > 0 &&
+    b.phone.trim().length >= 7 &&
+    b.phone.trim().length <= 20 &&
     typeof b.service === "string" &&
+    b.service.trim().length > 0 &&
     typeof b.eventType === "string" &&
+    b.eventType.trim().length > 0 &&
     typeof b.eventDate === "string" &&
+    b.eventDate.trim().length > 0 &&
     typeof b.location === "string" &&
-    typeof b.faces === "string"
+    b.location.trim().length > 0 &&
+    typeof b.faces === "string" &&
+    (b.email === undefined || b.email === "" || (typeof b.email === "string" && b.email.includes("@"))) &&
+    (b.message === undefined || b.message === "" || (typeof b.message === "string" && b.message.length <= 2000))
   );
+}
+
+const rateLimit = new Map<string, { count: number; resetAt: number }>();
+const RATE_LIMIT_WINDOW = 60_000;
+const RATE_LIMIT_MAX = 5;
+
+function isRateLimited(ip: string): boolean {
+  const now = Date.now();
+  const entry = rateLimit.get(ip);
+
+  if (!entry || now > entry.resetAt) {
+    rateLimit.set(ip, { count: 1, resetAt: now + RATE_LIMIT_WINDOW });
+    return false;
+  }
+
+  entry.count++;
+  return entry.count > RATE_LIMIT_MAX;
 }
 
 export async function POST(request: Request) {
   try {
+    const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+
+    if (isRateLimited(ip)) {
+      return NextResponse.json(
+        { error: "Too many requests. Please try again in a minute." },
+        { status: 429 }
+      );
+    }
+
     const body = await request.json();
 
     if (!validate(body)) {
@@ -40,7 +74,6 @@ export async function POST(request: Request) {
       );
     }
 
-    // Log booking for server-side capture (replace with email/webhook via env)
     console.log("[Booking Request]", {
       ...body,
       receivedAt: new Date().toISOString(),
