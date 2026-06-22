@@ -1,10 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Search } from "lucide-react";
-import { StaggerGrid, StaggerItem } from "@/components/ui/Reveal";
+import { Search, ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface BlogPost {
@@ -19,7 +18,10 @@ interface BlogPost {
 
 interface BlogListClientProps {
   posts: BlogPost[];
+  postsPerPage?: number;
 }
+
+const POSTS_PER_PAGE = 6;
 
 function formatDate(dateStr: string) {
   return new Date(dateStr).toLocaleDateString("en-NG", {
@@ -29,24 +31,40 @@ function formatDate(dateStr: string) {
   });
 }
 
-export function BlogListClient({ posts }: BlogListClientProps) {
+export function BlogListClient({ posts, postsPerPage = POSTS_PER_PAGE }: BlogListClientProps) {
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState("All");
+  const [page, setPage] = useState(1);
 
   const categories = [
     "All",
     ...Array.from(new Set(posts.map((p) => p.category))),
   ];
 
-  const filtered = posts.filter((post) => {
-    const matchesCategory =
-      activeCategory === "All" || post.category === activeCategory;
-    const matchesSearch =
-      search === "" ||
-      post.title.toLowerCase().includes(search.toLowerCase()) ||
-      post.excerpt.toLowerCase().includes(search.toLowerCase());
-    return matchesCategory && matchesSearch;
-  });
+  const filtered = useMemo(() => {
+    return posts.filter((post) => {
+      const matchesCategory =
+        activeCategory === "All" || post.category === activeCategory;
+      const matchesSearch =
+        search === "" ||
+        post.title.toLowerCase().includes(search.toLowerCase()) ||
+        post.excerpt.toLowerCase().includes(search.toLowerCase());
+      return matchesCategory && matchesSearch;
+    });
+  }, [posts, activeCategory, search]);
+
+  const totalPages = Math.ceil(filtered.length / postsPerPage);
+  const paged = filtered.slice((page - 1) * postsPerPage, page * postsPerPage);
+
+  function handleCategoryChange(cat: string) {
+    setActiveCategory(cat);
+    setPage(1);
+  }
+
+  function handleSearchChange(value: string) {
+    setSearch(value);
+    setPage(1);
+  }
 
   return (
     <div>
@@ -58,7 +76,7 @@ export function BlogListClient({ posts }: BlogListClientProps) {
             type="text"
             placeholder="Search articles..."
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => handleSearchChange(e.target.value)}
             className="w-full pl-10 pr-4 py-2.5 rounded-full border border-border bg-card text-sm text-text-primary placeholder:text-text-muted/60 focus:border-accent-rose focus:ring-1 focus:ring-accent-rose/30 transition-colors"
           />
         </div>
@@ -66,7 +84,7 @@ export function BlogListClient({ posts }: BlogListClientProps) {
           {categories.map((cat) => (
             <button
               key={cat}
-              onClick={() => setActiveCategory(cat)}
+              onClick={() => handleCategoryChange(cat)}
               className={cn(
                 "px-4 py-2 rounded-full text-xs font-semibold uppercase tracking-wider transition-colors",
                 activeCategory === cat
@@ -88,10 +106,13 @@ export function BlogListClient({ posts }: BlogListClientProps) {
           </p>
         </div>
       ) : (
-        <StaggerGrid className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-          {filtered.map((post) => (
-            <StaggerItem key={post.id}>
-              <Link href={`/blog/${post.slug}`} className="group block">
+        <>
+          <div
+            key={`${activeCategory}-${search}-${page}`}
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8"
+          >
+            {paged.map((post) => (
+              <Link key={post.id} href={`/blog/${post.slug}`} className="group block">
                 <article className="rounded-2xl border border-border bg-card overflow-hidden shadow-sm hover:shadow-lg transition-all duration-500 hover:-translate-y-1">
                   <div className="relative aspect-[16/10] bg-bg-blush overflow-hidden">
                     {post.coverImageUrl ? (
@@ -131,9 +152,49 @@ export function BlogListClient({ posts }: BlogListClientProps) {
                   </div>
                 </article>
               </Link>
-            </StaggerItem>
-          ))}
-        </StaggerGrid>
+            ))}
+          </div>
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <nav className="mt-10 flex items-center justify-center gap-2" aria-label="Blog pagination">
+              <button
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                disabled={page === 1}
+                className="p-2 rounded-full border border-border bg-card text-text-muted hover:bg-bg-blush disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                aria-label="Previous page"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((n) => (
+                <button
+                  key={n}
+                  onClick={() => setPage(n)}
+                  className={cn(
+                    "w-9 h-9 rounded-full text-sm font-medium transition-colors",
+                    page === n
+                      ? "bg-accent-rose text-white"
+                      : "border border-border bg-card text-text-muted hover:bg-bg-blush"
+                  )}
+                  aria-label={`Page ${n}`}
+                  aria-current={page === n ? "page" : undefined}
+                >
+                  {n}
+                </button>
+              ))}
+
+              <button
+                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                disabled={page === totalPages}
+                className="p-2 rounded-full border border-border bg-card text-text-muted hover:bg-bg-blush disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                aria-label="Next page"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </nav>
+          )}
+        </>
       )}
     </div>
   );
