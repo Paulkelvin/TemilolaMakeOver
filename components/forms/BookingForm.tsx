@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/Button";
 import { trackEvent, analyticsEvents } from "@/lib/analytics";
 import { cn } from "@/lib/utils";
 import { FormField, inputStyles } from "./FormField";
+import { PayDepositButton } from "@/components/ui/PayDepositButton";
 
 const eventTypes = [
   "Wedding",
@@ -32,6 +33,7 @@ export function BookingForm({ className }: BookingFormProps) {
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [errorMsg, setErrorMsg] = useState("");
   const [step, setStep] = useState(1);
+  const submittedData = useRef<BookingFormValues | null>(null);
 
   const {
     register,
@@ -90,6 +92,7 @@ export function BookingForm({ className }: BookingFormProps) {
       }
 
       trackEvent(analyticsEvents.formSubmit, { location: "booking_page" });
+      submittedData.current = data;
       setStatus("success");
       reset();
       setStep(1);
@@ -128,13 +131,22 @@ export function BookingForm({ className }: BookingFormProps) {
           {bookPageCopy.success}
         </p>
 
-        <div className="mt-6 rounded-xl bg-bg-blush border border-border p-5 text-left">
-          <p className="text-sm text-text-primary font-medium mb-1">
+        <div className="mt-6 rounded-xl bg-bg-blush border border-border p-5">
+          <p className="text-sm text-text-primary font-medium mb-1 text-left">
             Want to secure your date instantly?
           </p>
-          <p className="text-xs text-text-muted leading-relaxed">
-            Pay your deposit now to lock in your booking. A 50% deposit is required to confirm your date.
+          <p className="text-xs text-text-muted leading-relaxed mb-4 text-left">
+            Pay your 50% deposit now to lock in your booking. Your date isn&apos;t confirmed until the deposit is received.
           </p>
+          {selectedService?.priceFrom && submittedData.current && (
+            <PayDepositButton
+              email={submittedData.current.email || ""}
+              name={submittedData.current.name}
+              service={selectedService.name}
+              depositAmount={Math.round(selectedService.priceFrom * 0.5)}
+              eventDate={submittedData.current.eventDate}
+            />
+          )}
           {selectedService?.slug && (
             <a
               href={`/services/${selectedService.slug}`}
