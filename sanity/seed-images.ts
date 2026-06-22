@@ -261,6 +261,11 @@ const blogImages: {
     photoId: "photo-1503236823255-94609f598e71",
     alt: "How to make makeup last all day Lagos heat",
   },
+  {
+    docId: "blog-post-8",
+    photoId: "photo-1522335789203-aabd1fc54bc9",
+    alt: "Complete skin prep routine for flawless makeup",
+  },
 ];
 
 async function fetchImageBuffer(photoId: string): Promise<Buffer> {

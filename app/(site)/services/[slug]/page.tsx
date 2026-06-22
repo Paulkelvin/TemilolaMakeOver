@@ -179,6 +179,9 @@ export default async function ServiceDetailPage({
               <Link href="/blog/preparing-your-skin-before-makeup-application" className="text-sm text-accent-rose font-medium hover:underline">
                 Skin Prep Guide
               </Link>
+              <Link href="/blog/complete-skin-prep-routine-for-flawless-makeup" className="text-sm text-accent-rose font-medium hover:underline">
+                Full Skin Prep Routine
+              </Link>
             </div>
           </Reveal>
         </Container>

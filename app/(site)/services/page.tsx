@@ -64,6 +64,10 @@ export default async function ServicesPage() {
               <Link href="/blog/preparing-your-skin-before-makeup-application" className="text-sm font-medium text-accent-rose hover:underline">
                 How to Prep Your Skin →
               </Link>
+              <span className="text-border">·</span>
+              <Link href="/blog/complete-skin-prep-routine-for-flawless-makeup" className="text-sm font-medium text-accent-rose hover:underline">
+                Full Skin Prep Routine →
+              </Link>
             </div>
           </Reveal>
 
