@@ -1,4 +1,4 @@
-import { getPortfolioItems } from "@/sanity/fetch";
+import { getPortfolioItems, getBlockedDates } from "@/sanity/fetch";
 import { Hero } from "@/components/sections/Hero";
 import { TrustStrip } from "@/components/sections/TrustStrip";
 import { PortfolioPreview } from "@/components/sections/PortfolioPreview";
@@ -12,11 +12,14 @@ import { CTASection } from "@/components/sections/CTASection";
 import { BlogPreview } from "@/components/sections/BlogPreview";
 
 export default async function HomePage() {
-  const portfolioItems = await getPortfolioItems();
+  const [portfolioItems, blockedDates] = await Promise.all([
+    getPortfolioItems(),
+    getBlockedDates(),
+  ]);
 
   return (
     <>
-      <Hero portfolioItems={portfolioItems} />
+      <Hero portfolioItems={portfolioItems} blockedDates={blockedDates} />
       <TrustStrip />
       <PortfolioPreview />
       <ServicesOverview />

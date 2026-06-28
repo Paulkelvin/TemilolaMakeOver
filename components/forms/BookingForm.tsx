@@ -29,10 +29,11 @@ const eventTypes = [
 interface BookingFormProps {
   className?: string;
   preselectedService?: string;
+  preselectedDate?: string;
   blockedDates?: string[];
 }
 
-export function BookingForm({ className, preselectedService, blockedDates = [] }: BookingFormProps) {
+export function BookingForm({ className, preselectedService, preselectedDate, blockedDates = [] }: BookingFormProps) {
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [errorMsg, setErrorMsg] = useState("");
   const [step, setStep] = useState(1);
@@ -59,6 +60,7 @@ export function BookingForm({ className, preselectedService, blockedDates = [] }
       preferredTime: "",
       message: "",
       service: matchedService?.name ?? "",
+      eventDate: preselectedDate ?? "",
     },
   });
 
@@ -221,7 +223,7 @@ export function BookingForm({ className, preselectedService, blockedDates = [] }
         </div>
       </div>
 
-      {/* Step 1: Personal info & service selection */}
+      {/* Step 1: Personal info, date & service selection */}
       <div className={cn("space-y-5", step !== 1 && "hidden")}>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
           <FormField label="Full Name" htmlFor="name" error={errors.name?.message} required>
@@ -245,6 +247,15 @@ export function BookingForm({ className, preselectedService, blockedDates = [] }
             />
           </FormField>
         </div>
+
+        <FormField label="Pick Your Date" htmlFor="eventDate" error={errors.eventDate?.message} required>
+          <input type="hidden" {...register("eventDate")} />
+          <AvailabilityCalendar
+            blockedDates={blockedDates}
+            selectedDate={watchedDate}
+            onSelectDate={(date) => setValue("eventDate", date, { shouldValidate: true })}
+          />
+        </FormField>
 
         <FormField label="Email" htmlFor="email" error={errors.email?.message}>
           <input
@@ -288,15 +299,6 @@ export function BookingForm({ className, preselectedService, blockedDates = [] }
             </select>
           </FormField>
         </div>
-
-        <FormField label="Pick Your Date" htmlFor="eventDate" error={errors.eventDate?.message} required>
-          <input type="hidden" {...register("eventDate")} />
-          <AvailabilityCalendar
-            blockedDates={blockedDates}
-            selectedDate={watchedDate}
-            onSelectDate={(date) => setValue("eventDate", date, { shouldValidate: true })}
-          />
-        </FormField>
 
         <Button
           type="button"

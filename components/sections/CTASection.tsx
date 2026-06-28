@@ -69,7 +69,7 @@ export function CTASection({
           </p>
           <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
             <Button
-              href="/book"
+              href="/book#booking-form"
               variant="primary"
               size="lg"
               analyticsEvent={analyticsEvents.availabilityCta}

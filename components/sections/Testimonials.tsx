@@ -53,7 +53,7 @@ export async function Testimonials() {
 
         <Reveal className="mt-10 text-center">
           <p className="text-text-muted mb-4">{copy.ctaIntro}</p>
-          <Button href="/book" variant="primary" size="lg">
+          <Button href="/book#booking-form" variant="primary" size="lg">
             {copy.cta}
           </Button>
         </Reveal>

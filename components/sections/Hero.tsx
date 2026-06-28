@@ -1,23 +1,26 @@
 "use client";
 
+import { useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { homeCopy } from "@/data/copy";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { ImageCollage } from "@/components/sections/ImageCollage";
+import { AvailabilityModal } from "@/components/ui/AvailabilityModal";
 import { analyticsEvents } from "@/lib/analytics";
 import { Container } from "@/components/ui/Container";
 import type { PortfolioItem } from "@/data/portfolio";
 
 interface HeroProps {
   portfolioItems: PortfolioItem[];
+  blockedDates?: string[];
 }
 
 const { hero } = homeCopy;
 
-export function Hero({ portfolioItems }: HeroProps) {
+export function Hero({ portfolioItems, blockedDates = [] }: HeroProps) {
   const reduced = useReducedMotion();
-  const bookUrl = "/book";
+  const [calendarOpen, setCalendarOpen] = useState(false);
 
   const heroMain = portfolioItems[1] ?? portfolioItems[0];
   const heroFloat = portfolioItems[5] ?? portfolioItems[0];
@@ -66,9 +69,9 @@ export function Hero({ portfolioItems }: HeroProps) {
               transition={{ duration: 0.7, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
             >
               <Button
-                href={bookUrl}
                 variant="primary"
                 size="lg"
+                onClick={() => setCalendarOpen(true)}
                 analyticsEvent={analyticsEvents.availabilityCta}
                 analyticsLabel="hero_primary"
               >
@@ -108,6 +111,12 @@ export function Hero({ portfolioItems }: HeroProps) {
           )}
         </div>
       </Container>
+
+      <AvailabilityModal
+        blockedDates={blockedDates}
+        open={calendarOpen}
+        onClose={() => setCalendarOpen(false)}
+      />
     </section>
   );
 }

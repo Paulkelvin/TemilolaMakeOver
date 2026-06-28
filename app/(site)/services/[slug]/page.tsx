@@ -45,7 +45,7 @@ export default async function ServiceDetailPage({
   if (!service) notFound();
 
   const imageUrl = service.imageUrl;
-  const bookUrl = `/book?service=${encodeURIComponent(service.slug)}`;
+  const bookUrl = `/book?service=${encodeURIComponent(service.slug)}#booking-form`;
 
   return (
     <>

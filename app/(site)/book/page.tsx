@@ -22,6 +22,7 @@ export default async function BookPage({
 }) {
   const params = await searchParams;
   const preselectedService = typeof params.service === "string" ? params.service : undefined;
+  const preselectedDate = typeof params.date === "string" ? params.date : undefined;
   const blockedDates = await getBlockedDates();
   const copy = bookPageCopy;
 
@@ -44,6 +45,7 @@ export default async function BookPage({
                 <p className="text-sm text-text-muted mb-6">{copy.form.intro}</p>
                 <BookingForm
                   preselectedService={preselectedService}
+                  preselectedDate={preselectedDate}
                   blockedDates={blockedDates}
                 />
               </Reveal>

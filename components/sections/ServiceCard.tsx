@@ -14,7 +14,7 @@ export function ServiceCard({
   className,
   ctaText = "Book This Service",
 }: ServiceCardProps) {
-  const bookUrl = `/book?service=${encodeURIComponent(service.slug)}`;
+  const bookUrl = `/book?service=${encodeURIComponent(service.slug)}#booking-form`;
   const isPopular = service.highlighted;
   const highlights = service.included.slice(0, 3);
 
