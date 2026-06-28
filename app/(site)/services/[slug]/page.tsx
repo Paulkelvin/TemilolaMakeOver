@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/Button";
 import { Reveal } from "@/components/ui/Reveal";
 import { Container } from "@/components/ui/Container";
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
+import Link from "next/link";
 import { Check, Clock, Home } from "lucide-react";
 
 export async function generateStaticParams() {
@@ -139,7 +140,7 @@ export default async function ServiceDetailPage({
               </div>
             </Reveal>
 
-            <Reveal delay={0.1}>
+            <Reveal>
               <div className="relative aspect-[4/5] rounded-3xl overflow-hidden border border-border shadow-lg">
                 {imageUrl ? (
                   <Image
@@ -159,6 +160,30 @@ export default async function ServiceDetailPage({
               </div>
             </Reveal>
           </div>
+        </Container>
+      </SectionWrapper>
+
+      <SectionWrapper variant="blush">
+        <Container size="narrow">
+          <Reveal className="text-center">
+            <h3 className="font-display text-xl md:text-2xl text-text-primary mb-4">
+              Related Beauty Tips
+            </h3>
+            <div className="flex flex-wrap justify-center gap-x-4 gap-y-2">
+              <Link href="/blog/soft-glam-makeup-tutorial-step-by-step" className="text-sm text-accent-rose font-medium hover:underline">
+                Soft Glam Tutorial
+              </Link>
+              <Link href="/blog/how-to-make-makeup-last-all-day-lagos-heat" className="text-sm text-accent-rose font-medium hover:underline">
+                Make Makeup Last All Day
+              </Link>
+              <Link href="/blog/preparing-your-skin-before-makeup-application" className="text-sm text-accent-rose font-medium hover:underline">
+                Skin Prep Guide
+              </Link>
+              <Link href="/blog/complete-skin-prep-routine-for-flawless-makeup" className="text-sm text-accent-rose font-medium hover:underline">
+                Full Skin Prep Routine
+              </Link>
+            </div>
+          </Reveal>
         </Container>
       </SectionWrapper>
 

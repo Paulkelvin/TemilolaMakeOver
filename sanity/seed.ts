@@ -1094,14 +1094,13 @@ const blogPosts = [
         _type: "block",
         _key: "bp1-b3",
         style: "normal",
-        markDefs: [],
+        markDefs: [
+          { _type: "link", _key: "bp1-il1", href: "/blog/preparing-your-skin-before-makeup-application" },
+        ],
         children: [
-          {
-            _type: "span",
-            _key: "bp1-b3-s1",
-            text: "Early booking also gives you the advantage of scheduling a trial session. A trial lets you and your artist test your desired look, adjust for your skin type, and ensure the final result matches your outfit, jewellery, and venue lighting. Without a trial, you are leaving your wedding-day face to chance — and no bride wants that kind of surprise.",
-            marks: [],
-          },
+          { _type: "span", _key: "bp1-b3-s1", text: "Early booking also gives you the advantage of scheduling a trial session. A trial lets you and your artist test your desired look, ", marks: [] },
+          { _type: "span", _key: "bp1-b3-s2", text: "adjust for your skin type", marks: ["bp1-il1"] },
+          { _type: "span", _key: "bp1-b3-s3", text: ", and ensure the final result matches your outfit, jewellery, and venue lighting. Without a trial, you are leaving your wedding-day face to chance — and no bride wants that kind of surprise.", marks: [] },
         ],
       },
       {
@@ -1122,14 +1121,16 @@ const blogPosts = [
         _type: "block",
         _key: "bp1-b5",
         style: "normal",
-        markDefs: [],
+        markDefs: [
+          { _type: "link", _key: "bp1-l1", href: "/blog/how-much-does-bridal-makeup-cost-in-lagos" },
+          { _type: "link", _key: "bp1-l2", href: "/blog/preparing-your-skin-before-makeup-application" },
+        ],
         children: [
-          {
-            _type: "span",
-            _key: "bp1-b5-s1",
-            text: "If you are reading this and your wedding is coming up, do not panic — just act now. Send a message with your date, location, and the look you are dreaming of. I will check availability and guide you through the next steps so your wedding morning feels calm, prepared, and beautiful.",
-            marks: [],
-          },
+          { _type: "span", _key: "bp1-b5-s1", text: "If you are reading this and your wedding is coming up, do not panic — just act now. Before you book, you may want to read our ", marks: [] },
+          { _type: "span", _key: "bp1-b5-s2", text: "bridal makeup cost guide for Lagos", marks: ["bp1-l1"] },
+          { _type: "span", _key: "bp1-b5-s3", text: " so you know what to budget. And to make sure your skin is ready for your trial and wedding day, check out our guide on ", marks: [] },
+          { _type: "span", _key: "bp1-b5-s4", text: "preparing your skin before makeup application", marks: ["bp1-l2"] },
+          { _type: "span", _key: "bp1-b5-s5", text: ". Send a message with your date, location, and the look you are dreaming of — I will check availability and guide you through the next steps.", marks: [] },
         ],
       },
     ],
@@ -1164,14 +1165,13 @@ const blogPosts = [
         _type: "block",
         _key: "bp2-b2",
         style: "normal",
-        markDefs: [],
+        markDefs: [
+          { _type: "link", _key: "bp2-il1", href: "/blog/what-is-soft-glam-makeup" },
+        ],
         children: [
-          {
-            _type: "span",
-            _key: "bp2-b2-s1",
-            text: "Soft glam is all about enhancing your natural beauty with a polished, romantic finish. Think diffused contour, a luminous glow, neutral or warm-toned eyeshadow, and lashes that open the eyes without overpowering them. This look works beautifully for engagements, bridal showers, graduation dinners, and intimate celebrations where you want to look effortlessly elegant. It photographs well in natural light and feels comfortable to wear for long hours.",
-            marks: [],
-          },
+          { _type: "span", _key: "bp2-b2-s1", text: "", marks: [] },
+          { _type: "span", _key: "bp2-b2-s2", text: "Soft glam", marks: ["bp2-il1"] },
+          { _type: "span", _key: "bp2-b2-s3", text: " is all about enhancing your natural beauty with a polished, romantic finish. Think diffused contour, a luminous glow, neutral or warm-toned eyeshadow, and lashes that open the eyes without overpowering them. This look works beautifully for engagements, bridal showers, graduation dinners, and intimate celebrations where you want to look effortlessly elegant. It photographs well in natural light and feels comfortable to wear for long hours.", marks: [] },
         ],
       },
       {
@@ -1206,14 +1206,16 @@ const blogPosts = [
         _type: "block",
         _key: "bp2-b5",
         style: "normal",
-        markDefs: [],
+        markDefs: [
+          { _type: "link", _key: "bp2-l1", href: "/blog/what-is-soft-glam-makeup" },
+          { _type: "link", _key: "bp2-l2", href: "/blog/soft-glam-makeup-tutorial-step-by-step" },
+        ],
         children: [
-          {
-            _type: "span",
-            _key: "bp2-b5-s1",
-            text: "The best advice I can give is to communicate openly with your makeup artist. Share reference photos, describe the venue and lighting, and be honest about your comfort level. A skilled artist can find the sweet spot between soft and bold — giving you definition where it matters while keeping the overall feel aligned with your personality. There is no wrong choice, only the right one for you and your event.",
-            marks: [],
-          },
+          { _type: "span", _key: "bp2-b5-s1", text: "The best advice I can give is to communicate openly with your makeup artist. If you are leaning towards soft glam, read our detailed guide on ", marks: [] },
+          { _type: "span", _key: "bp2-b5-s2", text: "what soft glam makeup actually is", marks: ["bp2-l1"] },
+          { _type: "span", _key: "bp2-b5-s3", text: " or follow our ", marks: [] },
+          { _type: "span", _key: "bp2-b5-s4", text: "step-by-step soft glam tutorial", marks: ["bp2-l2"] },
+          { _type: "span", _key: "bp2-b5-s5", text: " to see the full process. Share reference photos, describe the venue and lighting, and be honest about your comfort level. There is no wrong choice, only the right one for you and your event.", marks: [] },
         ],
       },
     ],
@@ -1234,14 +1236,13 @@ const blogPosts = [
         _type: "block",
         _key: "bp3-b1",
         style: "normal",
-        markDefs: [],
+        markDefs: [
+          { _type: "link", _key: "bp3-il1", href: "/blog/how-to-make-makeup-last-all-day-lagos-heat" },
+        ],
         children: [
-          {
-            _type: "span",
-            _key: "bp3-b1-s1",
-            text: "The secret to makeup that looks smooth, blends seamlessly, and lasts all day is not just the products or the technique — it is the skin underneath. No matter how talented your makeup artist is, dry patches, excess oil, or dehydrated skin will affect how foundation sits and how long your look holds. Preparing your skin properly is the foundation of a flawless finish.",
-            marks: [],
-          },
+          { _type: "span", _key: "bp3-b1-s1", text: "The secret to makeup that looks smooth, blends seamlessly, and ", marks: [] },
+          { _type: "span", _key: "bp3-b1-s2", text: "lasts all day", marks: ["bp3-il1"] },
+          { _type: "span", _key: "bp3-b1-s3", text: " is not just the products or the technique — it is the skin underneath. No matter how talented your makeup artist is, dry patches, excess oil, or dehydrated skin will affect how foundation sits and how long your look holds. Preparing your skin properly is the foundation of a flawless finish.", marks: [] },
         ],
       },
       {
@@ -1262,14 +1263,13 @@ const blogPosts = [
         _type: "block",
         _key: "bp3-b3",
         style: "normal",
-        markDefs: [],
+        markDefs: [
+          { _type: "link", _key: "bp3-il2", href: "/blog/complete-skin-prep-routine-for-flawless-makeup" },
+        ],
         children: [
-          {
-            _type: "span",
-            _key: "bp3-b3-s1",
-            text: "Cleansing is equally important. Arrive at your session with a clean, product-free face. Avoid applying heavy creams, sunscreen with a white cast, or leftover makeup from the night before. A gentle cleanser removes impurities without stripping your skin, giving your artist a clean canvas to work with. If your artist applies primer, it will adhere much better to freshly cleansed skin.",
-            marks: [],
-          },
+          { _type: "span", _key: "bp3-b3-s1", text: "Cleansing is equally important. Arrive at your session with a clean, product-free face. Avoid applying heavy creams, sunscreen with a white cast, or leftover makeup from the night before. A gentle cleanser removes impurities without stripping your skin, giving your artist a clean canvas to work with. If your artist applies primer, it will adhere much better to freshly cleansed skin. For the full step-by-step process, see our ", marks: [] },
+          { _type: "span", _key: "bp3-b3-s2", text: "complete professional skin prep routine", marks: ["bp3-il2"] },
+          { _type: "span", _key: "bp3-b3-s3", text: ".", marks: [] },
         ],
       },
       {
@@ -1290,14 +1290,16 @@ const blogPosts = [
         _type: "block",
         _key: "bp3-b5",
         style: "normal",
-        markDefs: [],
+        markDefs: [
+          { _type: "link", _key: "bp3-l1", href: "/blog/how-to-make-makeup-last-all-day-lagos-heat" },
+          { _type: "link", _key: "bp3-l2", href: "/blog/how-early-should-you-book-your-bridal-makeup-artist" },
+        ],
         children: [
-          {
-            _type: "span",
-            _key: "bp3-b5-s1",
-            text: "As a professional tip, I always begin every session with my own skin prep routine — gentle cleansing, toning, and a hydrating primer tailored to each client. But the better your skin arrives, the better the result. Think of it as teamwork: you handle the days before, and I handle the morning of. Together, we create a base that holds beautifully from the first photo to the last moment of your event.",
-            marks: [],
-          },
+          { _type: "span", _key: "bp3-b5-s1", text: "As a professional tip, I always begin every session with my own skin prep routine — gentle cleansing, toning, and a hydrating primer tailored to each client. Good prep is also the key to ", marks: [] },
+          { _type: "span", _key: "bp3-b5-s2", text: "making your makeup last all day in Lagos heat", marks: ["bp3-l1"] },
+          { _type: "span", _key: "bp3-b5-s3", text: ". The better your skin arrives, the better the result. Ready to book? Here is ", marks: [] },
+          { _type: "span", _key: "bp3-b5-s4", text: "how early you should book your bridal makeup artist", marks: ["bp3-l2"] },
+          { _type: "span", _key: "bp3-b5-s5", text: " so you do not miss out on your ideal date.", marks: [] },
         ],
       },
     ],
@@ -1317,19 +1319,19 @@ const blogPosts = [
       { _type: "block", _key: "bp4-b1", style: "normal", markDefs: [], children: [{ _type: "span", _key: "bp4-b1-s1", text: "Let me be honest with you — if you have ever Googled \"bridal makeup cost in Lagos\" and got nothing but vague answers, I understand the frustration. One of the biggest stress points for brides planning their wedding in Lagos is trying to figure out how much to actually budget for makeup. So let me break it all down for you.", marks: [] }] },
       { _type: "block", _key: "bp4-h1", style: "h2", markDefs: [], children: [{ _type: "span", _key: "bp4-h1-s1", text: "What Does Bridal Makeup Typically Cost in Lagos?", marks: [] }] },
       { _type: "block", _key: "bp4-b2", style: "normal", markDefs: [], children: [{ _type: "span", _key: "bp4-b2-s1", text: "In 2026, bridal makeup in Lagos generally ranges from 100,000 naira to 350,000 naira or more. That is a wide range, and I know that does not feel helpful yet — but the reason for the range is that every bride has different needs. A simple ceremony at a registry with natural makeup is very different from a full glam traditional wedding with gele styling, touch-ups, and a bridal party of six.", marks: [] }] },
-      { _type: "block", _key: "bp4-b3", style: "normal", markDefs: [], children: [{ _type: "span", _key: "bp4-b3-s1", text: "At Temilola Makeup, bridal makeup starts from 120,000 naira. That includes a consultation on your look and outfit, full skin prep and priming, professional bridal makeup application, and a setting routine designed to keep your face flawless from your first photo to your last dance — even in Lagos heat.", marks: [] }] },
+      { _type: "block", _key: "bp4-b3", style: "normal", markDefs: [{ _type: "link", _key: "bp4-il1", href: "/blog/preparing-your-skin-before-makeup-application" }, { _type: "link", _key: "bp4-il2", href: "/blog/how-to-make-makeup-last-all-day-lagos-heat" }], children: [{ _type: "span", _key: "bp4-b3-s1", text: "At Temilola Makeup, bridal makeup starts from 120,000 naira. That includes a consultation on your look and outfit, full ", marks: [] }, { _type: "span", _key: "bp4-b3-s2", text: "skin prep and priming", marks: ["bp4-il1"] }, { _type: "span", _key: "bp4-b3-s3", text: ", professional bridal makeup application, and a ", marks: [] }, { _type: "span", _key: "bp4-b3-s4", text: "setting routine designed to last even in Lagos heat", marks: ["bp4-il2"] }, { _type: "span", _key: "bp4-b3-s5", text: " — from your first photo to your last dance.", marks: [] }] },
       { _type: "block", _key: "bp4-h2", style: "h2", markDefs: [], children: [{ _type: "span", _key: "bp4-h2-s1", text: "What Factors Affect the Price?", marks: [] }] },
       { _type: "block", _key: "bp4-b4", style: "normal", markDefs: [], children: [{ _type: "span", _key: "bp4-b4-s1", text: "Several things can move your final quote up or down. The first is location — if you need a home service or venue visit, travel is factored in, especially for areas like Lekki, Ajah, or locations outside Lagos mainland. The second factor is the number of faces. If you want your bridesmaids, mother of the bride, or other members of the bridal party done, that adds to the total. Most artists charge per face.", marks: [] }] },
-      { _type: "block", _key: "bp4-b5", style: "normal", markDefs: [], children: [{ _type: "span", _key: "bp4-b5-s1", text: "The type of ceremony also matters. A white wedding look tends to be softer and more romantic, while traditional wedding makeup — especially Yoruba or Igbo traditional — often involves bolder colours, heavier contour, and coordination with your aso-oke or coral. Some brides book both ceremonies on different days, which means two separate sessions.", marks: [] }] },
+      { _type: "block", _key: "bp4-b5", style: "normal", markDefs: [{ _type: "link", _key: "bp4-il3", href: "/blog/what-is-soft-glam-makeup" }], children: [{ _type: "span", _key: "bp4-b5-s1", text: "The type of ceremony also matters. A white wedding look tends to be ", marks: [] }, { _type: "span", _key: "bp4-b5-s2", text: "softer and more romantic", marks: ["bp4-il3"] }, { _type: "span", _key: "bp4-b5-s3", text: ", while traditional wedding makeup — especially Yoruba or Igbo traditional — often involves bolder colours, heavier contour, and coordination with your aso-oke or coral. Some brides book both ceremonies on different days, which means two separate sessions.", marks: [] }] },
       { _type: "block", _key: "bp4-b6", style: "normal", markDefs: [], children: [{ _type: "span", _key: "bp4-b6-s1", text: "Other factors include whether you want a trial session before the wedding day, the complexity of your desired look such as cut crease, heavy lash stacking, or special effects, and whether gele tying is included. A trial session is not mandatory, but I always recommend it — it lets us test the look, adjust for your skin type, and make sure you are 100 percent confident before the big day.", marks: [] }] },
       { _type: "block", _key: "bp4-h3", style: "h2", markDefs: [], children: [{ _type: "span", _key: "bp4-h3-s1", text: "What About Cheaper Options?", marks: [] }] },
-      { _type: "block", _key: "bp4-b7", style: "normal", markDefs: [], children: [{ _type: "span", _key: "bp4-b7-s1", text: "You will find makeup artists in Lagos who charge as low as 30,000 to 50,000 naira for bridal makeup. Some of them do good work — but here is what you need to watch out for. At that price point, you are often getting limited products, no skin prep, and no guarantee of longevity. Wedding days are long, emotional, and sweaty. If your foundation starts breaking down by the reception, no amount of blotting paper will save it.", marks: [] }] },
+      { _type: "block", _key: "bp4-b7", style: "normal", markDefs: [{ _type: "link", _key: "bp4-il4", href: "/blog/preparing-your-skin-before-makeup-application" }, { _type: "link", _key: "bp4-il5", href: "/blog/how-to-make-makeup-last-all-day-lagos-heat" }], children: [{ _type: "span", _key: "bp4-b7-s1", text: "You will find makeup artists in Lagos who charge as low as 30,000 to 50,000 naira for bridal makeup. Some of them do good work — but here is what you need to watch out for. At that price point, you are often getting limited products, ", marks: [] }, { _type: "span", _key: "bp4-b7-s2", text: "no skin prep", marks: ["bp4-il4"] }, { _type: "span", _key: "bp4-b7-s3", text: ", and ", marks: [] }, { _type: "span", _key: "bp4-b7-s4", text: "no guarantee of longevity", marks: ["bp4-il5"] }, { _type: "span", _key: "bp4-b7-s5", text: ". Wedding days are long, emotional, and sweaty. If your foundation starts breaking down by the reception, no amount of blotting paper will save it.", marks: [] }] },
       { _type: "block", _key: "bp4-b8", style: "normal", markDefs: [], children: [{ _type: "span", _key: "bp4-b8-s1", text: "Professional bridal makeup is an investment in how you feel on one of the most important days of your life. The products used, the technique, the time spent on skin preparation — all of these determine whether your makeup lasts six hours or twelve. When you are choosing an artist, do not just compare prices — compare portfolios, read reviews, and ask about their process.", marks: [] }] },
       { _type: "block", _key: "bp4-h4", style: "h2", markDefs: [], children: [{ _type: "span", _key: "bp4-h4-s1", text: "How to Budget Smart for Your Wedding Makeup", marks: [] }] },
       { _type: "block", _key: "bp4-b9", style: "normal", markDefs: [], children: [{ _type: "span", _key: "bp4-b9-s1", text: "My advice to every bride is this: allocate 10 to 15 percent of your total wedding budget to hair and makeup. Start your search three to six months before your date, especially if your wedding falls during peak season which is November through January in Lagos. Book early, secure your date with a deposit, and schedule your trial at least two weeks before the wedding.", marks: [] }] },
       { _type: "block", _key: "bp4-b10", style: "normal", markDefs: [], children: [{ _type: "span", _key: "bp4-b10-s1", text: "If budget is tight, consider having only yourself done professionally and letting your girls handle their own makeup. Or ask your artist about group discounts — at Temilola Makeup, we offer special rates for bridal party packages that cover multiple faces.", marks: [] }] },
       { _type: "block", _key: "bp4-h5", style: "h2", markDefs: [], children: [{ _type: "span", _key: "bp4-h5-s1", text: "Ready to Get Your Custom Quote?", marks: [] }] },
-      { _type: "block", _key: "bp4-b11", style: "normal", markDefs: [], children: [{ _type: "span", _key: "bp4-b11-s1", text: "Every wedding is different, and I would rather give you an accurate quote than a one-size-fits-all number. Send me a message with your wedding date, location, number of faces, and the style you are going for. I will get back to you within 24 hours with a detailed quote and availability. Your wedding morning should feel calm, pampered, and beautiful — and that starts with booking the right artist.", marks: [] }] },
+      { _type: "block", _key: "bp4-b11", style: "normal", markDefs: [{ _type: "link", _key: "bp4-l1", href: "/blog/how-early-should-you-book-your-bridal-makeup-artist" }, { _type: "link", _key: "bp4-l2", href: "/blog/what-is-soft-glam-makeup" }], children: [{ _type: "span", _key: "bp4-b11-s1", text: "Every wedding is different, and I would rather give you an accurate quote than a one-size-fits-all number. Not sure when to start looking? Read about ", marks: [] }, { _type: "span", _key: "bp4-b11-s2", text: "how early you should book your bridal makeup artist", marks: ["bp4-l1"] }, { _type: "span", _key: "bp4-b11-s3", text: ". Interested in the most popular bridal look right now? Find out ", marks: [] }, { _type: "span", _key: "bp4-b11-s4", text: "why every Lagos bride is requesting soft glam", marks: ["bp4-l2"] }, { _type: "span", _key: "bp4-b11-s5", text: ". Send me a message with your wedding date, location, number of faces, and the style you are going for — I will get back to you within 24 hours.", marks: [] }] },
     ],
   },
   {
@@ -1350,15 +1352,174 @@ const blogPosts = [
       { _type: "block", _key: "bp5-b3", style: "normal", markDefs: [], children: [{ _type: "span", _key: "bp5-b3-s1", text: "The key word here is balance. With soft glam, nothing is fighting for attention. Your skin glows, your eyes have depth, and your lips complement the overall look rather than competing with it. It is elegant, timeless, and incredibly flattering on every skin tone.", marks: [] }] },
       { _type: "block", _key: "bp5-h2", style: "h2", markDefs: [], children: [{ _type: "span", _key: "bp5-h2-s1", text: "Why Is Soft Glam So Popular in Lagos Right Now?", marks: [] }] },
       { _type: "block", _key: "bp5-b4", style: "normal", markDefs: [], children: [{ _type: "span", _key: "bp5-b4-s1", text: "There are a few reasons. First, social media has changed what brides and event-goers want. People are seeing natural light photography, iPhone selfies, and video content where heavy makeup can look cakey or overdone. Soft glam translates beautifully across all media — it looks good in professional photos, in natural daylight, and on your friend's phone camera.", marks: [] }] },
-      { _type: "block", _key: "bp5-b5", style: "normal", markDefs: [], children: [{ _type: "span", _key: "bp5-b5-s1", text: "Second, Lagos weather plays a role. We live in a hot, humid city. Heavy, full-coverage makeup can feel uncomfortable and can break down faster in the heat. Soft glam uses lighter layering techniques with strategic coverage only where you need it — so your skin can breathe while still looking flawless. When done with the right products and setting techniques, it lasts just as long as bold glam.", marks: [] }] },
+      { _type: "block", _key: "bp5-b5", style: "normal", markDefs: [{ _type: "link", _key: "bp5-il1", href: "/blog/how-to-make-makeup-last-all-day-lagos-heat" }], children: [{ _type: "span", _key: "bp5-b5-s1", text: "Second, Lagos weather plays a role. We live in a hot, humid city. Heavy, full-coverage makeup can feel uncomfortable and can break down faster in the heat. Soft glam uses lighter layering techniques with strategic coverage only where you need it — so your skin can breathe while still looking flawless. When done with the right products and ", marks: [] }, { _type: "span", _key: "bp5-b5-s2", text: "setting techniques", marks: ["bp5-il1"] }, { _type: "span", _key: "bp5-b5-s3", text: ", it lasts just as long as bold glam.", marks: [] }] },
       { _type: "block", _key: "bp5-b6", style: "normal", markDefs: [], children: [{ _type: "span", _key: "bp5-b6-s1", text: "Third, there is a cultural shift. Nigerian women are embracing their natural beauty more than ever. Clients are coming to me saying \"I want to look like myself, but elevated.\" That is literally the definition of soft glam.", marks: [] }] },
       { _type: "block", _key: "bp5-h3", style: "h2", markDefs: [], children: [{ _type: "span", _key: "bp5-h3-s1", text: "Soft Glam vs Bold Glam: What Is the Difference?", marks: [] }] },
-      { _type: "block", _key: "bp5-b7", style: "normal", markDefs: [], children: [{ _type: "span", _key: "bp5-b7-s1", text: "Bold glam is definition and drama. Sculpted contour, deeper lip colours, more pigmented eyeshadow, full lashes, and a look that commands attention. This is the choice for parties, red carpet events, milestone birthdays, and any occasion where flash photography and dramatic lighting are involved.", marks: [] }] },
+      { _type: "block", _key: "bp5-b7", style: "normal", markDefs: [{ _type: "link", _key: "bp5-il2", href: "/blog/soft-glam-vs-bold-glam-choosing-your-event-look" }], children: [{ _type: "span", _key: "bp5-b7-s1", text: "", marks: [] }, { _type: "span", _key: "bp5-b7-s2", text: "Bold glam", marks: ["bp5-il2"] }, { _type: "span", _key: "bp5-b7-s3", text: " is definition and drama. Sculpted contour, deeper lip colours, more pigmented eyeshadow, full lashes, and a look that commands attention. This is the choice for parties, red carpet events, milestone birthdays, and any occasion where flash photography and dramatic lighting are involved.", marks: [] }] },
       { _type: "block", _key: "bp5-b8", style: "normal", markDefs: [], children: [{ _type: "span", _key: "bp5-b8-s1", text: "Soft glam reads powerfully on camera and flatters beautifully in natural light. But indoor events with overhead lights, flash photography, or coloured stage lighting can flatten soft makeup and make it appear like you are wearing very little. If your event is indoors with heavy photography, bold glam often translates better in the final images — even if it feels slightly more dramatic in person.", marks: [] }] },
       { _type: "block", _key: "bp5-h4", style: "h2", markDefs: [], children: [{ _type: "span", _key: "bp5-h4-s1", text: "Who Does Soft Glam Work Best For?", marks: [] }] },
       { _type: "block", _key: "bp5-b10", style: "normal", markDefs: [], children: [{ _type: "span", _key: "bp5-b10-s1", text: "Honestly? Everyone. But it is especially popular with brides who want timeless wedding photos that will not look dated in ten years, event guests who want to look polished without looking like they are trying too hard, professionals attending corporate events or brand launches, and anyone who values skin-first makeup where the focus is on a healthy glow rather than heavy coverage.", marks: [] }] },
       { _type: "block", _key: "bp5-h5", style: "h2", markDefs: [], children: [{ _type: "span", _key: "bp5-h5-s1", text: "How to Book Your Soft Glam Session", marks: [] }] },
-      { _type: "block", _key: "bp5-b12", style: "normal", markDefs: [], children: [{ _type: "span", _key: "bp5-b12-s1", text: "Soft glam is one of my signature services at Temilola Makeup. Whether it is for your wedding day, a birthday dinner, a photoshoot, or any event where you want to look effortlessly stunning, I would love to create a look tailored to your skin, your outfit, and your vibe. Send me a message with your event date and details, and let us make it happen.", marks: [] }] },
+      { _type: "block", _key: "bp5-b12", style: "normal", markDefs: [{ _type: "link", _key: "bp5-l1", href: "/blog/soft-glam-makeup-tutorial-step-by-step" }, { _type: "link", _key: "bp5-l2", href: "/blog/soft-glam-vs-bold-glam-choosing-your-event-look" }], children: [{ _type: "span", _key: "bp5-b12-s1", text: "Want to try it yourself? Follow our ", marks: [] }, { _type: "span", _key: "bp5-b12-s2", text: "step-by-step soft glam makeup tutorial", marks: ["bp5-l1"] }, { _type: "span", _key: "bp5-b12-s3", text: " for the full breakdown. Still deciding between soft and bold? Our guide on ", marks: [] }, { _type: "span", _key: "bp5-b12-s4", text: "soft glam vs bold glam", marks: ["bp5-l2"] }, { _type: "span", _key: "bp5-b12-s5", text: " will help you choose. Or if you want it done professionally, soft glam is one of my signature services at Temilola Makeup — send me a message with your event date and details.", marks: [] }] },
+    ],
+  },
+  {
+    _id: "blog-post-6",
+    _type: "blogPost",
+    title: "Soft Glam Makeup Tutorial: A Step-by-Step Guide for Beginners",
+    slug: { _type: "slug", current: "soft-glam-makeup-tutorial-step-by-step" },
+    excerpt:
+      "Learn exactly how to achieve a soft glam makeup look from start to finish — the products, techniques, and pro tips that make this the most flattering everyday glam.",
+    category: "Tutorials",
+    author: "Temilola",
+    publishedAt: "2026-06-21T10:00:00Z",
+    order: 6,
+    body: [
+      { _type: "block", _key: "bp6-b1", style: "normal", markDefs: [], children: [{ _type: "span", _key: "bp6-b1-s1", text: "Soft glam is one of the most requested makeup looks I get asked about — and for good reason. It is that perfect sweet spot between natural and full glam where you look polished, radiant, and unmistakably you. Whether you are headed to a date night, a birthday dinner, or you just want to elevate your everyday look, soft glam is the answer.", marks: [] }] },
+      { _type: "block", _key: "bp6-b2", style: "normal", markDefs: [], children: [{ _type: "span", _key: "bp6-b2-s1", text: "In this guide, I am breaking down every single step — from skin prep to setting spray — so you can recreate this look at home with confidence.", marks: [] }] },
+
+      { _type: "block", _key: "bp6-h1", style: "h2", markDefs: [], children: [{ _type: "span", _key: "bp6-h1-s1", text: "Step 1: Prep Your Skin (This Is Non-Negotiable)", marks: [] }] },
+      { _type: "block", _key: "bp6-b3", style: "normal", markDefs: [{ _type: "link", _key: "bp6-il1", href: "/blog/preparing-your-skin-before-makeup-application" }], children: [{ _type: "span", _key: "bp6-b3-s1", text: "No matter your skin type — oily, dry, or combination — you need to ", marks: [] }, { _type: "span", _key: "bp6-b3-s2", text: "moisturize and prep your skin", marks: ["bp6-il1"] }, { _type: "span", _key: "bp6-b3-s3", text: " before applying any makeup. If your skin is on the drier side, overcompensate with hydration. Use a glow serum or hydrating moisturizer and let it sink in for at least 10 minutes before moving to primer. This waiting time is crucial because if you rush it, your foundation can separate or peel.", marks: [] }] },
+      { _type: "block", _key: "bp6-b4", style: "normal", markDefs: [{ _type: "link", _key: "bp6-il4", href: "/blog/complete-skin-prep-routine-for-flawless-makeup" }], children: [{ _type: "span", _key: "bp6-b4-s1", text: "Next, apply an illuminating primer all over your face. If you have oily skin, focus the primer on your T-zone and eyelids — this prevents your eyeshadow from creasing and helps your makeup last all day. An illuminating primer gives soft glam that beautiful lit-from-within glow, but if you prefer a more matte finish, a mattifying primer works too. The key is letting each layer absorb before adding the next. For the full breakdown of primers and priming techniques, see our ", marks: [] }, { _type: "span", _key: "bp6-b4-s2", text: "complete skin prep routine guide", marks: ["bp6-il4"] }, { _type: "span", _key: "bp6-b4-s3", text: ".", marks: [] }] },
+
+      { _type: "block", _key: "bp6-h2", style: "h2", markDefs: [], children: [{ _type: "span", _key: "bp6-h2-s1", text: "Step 2: Foundation — Less Is More", marks: [] }] },
+      { _type: "block", _key: "bp6-b5", style: "normal", markDefs: [], children: [{ _type: "span", _key: "bp6-b5-s1", text: "For soft glam, choose a foundation that gives a satin or dewy finish with medium, buildable coverage. You do not need full coverage for this look — the goal is skin that looks like skin, just perfected. Apply a small amount with a brush first to control how much product goes on your face, then blend out with a damp beauty sponge by tapping gently. The sponge diffuses the product so it melts into your skin rather than sitting on top.", marks: [] }] },
+      { _type: "block", _key: "bp6-b6", style: "normal", markDefs: [], children: [{ _type: "span", _key: "bp6-b6-s1", text: "A lightweight, hydrating foundation will give you that gorgeous glow that soft glam is known for. If you find that your foundation looks cakey, you are probably using too much product. Start with a tiny amount — you can always build up. After blending one side, compare it to the bare side and you will see the beautiful difference even a thin layer makes.", marks: [] }] },
+
+      { _type: "block", _key: "bp6-h3", style: "h2", markDefs: [], children: [{ _type: "span", _key: "bp6-h3-s1", text: "Step 3: Concealer — Layer Strategically", marks: [] }] },
+      { _type: "block", _key: "bp6-b7", style: "normal", markDefs: [], children: [{ _type: "span", _key: "bp6-b7-s1", text: "Here is a pro tip most beginners miss: do not go straight in with a super bright concealer. If you have dark circles, start with a concealer that matches your skin tone or is just one shade lighter to neutralize the darkness first. Then layer a brighter concealer on top for that lifted, brightened effect. Going too bright too fast means the shadow underneath will seep through.", marks: [] }] },
+      { _type: "block", _key: "bp6-b8", style: "normal", markDefs: [], children: [{ _type: "span", _key: "bp6-b8-s1", text: "Apply concealer under your eyes, on your forehead, down the bridge of your nose, on your upper lip, and your chin. Blend with a brush first for more coverage, then go over it with a damp beauty sponge to pat everything down smoothly. One important tip — blend out the edges of your under-eye concealer immediately, but leave the centre to set slightly before blending. This prevents harsh lines and gives you a seamless finish.", marks: [] }] },
+
+      { _type: "block", _key: "bp6-h4", style: "h2", markDefs: [], children: [{ _type: "span", _key: "bp6-h4-s1", text: "Step 4: Contour and Blush", marks: [] }] },
+      { _type: "block", _key: "bp6-b9", style: "normal", markDefs: [], children: [{ _type: "span", _key: "bp6-b9-s1", text: "For soft glam, keep your contour subtle. Apply a cream or liquid contour on your cheekbones and temples, then blend well. You are not going for a sculpted, carved-out look — just gentle definition that adds dimension to your face. Use a contour brush to place the product, then blend with your beauty sponge.", marks: [] }] },
+      { _type: "block", _key: "bp6-b10", style: "normal", markDefs: [], children: [{ _type: "span", _key: "bp6-b10-s1", text: "Now for blush — and this is where soft glam really comes alive. For women of colour, an orange-toned blush does something magical to our skin. Apply a cream blush on the apples of your cheeks and blend upward. Here is a trick I love: layer a second cream blush on top of the first one. It gives your cheeks that effortless, lit-from-within glow without needing a separate highlighter.", marks: [] }] },
+
+      { _type: "block", _key: "bp6-h5", style: "h2", markDefs: [], children: [{ _type: "span", _key: "bp6-h5-s1", text: "Step 5: Set Your Face Properly", marks: [] }] },
+      { _type: "block", _key: "bp6-b11", style: "normal", markDefs: [{ _type: "link", _key: "bp6-il2", href: "/blog/how-to-make-makeup-last-all-day-lagos-heat" }], children: [{ _type: "span", _key: "bp6-b11-s1", text: "", marks: [] }, { _type: "span", _key: "bp6-b11-s2", text: "Setting is what separates makeup that melts in two hours from makeup that lasts all day", marks: ["bp6-il2"] }, { _type: "span", _key: "bp6-b11-s3", text: ". Take a thin, even layer of setting powder and press it into your skin — do not sweep or swirl. Focus on your T-zone if you are oily, and set your under-eye area immediately after blending your concealer. This is the number one way to prevent creasing.", marks: [] }] },
+      { _type: "block", _key: "bp6-b12", style: "normal", markDefs: [], children: [{ _type: "span", _key: "bp6-b12-s1", text: "If you want extra longevity under the eyes, bake with a slightly thicker layer and let it sit while you do the rest of your face. When you dust it off later, the result is a smooth, crease-free, brightened under-eye. For the rest of your face, use a finishing powder to blend everything together — this is what takes your face from looking powdery to looking polished.", marks: [] }] },
+
+      { _type: "block", _key: "bp6-h6", style: "h2", markDefs: [], children: [{ _type: "span", _key: "bp6-h6-s1", text: "Step 6: Soft, Warm Eyes", marks: [] }] },
+      { _type: "block", _key: "bp6-b13", style: "normal", markDefs: [], children: [{ _type: "span", _key: "bp6-b13-s1", text: "Since this is soft glam, the eyes should be warm, blended, and understated. Start with a warm brown transition shade in your crease using a fluffy blending brush — circular motions are your best friend here. Then add a slightly deeper brown to your outer corner for depth, but do not bring it as high as the transition shade.", marks: [] }] },
+      { _type: "block", _key: "bp6-b14", style: "normal", markDefs: [], children: [{ _type: "span", _key: "bp6-b14-s1", text: "Pack a shimmer or satin shade onto your lid with a flat brush — a champagne, rose gold, or soft pink works beautifully. Add a touch of shimmer to your inner corners for that doe-eyed brightness. For the lower lash line, sweep a bit of the transition shade underneath to tie everything together. If you want a wing, keep it thin and subtle — nothing dramatic.", marks: [] }] },
+
+      { _type: "block", _key: "bp6-h7", style: "h2", markDefs: [], children: [{ _type: "span", _key: "bp6-h7-s1", text: "Step 7: Lashes and Brows", marks: [] }] },
+      { _type: "block", _key: "bp6-b15", style: "normal", markDefs: [], children: [{ _type: "span", _key: "bp6-b15-s1", text: "Curl your natural lashes and apply a lengthening mascara. For soft glam, you can add half lashes or small clusters at the outer corners to create a subtle cat-eye effect without looking over the top. Apply mascara to your bottom lashes too — it frames the eye beautifully.", marks: [] }] },
+      { _type: "block", _key: "bp6-b16", style: "normal", markDefs: [], children: [{ _type: "span", _key: "bp6-b16-s1", text: "For brows, keep them natural and groomed. Use a fine-tipped brow pencil to fill in sparse areas with light, hair-like strokes. Set them with a brow gel to keep everything in place. The goal is polished but not drawn-on — your brows should frame your face, not dominate it.", marks: [] }] },
+
+      { _type: "block", _key: "bp6-h8", style: "h2", markDefs: [], children: [{ _type: "span", _key: "bp6-h8-s1", text: "Step 8: The Perfect Soft Glam Lip", marks: [] }] },
+      { _type: "block", _key: "bp6-b17", style: "normal", markDefs: [], children: [{ _type: "span", _key: "bp6-b17-s1", text: "Line your lips with a brown or nude lip pencil — make sure your lips are dry before you apply liner so it grips properly. Fill in with a nude or rosy lipstick, focusing colour in the centre for a soft gradient effect. Top everything off with a clear or sheer pink lip gloss. The combination of liner, lipstick, and gloss gives you that plump, polished lip that is quintessentially soft glam.", marks: [] }] },
+
+      { _type: "block", _key: "bp6-h9", style: "h2", markDefs: [], children: [{ _type: "span", _key: "bp6-h9-s1", text: "Step 9: Set and Seal Everything", marks: [] }] },
+      { _type: "block", _key: "bp6-b18", style: "normal", markDefs: [{ _type: "link", _key: "bp6-il3", href: "/blog/how-to-make-makeup-last-all-day-lagos-heat" }], children: [{ _type: "span", _key: "bp6-b18-s1", text: "Here is a detail most tutorials skip: ", marks: [] }, { _type: "span", _key: "bp6-b18-s2", text: "fixing spray and setting spray are two different products", marks: ["bp6-il3"] }, { _type: "span", _key: "bp6-b18-s3", text: ". A fixing spray locks your makeup in place. A setting spray gives your finish a dewy or matte quality. Use your fixing spray first, then follow with a setting spray for the finish you want. For a soft glam look, I recommend a matte fixing spray on your centre and a dewy setting spray on the sides of your face — this gives you that gorgeous glow peeking through on the cheeks while keeping everything locked down.", marks: [] }] },
+
+      { _type: "block", _key: "bp6-h10", style: "h2", markDefs: [], children: [{ _type: "span", _key: "bp6-h10-s1", text: "Want This Look Done Professionally?", marks: [] }] },
+      { _type: "block", _key: "bp6-b19", style: "normal", markDefs: [{ _type: "link", _key: "bp6-l1", href: "/blog/how-to-make-makeup-last-all-day-lagos-heat" }, { _type: "link", _key: "bp6-l2", href: "/blog/preparing-your-skin-before-makeup-application" }], children: [{ _type: "span", _key: "bp6-b19-s1", text: "Want your soft glam to last all day? Read our pro tips on ", marks: [] }, { _type: "span", _key: "bp6-b19-s2", text: "how to make your makeup last in Lagos heat", marks: ["bp6-l1"] }, { _type: "span", _key: "bp6-b19-s3", text: ". And for the best results, make sure you ", marks: [] }, { _type: "span", _key: "bp6-b19-s4", text: "prepare your skin properly before application", marks: ["bp6-l2"] }, { _type: "span", _key: "bp6-b19-s5", text: ". Soft glam is one of my most-booked services at Temilola Makeup — home service available across Lagos. Send me a message to check availability for your date.", marks: [] }] },
+    ],
+  },
+  {
+    _id: "blog-post-7",
+    _type: "blogPost",
+    title: "How to Make Your Makeup Last All Day in Lagos Heat (Pro Setting Tips)",
+    slug: { _type: "slug", current: "how-to-make-makeup-last-all-day-lagos-heat" },
+    excerpt:
+      "Your makeup melting by midday? These professional setting and prep techniques will keep your face flawless from morning to midnight — even in Lagos humidity.",
+    category: "Beauty Education",
+    author: "Temilola",
+    publishedAt: "2026-06-21T14:00:00Z",
+    order: 7,
+    body: [
+      { _type: "block", _key: "bp7-b1", style: "normal", markDefs: [], children: [{ _type: "span", _key: "bp7-b1-s1", text: "If you live in Lagos, you know the struggle. You spend an hour perfecting your makeup, step outside, and within two hours your foundation is sliding, your concealer is creasing, and your setting powder has basically evaporated. It does not have to be this way. The difference between makeup that melts and makeup that lasts twelve hours comes down to technique — specifically, how you prep, layer, and set.", marks: [] }] },
+      { _type: "block", _key: "bp7-b2", style: "normal", markDefs: [], children: [{ _type: "span", _key: "bp7-b2-s1", text: "Here are the exact professional techniques I use on my clients to make sure their makeup survives Lagos heat, humidity, tears, and long event days.", marks: [] }] },
+
+      { _type: "block", _key: "bp7-h1", style: "h2", markDefs: [], children: [{ _type: "span", _key: "bp7-h1-s1", text: "Start With Skincare — But Wait Before You Prime", marks: [] }] },
+      { _type: "block", _key: "bp7-b3", style: "normal", markDefs: [{ _type: "link", _key: "bp7-il1", href: "/blog/preparing-your-skin-before-makeup-application" }], children: [{ _type: "span", _key: "bp7-b3-s1", text: "Every long-lasting makeup application starts with ", marks: [] }, { _type: "span", _key: "bp7-b3-s2", text: "skincare, not foundation", marks: ["bp7-il1"] }, { _type: "span", _key: "bp7-b3-s3", text: ". Moisturize your face even if you have oily skin — oily skin that is dehydrated actually produces more oil to compensate. Apply a lightweight moisturizer or glow serum, then wait at least 10 minutes before applying primer. This is the step most people skip, and it is the reason their primer pills up or their foundation separates later in the day.", marks: [] }] },
+      { _type: "block", _key: "bp7-b4", style: "normal", markDefs: [{ _type: "link", _key: "bp7-il4", href: "/blog/complete-skin-prep-routine-for-flawless-makeup" }], children: [{ _type: "span", _key: "bp7-b4-s1", text: "Your skincare and primer also need to be compatible. If your moisturizer is water-based and your primer is silicone-based, they can conflict and cause pilling. Check your product ingredients and keep them in the same family. When in doubt, use a primer from the same brand as your foundation — they are usually formulated to work together. For the full layering order, see our ", marks: [] }, { _type: "span", _key: "bp7-b4-s2", text: "complete skin prep routine guide", marks: ["bp7-il4"] }, { _type: "span", _key: "bp7-b4-s3", text: ".", marks: [] }] },
+
+      { _type: "block", _key: "bp7-h2", style: "h2", markDefs: [], children: [{ _type: "span", _key: "bp7-h2-s1", text: "Prime Your Eyelids Separately", marks: [] }] },
+      { _type: "block", _key: "bp7-b5", style: "normal", markDefs: [], children: [{ _type: "span", _key: "bp7-b5-s1", text: "This is something a lot of people overlook. Your eyelids produce oil throughout the day, which is why your eyeshadow creases and disappears by afternoon. Apply primer to your eyelids specifically — even if you are not wearing eyeshadow. If you have oily lids, a mattifying primer on this area alone will make a noticeable difference in how long your eye makeup holds.", marks: [] }] },
+
+      { _type: "block", _key: "bp7-h3", style: "h2", markDefs: [], children: [{ _type: "span", _key: "bp7-h3-s1", text: "Use Foundation Strategically — Not Everywhere", marks: [] }] },
+      { _type: "block", _key: "bp7-b6", style: "normal", markDefs: [{ _type: "link", _key: "bp7-il2", href: "/blog/soft-glam-makeup-tutorial-step-by-step" }], children: [{ _type: "span", _key: "bp7-b6-s1", text: "In Lagos heat, ", marks: [] }, { _type: "span", _key: "bp7-b6-s2", text: "less foundation means longer wear", marks: ["bp7-il2"] }, { _type: "span", _key: "bp7-b6-s3", text: ". Instead of covering your entire face in a thick layer, apply a thin layer all over and then spot-conceal only where you need it — hyperpigmentation, dark circles, blemishes. A foundation that is too heavy will slide off faster because there is simply more product for the heat and humidity to break down.", marks: [] }] },
+      { _type: "block", _key: "bp7-b7", style: "normal", markDefs: [], children: [{ _type: "span", _key: "bp7-b7-s1", text: "Choose a long-wearing, satin-finish foundation over a dewy one if longevity is your priority. Dewy foundations look beautiful but can feel and look oily in humid conditions. A satin finish gives you glow without the slip. Apply with a brush first to control the amount, then blend with a damp sponge by tapping — never dragging.", marks: [] }] },
+
+      { _type: "block", _key: "bp7-h4", style: "h2", markDefs: [], children: [{ _type: "span", _key: "bp7-h4-s1", text: "The Concealer Setting Rule You Must Follow", marks: [] }] },
+      { _type: "block", _key: "bp7-b8", style: "normal", markDefs: [], children: [{ _type: "span", _key: "bp7-b8-s1", text: "This is the single most important tip for preventing under-eye creasing: set your concealer immediately after blending. Not five minutes later, not after you finish your brows — immediately. If you are using two shades of concealer (one to neutralize, one to brighten), set right after applying the second shade. The longer concealer sits unset, the more it moves into your fine lines and creases.", marks: [] }] },
+      { _type: "block", _key: "bp7-b9", style: "normal", markDefs: [], children: [{ _type: "span", _key: "bp7-b9-s1", text: "Use a powder puff to press setting powder into your under-eye area — do not use a brush for this step, as a puff gives you more precision and deposits more product exactly where you need it. Take a thin, even layer of powder, press it in, and then use a small brush to blend away any excess. This creates a crease-proof barrier that holds all day.", marks: [] }] },
+
+      { _type: "block", _key: "bp7-h5", style: "h2", markDefs: [], children: [{ _type: "span", _key: "bp7-h5-s1", text: "The T-Zone Strategy for Oily Skin", marks: [] }] },
+      { _type: "block", _key: "bp7-b10", style: "normal", markDefs: [], children: [{ _type: "span", _key: "bp7-b10-s1", text: "If you get oily — and in Lagos, most of us do — focus your setting powder on your T-zone: forehead, nose, and chin. These areas produce the most oil and are where your makeup breaks down first. Set these areas with a slightly heavier hand than the rest of your face. For the cheeks, use a lighter touch so you maintain that healthy glow rather than looking flat and matte all over.", marks: [] }] },
+
+      { _type: "block", _key: "bp7-h6", style: "h2", markDefs: [], children: [{ _type: "span", _key: "bp7-h6-s1", text: "Powder Contour on Top of Cream — The Double Lock", marks: [] }] },
+      { _type: "block", _key: "bp7-b11", style: "normal", markDefs: [{ _type: "link", _key: "bp7-il3", href: "/blog/soft-glam-makeup-tutorial-step-by-step" }], children: [{ _type: "span", _key: "bp7-b11-s1", text: "If you ", marks: [] }, { _type: "span", _key: "bp7-b11-s2", text: "contour with cream", marks: ["bp7-il3"] }, { _type: "span", _key: "bp7-b11-s3", text: " (which gives a more natural finish), set it by going over the same areas with a powder bronzer. This locks the cream contour in place so it does not shift or fade in the heat. Use a light hand — the bronzer is not adding more colour, it is sealing what is already there. The same principle applies to cream blush: layer a powder blush in the same shade family on top for double the staying power.", marks: [] }] },
+
+      { _type: "block", _key: "bp7-h7", style: "h2", markDefs: [], children: [{ _type: "span", _key: "bp7-h7-s1", text: "Fixing Spray vs Setting Spray — You Need Both", marks: [] }] },
+      { _type: "block", _key: "bp7-b12", style: "normal", markDefs: [], children: [{ _type: "span", _key: "bp7-b12-s1", text: "Most people use one spray and call it a day. But fixing spray and setting spray do different jobs. A fixing spray contains polymers that physically lock your makeup in place — this is the one that prevents transfer and smudging. A setting spray controls the finish — matte, dewy, or natural — and helps melt all your powder layers together so they look like skin.", marks: [] }] },
+      { _type: "block", _key: "bp7-b13", style: "normal", markDefs: [], children: [{ _type: "span", _key: "bp7-b13-s1", text: "Apply your fixing spray first, then your setting spray. For Lagos heat, I recommend a matte or semi-matte fixing spray for your T-zone and centre of the face, and a dewy setting spray on the sides for a natural, healthy-looking finish. Always test your spray before misting your face — shake the bottle and spray once into the air to clear any initial blast.", marks: [] }] },
+
+      { _type: "block", _key: "bp7-h8", style: "h2", markDefs: [], children: [{ _type: "span", _key: "bp7-h8-s1", text: "Bonus: The Applicators Matter More Than You Think", marks: [] }] },
+      { _type: "block", _key: "bp7-b14", style: "normal", markDefs: [], children: [{ _type: "span", _key: "bp7-b14-s1", text: "Your brushes, sponges, and powder puffs directly affect how your makeup applies and how long it lasts. Use a soft, bouncy sponge that does not absorb too much product. Use a powder puff for under-eye setting rather than a brush. Use a fluffy brush for bronzer so you do not pick up too much product. The right tools give you control — and control is what makes makeup last.", marks: [] }] },
+
+      { _type: "block", _key: "bp7-h9", style: "h2", markDefs: [], children: [{ _type: "span", _key: "bp7-h9-s1", text: "Need Heat-Proof Makeup for Your Event?", marks: [] }] },
+      { _type: "block", _key: "bp7-b15", style: "normal", markDefs: [{ _type: "link", _key: "bp7-l1", href: "/blog/soft-glam-makeup-tutorial-step-by-step" }, { _type: "link", _key: "bp7-l2", href: "/blog/preparing-your-skin-before-makeup-application" }], children: [{ _type: "span", _key: "bp7-b15-s1", text: "Now that you know the setting secrets, try putting them into practice with our ", marks: [] }, { _type: "span", _key: "bp7-b15-s2", text: "soft glam makeup tutorial", marks: ["bp7-l1"] }, { _type: "span", _key: "bp7-b15-s3", text: ". And remember — longevity starts the night before. Read our guide on ", marks: [] }, { _type: "span", _key: "bp7-b15-s4", text: "preparing your skin before makeup application", marks: ["bp7-l2"] }, { _type: "span", _key: "bp7-b15-s5", text: " for the full prep routine. Every look I create at Temilola Makeup is designed to last 10 to 12 hours — book your session and let me take the worry out of your glam.", marks: [] }] },
+    ],
+  },
+  {
+    _id: "blog-post-8",
+    _type: "blogPost",
+    title: "The Complete Skin Prep Routine for Flawless Makeup (Professional MUA Guide)",
+    slug: { _type: "slug", current: "complete-skin-prep-routine-for-flawless-makeup" },
+    excerpt:
+      "A professional makeup artist's step-by-step skin prep routine — from micellar water to setting spray — that guarantees your foundation sits beautifully and lasts all day.",
+    category: "Tutorials",
+    author: "Temilola",
+    publishedAt: "2026-06-22T10:00:00Z",
+    order: 8,
+    body: [
+      { _type: "block", _key: "bp8-b1", style: "normal", markDefs: [{ _type: "link", _key: "bp8-il1", href: "/blog/preparing-your-skin-before-makeup-application" }], children: [{ _type: "span", _key: "bp8-b1-s1", text: "If there is one thing I tell every client and every aspiring makeup artist, it is this: your makeup is only as good as the skin underneath it. You can own the most expensive foundation in the world, but if your ", marks: [] }, { _type: "span", _key: "bp8-b1-s2", text: "skin is not properly prepared", marks: ["bp8-il1"] }, { _type: "span", _key: "bp8-b1-s3", text: ", that foundation will separate, crack, or slide off within hours. A solid skin prep routine is not optional — it is the foundation of every flawless face I create.", marks: [] }] },
+      { _type: "block", _key: "bp8-b2", style: "normal", markDefs: [], children: [{ _type: "span", _key: "bp8-b2-s1", text: "In this guide, I am walking you through my complete professional skin prep routine — the exact steps I follow for bridal clients, event glam, and editorial work. Whether you are a makeup artist building your process or someone who wants their personal makeup to look more professional, these steps will transform your results.", marks: [] }] },
+
+      { _type: "block", _key: "bp8-h1", style: "h2", markDefs: [], children: [{ _type: "span", _key: "bp8-h1-s1", text: "Step 1: Clean Hands First — Always", marks: [] }] },
+      { _type: "block", _key: "bp8-b3", style: "normal", markDefs: [], children: [{ _type: "span", _key: "bp8-b3-s1", text: "Before you touch a client's face — or your own — wash your hands thoroughly. This sounds basic, but it is a step many people skip. Your hands carry bacteria, oils, and invisible dirt that transfers directly onto the skin. If you are cleaning someone's face but your hands are not clean, you are just moving dirt around. Start every session with clean, sanitised hands.", marks: [] }] },
+
+      { _type: "block", _key: "bp8-h2", style: "h2", markDefs: [], children: [{ _type: "span", _key: "bp8-h2-s1", text: "Step 2: Cleanse With Micellar Water", marks: [] }] },
+      { _type: "block", _key: "bp8-b4", style: "normal", markDefs: [], children: [{ _type: "span", _key: "bp8-b4-s1", text: "Even if your client has just stepped out of the shower, cleanse their face with micellar water on a cotton pad. This is non-negotiable. You would be surprised how much hidden dirt, sweat, and residue remains on the skin even after washing. A micellar water is gentle enough for all skin types — including sensitive skin — and removes impurities without stripping moisture. Wipe the entire face, including the neck and behind the ears, until the cotton pad comes away clean.", marks: [] }] },
+      { _type: "block", _key: "bp8-b5", style: "normal", markDefs: [], children: [{ _type: "span", _key: "bp8-b5-s1", text: "After cleansing, let the face dry completely. Do not rush this step. Use a fan to speed up drying if needed — I always keep a portable fan at my station. Applying products to a damp face changes how they absorb and can cause pilling later.", marks: [] }] },
+
+      { _type: "block", _key: "bp8-h3", style: "h2", markDefs: [], children: [{ _type: "span", _key: "bp8-h3-s1", text: "Step 3: Tone the Skin", marks: [] }] },
+      { _type: "block", _key: "bp8-b6", style: "normal", markDefs: [], children: [{ _type: "span", _key: "bp8-b6-s1", text: "Apply toner with a cotton pad to balance the skin's pH level and remove any remaining impurities the micellar water missed. Toner also helps prepare the skin to absorb the products that follow — think of it as opening the door for your serums and moisturisers.", marks: [] }] },
+      { _type: "block", _key: "bp8-b7", style: "normal", markDefs: [], children: [{ _type: "span", _key: "bp8-b7-s1", text: "Here is a key tip for dry skin: do not apply toner all over the face. Focus it on the T-zone only — forehead, nose, and chin. Toner can close pores and reduce oil production, which is helpful on oily areas but counterproductive on dry cheeks that need all the moisture they can get. For oily or combination skin, you can apply toner across the entire face.", marks: [] }] },
+
+      { _type: "block", _key: "bp8-h4", style: "h2", markDefs: [], children: [{ _type: "span", _key: "bp8-h4-s1", text: "Step 4: Apply a Hydrating Serum", marks: [] }] },
+      { _type: "block", _key: "bp8-b8", style: "normal", markDefs: [], children: [{ _type: "span", _key: "bp8-b8-s1", text: "This is the step that separates a basic prep from a professional one. Before your moisturiser, apply a hydrating serum — something with hyaluronic acid, niacinamide, or vitamin C works beautifully. The rule is always serum before moisturiser, because serums have smaller molecules that penetrate deeper into the skin. They improve moisture retention so your skin stays hydrated longer under makeup.", marks: [] }] },
+      { _type: "block", _key: "bp8-b9", style: "normal", markDefs: [], children: [{ _type: "span", _key: "bp8-b9-s1", text: "Apply the serum generously and take your time blending it into the skin. Use your fingertips in gentle pressing motions — do not drag or rub. Allow it to absorb fully before moving to the next step. I use a fan here again to help the product sink in without evaporating.", marks: [] }] },
+
+      { _type: "block", _key: "bp8-h5", style: "h2", markDefs: [], children: [{ _type: "span", _key: "bp8-h5-s1", text: "Step 5: Moisturise Generously (Especially for Dry Skin)", marks: [] }] },
+      { _type: "block", _key: "bp8-b10", style: "normal", markDefs: [], children: [{ _type: "span", _key: "bp8-b10-s1", text: "Now apply your moisturiser. For dry skin, be generous — dry skin needs all the hydration it can get. Do not be afraid to apply a full, even layer. For oily skin, use a lightweight gel-based moisturiser instead of a heavy cream. The key is matching the moisturiser to the skin type: rich for dry, light for oily, balanced for combination.", marks: [] }] },
+      { _type: "block", _key: "bp8-b11", style: "normal", markDefs: [], children: [{ _type: "span", _key: "bp8-b11-s1", text: "Here is where most people go wrong: they apply moisturiser and immediately reach for the primer. Do not do this. Take your time blending the moisturiser into every part of the face, especially under the eyes — this area is the thinnest skin on the face and creases easily if it is not properly hydrated. Use a brush or your ring finger in gentle circular motions. If the moisturiser is not blended properly, it will mix with your foundation later and cause separation. Wait for it to absorb completely.", marks: [] }] },
+      { _type: "block", _key: "bp8-b12", style: "normal", markDefs: [], children: [{ _type: "span", _key: "bp8-b12-s1", text: "For very dry skin, I sometimes layer two moisturisers — a hydrating one first, then a nourishing one on top. This creates a moisture barrier that keeps the skin comfortable under makeup for hours. Do not forget your lips either. Apply a hydrating lip balm at this stage so it has time to absorb before you apply lip products later.", marks: [] }] },
+
+      { _type: "block", _key: "bp8-h6", style: "h2", markDefs: [], children: [{ _type: "span", _key: "bp8-h6-s1", text: "Step 6: Sweat Control (Essential for Lagos)", marks: [] }] },
+      { _type: "block", _key: "bp8-b13", style: "normal", markDefs: [{ _type: "link", _key: "bp8-il2", href: "/blog/how-to-make-makeup-last-all-day-lagos-heat" }], children: [{ _type: "span", _key: "bp8-b13-s1", text: "If you live in Lagos — or anywhere hot and humid — a sweat block is a game changer for ", marks: [] }, { _type: "span", _key: "bp8-b13-s2", text: "making your makeup last all day", marks: ["bp8-il2"] }, { _type: "span", _key: "bp8-b13-s3", text: ". Apply it only to the areas where you sweat most: typically the forehead, nose, upper lip, and temples. Do not apply it all over — just the specific zones that tend to get oily or sweaty during the day.", marks: [] }] },
+      { _type: "block", _key: "bp8-b14", style: "normal", markDefs: [], children: [{ _type: "span", _key: "bp8-b14-s1", text: "Use a cotton pad to press the sweat block into the skin. Let it dry completely before moving to primer. This creates an invisible shield that holds your makeup in place even when the heat is working against you.", marks: [] }] },
+
+      { _type: "block", _key: "bp8-h7", style: "h2", markDefs: [], children: [{ _type: "span", _key: "bp8-h7-s1", text: "Step 7: Prime Strategically", marks: [] }] },
+      { _type: "block", _key: "bp8-b15", style: "normal", markDefs: [], children: [{ _type: "span", _key: "bp8-b15-s1", text: "Primer is not one-size-fits-all, and you should not necessarily use the same primer on every part of the face. A grip primer goes on the cheeks, chin, and forehead to help your foundation adhere. A mattifying primer goes on the T-zone to control oil and shine throughout the day. For dry skin, use a hydrating primer all over — you do not want to mattify skin that is already lacking moisture.", marks: [] }] },
+      { _type: "block", _key: "bp8-b16", style: "normal", markDefs: [], children: [{ _type: "span", _key: "bp8-b16-s1", text: "Apply primer with a brush for even distribution and blend it into every part of the face except the under-eye area if you are using a grip or mattifying formula there. The under-eye area is delicate and benefits more from the moisturiser and serum you have already applied. For oily skin, focus the mattifying primer on the T-zone and use a lighter touch everywhere else.", marks: [] }] },
+      { _type: "block", _key: "bp8-b17", style: "normal", markDefs: [], children: [{ _type: "span", _key: "bp8-b17-s1", text: "A crucial rule I follow for bridal work: do not over-mattify. Even if the skin is oily, mattifying the entire face can make the makeup look flat and lifeless. I only mattify the T-zone unless the skin is extremely oily. You want the cheeks and perimeter of the face to retain some luminosity — that is what makes the makeup look alive and healthy in photos.", marks: [] }] },
+
+      { _type: "block", _key: "bp8-h8", style: "h2", markDefs: [], children: [{ _type: "span", _key: "bp8-h8-s1", text: "Step 8: Lock Everything In With a Hydrating Spray", marks: [] }] },
+      { _type: "block", _key: "bp8-b18", style: "normal", markDefs: [], children: [{ _type: "span", _key: "bp8-b18-s1", text: "Before you touch any foundation, seal your entire prep with a hydrating setting spray. This locks all the layers together — serum, moisturiser, primer — and creates a smooth, unified base for your foundation to glide onto. A hydrating spray also adds a final layer of moisture that gives the skin that dewy, prepped look professionals are known for.", marks: [] }] },
+      { _type: "block", _key: "bp8-b19", style: "normal", markDefs: [], children: [{ _type: "span", _key: "bp8-b19-s1", text: "Wait for the spray to dry completely before applying foundation. When it is fully set, you will see the skin looking dewy, healthy, and ready to receive makeup. This is exactly the base you want — hydrated, primed, and sealed. Your foundation will sit beautifully, blend effortlessly, and last significantly longer.", marks: [] }] },
+
+      { _type: "block", _key: "bp8-h9", style: "h2", markDefs: [], children: [{ _type: "span", _key: "bp8-h9-s1", text: "The Golden Rule: Let Each Layer Dry", marks: [] }] },
+      { _type: "block", _key: "bp8-b20", style: "normal", markDefs: [], children: [{ _type: "span", _key: "bp8-b20-s1", text: "If there is one takeaway from this entire guide, it is this: let every single product absorb before applying the next one. Micellar water — wait. Toner — wait. Serum — wait. Moisturiser — wait. Primer — wait. Rushing through these steps is the number one reason makeup separates, pills, or breaks down prematurely. Each layer needs time to bond with the skin before the next one goes on top. I keep a fan at every session specifically for this.", marks: [] }] },
+
+      { _type: "block", _key: "bp8-h10", style: "h2", markDefs: [], children: [{ _type: "span", _key: "bp8-h10-s1", text: "Dry Skin vs Oily Skin: Adjusting Your Prep", marks: [] }] },
+      { _type: "block", _key: "bp8-b21", style: "normal", markDefs: [], children: [{ _type: "span", _key: "bp8-b21-s1", text: "For dry skin, double up on hydration at every step. Use a hydrating serum, a rich moisturiser (sometimes two layers), a hydrating primer, and add a glow illuminator before foundation for extra luminosity. Dry skin needs all the moisture it can get — do not hold back. Toner should only go on the T-zone to avoid further drying the cheeks.", marks: [] }] },
+      { _type: "block", _key: "bp8-b22", style: "normal", markDefs: [], children: [{ _type: "span", _key: "bp8-b22-s1", text: "For oily skin, use lightweight, gel-based products and focus mattifying products on the T-zone. Do not skip moisturiser — oily skin that is dehydrated produces even more oil to compensate. A light moisturiser actually helps control oil production throughout the day. Use a mattifying primer on the T-zone and a grip primer on the rest of the face.", marks: [] }] },
+
+      { _type: "block", _key: "bp8-h11", style: "h2", markDefs: [], children: [{ _type: "span", _key: "bp8-h11-s1", text: "Ready for the Next Step?", marks: [] }] },
+      { _type: "block", _key: "bp8-b23", style: "normal", markDefs: [{ _type: "link", _key: "bp8-l1", href: "/blog/soft-glam-makeup-tutorial-step-by-step" }, { _type: "link", _key: "bp8-l2", href: "/blog/how-to-make-makeup-last-all-day-lagos-heat" }, { _type: "link", _key: "bp8-l3", href: "/blog/how-early-should-you-book-your-bridal-makeup-artist" }], children: [{ _type: "span", _key: "bp8-b23-s1", text: "Now that your skin is prepped like a professional, you are ready to apply makeup that actually stays. Follow our ", marks: [] }, { _type: "span", _key: "bp8-b23-s2", text: "step-by-step soft glam makeup tutorial", marks: ["bp8-l1"] }, { _type: "span", _key: "bp8-b23-s3", text: " to put this prep to work. Want to make sure your finished look survives Lagos weather? Read our guide on ", marks: [] }, { _type: "span", _key: "bp8-b23-s4", text: "how to make your makeup last all day in Lagos heat", marks: ["bp8-l2"] }, { _type: "span", _key: "bp8-b23-s5", text: ". And if you want this done professionally for your wedding or event, find out ", marks: [] }, { _type: "span", _key: "bp8-b23-s6", text: "how early you should book your bridal makeup artist", marks: ["bp8-l3"] }, { _type: "span", _key: "bp8-b23-s7", text: " — your skin (and your photos) will thank you.", marks: [] }] },
     ],
   },
 ];

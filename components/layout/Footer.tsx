@@ -129,6 +129,9 @@ export function Footer() {
             <Link href="/privacy-policy" className="hover:text-white/70 transition-colors">
               Privacy Policy
             </Link>
+            <Link href="/terms" className="hover:text-white/70 transition-colors">
+              Terms of Service
+            </Link>
             <span>Makeup artist in {siteConfig.location}</span>
           </div>
         </div>

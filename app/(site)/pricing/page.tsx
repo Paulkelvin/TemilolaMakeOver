@@ -13,6 +13,7 @@ import { Reveal, StaggerGrid, StaggerItem } from "@/components/ui/Reveal";
 import { buildWhatsAppUrl } from "@/lib/whatsapp";
 import { Button } from "@/components/ui/Button";
 import { Container } from "@/components/ui/Container";
+import Link from "next/link";
 
 export const metadata = createPageMetadata({
   title: seoCopy.pricing.title,
@@ -74,7 +75,7 @@ export default async function PricingPage() {
               </ul>
             </Reveal>
 
-            <Reveal delay={0.1}>
+            <Reveal>
               <div className="space-y-6">
                 <div className="rounded-2xl border border-border bg-bg-blush p-6">
                   <h3 className="font-display text-xl text-text-primary">
@@ -100,6 +101,12 @@ export default async function PricingPage() {
             <Button href={quoteUrl} external variant="primary" size="lg">
               {copy.finalCta.cta}
             </Button>
+            <p className="mt-4 text-sm text-text-muted">
+              Want a detailed cost breakdown?{" "}
+              <Link href="/blog/how-much-does-bridal-makeup-cost-in-lagos" className="text-accent-rose font-medium hover:underline">
+                Read our Lagos bridal makeup pricing guide →
+              </Link>
+            </p>
           </Reveal>
         </Container>
       </SectionWrapper>

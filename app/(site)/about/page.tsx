@@ -11,6 +11,7 @@ import { Reveal } from "@/components/ui/Reveal";
 import { Container } from "@/components/ui/Container";
 import { Heart, Award, Sparkles } from "lucide-react";
 import { siteConfig } from "@/lib/site-config";
+import Link from "next/link";
 
 export const metadata = createPageMetadata({
   title: seoCopy.about.title,
@@ -70,7 +71,7 @@ export default async function AboutPage() {
               </div>
             </Reveal>
 
-            <Reveal delay={0.1}>
+            <Reveal>
               <h2 className="font-display text-3xl md:text-4xl font-medium text-text-primary">
                 {copy.intro.title}
               </h2>
@@ -100,7 +101,7 @@ export default async function AboutPage() {
 
           <div className="grid md:grid-cols-3 gap-6">
             {values.map((v, i) => (
-              <Reveal key={v.title} delay={i * 0.1}>
+              <Reveal key={v.title}>
                 <div className="rounded-2xl border border-border bg-card p-8 text-center h-full">
                   <v.icon className="w-8 h-8 text-accent-rose mx-auto mb-4" strokeWidth={1.5} />
                   <h3 className="font-display text-xl text-text-primary">{v.title}</h3>
@@ -113,6 +114,20 @@ export default async function AboutPage() {
           <Reveal className="mt-16 max-w-2xl mx-auto text-center">
             <h3 className="font-display text-2xl text-text-primary">{copy.trust.title}</h3>
             <p className="mt-4 text-text-muted leading-relaxed">{copy.trust.body}</p>
+            <p className="mt-4 text-sm text-text-muted">
+              Learn more about my approach on the{" "}
+              <Link href="/blog" className="text-accent-rose font-medium hover:underline">
+                blog
+              </Link>
+              {" — "}from{" "}
+              <Link href="/blog/soft-glam-makeup-tutorial-step-by-step" className="text-accent-rose font-medium hover:underline">
+                soft glam tutorials
+              </Link>
+              {" "}to{" "}
+              <Link href="/blog/preparing-your-skin-before-makeup-application" className="text-accent-rose font-medium hover:underline">
+                skin prep tips
+              </Link>.
+            </p>
           </Reveal>
         </Container>
       </SectionWrapper>

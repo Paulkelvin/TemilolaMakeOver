@@ -21,7 +21,7 @@ export default function PrivacyPolicyPage() {
           <Reveal>
             <div className="prose prose-neutral max-w-none space-y-6 text-text-muted leading-relaxed">
               <p className="text-sm text-text-muted">
-                Last updated: {new Date().toLocaleDateString("en-NG", { year: "numeric", month: "long", day: "numeric" })}
+                Last updated: 22 June 2026
               </p>
 
               <section>

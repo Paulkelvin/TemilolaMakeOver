@@ -26,7 +26,7 @@ export async function BeforeAfter() {
 
         <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
           {pairs.map((pair, i) => (
-            <Reveal key={pair.id} delay={i * 0.1}>
+            <Reveal key={pair.id}>
               <BeforeAfterSlider
                 before={{ src: pair.beforeUrl, alt: pair.beforeAlt }}
                 after={{ src: pair.afterUrl, alt: pair.afterAlt }}
