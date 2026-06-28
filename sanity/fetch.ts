@@ -30,8 +30,8 @@ import type { PortfolioItem, PortfolioCategory } from "@/data/portfolio";
 import type { Testimonial } from "@/data/testimonials";
 import type { FAQItem } from "@/data/faq";
 
-const REVALIDATE = { next: { revalidate: 3600 } };
-const REVALIDATE_FAST = { next: { revalidate: 60 } };
+const REVALIDATE = { next: { revalidate: 60 } };
+const REVALIDATE_FAST = { next: { revalidate: 30 } };
 
 const iconMap: Record<string, LucideIcon> = {
   crown: Crown,

@@ -7,6 +7,7 @@ import { BookingForm } from "@/components/forms/BookingForm";
 import { ContactCard } from "@/components/sections/ContactCard";
 import { Reveal } from "@/components/ui/Reveal";
 import { Container } from "@/components/ui/Container";
+import { ScrollToHash } from "@/components/ui/ScrollToHash";
 import { getBlockedDates } from "@/sanity/fetch";
 
 export const metadata = createPageMetadata({
@@ -28,6 +29,7 @@ export default async function BookPage({
 
   return (
     <>
+      <ScrollToHash />
       <PageHero
         label={copy.hero.label}
         title={copy.hero.title}
