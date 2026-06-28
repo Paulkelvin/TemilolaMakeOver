@@ -248,9 +248,10 @@ export interface Transformation {
   afterPosition: string;
 }
 
-function hotspotToPosition(hotspot?: SanityHotspot): string {
-  if (!hotspot) return "50% 50%";
-  return `${(hotspot.x * 100).toFixed(1)}% ${(hotspot.y * 100).toFixed(1)}%`;
+function focalCropUrl(url: string, hotspot?: SanityHotspot): string {
+  if (!url || !hotspot) return url;
+  const sep = url.includes("?") ? "&" : "?";
+  return `${url}${sep}w=800&h=1000&fit=crop&crop=focalpoint&fp-x=${hotspot.x.toFixed(2)}&fp-y=${hotspot.y.toFixed(2)}`;
 }
 
 export const getTransformations = cache(async (): Promise<Transformation[]> => {
@@ -258,12 +259,12 @@ export const getTransformations = cache(async (): Promise<Transformation[]> => {
   return raw.map((t) => ({
     id: t._id,
     title: t.title,
-    beforeUrl: t.beforeUrl,
+    beforeUrl: focalCropUrl(t.beforeUrl, t.beforeHotspot),
     beforeAlt: t.beforeAlt,
-    beforePosition: hotspotToPosition(t.beforeHotspot),
-    afterUrl: t.afterUrl,
+    beforePosition: "50% 50%",
+    afterUrl: focalCropUrl(t.afterUrl, t.afterHotspot),
     afterAlt: t.afterAlt,
-    afterPosition: hotspotToPosition(t.afterHotspot),
+    afterPosition: "50% 50%",
   }));
 });
 
