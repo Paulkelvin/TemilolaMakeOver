@@ -6,6 +6,7 @@ import { apiVersion, dataset, projectId } from "./sanity/env";
 export default defineConfig({
   name: "temilola-makeup",
   title: "Temilola Makeup CMS",
+  basePath: "/studio",
   projectId,
   dataset,
   plugins: [structureTool()],
