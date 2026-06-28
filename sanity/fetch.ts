@@ -226,14 +226,29 @@ interface SanityHotspot {
   height: number;
 }
 
+interface SanityCrop {
+  top: number;
+  bottom: number;
+  left: number;
+  right: number;
+}
+
+interface SanityImageMeta {
+  metadata: { dimensions: { width: number; height: number } };
+}
+
 interface RawTransformation {
   _id: string;
   title: string;
   beforeUrl: string;
   beforeHotspot?: SanityHotspot;
+  beforeCrop?: SanityCrop;
+  beforeMeta?: SanityImageMeta;
   beforeAlt: string;
   afterUrl: string;
   afterHotspot?: SanityHotspot;
+  afterCrop?: SanityCrop;
+  afterMeta?: SanityImageMeta;
   afterAlt: string;
 }
 
@@ -242,16 +257,32 @@ export interface Transformation {
   title: string;
   beforeUrl: string;
   beforeAlt: string;
-  beforePosition: string;
   afterUrl: string;
   afterAlt: string;
-  afterPosition: string;
 }
 
-function focalCropUrl(url: string, hotspot?: SanityHotspot): string {
-  if (!url || !hotspot) return url;
-  const sep = url.includes("?") ? "&" : "?";
-  return `${url}${sep}w=800&h=1000&fit=crop&crop=focalpoint&fp-x=${hotspot.x.toFixed(2)}&fp-y=${hotspot.y.toFixed(2)}`;
+function croppedUrl(
+  url: string,
+  meta?: SanityImageMeta,
+  crop?: SanityCrop,
+  hotspot?: SanityHotspot
+): string {
+  if (!url) return url;
+  if (crop && meta) {
+    const w = meta.metadata.dimensions.width;
+    const h = meta.metadata.dimensions.height;
+    const left = Math.round(crop.left * w);
+    const top = Math.round(crop.top * h);
+    const cropW = Math.round(w * (1 - crop.left - crop.right));
+    const cropH = Math.round(h * (1 - crop.top - crop.bottom));
+    const sep = url.includes("?") ? "&" : "?";
+    return `${url}${sep}rect=${left},${top},${cropW},${cropH}&w=800&h=1000`;
+  }
+  if (hotspot) {
+    const sep = url.includes("?") ? "&" : "?";
+    return `${url}${sep}w=800&h=1000&fit=crop&crop=focalpoint&fp-x=${hotspot.x.toFixed(2)}&fp-y=${hotspot.y.toFixed(2)}`;
+  }
+  return url;
 }
 
 export const getTransformations = cache(async (): Promise<Transformation[]> => {
@@ -259,12 +290,10 @@ export const getTransformations = cache(async (): Promise<Transformation[]> => {
   return raw.map((t) => ({
     id: t._id,
     title: t.title,
-    beforeUrl: focalCropUrl(t.beforeUrl, t.beforeHotspot),
+    beforeUrl: croppedUrl(t.beforeUrl, t.beforeMeta, t.beforeCrop, t.beforeHotspot),
     beforeAlt: t.beforeAlt,
-    beforePosition: "50% 50%",
-    afterUrl: focalCropUrl(t.afterUrl, t.afterHotspot),
+    afterUrl: croppedUrl(t.afterUrl, t.afterMeta, t.afterCrop, t.afterHotspot),
     afterAlt: t.afterAlt,
-    afterPosition: "50% 50%",
   }));
 });
 
