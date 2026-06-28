@@ -7,6 +7,8 @@ import { Reveal, StaggerGrid, StaggerItem } from "@/components/ui/Reveal";
 
 const copy = homeCopy.bookingProcess;
 
+const PROCESS_VIDEO_ID = process.env.NEXT_PUBLIC_PROCESS_VIDEO_ID ?? "";
+
 export async function BookingProcess() {
   const bookingSteps = await getBookingSteps();
 
@@ -36,6 +38,23 @@ export async function BookingProcess() {
             </StaggerItem>
           ))}
         </StaggerGrid>
+
+        {PROCESS_VIDEO_ID && (
+          <Reveal className="mt-12">
+            <div className="rounded-2xl overflow-hidden border border-border shadow-card aspect-video max-w-3xl mx-auto">
+              <iframe
+                src={`https://www.youtube.com/embed/${PROCESS_VIDEO_ID}?rel=0&modestbranding=1`}
+                title="How It Works — Gleam by Temi"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                className="w-full h-full"
+              />
+            </div>
+            <p className="text-center text-sm text-text-muted mt-3">
+              Watch how a booking turns into a finished look
+            </p>
+          </Reveal>
+        )}
 
         <Reveal className="mt-10 text-center">
           <Button href="/book" variant="primary" size="lg">
