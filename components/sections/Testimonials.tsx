@@ -1,7 +1,6 @@
 import { Star } from "lucide-react";
 import { getTestimonials } from "@/sanity/fetch";
 import { homeCopy } from "@/data/copy";
-import { buildWhatsAppUrl } from "@/lib/whatsapp";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { SectionWrapper } from "@/components/ui/BackgroundDecor";
 import { Button } from "@/components/ui/Button";
@@ -11,7 +10,6 @@ const copy = homeCopy.testimonials;
 
 export async function Testimonials() {
   const testimonials = await getTestimonials();
-  const url = buildWhatsAppUrl({ intent: "availability" });
 
   return (
     <SectionWrapper id="testimonials">
@@ -55,7 +53,7 @@ export async function Testimonials() {
 
         <Reveal className="mt-10 text-center">
           <p className="text-text-muted mb-4">{copy.ctaIntro}</p>
-          <Button href={url} external variant="primary" size="lg">
+          <Button href="/book" variant="primary" size="lg">
             {copy.cta}
           </Button>
         </Reveal>

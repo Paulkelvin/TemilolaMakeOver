@@ -10,6 +10,7 @@ import { transformationSchema } from "./transformation";
 import { pageCopySchema } from "./pageCopy";
 import { aboutValueSchema } from "./aboutValue";
 import { blogPostSchema } from "./blogPost";
+import { blockedDateSchema } from "./blockedDate";
 
 export const schemaTypes = [
   siteConfigSchema,
@@ -24,4 +25,5 @@ export const schemaTypes = [
   pageCopySchema,
   aboutValueSchema,
   blogPostSchema,
+  blockedDateSchema,
 ];

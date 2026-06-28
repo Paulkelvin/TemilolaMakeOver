@@ -1,9 +1,7 @@
 import Link from "next/link";
 import { Check, ArrowRight } from "lucide-react";
 import type { Service } from "@/data/services";
-import { buildWhatsAppUrl } from "@/lib/whatsapp";
-import { formatPrice } from "@/lib/utils";
-import { cn } from "@/lib/utils";
+import { formatPrice, cn } from "@/lib/utils";
 
 interface ServiceCardProps {
   service: Service;
@@ -16,10 +14,7 @@ export function ServiceCard({
   className,
   ctaText = "Book This Service",
 }: ServiceCardProps) {
-  const whatsappUrl = buildWhatsAppUrl({
-    intent: "service",
-    service: service.name,
-  });
+  const bookUrl = `/book?service=${encodeURIComponent(service.slug)}`;
   const isPopular = service.highlighted;
   const highlights = service.included.slice(0, 3);
 
@@ -76,14 +71,12 @@ export function ServiceCard({
       </Link>
 
       <div className="mt-8 w-full">
-        <a
-          href={whatsappUrl}
-          target="_blank"
-          rel="noopener noreferrer"
+        <Link
+          href={bookUrl}
           className="flex items-center justify-center gap-2 w-full rounded-full font-medium text-sm py-3 transition-all duration-300 bg-accent-rose hover:bg-accent-rose-dark text-white shadow-md hover:shadow-lg"
         >
           {ctaText} <ArrowRight className="w-4 h-4" />
-        </a>
+        </Link>
       </div>
     </article>
     </div>

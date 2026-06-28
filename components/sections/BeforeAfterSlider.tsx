@@ -62,30 +62,30 @@ export function BeforeAfterSlider({
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
       >
-        {/* After image — full size, bottom layer (visible by default) */}
+        {/* Before image — full size, bottom layer (visible on right) */}
         <Image
-          src={after.src}
-          alt={after.alt}
+          src={before.src}
+          alt={before.alt}
           fill
           sizes="(max-width: 768px) 100vw, 40vw"
           className="pointer-events-none object-cover"
-          style={{ objectPosition: after.position ?? "50% 50%" }}
+          style={{ objectPosition: before.position ?? "50% 50%" }}
           draggable={false}
         />
 
-        {/* Before image — full size, top layer, clipped from the right */}
+        {/* After image — top layer, clipped from the right (visible on left) */}
         <div
           className="absolute inset-0"
           style={{ clipPath: `inset(0 ${100 - position}% 0 0)` }}
           aria-hidden
         >
           <Image
-            src={before.src}
-            alt={before.alt}
+            src={after.src}
+            alt={after.alt}
             fill
             sizes="(max-width: 768px) 100vw, 40vw"
             className="pointer-events-none object-cover"
-            style={{ objectPosition: before.position ?? "50% 50%" }}
+            style={{ objectPosition: after.position ?? "50% 50%" }}
             draggable={false}
           />
         </div>

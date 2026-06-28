@@ -22,6 +22,7 @@ import {
   TRANSFORMATIONS_QUERY,
   BLOG_POSTS_QUERY,
   BLOG_POST_BY_SLUG_QUERY,
+  BLOCKED_DATES_QUERY,
 } from "./queries";
 import type { Service } from "@/data/services";
 import type { Package } from "@/data/packages";
@@ -295,6 +296,12 @@ export const getTransformations = cache(async (): Promise<Transformation[]> => {
     afterUrl: croppedUrl(t.afterUrl, t.afterMeta, t.afterCrop, t.afterHotspot),
     afterAlt: t.afterAlt,
   }));
+});
+
+// ─── Blocked Dates ─────────────────────────────────────────────────────────
+export const getBlockedDates = cache(async (): Promise<string[]> => {
+  const raw: { date: string }[] = await client.fetch(BLOCKED_DATES_QUERY, {}, REVALIDATE_FAST);
+  return raw.map((d) => d.date);
 });
 
 // ─── Blog Posts ──────────────────────────────────────────────────────────────

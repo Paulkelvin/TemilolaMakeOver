@@ -7,6 +7,7 @@ import { BookingForm } from "@/components/forms/BookingForm";
 import { ContactCard } from "@/components/sections/ContactCard";
 import { Reveal } from "@/components/ui/Reveal";
 import { Container } from "@/components/ui/Container";
+import { getBlockedDates } from "@/sanity/fetch";
 
 export const metadata = createPageMetadata({
   title: seoCopy.book.title,
@@ -14,7 +15,14 @@ export const metadata = createPageMetadata({
   path: "/book",
 });
 
-export default function BookPage() {
+export default async function BookPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
+  const params = await searchParams;
+  const preselectedService = typeof params.service === "string" ? params.service : undefined;
+  const blockedDates = await getBlockedDates();
   const copy = bookPageCopy;
 
   return (
@@ -34,7 +42,10 @@ export default function BookPage() {
                   {copy.form.title}
                 </h2>
                 <p className="text-sm text-text-muted mb-6">{copy.form.intro}</p>
-                <BookingForm />
+                <BookingForm
+                  preselectedService={preselectedService}
+                  blockedDates={blockedDates}
+                />
               </Reveal>
             </div>
             <div className="lg:col-span-2">

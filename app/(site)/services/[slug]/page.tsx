@@ -45,10 +45,7 @@ export default async function ServiceDetailPage({
   if (!service) notFound();
 
   const imageUrl = service.imageUrl;
-  const whatsappUrl = buildWhatsAppUrl({
-    intent: "service",
-    service: service.name,
-  });
+  const bookUrl = `/book?service=${encodeURIComponent(service.slug)}`;
 
   return (
     <>
@@ -126,7 +123,7 @@ export default async function ServiceDetailPage({
               </div>
 
               <div className="mt-8 flex flex-wrap gap-3">
-                <Button href={whatsappUrl} external variant="primary" size="lg">
+                <Button href={bookUrl} variant="primary" size="lg">
                   Book This Service
                 </Button>
                 <Button
