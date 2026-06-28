@@ -64,7 +64,7 @@ export function BookingForm({ className, preselectedService, blockedDates = [] }
 
   const watchedDate = watch("eventDate");
 
-  const step1Fields = ["name", "phone", "email", "service", "eventType"] as const;
+  const step1Fields = ["name", "phone", "email", "service", "eventType", "eventDate"] as const;
 
   async function goToStep2() {
     const valid = await trigger(step1Fields as unknown as (keyof BookingFormValues)[]);
@@ -289,6 +289,15 @@ export function BookingForm({ className, preselectedService, blockedDates = [] }
           </FormField>
         </div>
 
+        <FormField label="Pick Your Date" htmlFor="eventDate" error={errors.eventDate?.message} required>
+          <input type="hidden" {...register("eventDate")} />
+          <AvailabilityCalendar
+            blockedDates={blockedDates}
+            selectedDate={watchedDate}
+            onSelectDate={(date) => setValue("eventDate", date, { shouldValidate: true })}
+          />
+        </FormField>
+
         <Button
           type="button"
           variant="primary"
@@ -302,27 +311,6 @@ export function BookingForm({ className, preselectedService, blockedDates = [] }
 
       {/* Step 2: Event details & message */}
       <div className={cn("space-y-5", step !== 2 && "hidden")}>
-        {blockedDates.length > 0 || true ? (
-          <FormField label="Event Date" htmlFor="eventDate" error={errors.eventDate?.message} required>
-            <input type="hidden" {...register("eventDate")} />
-            <AvailabilityCalendar
-              blockedDates={blockedDates}
-              selectedDate={watchedDate}
-              onSelectDate={(date) => setValue("eventDate", date, { shouldValidate: true })}
-            />
-          </FormField>
-        ) : (
-          <FormField label="Event Date" htmlFor="eventDate" error={errors.eventDate?.message} required>
-            <input
-              id="eventDate"
-              type="date"
-              {...register("eventDate")}
-              className={cn(inputStyles, errors.eventDate && "border-red-400")}
-              aria-invalid={!!errors.eventDate}
-            />
-          </FormField>
-        )}
-
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
           <FormField
             label="Number of Faces"
