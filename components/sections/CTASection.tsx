@@ -20,7 +20,6 @@ export function CTASection({
   variant = "dark",
   location = "final_banner",
 }: CTASectionProps) {
-  const availabilityUrl = buildWhatsAppUrl({ intent: "availability" });
   const bookingUrl = buildWhatsAppUrl({ intent: "booking" });
   const isDark = variant === "dark";
 
@@ -70,8 +69,7 @@ export function CTASection({
           </p>
           <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
             <Button
-              href={availabilityUrl}
-              external
+              href="/book"
               variant="primary"
               size="lg"
               analyticsEvent={analyticsEvents.availabilityCta}

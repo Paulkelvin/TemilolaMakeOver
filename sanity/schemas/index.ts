@@ -1,4 +1,3 @@
-import { siteConfigSchema } from "./siteConfig";
 import { serviceSchema } from "./service";
 import { pricingPackageSchema } from "./pricingPackage";
 import { portfolioItemSchema } from "./portfolioItem";
@@ -7,12 +6,10 @@ import { faqSchema } from "./faq";
 import { bookingStepSchema } from "./bookingStep";
 import { whyChooseUsSchema } from "./whyChooseUs";
 import { transformationSchema } from "./transformation";
-import { pageCopySchema } from "./pageCopy";
-import { aboutValueSchema } from "./aboutValue";
 import { blogPostSchema } from "./blogPost";
+import { blockedDateSchema } from "./blockedDate";
 
 export const schemaTypes = [
-  siteConfigSchema,
   serviceSchema,
   pricingPackageSchema,
   portfolioItemSchema,
@@ -21,7 +18,6 @@ export const schemaTypes = [
   bookingStepSchema,
   whyChooseUsSchema,
   transformationSchema,
-  pageCopySchema,
-  aboutValueSchema,
   blogPostSchema,
+  blockedDateSchema,
 ];

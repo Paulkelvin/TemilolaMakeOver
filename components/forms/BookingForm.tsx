@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -15,6 +15,7 @@ import { trackEvent, analyticsEvents } from "@/lib/analytics";
 import { cn } from "@/lib/utils";
 import { FormField, inputStyles } from "./FormField";
 import { PayDepositButton } from "@/components/ui/PayDepositButton";
+import { AvailabilityCalendar } from "@/components/ui/AvailabilityCalendar";
 
 const eventTypes = [
   "Wedding",
@@ -27,13 +28,19 @@ const eventTypes = [
 
 interface BookingFormProps {
   className?: string;
+  preselectedService?: string;
+  blockedDates?: string[];
 }
 
-export function BookingForm({ className }: BookingFormProps) {
+export function BookingForm({ className, preselectedService, blockedDates = [] }: BookingFormProps) {
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [errorMsg, setErrorMsg] = useState("");
   const [step, setStep] = useState(1);
   const submittedData = useRef<BookingFormValues | null>(null);
+
+  const matchedService = preselectedService
+    ? services.find((s) => s.slug === preselectedService)
+    : undefined;
 
   const {
     register,
@@ -42,6 +49,8 @@ export function BookingForm({ className }: BookingFormProps) {
     reset,
     trigger,
     getValues,
+    setValue,
+    watch,
   } = useForm<BookingFormValues>({
     resolver: zodResolver(bookingSchema),
     defaultValues: {
@@ -49,8 +58,11 @@ export function BookingForm({ className }: BookingFormProps) {
       email: "",
       preferredTime: "",
       message: "",
+      service: matchedService?.name ?? "",
     },
   });
+
+  const watchedDate = watch("eventDate");
 
   const step1Fields = ["name", "phone", "email", "service", "eventType"] as const;
 
@@ -290,7 +302,16 @@ export function BookingForm({ className }: BookingFormProps) {
 
       {/* Step 2: Event details & message */}
       <div className={cn("space-y-5", step !== 2 && "hidden")}>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+        {blockedDates.length > 0 || true ? (
+          <FormField label="Event Date" htmlFor="eventDate" error={errors.eventDate?.message} required>
+            <input type="hidden" {...register("eventDate")} />
+            <AvailabilityCalendar
+              blockedDates={blockedDates}
+              selectedDate={watchedDate}
+              onSelectDate={(date) => setValue("eventDate", date, { shouldValidate: true })}
+            />
+          </FormField>
+        ) : (
           <FormField label="Event Date" htmlFor="eventDate" error={errors.eventDate?.message} required>
             <input
               id="eventDate"
@@ -300,6 +321,9 @@ export function BookingForm({ className }: BookingFormProps) {
               aria-invalid={!!errors.eventDate}
             />
           </FormField>
+        )}
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
           <FormField
             label="Number of Faces"
             htmlFor="numberOfFaces"
@@ -315,23 +339,6 @@ export function BookingForm({ className }: BookingFormProps) {
               aria-invalid={!!errors.numberOfFaces}
             />
           </FormField>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-          <FormField
-            label="Event Location"
-            htmlFor="eventLocation"
-            error={errors.eventLocation?.message}
-            required
-          >
-            <input
-              id="eventLocation"
-              {...register("eventLocation")}
-              className={cn(inputStyles, errors.eventLocation && "border-red-400")}
-              placeholder="Venue or area in Lagos"
-              aria-invalid={!!errors.eventLocation}
-            />
-          </FormField>
           <FormField label="Preferred Time" htmlFor="preferredTime">
             <input
               id="preferredTime"
@@ -341,6 +348,21 @@ export function BookingForm({ className }: BookingFormProps) {
             />
           </FormField>
         </div>
+
+        <FormField
+          label="Event Location"
+          htmlFor="eventLocation"
+          error={errors.eventLocation?.message}
+          required
+        >
+          <input
+            id="eventLocation"
+            {...register("eventLocation")}
+            className={cn(inputStyles, errors.eventLocation && "border-red-400")}
+            placeholder="Venue or area in Lagos"
+            aria-invalid={!!errors.eventLocation}
+          />
+        </FormField>
 
         <FormField label="Message / Inspiration" htmlFor="message">
           <textarea

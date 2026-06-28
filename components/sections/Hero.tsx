@@ -2,7 +2,6 @@
 
 import { motion, useReducedMotion } from "framer-motion";
 import { homeCopy } from "@/data/copy";
-import { buildWhatsAppUrl } from "@/lib/whatsapp";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { ImageCollage } from "@/components/sections/ImageCollage";
@@ -18,7 +17,7 @@ const { hero } = homeCopy;
 
 export function Hero({ portfolioItems }: HeroProps) {
   const reduced = useReducedMotion();
-  const availabilityUrl = buildWhatsAppUrl({ intent: "availability" });
+  const bookUrl = "/book";
 
   const heroMain = portfolioItems[1] ?? portfolioItems[0];
   const heroFloat = portfolioItems[5] ?? portfolioItems[0];
@@ -67,8 +66,7 @@ export function Hero({ portfolioItems }: HeroProps) {
               transition={{ duration: 0.7, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
             >
               <Button
-                href={availabilityUrl}
-                external
+                href={bookUrl}
                 variant="primary"
                 size="lg"
                 analyticsEvent={analyticsEvents.availabilityCta}
