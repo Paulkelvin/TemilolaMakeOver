@@ -219,17 +219,52 @@ export const getWhyChooseUs = cache(async (): Promise<WhyChooseUsItem[]> => {
 });
 
 // ─── Transformations ────────────────────────────────────────────────────────
+interface SanityHotspot {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
+interface RawTransformation {
+  _id: string;
+  title: string;
+  beforeUrl: string;
+  beforeHotspot?: SanityHotspot;
+  beforeAlt: string;
+  afterUrl: string;
+  afterHotspot?: SanityHotspot;
+  afterAlt: string;
+}
+
 export interface Transformation {
   id: string;
   title: string;
   beforeUrl: string;
   beforeAlt: string;
+  beforePosition: string;
   afterUrl: string;
   afterAlt: string;
+  afterPosition: string;
+}
+
+function hotspotToPosition(hotspot?: SanityHotspot): string {
+  if (!hotspot) return "50% 50%";
+  return `${(hotspot.x * 100).toFixed(1)}% ${(hotspot.y * 100).toFixed(1)}%`;
 }
 
 export const getTransformations = cache(async (): Promise<Transformation[]> => {
-  return client.fetch(TRANSFORMATIONS_QUERY, {}, REVALIDATE_FAST);
+  const raw: RawTransformation[] = await client.fetch(TRANSFORMATIONS_QUERY, {}, REVALIDATE_FAST);
+  return raw.map((t) => ({
+    id: t._id,
+    title: t.title,
+    beforeUrl: t.beforeUrl,
+    beforeAlt: t.beforeAlt,
+    beforePosition: hotspotToPosition(t.beforeHotspot),
+    afterUrl: t.afterUrl,
+    afterAlt: t.afterAlt,
+    afterPosition: hotspotToPosition(t.afterHotspot),
+  }));
 });
 
 // ─── Blog Posts ──────────────────────────────────────────────────────────────
