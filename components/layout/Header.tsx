@@ -5,14 +5,19 @@ import { useState, useEffect } from "react";
 import { Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { siteConfig, navLinks } from "@/lib/site-config";
-import { buildWhatsAppUrl } from "@/lib/whatsapp";
 import { Button } from "@/components/ui/Button";
 import { MobileMenu } from "./MobileMenu";
+import { AvailabilityModal } from "@/components/ui/AvailabilityModal";
 import { analyticsEvents } from "@/lib/analytics";
 
-export function Header() {
+interface HeaderProps {
+  blockedDates?: string[];
+}
+
+export function Header({ blockedDates = [] }: HeaderProps) {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [calendarOpen, setCalendarOpen] = useState(false);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 80);
@@ -26,8 +31,6 @@ export function Header() {
       document.body.style.overflow = "";
     };
   }, [menuOpen]);
-
-  const availabilityUrl = buildWhatsAppUrl({ intent: "availability" });
 
   return (
     <>
@@ -62,11 +65,10 @@ export function Header() {
 
           <div className="flex items-center gap-2 md:gap-3">
             <Button
-              href={availabilityUrl}
-              external
               variant="primary"
               size="sm"
               className="hidden sm:inline-flex"
+              onClick={() => setCalendarOpen(true)}
               analyticsEvent={analyticsEvents.availabilityCta}
               analyticsLabel="header"
             >
@@ -103,7 +105,16 @@ export function Header() {
       <MobileMenu
         isOpen={menuOpen}
         onClose={() => setMenuOpen(false)}
-        availabilityUrl={availabilityUrl}
+        onCheckAvailability={() => {
+          setMenuOpen(false);
+          setCalendarOpen(true);
+        }}
+      />
+
+      <AvailabilityModal
+        blockedDates={blockedDates}
+        open={calendarOpen}
+        onClose={() => setCalendarOpen(false)}
       />
     </>
   );

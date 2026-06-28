@@ -301,20 +301,42 @@ textarea {
 }
 
 @keyframes modalPanelIn {
-  from {
+  0% {
     opacity: 0;
-    transform: translateY(40px) scale(0.97);
+    transform: translateY(60px) scale(0.95);
   }
-  to {
+  60% {
+    opacity: 1;
+  }
+  100% {
     opacity: 1;
     transform: translateY(0) scale(1);
   }
 }
 
 .modal-overlay-enter {
-  animation: modalOverlayIn 0.25s ease-out both;
+  animation: modalOverlayIn 0.4s ease-out both;
 }
 
 .modal-panel-enter {
-  animation: modalPanelIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) 0.05s both;
+  animation: modalPanelIn 0.55s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both;
+}
+
+@keyframes fabPulse {
+  0%, 100% { box-shadow: 0 4px 14px rgba(18, 140, 70, 0.3); }
+  50% { box-shadow: 0 4px 24px rgba(18, 140, 70, 0.55), 0 0 0 8px rgba(18, 140, 70, 0.1); }
+}
+
+.fab-pulse {
+  animation: fabPulse 2.5s ease-in-out 3;
+}
+
+.yarl__button {
+  opacity: 1 !important;
+  background: rgba(0, 0, 0, 0.6) !important;
+  border-radius: 9999px !important;
+}
+
+.yarl__button:hover {
+  background: rgba(0, 0, 0, 0.8) !important;
 }
