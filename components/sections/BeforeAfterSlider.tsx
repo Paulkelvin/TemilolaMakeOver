@@ -1,8 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useMemo, useRef, useState } from "react";
-import { Search } from "lucide-react";
+import { useCallback, useRef, useState } from "react";
 
 interface SliderImage {
   src: string;
@@ -21,112 +20,107 @@ export function BeforeAfterSlider({
   className,
 }: BeforeAfterSliderProps) {
   const [position, setPosition] = useState(50);
-  const [showLens, setShowLens] = useState(false);
-  const [hover, setHover] = useState(false);
-  const [cursor, setCursor] = useState({ x: 0.5, y: 0.5 });
-  const wrapperRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const dragging = useRef(false);
 
-  const lensImage = useMemo(
-    () => (cursor.x * 100 < position ? before.src : after.src),
-    [before.src, after.src, cursor.x, position]
+  const updatePosition = useCallback((clientX: number) => {
+    const rect = containerRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    const x = ((clientX - rect.left) / rect.width) * 100;
+    setPosition(Math.min(Math.max(x, 0), 100));
+  }, []);
+
+  const onPointerDown = useCallback(
+    (e: React.PointerEvent) => {
+      dragging.current = true;
+      (e.target as HTMLElement).setPointerCapture(e.pointerId);
+      updatePosition(e.clientX);
+    },
+    [updatePosition]
   );
 
-  function updateCursor(clientX: number, clientY: number) {
-    const rect = wrapperRef.current?.getBoundingClientRect();
-    if (!rect) return;
-    const x = Math.min(Math.max((clientX - rect.left) / rect.width, 0), 1);
-    const y = Math.min(Math.max((clientY - rect.top) / rect.height, 0), 1);
-    setCursor({ x, y });
-  }
+  const onPointerMove = useCallback(
+    (e: React.PointerEvent) => {
+      if (!dragging.current) return;
+      updatePosition(e.clientX);
+    },
+    [updatePosition]
+  );
+
+  const onPointerUp = useCallback(() => {
+    dragging.current = false;
+  }, []);
 
   return (
     <div className={className}>
       <div
-        ref={wrapperRef}
-        className="relative aspect-[4/5] overflow-hidden rounded-2xl border border-border bg-card"
-        onMouseEnter={() => setHover(true)}
-        onMouseLeave={() => setHover(false)}
-        onMouseMove={(e) => updateCursor(e.clientX, e.clientY)}
-        onTouchMove={(e) => {
-          const touch = e.touches[0];
-          if (touch) updateCursor(touch.clientX, touch.clientY);
-        }}
+        ref={containerRef}
+        className="relative aspect-[4/5] select-none overflow-hidden rounded-2xl border border-border bg-card"
+        style={{ touchAction: "pan-y" }}
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={onPointerUp}
       >
+        {/* Before image — full size, bottom layer */}
         <Image
           src={before.src}
           alt={before.alt}
           fill
           sizes="(max-width: 768px) 100vw, 40vw"
-          className="object-cover"
+          className="pointer-events-none object-cover"
+          draggable={false}
         />
 
+        {/* After image — full size, top layer, clipped from the left */}
         <div
-          className="absolute inset-y-0 right-0 overflow-hidden"
-          style={{ width: `${100 - position}%` }}
+          className="absolute inset-0"
+          style={{ clipPath: `inset(0 0 0 ${position}%)` }}
           aria-hidden
         >
-          <div className="relative h-full w-full">
-            <Image
-              src={after.src}
-              alt={after.alt}
-              fill
-              sizes="(max-width: 768px) 100vw, 40vw"
-              className="object-cover"
-            />
-          </div>
+          <Image
+            src={after.src}
+            alt={after.alt}
+            fill
+            sizes="(max-width: 768px) 100vw, 40vw"
+            className="pointer-events-none object-cover"
+            draggable={false}
+          />
         </div>
 
+        {/* Divider line */}
         <div
-          className="absolute inset-y-0 w-0.5 bg-white/90 shadow-[0_0_0_1px_rgba(30,21,18,0.25)]"
+          className="pointer-events-none absolute inset-y-0 z-10 w-0.5 -translate-x-1/2 bg-white/90 shadow-[0_0_0_1px_rgba(30,21,18,0.25)]"
           style={{ left: `${position}%` }}
           aria-hidden
         >
-          <div className="absolute left-1/2 top-1/2 h-9 w-9 -translate-x-1/2 -translate-y-1/2 rounded-full border border-white bg-luxury-dark/70" />
+          {/* Handle circle */}
+          <div className="absolute left-1/2 top-1/2 flex h-10 w-10 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-2 border-white bg-luxury-dark/70 shadow-lg">
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 18 18"
+              fill="none"
+              className="text-white"
+            >
+              <path
+                d="M5 9H13M5 9L7.5 6.5M5 9L7.5 11.5M13 9L10.5 6.5M13 9L10.5 11.5"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </div>
         </div>
 
-        <input
-          type="range"
-          min={0}
-          max={100}
-          value={position}
-          onChange={(e) => setPosition(Number(e.target.value))}
-          className="absolute inset-0 h-full w-full cursor-ew-resize opacity-0"
-          aria-label="Drag to compare before and after"
-        />
-
-        <span className="absolute left-3 top-3 rounded-full bg-luxury-dark/80 px-2 py-1 text-xs text-white">
+        {/* Labels */}
+        <span className="pointer-events-none absolute left-3 top-3 rounded-full bg-luxury-dark/80 px-2 py-1 text-xs text-white">
           Before
         </span>
-        <span className="absolute right-3 top-3 rounded-full bg-accent-rose px-2 py-1 text-xs text-white">
+        <span className="pointer-events-none absolute right-3 top-3 rounded-full bg-accent-rose px-2 py-1 text-xs text-white">
           After
         </span>
-
-        <button
-          type="button"
-          onClick={() => setShowLens((prev) => !prev)}
-          className="absolute bottom-3 right-3 inline-flex items-center gap-1 rounded-full bg-card/95 px-3 py-1.5 text-xs font-medium text-text-primary shadow-sm"
-          aria-pressed={showLens}
-        >
-          <Search className="h-3.5 w-3.5" />
-          Magnifier
-        </button>
-
-        {showLens && hover && (
-          <div
-            className="pointer-events-none absolute h-24 w-24 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white shadow-lg"
-            style={{
-              left: `${cursor.x * 100}%`,
-              top: `${cursor.y * 100}%`,
-              backgroundImage: `url(${lensImage})`,
-              backgroundPosition: `${cursor.x * 100}% ${cursor.y * 100}%`,
-              backgroundSize: "220%",
-              backgroundRepeat: "no-repeat",
-            }}
-            aria-hidden
-          />
-        )}
       </div>
     </div>
   );
 }
-

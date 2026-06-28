@@ -21,7 +21,7 @@ export default async function TransformationsPage() {
       <PageHero
         label="Before & After"
         title="Real Transformations You Can Drag to Compare"
-        subtitle="Slide each image to see full before and full after in the same frame. Use the magnifier for close details."
+        subtitle="Drag the slider to reveal the full before and after in the same frame."
       />
 
       <SectionWrapper>
