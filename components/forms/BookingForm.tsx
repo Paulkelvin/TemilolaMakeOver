@@ -38,6 +38,7 @@ export function BookingForm({ className, preselectedService, preselectedDate, bl
   const [errorMsg, setErrorMsg] = useState("");
   const [step, setStep] = useState(1);
   const submittedData = useRef<BookingFormValues | null>(null);
+  const formRef = useRef<HTMLFormElement>(null);
 
   const matchedService = preselectedService
     ? services.find((s) => s.slug === preselectedService)
@@ -70,7 +71,10 @@ export function BookingForm({ className, preselectedService, preselectedDate, bl
 
   async function goToStep2() {
     const valid = await trigger(step1Fields as unknown as (keyof BookingFormValues)[]);
-    if (valid) setStep(2);
+    if (valid) {
+      setStep(2);
+      setTimeout(() => formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
+    }
   }
 
   async function onSubmit(data: BookingFormValues) {
@@ -185,10 +189,11 @@ export function BookingForm({ className, preselectedService, preselectedDate, bl
 
   return (
     <form
+      ref={formRef}
       onSubmit={handleSubmit(onSubmit)}
       noValidate
       className={cn(
-        "rounded-2xl border border-border bg-card p-5 md:p-8 shadow-card overflow-hidden",
+        "rounded-2xl border border-border bg-card p-5 md:p-8 shadow-card overflow-hidden scroll-mt-24",
         className
       )}
     >
@@ -392,7 +397,10 @@ export function BookingForm({ className, preselectedService, preselectedDate, bl
           <button
             type="button"
             className="text-sm font-medium text-text-muted hover:text-accent-rose transition-colors py-2"
-            onClick={() => setStep(1)}
+            onClick={() => {
+              setStep(1);
+              setTimeout(() => formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
+            }}
           >
             ← Back to previous step
           </button>
