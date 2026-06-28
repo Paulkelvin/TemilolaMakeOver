@@ -62,30 +62,30 @@ export function BeforeAfterSlider({
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
       >
-        {/* Before image — full size, bottom layer */}
+        {/* After image — full size, bottom layer (visible by default) */}
         <Image
-          src={before.src}
-          alt={before.alt}
+          src={after.src}
+          alt={after.alt}
           fill
           sizes="(max-width: 768px) 100vw, 40vw"
           className="pointer-events-none object-cover"
-          style={{ objectPosition: before.position ?? "50% 50%" }}
+          style={{ objectPosition: after.position ?? "50% 50%" }}
           draggable={false}
         />
 
-        {/* After image — full size, top layer, clipped from the left */}
+        {/* Before image — full size, top layer, clipped from the right */}
         <div
           className="absolute inset-0"
-          style={{ clipPath: `inset(0 0 0 ${position}%)` }}
+          style={{ clipPath: `inset(0 ${100 - position}% 0 0)` }}
           aria-hidden
         >
           <Image
-            src={after.src}
-            alt={after.alt}
+            src={before.src}
+            alt={before.alt}
             fill
             sizes="(max-width: 768px) 100vw, 40vw"
             className="pointer-events-none object-cover"
-            style={{ objectPosition: after.position ?? "50% 50%" }}
+            style={{ objectPosition: before.position ?? "50% 50%" }}
             draggable={false}
           />
         </div>
@@ -117,11 +117,11 @@ export function BeforeAfterSlider({
         </div>
 
         {/* Labels */}
-        <span className="pointer-events-none absolute left-3 top-3 rounded-full bg-luxury-dark/80 px-2 py-1 text-xs text-white">
-          Before
-        </span>
-        <span className="pointer-events-none absolute right-3 top-3 rounded-full bg-accent-rose px-2 py-1 text-xs text-white">
+        <span className="pointer-events-none absolute left-3 top-3 rounded-full bg-accent-rose px-2 py-1 text-xs text-white">
           After
+        </span>
+        <span className="pointer-events-none absolute right-3 top-3 rounded-full bg-luxury-dark/80 px-2 py-1 text-xs text-white">
+          Before
         </span>
       </div>
     </div>
