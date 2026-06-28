@@ -84,8 +84,12 @@ export const TRANSFORMATIONS_QUERY = `*[_type == "transformation"] | order(order
   _id,
   title,
   "beforeUrl": beforeImage.asset->url,
+  "beforeHotspot": beforeImage.hotspot,
+  "beforeCrop": beforeImage.crop,
   beforeAlt,
   "afterUrl": afterImage.asset->url,
+  "afterHotspot": afterImage.hotspot,
+  "afterCrop": afterImage.crop,
   afterAlt
 }`;
 

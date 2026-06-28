@@ -6,6 +6,7 @@ import { useCallback, useRef, useState } from "react";
 interface SliderImage {
   src: string;
   alt: string;
+  position?: string;
 }
 
 interface BeforeAfterSliderProps {
@@ -68,6 +69,7 @@ export function BeforeAfterSlider({
           fill
           sizes="(max-width: 768px) 100vw, 40vw"
           className="pointer-events-none object-cover"
+          style={{ objectPosition: before.position ?? "50% 50%" }}
           draggable={false}
         />
 
@@ -83,6 +85,7 @@ export function BeforeAfterSlider({
             fill
             sizes="(max-width: 768px) 100vw, 40vw"
             className="pointer-events-none object-cover"
+            style={{ objectPosition: after.position ?? "50% 50%" }}
             draggable={false}
           />
         </div>
