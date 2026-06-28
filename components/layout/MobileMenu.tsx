@@ -9,13 +9,13 @@ import { buildWhatsAppUrl } from "@/lib/whatsapp";
 interface MobileMenuProps {
   isOpen: boolean;
   onClose: () => void;
-  availabilityUrl: string;
+  onCheckAvailability: () => void;
 }
 
 export function MobileMenu({
   isOpen,
   onClose,
-  availabilityUrl,
+  onCheckAvailability,
 }: MobileMenuProps) {
   const bookingUrl = buildWhatsAppUrl({ intent: "booking" });
 
@@ -63,11 +63,10 @@ export function MobileMenu({
 
             <div className="mt-auto flex flex-col gap-3 pt-8">
               <Button
-                href={availabilityUrl}
-                external
                 variant="primary"
                 size="lg"
                 className="w-full"
+                onClick={onCheckAvailability}
               >
                 Check Availability
               </Button>

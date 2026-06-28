@@ -10,6 +10,7 @@ import { JsonLd } from "@/components/seo/JsonLd";
 import { FAQPageJsonLd, WebSiteJsonLd } from "@/lib/seo/structured-data";
 import { seoCopy } from "@/data/copy";
 import { siteConfig } from "@/lib/site-config";
+import { getBlockedDates } from "@/sanity/fetch";
 
 const cormorant = Cormorant_Garamond({
   variable: "--font-cormorant",
@@ -83,13 +84,14 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   const gaId = process.env.NEXT_PUBLIC_GA_ID;
   const pixelId = process.env.NEXT_PUBLIC_META_PIXEL_ID;
+  const blockedDates = await getBlockedDates();
 
   return (
     <html lang="en" className={`${cormorant.variable} ${jakarta.variable}`}>
@@ -105,7 +107,7 @@ export default function RootLayout({
         >
           Skip to content
         </a>
-        <Header />
+        <Header blockedDates={blockedDates} />
         <main id="main-content">{children}</main>
         <Footer />
         <WhatsAppFab />
