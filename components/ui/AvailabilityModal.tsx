@@ -62,20 +62,9 @@ export function AvailabilityModal({
     <div
       ref={overlayRef}
       onClick={handleOverlayClick}
-      className={cn(
-        "fixed inset-0 z-50 flex items-end sm:items-center justify-center",
-        "bg-black/40 backdrop-blur-sm",
-        "animate-in fade-in duration-200"
-      )}
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40 backdrop-blur-sm modal-overlay-enter"
     >
-      <div
-        className={cn(
-          "relative w-full max-w-md bg-card rounded-t-2xl sm:rounded-2xl",
-          "border border-border shadow-xl",
-          "p-6 sm:p-8",
-          "animate-in slide-in-from-bottom-4 sm:slide-in-from-bottom-2 duration-300"
-        )}
-      >
+      <div className="relative w-full max-w-md bg-card rounded-t-2xl sm:rounded-2xl border border-border shadow-xl p-6 sm:p-8 modal-panel-enter">
         <button
           onClick={onClose}
           className="absolute right-4 top-4 p-1.5 rounded-full hover:bg-bg-blush text-text-muted transition-colors"
@@ -84,10 +73,10 @@ export function AvailabilityModal({
           <X className="w-5 h-5" />
         </button>
 
-        <h3 className="font-display text-xl text-text-primary mb-1">
+        <h3 className="font-display text-xl text-text-primary mb-1 text-center">
           Check Availability
         </h3>
-        <p className="text-sm text-text-muted mb-5">
+        <p className="text-sm text-text-muted mb-5 text-center">
           Pick a date to see if we&apos;re available, then continue to book.
         </p>
 

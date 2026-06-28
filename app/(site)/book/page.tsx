@@ -36,10 +36,10 @@ export default async function BookPage({
 
       <SectionWrapper>
         <Container>
-          <div id="booking-form" className="scroll-mt-24 grid lg:grid-cols-5 gap-10 lg:gap-12">
+          <div className="grid lg:grid-cols-5 gap-10 lg:gap-12">
             <div className="lg:col-span-3">
               <Reveal>
-                <h2 className="font-display text-2xl text-text-primary mb-2">
+                <h2 id="booking-form" className="scroll-mt-20 font-display text-2xl text-text-primary mb-2">
                   {copy.form.title}
                 </h2>
                 <p className="text-sm text-text-muted mb-6">{copy.form.intro}</p>
