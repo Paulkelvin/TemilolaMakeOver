@@ -78,6 +78,12 @@ export function BookingForm({ className, preselectedService, preselectedDate, pr
     if (valid) {
       setStep(2);
       setTimeout(() => formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
+    } else {
+      // scroll to first visible error
+      setTimeout(() => {
+        const firstError = formRef.current?.querySelector("[aria-invalid='true'], .border-red-400");
+        if (firstError) (firstError as HTMLElement).scrollIntoView({ behavior: "smooth", block: "center" });
+      }, 50);
     }
   }
 
@@ -140,10 +146,6 @@ export function BookingForm({ className, preselectedService, preselectedDate, pr
     const depositAmount = selectedService?.priceFrom
       ? Math.round(selectedService.priceFrom * 0.5)
       : null;
-    const depositWhatsApp = `https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? ""}?text=${encodeURIComponent(
-      `Hi! I'd like to pay the deposit for ${getValues("service")} on ${getValues("eventDate")}. Please send me the payment details.`
-    )}`;
-
     return (
       <div
         className={cn(
@@ -174,14 +176,9 @@ export function BookingForm({ className, preselectedService, preselectedDate, pr
               className="w-full"
             />
           ) : (
-            <a
-              href={depositWhatsApp}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center justify-center gap-2 w-full rounded-full bg-accent-rose text-white py-3 text-sm font-medium hover:bg-accent-rose-dark transition-colors"
-            >
-              Pay deposit on WhatsApp →
-            </a>
+            <p className="text-xs text-text-muted italic">
+              Payment details will be included in your confirmation message.
+            </p>
           )}
         </div>
 
@@ -251,14 +248,24 @@ export function BookingForm({ className, preselectedService, preselectedDate, pr
             />
           </FormField>
           <FormField label="Phone Number" htmlFor="phone" error={errors.phone?.message} required>
-            <input
-              id="phone"
-              type="tel"
-              {...register("phone")}
-              className={cn(inputStyles, errors.phone && "border-red-400")}
-              placeholder="+234 ..."
-              aria-invalid={!!errors.phone}
-            />
+            {(() => {
+              const { onChange, ...phoneRest } = register("phone");
+              return (
+                <input
+                  id="phone"
+                  type="tel"
+                  inputMode="numeric"
+                  {...phoneRest}
+                  onChange={(e) => {
+                    e.target.value = e.target.value.replace(/[^\d+\s]/g, "");
+                    onChange(e);
+                  }}
+                  className={cn(inputStyles, errors.phone && "border-red-400")}
+                  placeholder="+234 8012345678"
+                  aria-invalid={!!errors.phone}
+                />
+              );
+            })()}
           </FormField>
         </div>
 

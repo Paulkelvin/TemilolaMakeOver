@@ -73,7 +73,7 @@ export function PayDepositButton({
         type="button"
         onClick={handlePay}
         disabled={status === "loading" || !email || !email.includes("@")}
-        className="w-full flex items-center justify-center gap-2 rounded-full bg-green-600 hover:bg-green-700 text-white font-medium text-sm px-6 py-3 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+        className="w-full flex items-center justify-center gap-2 rounded-full bg-accent-rose hover:bg-accent-rose-dark text-white font-medium text-sm px-6 py-3 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
       >
         {status === "loading" ? (
           <>

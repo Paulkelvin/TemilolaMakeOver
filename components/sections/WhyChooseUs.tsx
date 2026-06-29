@@ -39,8 +39,8 @@ export async function WhyChooseUs() {
           </div>
 
           {aboutImage?.src && (
-            <Reveal>
-              <div className="relative aspect-[4/5] lg:aspect-auto lg:h-[480px] rounded-3xl overflow-hidden shadow-xl border border-border corner-accent">
+            <Reveal className="hidden lg:block">
+              <div className="relative lg:h-[480px] rounded-3xl overflow-hidden shadow-xl border border-border corner-accent">
                 <Image
                   src={aboutImage.src}
                   alt="Professional makeup application — Gleam by Temi, Lagos"
