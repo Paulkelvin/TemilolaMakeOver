@@ -27,17 +27,15 @@ export async function WhyChooseUs() {
               align="left"
               compact
             />
-            <StaggerGrid className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="flex sm:grid sm:grid-cols-2 gap-4 overflow-x-auto snap-x snap-mandatory sm:overflow-visible pb-2 sm:pb-0 -mx-4 sm:mx-0 px-4 sm:px-0" style={{ scrollbarWidth: "none" }}>
               {items.map((item) => (
-                <StaggerItem key={item.id}>
-                  <div className="rounded-xl border border-border bg-card p-5 hover:shadow-md transition-shadow duration-300">
-                    <Sparkles className="w-4 h-4 text-accent-gold mb-3" strokeWidth={1.5} />
-                    <h3 className="font-medium text-text-primary">{item.title}</h3>
-                    <p className="mt-1 text-sm text-text-muted">{item.description}</p>
-                  </div>
-                </StaggerItem>
+                <div key={item.id} className="shrink-0 w-[78vw] sm:w-auto snap-center sm:snap-align-none rounded-xl border border-border bg-card p-5 hover:shadow-md transition-shadow duration-300">
+                  <Sparkles className="w-4 h-4 text-accent-gold mb-3" strokeWidth={1.5} />
+                  <h3 className="font-medium text-text-primary">{item.title}</h3>
+                  <p className="mt-1 text-sm text-text-muted">{item.description}</p>
+                </div>
               ))}
-            </StaggerGrid>
+            </div>
           </div>
 
           {aboutImage?.src && (

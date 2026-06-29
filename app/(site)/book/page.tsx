@@ -73,11 +73,11 @@ export default async function BookPage({
               <Link href="/blog/how-much-does-bridal-makeup-cost-in-lagos" className="text-sm text-accent-rose font-medium hover:underline">
                 Bridal Makeup Cost Guide
               </Link>
-              <Link href="/blog/preparing-your-skin-before-makeup-application" className="text-sm text-accent-rose font-medium hover:underline">
-                How to Prep Your Skin
+              <Link href="/blog/what-is-soft-glam-makeup" className="text-sm text-accent-rose font-medium hover:underline">
+                What Is Soft Glam?
               </Link>
-              <Link href="/blog/how-to-make-makeup-last-all-day-lagos-heat" className="text-sm text-accent-rose font-medium hover:underline">
-                Make Makeup Last All Day
+              <Link href="/blog/how-early-should-you-book-your-bridal-makeup-artist" className="text-sm text-accent-rose font-medium hover:underline">
+                When to Book Your Artist
               </Link>
             </div>
           </Reveal>

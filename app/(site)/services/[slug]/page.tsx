@@ -167,17 +167,14 @@ export default async function ServiceDetailPage({
               Related Beauty Tips
             </h3>
             <div className="flex flex-wrap justify-center gap-x-4 gap-y-2">
-              <Link href="/blog/soft-glam-makeup-tutorial-step-by-step" className="text-sm text-accent-rose font-medium hover:underline">
-                Soft Glam Tutorial
+              <Link href="/blog/how-much-does-bridal-makeup-cost-in-lagos" className="text-sm text-accent-rose font-medium hover:underline">
+                Bridal Makeup Cost Guide
               </Link>
-              <Link href="/blog/how-to-make-makeup-last-all-day-lagos-heat" className="text-sm text-accent-rose font-medium hover:underline">
-                Make Makeup Last All Day
+              <Link href="/blog/what-is-soft-glam-makeup" className="text-sm text-accent-rose font-medium hover:underline">
+                What Is Soft Glam?
               </Link>
-              <Link href="/blog/preparing-your-skin-before-makeup-application" className="text-sm text-accent-rose font-medium hover:underline">
-                Skin Prep Guide
-              </Link>
-              <Link href="/blog/complete-skin-prep-routine-for-flawless-makeup" className="text-sm text-accent-rose font-medium hover:underline">
-                Full Skin Prep Routine
+              <Link href="/blog/how-early-should-you-book-your-bridal-makeup-artist" className="text-sm text-accent-rose font-medium hover:underline">
+                When to Book Your Artist
               </Link>
             </div>
           </Reveal>
