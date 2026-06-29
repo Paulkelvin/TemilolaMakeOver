@@ -18,11 +18,43 @@ interface TimeSlotPickerProps {
 
 export function TimeSlotPicker({ selectedTime, onSelectTime }: TimeSlotPickerProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
+  const isDragging = useRef(false);
+  const startX = useRef(0);
+  const startScrollLeft = useRef(0);
+  const dragMoved = useRef(false);
 
   function handleWheel(e: React.WheelEvent) {
     if (!scrollRef.current) return;
     e.preventDefault();
     scrollRef.current.scrollLeft += e.deltaY + e.deltaX;
+  }
+
+  function onMouseDown(e: React.MouseEvent) {
+    if (!scrollRef.current) return;
+    isDragging.current = true;
+    dragMoved.current = false;
+    startX.current = e.pageX - scrollRef.current.offsetLeft;
+    startScrollLeft.current = scrollRef.current.scrollLeft;
+    scrollRef.current.style.cursor = "grabbing";
+  }
+
+  function onMouseMove(e: React.MouseEvent) {
+    if (!isDragging.current || !scrollRef.current) return;
+    e.preventDefault();
+    const x = e.pageX - scrollRef.current.offsetLeft;
+    const walk = x - startX.current;
+    if (Math.abs(walk) > 3) dragMoved.current = true;
+    scrollRef.current.scrollLeft = startScrollLeft.current - walk;
+  }
+
+  function onMouseUp() {
+    isDragging.current = false;
+    if (scrollRef.current) scrollRef.current.style.cursor = "grab";
+  }
+
+  function onClickCapture(e: React.MouseEvent) {
+    // suppress click if the user was dragging
+    if (dragMoved.current) e.stopPropagation();
   }
 
   return (
@@ -40,8 +72,13 @@ export function TimeSlotPicker({ selectedTime, onSelectTime }: TimeSlotPickerPro
       <div
         ref={scrollRef}
         onWheel={handleWheel}
-        className="flex gap-2 overflow-x-auto pb-1 -mx-0.5 px-0.5"
-        style={{ scrollbarWidth: "none" }}
+        onMouseDown={onMouseDown}
+        onMouseMove={onMouseMove}
+        onMouseUp={onMouseUp}
+        onMouseLeave={onMouseUp}
+        onClickCapture={onClickCapture}
+        className="flex gap-2 overflow-x-auto pb-1 -mx-0.5 px-0.5 select-none"
+        style={{ scrollbarWidth: "none", cursor: "grab" }}
       >
         {TIME_SLOTS.map((slot) => (
           <button
