@@ -400,7 +400,15 @@ export async function getPortfolioCategories(): Promise<PortfolioCategory[]> {
   return order.filter((c) => seen.has(c));
 }
 
-export const getSiteSettings = cache(async (): Promise<{ youtubeReelUrl?: string }> => {
+export interface SiteSettings {
+  youtubeReelUrl?: string;
+  heroImageMain?: string;
+  heroImageSecondary?: string;
+  heroImageDetail?: string;
+  aboutImage?: string;
+}
+
+export const getSiteSettings = cache(async (): Promise<SiteSettings> => {
   const data = await client.fetch(SITE_SETTINGS_QUERY, {}, REVALIDATE_FAST);
   return data ?? {};
 });

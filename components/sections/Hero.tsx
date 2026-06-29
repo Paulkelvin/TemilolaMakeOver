@@ -10,21 +10,33 @@ import { AvailabilityModal } from "@/components/ui/AvailabilityModal";
 import { analyticsEvents } from "@/lib/analytics";
 import { Container } from "@/components/ui/Container";
 import type { PortfolioItem } from "@/data/portfolio";
+import type { SiteSettings } from "@/sanity/fetch";
 
 interface HeroProps {
   portfolioItems: PortfolioItem[];
   blockedDates?: string[];
+  siteSettings?: SiteSettings;
 }
 
 const { hero } = homeCopy;
 
-export function Hero({ portfolioItems, blockedDates = [] }: HeroProps) {
+export function Hero({ portfolioItems, blockedDates = [], siteSettings }: HeroProps) {
   const reduced = useReducedMotion();
   const [calendarOpen, setCalendarOpen] = useState(false);
 
-  const heroMain = portfolioItems[1] ?? portfolioItems[0];
-  const heroFloat = portfolioItems[5] ?? portfolioItems[0];
-  const heroDetail = portfolioItems[2] ?? portfolioItems[0];
+  const fallbackMain = portfolioItems[1] ?? portfolioItems[0];
+  const fallbackFloat = portfolioItems[5] ?? portfolioItems[0];
+  const fallbackDetail = portfolioItems[2] ?? portfolioItems[0];
+
+  const heroMain = siteSettings?.heroImageMain
+    ? { src: siteSettings.heroImageMain, alt: "Gleam by Temi — hero" }
+    : fallbackMain;
+  const heroFloat = siteSettings?.heroImageSecondary
+    ? { src: siteSettings.heroImageSecondary, alt: "Gleam by Temi — makeup detail" }
+    : fallbackFloat;
+  const heroDetail = siteSettings?.heroImageDetail
+    ? { src: siteSettings.heroImageDetail, alt: "Gleam by Temi — client look" }
+    : fallbackDetail;
 
   return (
     <section className="relative min-h-[100svh] flex items-center pt-20 md:pt-24 pb-6 md:pb-8 overflow-hidden bg-bg-cream">

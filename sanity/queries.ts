@@ -131,4 +131,10 @@ export const BLOG_POST_BY_SLUG_QUERY = `*[_type == "blogPost" && slug.current ==
   publishedAt
 }`;
 
-export const SITE_SETTINGS_QUERY = `*[_type == "siteSettings"][0]{ youtubeReelUrl }`;
+export const SITE_SETTINGS_QUERY = `*[_type == "siteSettings"][0]{
+  youtubeReelUrl,
+  "heroImageMain": heroImageMain.asset->url,
+  "heroImageSecondary": heroImageSecondary.asset->url,
+  "heroImageDetail": heroImageDetail.asset->url,
+  "aboutImage": aboutImage.asset->url
+}`;

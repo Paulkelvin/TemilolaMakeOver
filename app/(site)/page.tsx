@@ -23,13 +23,13 @@ export default async function HomePage() {
 
   return (
     <>
-      <Hero portfolioItems={portfolioItems} blockedDates={blockedDates} />
+      <Hero portfolioItems={portfolioItems} blockedDates={blockedDates} siteSettings={siteSettings} />
       <TrustStrip />
       <PortfolioPreview />
       <ServicesOverview />
       <BeforeAfter />
       <VideoReel youtubeUrl={siteSettings.youtubeReelUrl} />
-      <WhyChooseUs />
+      <WhyChooseUs aboutImageUrl={siteSettings.aboutImage} />
       <Testimonials />
       <BookingProcess />
       <InstagramFeed items={instagramItems} />
