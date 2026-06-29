@@ -38,6 +38,7 @@ export function BookingForm({ className, preselectedService, preselectedDate, pr
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [errorMsg, setErrorMsg] = useState("");
   const [step, setStep] = useState(1);
+  const [showCalendar, setShowCalendar] = useState(!preselectedDate);
   const submittedData = useRef<BookingFormValues | null>(null);
   const formRef = useRef<HTMLFormElement>(null);
 
@@ -233,7 +234,7 @@ export function BookingForm({ className, preselectedService, preselectedDate, pr
       {/* Step 1: Personal info, date & service selection */}
       <div className={cn("space-y-5", step !== 1 && "hidden")}>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-          <FormField label="Full Name" htmlFor="name" error={errors.name?.message} required>
+          <FormField label="Name" htmlFor="name" error={errors.name?.message} required>
             <input
               id="name"
               {...register("name")}
@@ -257,13 +258,37 @@ export function BookingForm({ className, preselectedService, preselectedDate, pr
 
         <FormField label="Pick Your Date" htmlFor="eventDate" error={errors.eventDate?.message} required>
           <input type="hidden" {...register("eventDate")} />
-          <AvailabilityCalendar
-            blockedDates={blockedDates}
-            selectedDate={watchedDate}
-            onSelectDate={(date) => setValue("eventDate", date, { shouldValidate: true })}
-            selectedTime={watchedTime}
-            onSelectTime={(time) => setValue("preferredTime", time)}
-          />
+          {!showCalendar && watchedDate ? (
+            <div className="rounded-xl border border-accent-rose/30 bg-accent-rose/5 p-4 flex items-start justify-between gap-3">
+              <div>
+                <p className="text-sm font-medium text-text-primary flex items-center gap-1.5">
+                  <span className="text-accent-rose text-base">✓</span>
+                  {new Date(watchedDate + "T12:00:00").toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}
+                </p>
+                {watchedTime && (
+                  <p className="text-xs text-text-muted mt-0.5 ml-5">{watchedTime}</p>
+                )}
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowCalendar(true)}
+                className="text-xs font-medium text-accent-rose hover:underline shrink-0 mt-0.5"
+              >
+                Change
+              </button>
+            </div>
+          ) : (
+            <AvailabilityCalendar
+              blockedDates={blockedDates}
+              selectedDate={watchedDate}
+              onSelectDate={(date) => {
+                setValue("eventDate", date, { shouldValidate: true });
+                setShowCalendar(false);
+              }}
+              selectedTime={watchedTime}
+              onSelectTime={(time) => setValue("preferredTime", time)}
+            />
+          )}
         </FormField>
 
         <FormField label="Email" htmlFor="email" error={errors.email?.message}>

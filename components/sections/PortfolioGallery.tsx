@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import Image from "next/image";
 import Lightbox from "yet-another-react-lightbox";
 import "yet-another-react-lightbox/styles.css";
@@ -24,6 +24,11 @@ export function PortfolioGallery({
 }: PortfolioGalleryProps) {
   const [filter, setFilter] = useState<PortfolioCategory | "All">("All");
   const [lightboxIndex, setLightboxIndex] = useState(-1);
+
+  useEffect(() => {
+    document.body.style.overflow = lightboxIndex >= 0 ? "hidden" : "";
+    return () => { document.body.style.overflow = ""; };
+  }, [lightboxIndex]);
 
   const filtered =
     filter === "All" ? items : items.filter((p) => p.category === filter);
