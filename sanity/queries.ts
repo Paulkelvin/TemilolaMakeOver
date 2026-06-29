@@ -91,6 +91,14 @@ export const WHY_CHOOSE_US_QUERY = `*[_type == "whyChooseUs"] | order(order asc)
   description
 }`;
 
+export const ABOUT_VALUES_QUERY = `*[_type == "aboutValue"] | order(order asc) {
+  _id,
+  title,
+  text,
+  icon,
+  order
+}`;
+
 export const TRANSFORMATIONS_QUERY = `*[_type == "transformation"] | order(order asc) {
   _id,
   title,

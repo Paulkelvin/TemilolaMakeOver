@@ -20,6 +20,7 @@ import {
   FAQ_QUERY,
   BOOKING_STEPS_QUERY,
   WHY_CHOOSE_US_QUERY,
+  ABOUT_VALUES_QUERY,
   TRANSFORMATIONS_QUERY,
   BLOG_POSTS_QUERY,
   BLOG_POST_BY_SLUG_QUERY,
@@ -222,6 +223,19 @@ export interface WhyChooseUsItem {
 
 export const getWhyChooseUs = cache(async (): Promise<WhyChooseUsItem[]> => {
   return client.fetch(WHY_CHOOSE_US_QUERY, {}, REVALIDATE);
+});
+
+// ─── About Values ────────────────────────────────────────────────────────────
+export interface AboutValue {
+  _id: string;
+  title: string;
+  text: string;
+  icon: string;
+  order: number;
+}
+
+export const getAboutValues = cache(async (): Promise<AboutValue[]> => {
+  return client.fetch(ABOUT_VALUES_QUERY, {}, REVALIDATE);
 });
 
 // ─── Transformations ────────────────────────────────────────────────────────

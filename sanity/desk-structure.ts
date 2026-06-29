@@ -78,6 +78,7 @@ export const deskStructure = (S: StructureBuilder) =>
             .items([
               S.documentTypeListItem("testimonial").title("Testimonials"),
               S.documentTypeListItem("whyChooseUs").title("Why Gleam by Temi"),
+              S.documentTypeListItem("aboutValue").title("About — Philosophy Cards"),
             ])
         ),
 

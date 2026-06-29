@@ -11,6 +11,7 @@ import { blockedDateSchema } from "./blockedDate";
 import { siteSettingsSchema } from "./siteSettings";
 import { bookingSchema } from "./booking";
 import { pageCopySchema } from "./pageCopy";
+import { aboutValueSchema } from "./aboutValue";
 
 export const schemaTypes = [
   serviceSchema,
@@ -26,4 +27,5 @@ export const schemaTypes = [
   siteSettingsSchema,
   bookingSchema,
   pageCopySchema,
+  aboutValueSchema,
 ];
