@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { sendBookingNotification, sendBookingConfirmation } from "@/lib/email";
+import { writeClient } from "@/sanity/write-client";
 
 interface BookingPayload {
   name: string;
@@ -114,6 +115,22 @@ export async function POST(request: Request) {
       sendBookingNotification(body),
       sendBookingConfirmation(body),
     ]);
+
+    writeClient.create({
+      _type: "booking",
+      clientName: body.name,
+      phone: body.phone,
+      email: body.email ?? "",
+      service: body.service,
+      eventType: body.eventType,
+      eventDate: body.eventDate,
+      eventTime: body.preferredTime ?? "",
+      eventLocation: body.location,
+      numberOfFaces: Number(body.faces) || 1,
+      message: body.message ?? "",
+      status: "pending",
+      submittedAt: new Date().toISOString(),
+    }).catch((err: unknown) => console.error("[Sanity booking save failed]", err));
 
     return NextResponse.json({
       success: true,

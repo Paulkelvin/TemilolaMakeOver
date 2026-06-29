@@ -9,6 +9,7 @@ import { transformationSchema } from "./transformation";
 import { blogPostSchema } from "./blogPost";
 import { blockedDateSchema } from "./blockedDate";
 import { siteSettingsSchema } from "./siteSettings";
+import { bookingSchema } from "./booking";
 
 export const schemaTypes = [
   serviceSchema,
@@ -22,4 +23,5 @@ export const schemaTypes = [
   blogPostSchema,
   blockedDateSchema,
   siteSettingsSchema,
+  bookingSchema,
 ];

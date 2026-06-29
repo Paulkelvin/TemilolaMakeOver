@@ -135,6 +135,13 @@ export function BookingForm({ className, preselectedService, preselectedDate, pr
     const selectedService = services.find(
       (s) => s.name === getValues("service")
     );
+    const depositAmount = selectedService?.priceFrom
+      ? Math.round(selectedService.priceFrom * 0.5)
+      : null;
+    const depositWhatsApp = `https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? ""}?text=${encodeURIComponent(
+      `Hi! I'd like to pay the deposit for ${getValues("service")} on ${getValues("eventDate")}. Please send me the payment details.`
+    )}`;
+
     return (
       <div
         className={cn(
@@ -143,49 +150,45 @@ export function BookingForm({ className, preselectedService, preselectedDate, pr
         )}
       >
         <div className="w-16 h-16 rounded-full bg-accent-rose/10 flex items-center justify-center mx-auto mb-4">
-          <span className="text-2xl text-accent-rose" aria-hidden>
-            ✓
-          </span>
+          <span className="text-2xl text-accent-rose" aria-hidden>✓</span>
         </div>
-        <h3 className="font-display text-2xl text-text-primary">Thank you!</h3>
-        <p className="mt-3 text-text-muted leading-relaxed">
-          {bookPageCopy.success}
+        <h3 className="font-display text-2xl text-text-primary">Booking received!</h3>
+        <p className="mt-2 text-sm text-text-muted">
+          We&apos;ll confirm your date and send next steps within 24 hours.
         </p>
 
-        <div className="mt-6 rounded-xl bg-bg-blush border border-border p-5">
-          <p className="text-sm text-text-primary font-medium mb-1 text-left">
-            Want to secure your date instantly?
+        <div className="mt-6 rounded-xl border border-accent-rose/20 bg-accent-rose/5 p-5 space-y-3">
+          <p className="text-xs text-text-muted">
+            50% deposit secures your date — pay now to lock it in
           </p>
-          <p className="text-xs text-text-muted leading-relaxed mb-4 text-left">
-            Pay your 50% deposit now to lock in your booking. Your date isn&apos;t confirmed until the deposit is received.
-          </p>
-          {selectedService?.priceFrom && submittedData.current && (
+          {depositAmount && submittedData.current ? (
             <PayDepositButton
               email={submittedData.current.email || ""}
               name={submittedData.current.name}
-              service={selectedService.name}
-              depositAmount={Math.round(selectedService.priceFrom * 0.5)}
+              service={selectedService!.name}
+              depositAmount={depositAmount}
               eventDate={submittedData.current.eventDate}
+              className="w-full"
             />
-          )}
-          {selectedService?.slug && (
+          ) : (
             <a
-              href={`/services/${selectedService.slug}`}
-              className="inline-block mt-3 text-xs font-medium text-accent-rose hover:underline"
+              href={depositWhatsApp}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-center gap-2 w-full rounded-full bg-accent-rose text-white py-3 text-sm font-medium hover:bg-accent-rose-dark transition-colors"
             >
-              See what&apos;s included in your service →
+              Pay deposit on WhatsApp →
             </a>
           )}
         </div>
 
-        <Button
-          variant="secondary"
-          size="md"
-          className="mt-6"
+        <button
+          type="button"
+          className="mt-5 text-xs text-text-muted hover:text-accent-rose transition-colors"
           onClick={() => setStatus("idle")}
         >
-          Send Another Request
-        </Button>
+          Send another request
+        </button>
       </div>
     );
   }
@@ -261,8 +264,11 @@ export function BookingForm({ className, preselectedService, preselectedDate, pr
           {!showCalendar && watchedDate ? (
             <div className="rounded-xl border border-accent-rose/30 bg-accent-rose/5 p-4 flex items-start justify-between gap-3">
               <div>
+                <p className="text-[10px] font-semibold uppercase tracking-wider text-accent-rose mb-0.5">
+                  {watchedTime ? "Date & time selected" : "Date selected"}
+                </p>
                 <p className="text-sm font-medium text-text-primary flex items-center gap-1.5">
-                  <span className="text-accent-rose text-base">✓</span>
+                  <span className="text-accent-rose">✓</span>
                   {new Date(watchedDate + "T12:00:00").toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}
                 </p>
                 {watchedTime && (
