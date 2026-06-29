@@ -21,7 +21,6 @@ function TestimonialCard({ t }: { t: MarqueeItem }) {
   return (
     <div className="shrink-0 w-[260px] md:w-[280px] group">
       <div className="relative rounded-2xl overflow-hidden border border-border bg-card shadow-sm hover:shadow-lg transition-shadow duration-500">
-        {/* Photo hero */}
         <div className="relative h-[280px] md:h-[300px] bg-bg-blush">
           {t.avatarUrl ? (
             <Image
@@ -38,10 +37,8 @@ function TestimonialCard({ t }: { t: MarqueeItem }) {
               </span>
             </div>
           )}
-          {/* Gradient overlay for text readability */}
           <div className="absolute inset-0 bg-gradient-to-t from-luxury-dark/80 via-luxury-dark/20 to-transparent" />
 
-          {/* Stars + quote overlay */}
           <div className="absolute bottom-0 left-0 right-0 p-5">
             <div className="flex gap-0.5 mb-2">
               {Array.from({ length: t.rating }).map((_, j) => (
@@ -54,7 +51,6 @@ function TestimonialCard({ t }: { t: MarqueeItem }) {
           </div>
         </div>
 
-        {/* Name strip */}
         <div className="px-5 py-4 flex items-center justify-between">
           <div>
             <p className="font-medium text-text-primary text-sm">{t.name}</p>
@@ -70,10 +66,13 @@ function TestimonialCard({ t }: { t: MarqueeItem }) {
 export function TestimonialsMarquee({ items }: TestimonialsMarqueeProps) {
   return (
     <div className="w-full overflow-hidden">
-      <div className="flex gap-5 animate-marquee w-max">
-        {/* Two identical sets — animation shifts exactly -50% for seamless loop */}
-        {[...items, ...items].map((t, i) => (
-          <TestimonialCard key={`${t.id}-${i}`} t={t} />
+      <div className="inline-flex gap-5 animate-marquee">
+        {[0, 1].map((set) => (
+          <div key={set} className="flex shrink-0 gap-5">
+            {items.map((t) => (
+              <TestimonialCard key={`${t.id}-${set}`} t={t} />
+            ))}
+          </div>
         ))}
       </div>
     </div>
