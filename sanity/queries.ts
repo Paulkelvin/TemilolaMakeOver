@@ -49,7 +49,17 @@ export const PORTFOLIO_QUERY = `*[_type == "portfolioItem"] | order(order asc) {
   alt,
   category,
   aspect,
-  "imageUrl": image.asset->url
+  "imageUrl": image.asset->url,
+  instagramFeatured,
+  instagramUrl
+}`;
+
+export const INSTAGRAM_FEED_QUERY = `*[_type == "portfolioItem" && instagramFeatured == true] | order(order asc) [0...9] {
+  _id,
+  title,
+  alt,
+  "imageUrl": image.asset->url,
+  instagramUrl
 }`;
 
 export const TESTIMONIALS_QUERY = `*[_type == "testimonial"] | order(order asc) {
@@ -58,7 +68,8 @@ export const TESTIMONIALS_QUERY = `*[_type == "testimonial"] | order(order asc) 
   event,
   text,
   rating,
-  initials
+  initials,
+  "avatarUrl": avatar.asset->url
 }`;
 
 export const FAQ_QUERY = `*[_type == "faq"] | order(order asc) {

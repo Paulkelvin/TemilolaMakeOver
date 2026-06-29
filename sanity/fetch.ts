@@ -15,6 +15,7 @@ import {
   SERVICE_BY_SLUG_QUERY,
   PACKAGES_QUERY,
   PORTFOLIO_QUERY,
+  INSTAGRAM_FEED_QUERY,
   TESTIMONIALS_QUERY,
   FAQ_QUERY,
   BOOKING_STEPS_QUERY,
@@ -162,6 +163,7 @@ interface RawTestimonial {
   text: string;
   rating: number;
   initials: string;
+  avatarUrl?: string;
 }
 
 export const getTestimonials = cache(async (): Promise<Testimonial[]> => {
@@ -177,6 +179,7 @@ export const getTestimonials = cache(async (): Promise<Testimonial[]> => {
     text: t.text,
     rating: t.rating,
     initials: t.initials,
+    avatarUrl: t.avatarUrl,
   }));
 });
 
@@ -357,6 +360,27 @@ export const getBlogPostBySlug = cache(async (slug: string): Promise<BlogPost | 
     author: p.author ?? "Temilola",
     publishedAt: p.publishedAt,
   };
+});
+
+// ─── Instagram Feed ──────────────────────────────────────────────────────────
+export interface InstagramFeedItem {
+  id: string;
+  title: string;
+  alt: string;
+  imageUrl: string;
+  instagramUrl?: string;
+}
+
+export const getInstagramFeed = cache(async (): Promise<InstagramFeedItem[]> => {
+  const raw: { _id: string; title: string; alt: string; imageUrl: string; instagramUrl?: string }[] =
+    await client.fetch(INSTAGRAM_FEED_QUERY, {}, REVALIDATE);
+  return raw.map((p) => ({
+    id: p._id,
+    title: p.title,
+    alt: p.alt,
+    imageUrl: p.imageUrl ?? "",
+    instagramUrl: p.instagramUrl,
+  }));
 });
 
 // ─── Portfolio categories (derived) ─────────────────────────────────────────

@@ -318,6 +318,9 @@ export function BookingForm({ className, preselectedService, preselectedDate, bl
 
       {/* Step 2: Event details & message */}
       <div className={cn("space-y-5", step !== 2 && "hidden")}>
+        <div className="rounded-lg bg-accent-rose/5 border border-accent-rose/20 px-4 py-3 text-sm text-text-muted leading-relaxed">
+          A <span className="font-medium text-text-primary">50% deposit</span> secures your date after we confirm availability. Payment details are sent with your confirmation.
+        </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
           <FormField
             label="Number of Faces"

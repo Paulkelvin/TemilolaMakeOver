@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { Star } from "lucide-react";
 import { getTestimonials } from "@/sanity/fetch";
 import { homeCopy } from "@/data/copy";
@@ -36,8 +37,18 @@ export async function Testimonials() {
                   &ldquo;{t.text}&rdquo;
                 </p>
                 <footer className="mt-6 flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-bg-blush flex items-center justify-center text-sm font-medium text-accent-rose">
-                    {t.initials}
+                  <div className="w-10 h-10 rounded-full overflow-hidden bg-bg-blush flex items-center justify-center text-sm font-medium text-accent-rose shrink-0">
+                    {t.avatarUrl ? (
+                      <Image
+                        src={t.avatarUrl}
+                        alt={t.name}
+                        width={40}
+                        height={40}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      t.initials
+                    )}
                   </div>
                   <div>
                     <cite className="not-italic font-medium text-text-primary text-sm">

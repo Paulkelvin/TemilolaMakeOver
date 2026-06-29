@@ -5,6 +5,7 @@ export interface Testimonial {
   text: string;
   rating: number;
   initials: string;
+  avatarUrl?: string;
 }
 
 export const testimonials: Testimonial[] = [

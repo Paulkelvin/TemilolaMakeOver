@@ -17,7 +17,24 @@ export const blogPostSchema = defineType({
       name: "body",
       title: "Body",
       type: "array",
-      of: [defineArrayMember({ type: "block" })],
+      of: [
+        defineArrayMember({ type: "block" }),
+        defineArrayMember({
+          type: "object",
+          name: "videoEmbed",
+          title: "YouTube Video",
+          fields: [
+            defineField({ name: "url", title: "YouTube URL", type: "url", validation: (r) => r.required() }),
+            defineField({ name: "caption", title: "Caption (optional)", type: "string" }),
+          ],
+          preview: {
+            select: { title: "url", subtitle: "caption" },
+            prepare({ title, subtitle }) {
+              return { title: subtitle || "YouTube Video", subtitle: title };
+            },
+          },
+        }),
+      ],
     }),
     defineField({ name: "category", title: "Category", type: "string" }),
     defineField({

@@ -236,6 +236,10 @@ export const bookPageCopy = {
     "Your booking request has been received. We'll confirm availability and send the next steps shortly.",
 } as const;
 
+export const mediaConfig = {
+  youtubeReelUrl: "",
+} as const;
+
 export const ctaBank = {
   whatsapp: [
     "Book on WhatsApp",

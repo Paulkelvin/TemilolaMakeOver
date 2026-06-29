@@ -118,6 +118,36 @@ export function Footer() {
           </div>
         </div>
 
+        {/* Trust badges */}
+        <div className="border-t border-white/10 pt-8 mb-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <p className="text-xs text-white/40 flex items-center gap-1.5">
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+            </svg>
+            Secure payments
+          </p>
+          <div className="flex items-center gap-4 opacity-50">
+            {/* Paystack */}
+            <svg viewBox="0 0 80 24" fill="none" className="h-5 w-auto" aria-label="Paystack">
+              <text x="0" y="18" fontFamily="system-ui" fontSize="14" fontWeight="700" fill="white">Paystack</text>
+            </svg>
+            {/* Visa */}
+            <svg viewBox="0 0 60 20" className="h-5 w-auto" aria-label="Visa">
+              <text x="0" y="16" fontFamily="system-ui" fontSize="18" fontWeight="800" fontStyle="italic" fill="white">VISA</text>
+            </svg>
+            {/* Mastercard */}
+            <svg viewBox="0 0 44 28" className="h-5 w-auto" aria-label="Mastercard">
+              <circle cx="14" cy="14" r="14" fill="#EB001B" opacity="0.9"/>
+              <circle cx="30" cy="14" r="14" fill="#F79E1B" opacity="0.9"/>
+              <path d="M22 6.3A14 14 0 0128.7 14 14 14 0 0122 21.7 14 14 0 0115.3 14 14 14 0 0122 6.3z" fill="#FF5F00" opacity="0.9"/>
+            </svg>
+            {/* Verve */}
+            <svg viewBox="0 0 56 20" className="h-5 w-auto" aria-label="Verve">
+              <text x="0" y="15" fontFamily="system-ui" fontSize="14" fontWeight="700" fill="white">Verve</text>
+            </svg>
+          </div>
+        </div>
+
         <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-white/40">
           <p>
             © {year} {siteConfig.brand}. All rights reserved.

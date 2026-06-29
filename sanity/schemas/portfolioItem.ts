@@ -42,6 +42,19 @@ export const portfolioItemSchema = defineType({
       },
     }),
     defineField({ name: "order", title: "Display Order", type: "number" }),
+    defineField({
+      name: "instagramFeatured",
+      title: "Feature in Instagram Grid",
+      type: "boolean",
+      description: "Show this image in the Instagram-style feed section on the homepage",
+      initialValue: false,
+    }),
+    defineField({
+      name: "instagramUrl",
+      title: "Instagram Post URL",
+      type: "url",
+      description: "Link to the original Instagram post (optional — clicking the grid image will open this)",
+    }),
   ],
   orderings: [{ title: "Display Order", name: "orderAsc", by: [{ field: "order", direction: "asc" }] }],
   preview: {

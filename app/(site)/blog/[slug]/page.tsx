@@ -14,6 +14,7 @@ import { Container } from "@/components/ui/Container";
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 import { RelatedPosts } from "@/components/sections/RelatedPosts";
 import { Clock } from "lucide-react";
+import { VideoEmbed } from "@/components/ui/VideoEmbed";
 
 export async function generateStaticParams() {
   const posts = await getBlogPosts();
@@ -127,7 +128,16 @@ export default async function BlogPostPage({
 
             {post.body && (
               <div className="blog-content max-w-none">
-                <PortableText value={post.body} />
+                <PortableText
+                  value={post.body}
+                  components={{
+                    types: {
+                      videoEmbed: ({ value }) => (
+                        <VideoEmbed url={value.url} caption={value.caption} />
+                      ),
+                    },
+                  }}
+                />
               </div>
             )}
 
