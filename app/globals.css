@@ -303,9 +303,9 @@ textarea {
 @keyframes modalPanelIn {
   0% {
     opacity: 0;
-    transform: translateY(60px) scale(0.95);
+    transform: translateY(100%) scale(0.97);
   }
-  60% {
+  40% {
     opacity: 1;
   }
   100% {
@@ -315,11 +315,11 @@ textarea {
 }
 
 .modal-overlay-enter {
-  animation: modalOverlayIn 0.4s ease-out both;
+  animation: modalOverlayIn 0.5s ease-out both;
 }
 
 .modal-panel-enter {
-  animation: modalPanelIn 0.55s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both;
+  animation: modalPanelIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.15s both;
 }
 
 @keyframes fabPulse {
