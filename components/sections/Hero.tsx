@@ -10,17 +10,27 @@ import { AvailabilityModal } from "@/components/ui/AvailabilityModal";
 import { analyticsEvents } from "@/lib/analytics";
 import { Container } from "@/components/ui/Container";
 import type { PortfolioItem } from "@/data/portfolio";
-import type { SiteSettings } from "@/sanity/fetch";
+import type { SiteSettings, PageCopy } from "@/sanity/fetch";
 
 interface HeroProps {
   portfolioItems: PortfolioItem[];
   blockedDates?: string[];
   siteSettings?: SiteSettings;
+  pageCopy?: PageCopy;
 }
 
-const { hero } = homeCopy;
+const defaults = homeCopy.hero;
 
-export function Hero({ portfolioItems, blockedDates = [], siteSettings }: HeroProps) {
+export function Hero({ portfolioItems, blockedDates = [], siteSettings, pageCopy }: HeroProps) {
+  const hero = {
+    eyebrow: pageCopy?.heroEyebrow ?? defaults.eyebrow,
+    headline: pageCopy?.heroTitle ?? defaults.headline,
+    subheadline: pageCopy?.heroSubtitle ?? defaults.subheadline,
+    trustLine: pageCopy?.heroTrustLine ?? defaults.trustLine,
+    badges: pageCopy?.heroBadges ?? [...defaults.badges],
+    primaryCta: pageCopy?.heroPrimaryCta ?? defaults.primaryCta,
+    secondaryCta: pageCopy?.heroSecondaryCta ?? defaults.secondaryCta,
+  };
   const reduced = useReducedMotion();
   const [calendarOpen, setCalendarOpen] = useState(false);
 

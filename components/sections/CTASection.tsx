@@ -5,6 +5,8 @@ import { Reveal } from "@/components/ui/Reveal";
 import { Container } from "@/components/ui/Container";
 import { analyticsEvents } from "@/lib/analytics";
 
+const defaults = homeCopy.finalCta;
+
 interface CTASectionProps {
   title?: string;
   subtitle?: string;
@@ -14,12 +16,15 @@ interface CTASectionProps {
 }
 
 export function CTASection({
-  title = homeCopy.finalCta.headline,
-  subtitle = homeCopy.finalCta.paragraph,
-  eyebrow = homeCopy.finalCta.eyebrow,
+  title,
+  subtitle,
+  eyebrow,
   variant = "dark",
   location = "final_banner",
 }: CTASectionProps) {
+  const resolvedTitle = title ?? defaults.headline;
+  const resolvedSubtitle = subtitle ?? defaults.paragraph;
+  const resolvedEyebrow = eyebrow ?? defaults.eyebrow;
   const bookingUrl = buildWhatsAppUrl({ intent: "booking" });
   const isDark = variant === "dark";
 
@@ -47,7 +52,7 @@ export function CTASection({
                 : "text-xs font-semibold uppercase tracking-[0.2em] text-accent-rose mb-4"
             }
           >
-            {eyebrow}
+            {resolvedEyebrow}
           </p>
           <h2
             className={
@@ -56,7 +61,7 @@ export function CTASection({
                 : "font-display text-3xl md:text-4xl lg:text-5xl font-medium leading-tight text-text-primary"
             }
           >
-            {title}
+            {resolvedTitle}
           </h2>
           <p
             className={
@@ -65,7 +70,7 @@ export function CTASection({
                 : "mt-6 text-text-muted text-base md:text-lg max-w-xl mx-auto"
             }
           >
-            {subtitle}
+            {resolvedSubtitle}
           </p>
           <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
             <Button

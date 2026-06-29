@@ -17,9 +17,11 @@ export const metadata = createPageMetadata({
 });
 
 export default async function PortfolioPage() {
-  const [items, categories] = await Promise.all([
+  const { getPageCopy } = await import("@/sanity/fetch");
+  const [items, categories, pageCopy] = await Promise.all([
     getPortfolioItems(),
     getPortfolioCategories(),
+    getPageCopy("portfolio"),
   ]);
   const copy = portfolioPageCopy;
   const url = buildWhatsAppUrl({ intent: "look", look: "Portfolio inspiration" });
@@ -28,8 +30,8 @@ export default async function PortfolioPage() {
     <>
       <PageHero
         label={copy.hero.label}
-        title={copy.hero.title}
-        subtitle={copy.hero.subtitle}
+        title={pageCopy.heroTitle ?? copy.hero.title}
+        subtitle={pageCopy.heroSubtitle ?? copy.hero.subtitle}
       />
 
       <SectionWrapper>

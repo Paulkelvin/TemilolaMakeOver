@@ -1,18 +1,20 @@
 import Image from "next/image";
 import { getWhyChooseUs, getPortfolioItems } from "@/sanity/fetch";
+import type { PageCopySection } from "@/sanity/fetch";
 import { homeCopy } from "@/data/copy";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { SectionWrapper } from "@/components/ui/BackgroundDecor";
 import { Reveal } from "@/components/ui/Reveal";
 import { WhyUsCardMarquee } from "@/components/ui/WhyUsCardMarquee";
 
-const copy = homeCopy.whyChooseUs;
+const defaults = homeCopy.whyChooseUs;
 
 interface WhyChooseUsProps {
   aboutImageUrl?: string;
+  sectionCopy?: PageCopySection;
 }
 
-export async function WhyChooseUs({ aboutImageUrl }: WhyChooseUsProps) {
+export async function WhyChooseUs({ aboutImageUrl, sectionCopy }: WhyChooseUsProps) {
   const [items, portfolioItems] = await Promise.all([
     getWhyChooseUs(),
     getPortfolioItems(),
@@ -25,9 +27,9 @@ export async function WhyChooseUs({ aboutImageUrl }: WhyChooseUsProps) {
     <SectionWrapper id="why-us" className="py-12 md:py-20">
       <div className="mx-auto max-w-7xl px-4 md:px-6 lg:px-8">
         <SectionHeading
-          label={copy.label}
-          title={copy.headline}
-          subtitle={copy.paragraph}
+          label={sectionCopy?.label ?? defaults.label}
+          title={sectionCopy?.headline ?? defaults.headline}
+          subtitle={sectionCopy?.paragraph ?? defaults.paragraph}
           align="left"
           compact
         />

@@ -5,18 +5,23 @@ import { homeCopy } from "@/data/copy";
 
 const icons = [Crown, Sparkles, Home, MapPin, ShieldCheck];
 
-const items = homeCopy.trustStrip.map((label, i) => ({
-  label,
-  Icon: icons[i] ?? Sparkles,
-}));
+interface TrustStripProps {
+  items?: string[];
+}
 
-export function TrustStrip() {
+export function TrustStrip({ items: customItems }: TrustStripProps) {
+  const labels = customItems?.length ? customItems : homeCopy.trustStrip;
+  const entries = labels.map((label, i) => ({
+    label,
+    Icon: icons[i % icons.length] ?? Sparkles,
+  }));
+
   return (
     <section className="relative border-y border-border bg-card/60 backdrop-blur-sm py-4 overflow-hidden max-w-[100vw]">
       <div className="inline-flex gap-8 md:gap-12 animate-marquee">
         {[0, 1].map((set) => (
           <div key={set} className="flex shrink-0 items-center gap-8 md:gap-12">
-            {items.map(({ label, Icon }) => (
+            {entries.map(({ label, Icon }) => (
               <span
                 key={`${label}-${set}`}
                 className="flex items-center gap-2.5 whitespace-nowrap text-xs md:text-sm font-medium text-text-primary"

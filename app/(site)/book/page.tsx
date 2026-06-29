@@ -25,7 +25,8 @@ export default async function BookPage({
   const preselectedService = typeof params.service === "string" ? params.service : undefined;
   const preselectedDate = typeof params.date === "string" ? params.date : undefined;
   const preselectedTime = typeof params.time === "string" ? params.time : undefined;
-  const blockedDates = await getBlockedDates();
+  const { getPageCopy } = await import("@/sanity/fetch");
+  const [blockedDates, pageCopy] = await Promise.all([getBlockedDates(), getPageCopy("book")]);
   const copy = bookPageCopy;
 
   return (
@@ -33,8 +34,8 @@ export default async function BookPage({
       <ScrollToHash />
       <PageHero
         label={copy.hero.label}
-        title={copy.hero.title}
-        subtitle={copy.hero.subtitle}
+        title={pageCopy.heroTitle ?? copy.hero.title}
+        subtitle={pageCopy.heroSubtitle ?? copy.hero.subtitle}
       />
 
       <SectionWrapper>

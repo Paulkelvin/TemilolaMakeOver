@@ -25,6 +25,7 @@ import {
   BLOG_POST_BY_SLUG_QUERY,
   BLOCKED_DATES_QUERY,
   SITE_SETTINGS_QUERY,
+  PAGE_COPY_QUERY,
 } from "./queries";
 import type { Service } from "@/data/services";
 import type { Package } from "@/data/packages";
@@ -410,5 +411,47 @@ export interface SiteSettings {
 
 export const getSiteSettings = cache(async (): Promise<SiteSettings> => {
   const data = await client.fetch(SITE_SETTINGS_QUERY, {}, REVALIDATE_FAST);
+  return data ?? {};
+});
+
+export interface PageCopySection {
+  key: string;
+  label?: string;
+  headline?: string;
+  paragraph?: string;
+  intro?: string;
+  subtitle?: string;
+  title?: string;
+  body?: string;
+  cta?: string;
+  footnote?: string;
+  note?: string;
+  paragraphs?: string[];
+}
+
+export interface PageCopy {
+  page?: string;
+  seoTitle?: string;
+  seoDescription?: string;
+  heroLabel?: string;
+  heroTitle?: string;
+  heroSubtitle?: string;
+  heroEyebrow?: string;
+  heroTrustLine?: string;
+  heroBadges?: string[];
+  heroPrimaryCta?: string;
+  heroSecondaryCta?: string;
+  heroImageUrl?: string;
+  sections?: PageCopySection[];
+}
+
+function findSection(copy: PageCopy | null, key: string): PageCopySection | undefined {
+  return copy?.sections?.find((s) => s.key === key);
+}
+
+export { findSection };
+
+export const getPageCopy = cache(async (page: string): Promise<PageCopy> => {
+  const data = await client.fetch(PAGE_COPY_QUERY, { page }, REVALIDATE_FAST);
   return data ?? {};
 });

@@ -22,7 +22,8 @@ export const metadata = createPageMetadata({
 });
 
 export default async function PricingPage() {
-  const packages = await getPackages();
+  const { getPageCopy } = await import("@/sanity/fetch");
+  const [packages, pageCopy] = await Promise.all([getPackages(), getPageCopy("pricing")]);
   const copy = pricingPageCopy;
   const quoteUrl = buildWhatsAppUrl({ intent: "quote" });
 
@@ -30,8 +31,8 @@ export default async function PricingPage() {
     <>
       <PageHero
         label={copy.hero.label}
-        title={copy.hero.title}
-        subtitle={copy.hero.subtitle}
+        title={pageCopy.heroTitle ?? copy.hero.title}
+        subtitle={pageCopy.heroSubtitle ?? copy.hero.subtitle}
       />
 
       <SectionWrapper variant="blush">

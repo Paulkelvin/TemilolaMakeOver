@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { getPortfolioItems } from "@/sanity/fetch";
+import { getPortfolioItems, getPageCopy, findSection } from "@/sanity/fetch";
 import { aboutPageCopy, seoCopy } from "@/data/copy";
 import { createPageMetadata } from "@/lib/metadata";
 import { buildWhatsAppUrl } from "@/lib/whatsapp";
@@ -19,7 +19,7 @@ export const metadata = createPageMetadata({
   path: "/about",
 });
 
-const values = [
+const defaultValues = [
   {
     icon: Heart,
     title: "Beauty with intention",
@@ -37,18 +37,36 @@ const values = [
   },
 ];
 
+const defaults = aboutPageCopy;
+
 export default async function AboutPage() {
-  const portfolioItems = await getPortfolioItems();
-  const copy = aboutPageCopy;
+  const [portfolioItems, pageCopy] = await Promise.all([
+    getPortfolioItems(),
+    getPageCopy("about"),
+  ]);
+
   const url = buildWhatsAppUrl({ intent: "availability" });
   const portrait = portfolioItems[0];
+  const portraitSrc = pageCopy.heroImageUrl ?? portrait?.src;
+
+  const introSec = findSection(pageCopy, "intro");
+  const philosophySec = findSection(pageCopy, "philosophy");
+  const trustSec = findSection(pageCopy, "trust");
+
+  const introTitle = introSec?.title ?? defaults.intro.title;
+  const introParagraphs = introSec?.paragraphs?.length
+    ? introSec.paragraphs
+    : defaults.intro.paragraphs;
+  const philosophyTitle = philosophySec?.title ?? defaults.philosophy.title;
+  const trustTitle = trustSec?.title ?? defaults.trust.title;
+  const trustBody = trustSec?.body ?? defaults.trust.body;
 
   return (
     <>
       <PageHero
-        label={copy.hero.label}
-        title={copy.hero.title}
-        subtitle={copy.hero.subtitle}
+        label={pageCopy.heroLabel ?? defaults.hero.label}
+        title={pageCopy.heroTitle ?? defaults.hero.title}
+        subtitle={pageCopy.heroSubtitle ?? defaults.hero.subtitle}
       />
 
       <SectionWrapper>
@@ -56,9 +74,9 @@ export default async function AboutPage() {
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
             <Reveal>
               <div className="relative aspect-[4/5] rounded-3xl overflow-hidden border border-border shadow-xl corner-accent">
-                {portrait?.src ? (
+                {portraitSrc ? (
                   <Image
-                    src={portrait.src}
+                    src={portraitSrc}
                     alt={`${siteConfig.artistName} — professional makeup artist in Lagos`}
                     fill
                     sizes="(max-width: 1024px) 100vw, 50vw"
@@ -73,15 +91,15 @@ export default async function AboutPage() {
 
             <Reveal>
               <h2 className="font-display text-3xl md:text-4xl font-medium text-text-primary">
-                {copy.intro.title}
+                {introTitle}
               </h2>
               <div className="mt-6 space-y-4 text-text-muted leading-relaxed">
-                {copy.intro.paragraphs.map((p) => (
+                {introParagraphs.map((p) => (
                   <p key={p.slice(0, 40)}>{p}</p>
                 ))}
               </div>
               <Button href={url} external variant="primary" size="lg" className="mt-8">
-                {copy.cta}
+                {introSec?.cta ?? defaults.cta}
               </Button>
             </Reveal>
           </div>
@@ -92,15 +110,15 @@ export default async function AboutPage() {
         <Container>
           <Reveal className="text-center mb-12">
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-accent-gold mb-3">
-              {copy.philosophy.label}
+              {philosophySec?.label ?? defaults.philosophy.label}
             </p>
             <h2 className="font-display text-3xl md:text-4xl font-medium text-text-primary">
-              {copy.philosophy.title}
+              {philosophyTitle}
             </h2>
           </Reveal>
 
           <div className="grid md:grid-cols-3 gap-6">
-            {values.map((v, i) => (
+            {defaultValues.map((v) => (
               <Reveal key={v.title}>
                 <div className="rounded-2xl border border-border bg-card p-8 text-center h-full">
                   <v.icon className="w-8 h-8 text-accent-rose mx-auto mb-4" strokeWidth={1.5} />
@@ -112,20 +130,12 @@ export default async function AboutPage() {
           </div>
 
           <Reveal className="mt-16 max-w-2xl mx-auto text-center">
-            <h3 className="font-display text-2xl text-text-primary">{copy.trust.title}</h3>
-            <p className="mt-4 text-text-muted leading-relaxed">{copy.trust.body}</p>
+            <h3 className="font-display text-2xl text-text-primary">{trustTitle}</h3>
+            <p className="mt-4 text-text-muted leading-relaxed">{trustBody}</p>
             <p className="mt-4 text-sm text-text-muted">
               Learn more about my approach on the{" "}
               <Link href="/blog" className="text-accent-rose font-medium hover:underline">
                 blog
-              </Link>
-              {" — "}from{" "}
-              <Link href="/blog/soft-glam-makeup-tutorial-step-by-step" className="text-accent-rose font-medium hover:underline">
-                soft glam tutorials
-              </Link>
-              {" "}to{" "}
-              <Link href="/blog/preparing-your-skin-before-makeup-application" className="text-accent-rose font-medium hover:underline">
-                skin prep tips
               </Link>.
             </p>
           </Reveal>

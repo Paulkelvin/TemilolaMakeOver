@@ -131,6 +131,15 @@ export const BLOG_POST_BY_SLUG_QUERY = `*[_type == "blogPost" && slug.current ==
   publishedAt
 }`;
 
+export const PAGE_COPY_QUERY = `*[_type == "pageCopy" && page == $page][0]{
+  page,
+  seoTitle, seoDescription,
+  heroLabel, heroTitle, heroSubtitle, heroEyebrow, heroTrustLine,
+  heroBadges, heroPrimaryCta, heroSecondaryCta,
+  "heroImageUrl": heroImage.asset->url,
+  sections
+}`;
+
 export const SITE_SETTINGS_QUERY = `*[_type == "siteSettings"][0]{
   youtubeReelUrl,
   "heroImageMain": heroImageMain.asset->url,

@@ -20,15 +20,16 @@ export const metadata = createPageMetadata({
 });
 
 export default async function ServicesPage() {
-  const [services, faqItems] = await Promise.all([getServices(), getFaqItems()]);
+  const { getPageCopy } = await import("@/sanity/fetch");
+  const [services, faqItems, pageCopy] = await Promise.all([getServices(), getFaqItems(), getPageCopy("services")]);
   const copy = servicesPageCopy;
 
   return (
     <>
       <PageHero
         label={copy.hero.label}
-        title={copy.hero.title}
-        subtitle={copy.hero.subtitle}
+        title={pageCopy.heroTitle ?? copy.hero.title}
+        subtitle={pageCopy.heroSubtitle ?? copy.hero.subtitle}
       />
 
       <SectionWrapper variant="blush" decor={false}>

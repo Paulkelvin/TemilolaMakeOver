@@ -15,6 +15,17 @@ export const deskStructure = (S: StructureBuilder) =>
             .title("Site Settings")
         ),
 
+      // ── Page Copy (singleton) ──
+      S.listItem()
+        .title("Page Copy")
+        .id("pageCopy")
+        .child(
+          S.document()
+            .schemaType("pageCopy")
+            .documentId("pageCopy")
+            .title("Page Copy")
+        ),
+
       S.divider(),
 
       // ── Services & Pricing ──
