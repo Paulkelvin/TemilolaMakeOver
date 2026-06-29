@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { getServices } from "@/sanity/fetch";
 import { homeCopy } from "@/data/copy";
 import { SectionHeading } from "@/components/ui/SectionHeading";
@@ -20,12 +21,23 @@ export async function ServicesOverview() {
           compact
         />
         <StaggerGrid className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {services.map((service) => (
-            <StaggerItem key={service.id}>
+          {services.map((service, i) => (
+            <StaggerItem key={service.id} className={i >= 3 ? "hidden md:block" : undefined}>
               <ServiceCard service={service} ctaText={copy.cardCta} />
             </StaggerItem>
           ))}
         </StaggerGrid>
+
+        {services.length > 3 && (
+          <div className="mt-8 text-center md:hidden">
+            <Link
+              href="/services"
+              className="inline-flex items-center gap-2 rounded-full border border-accent-rose text-accent-rose px-6 py-3 text-sm font-medium hover:bg-accent-rose hover:text-white transition-colors"
+            >
+              View All Services
+            </Link>
+          </div>
+        )}
       </div>
     </SectionWrapper>
   );

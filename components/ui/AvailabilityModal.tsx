@@ -66,7 +66,7 @@ export function AvailabilityModal({
       onClick={handleOverlayClick}
       className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40 backdrop-blur-sm modal-overlay-enter"
     >
-      <div className="relative w-full max-w-md bg-card rounded-t-2xl sm:rounded-2xl border border-border shadow-xl p-6 sm:p-8 modal-panel-enter">
+      <div className="relative w-full max-w-md bg-card rounded-t-2xl sm:rounded-2xl border border-border shadow-xl p-6 sm:p-8 modal-panel-enter max-h-[90vh] overflow-y-auto overscroll-contain">
         <button
           onClick={onClose}
           className="absolute right-4 top-4 p-1.5 rounded-full hover:bg-bg-blush text-text-muted transition-colors"

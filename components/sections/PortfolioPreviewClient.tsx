@@ -57,7 +57,7 @@ export function PortfolioPreviewClient({ items, footnote, ctaLabel }: Props) {
 
   return (
     <>
-      <div className="grid grid-cols-2 md:grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-2 gap-3 md:h-[440px] lg:h-[480px]">
         {previewItems.map((item, i) => {
           const isLast = i === VISIBLE_COUNT - 1 && remainingCount > 0;
           return (
@@ -67,7 +67,7 @@ export function PortfolioPreviewClient({ items, footnote, ctaLabel }: Props) {
             >
               <div
                 className={`group relative overflow-hidden rounded-2xl border border-border bg-card shadow-sm hover:shadow-lg transition-all duration-500 cursor-pointer ${
-                  i === 0 ? "aspect-[3/4] h-full" : "aspect-[4/3]"
+                  i === 0 ? "h-full md:aspect-auto aspect-[3/4]" : "aspect-[4/3] md:aspect-auto md:h-full"
                 }`}
                 onClick={() => openGallery(i)}
                 onKeyDown={(e) => e.key === "Enter" && openGallery(i)}

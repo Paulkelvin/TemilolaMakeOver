@@ -1,5 +1,6 @@
 "use client";
 
+import { useRef } from "react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 
@@ -16,6 +17,14 @@ interface TimeSlotPickerProps {
 }
 
 export function TimeSlotPicker({ selectedTime, onSelectTime }: TimeSlotPickerProps) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  function handleWheel(e: React.WheelEvent) {
+    if (!scrollRef.current) return;
+    e.preventDefault();
+    scrollRef.current.scrollLeft += e.deltaY + e.deltaX;
+  }
+
   return (
     <motion.div
       initial={{ opacity: 0, y: -8 }}
@@ -28,7 +37,12 @@ export function TimeSlotPicker({ selectedTime, onSelectTime }: TimeSlotPickerPro
         What time works for you?{" "}
         <span className="text-text-muted/60 font-normal">(optional)</span>
       </p>
-      <div className="flex gap-2 overflow-x-auto pb-1 -mx-0.5 px-0.5" style={{ scrollbarWidth: "none" }}>
+      <div
+        ref={scrollRef}
+        onWheel={handleWheel}
+        className="flex gap-2 overflow-x-auto pb-1 -mx-0.5 px-0.5"
+        style={{ scrollbarWidth: "none" }}
+      >
         {TIME_SLOTS.map((slot) => (
           <button
             key={slot}
