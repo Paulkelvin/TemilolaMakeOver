@@ -7,9 +7,9 @@ import { BeforeAfterSlider } from "@/components/sections/BeforeAfterSlider";
 import { CTASection } from "@/components/sections/CTASection";
 
 export const metadata = createPageMetadata({
-  title: "Before & After Transformations | Temilola Makeup",
+  title: "Before & After Transformations | Gleam by Temi",
   description:
-    "Drag to compare real before and after makeup transformations by Temilola Makeup in Lagos. Bridal, soft glam, event, and photoshoot results.",
+    "Drag to compare real before and after makeup transformations by Temilola at Gleam by Temi in Lagos. Bridal, soft glam, event, and photoshoot results.",
   path: "/transformations",
 });
 

@@ -18,7 +18,7 @@ export const seoCopy = {
   },
   portfolio: {
     title: `Makeup Portfolio & Client Looks`,
-    description: `Browse bridal, soft glam, event, traditional, and photoshoot makeup by Temilola — professional makeup artist in ${location}.`,
+    description: `Browse bridal, soft glam, event, traditional, and photoshoot makeup by Temilola at Gleam by Temi — professional makeup artist in ${location}.`,
   },
   pricing: {
     title: `Makeup Packages & Pricing`,
@@ -29,8 +29,8 @@ export const seoCopy = {
     description: `Check availability and book bridal or event makeup in ${location}. WhatsApp or booking form — fast, simple, professional.`,
   },
   about: {
-    title: `About Temilola`,
-    description: `Meet Temilola — bridal and event makeup artist in ${location}. Calm, professional glam tailored to your face, your outfit, and your moment.`,
+    title: `About Temilola — Gleam by Temi`,
+    description: `Meet Temilola, the artist behind Gleam by Temi — bridal and event makeup artist in ${location}. Calm, professional glam tailored to your face, your outfit, and your moment.`,
   },
 } as const;
 
@@ -73,7 +73,7 @@ export const homeCopy = {
     cardCta: "Book This Service",
   },
   whyChooseUs: {
-    label: "Why Temilola",
+    label: "Why Gleam by Temi",
     headline: "Calm Service. Flawless, Camera-Ready Results.",
     paragraph:
       "Precision prep, clean tools, and looks tailored to your face and event.",
@@ -185,12 +185,12 @@ export const aboutPageCopy = {
     label: "About",
     title: "The Artist Behind the Brush",
     subtitle:
-      "Temilola — Lagos makeup artist devoted to making women feel prepared, polished, and genuinely themselves.",
+      "Temilola — the face behind Gleam by Temi. Lagos makeup artist devoted to making women feel prepared, polished, and genuinely themselves.",
   },
   intro: {
     title: "Makeup Should Feel Like You — Just Elevated",
     paragraphs: [
-      "I'm Temilola, a professional makeup artist based in Lagos, specialising in bridal, traditional, soft glam, and event makeup.",
+      "I'm Temilola, the artist behind Gleam by Temi — a professional makeup studio based in Lagos, specialising in bridal, traditional, soft glam, and event makeup.",
       "I started this work because I love the quiet confidence that appears when someone looks in the mirror and recognises themselves — just more radiant. That moment matters whether it's a wedding morning or a milestone birthday.",
       "On your day, I bring calm energy, punctual timing, and a kit that's clean, organised, and ready. No chaos. No rushing. Just focused glam that holds up to photos, dancing, and emotion.",
     ],

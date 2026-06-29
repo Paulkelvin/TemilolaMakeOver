@@ -142,7 +142,7 @@ export default async function ServiceDetailPage({
                 {imageUrl ? (
                   <Image
                     src={imageUrl}
-                    alt={`${service.name} — Temilola Makeup Lagos`}
+                    alt={`${service.name} — Gleam by Temi, Lagos`}
                     fill
                     sizes="(max-width: 1024px) 100vw, 50vw"
                     className="object-cover"

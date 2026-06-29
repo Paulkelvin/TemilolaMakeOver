@@ -1,8 +1,8 @@
 export const siteConfig = {
-  brand: "Temilola Makeup",
-  brandName: "Temilola Makeup",
+  brand: "Gleam by Temi",
+  brandName: "Gleam by Temi",
   artistName: "Temilola",
-  shortBrand: "Temilola",
+  shortBrand: "Gleam",
   whatsappNumber: "2347058596531",
   tagline: "Bridal & Event Makeup That Makes You Feel Effortlessly Confident",
   description:

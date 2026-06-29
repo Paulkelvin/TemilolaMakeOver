@@ -45,7 +45,7 @@ export async function WhyChooseUs() {
               <div className="relative aspect-[4/5] rounded-3xl overflow-hidden shadow-xl border border-border corner-accent">
                 <Image
                   src={aboutImage.src}
-                  alt="Professional makeup application — Temilola Makeup Lagos"
+                  alt="Professional makeup application — Gleam by Temi, Lagos"
                   fill
                   sizes="(max-width: 1024px) 100vw, 50vw"
                   className="object-cover"
