@@ -13,8 +13,23 @@ export const blockedDateSchema = defineType({
       name: "date",
       title: "Unavailable Date",
       type: "date",
-      description: "Pick a date you are not available for bookings",
-      validation: (r) => r.required(),
+      description:
+        "Pick a date you are not available for bookings. Make sure the year is correct!",
+      validation: (r) =>
+        r.required().custom((date) => {
+          if (!date) return true;
+          const d = new Date(date + "T00:00:00");
+          const now = new Date();
+          const oneYearOut = new Date();
+          oneYearOut.setFullYear(now.getFullYear() + 1);
+          if (d < new Date(now.toISOString().slice(0, 10) + "T00:00:00")) {
+            return "This date is in the past";
+          }
+          if (d > oneYearOut) {
+            return "Date cannot be more than 1 year from now";
+          }
+          return true;
+        }),
       options: {
         dateFormat: "DD MMM YYYY",
       },
