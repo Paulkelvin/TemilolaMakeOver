@@ -8,6 +8,7 @@ import { whyChooseUsSchema } from "./whyChooseUs";
 import { transformationSchema } from "./transformation";
 import { blogPostSchema } from "./blogPost";
 import { blockedDateSchema } from "./blockedDate";
+import { siteSettingsSchema } from "./siteSettings";
 
 export const schemaTypes = [
   serviceSchema,
@@ -20,4 +21,5 @@ export const schemaTypes = [
   transformationSchema,
   blogPostSchema,
   blockedDateSchema,
+  siteSettingsSchema,
 ];

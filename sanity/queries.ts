@@ -130,3 +130,5 @@ export const BLOG_POST_BY_SLUG_QUERY = `*[_type == "blogPost" && slug.current ==
   author,
   publishedAt
 }`;
+
+export const SITE_SETTINGS_QUERY = `*[_type == "siteSettings"][0]{ youtubeReelUrl }`;

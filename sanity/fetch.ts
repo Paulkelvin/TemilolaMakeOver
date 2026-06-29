@@ -24,6 +24,7 @@ import {
   BLOG_POSTS_QUERY,
   BLOG_POST_BY_SLUG_QUERY,
   BLOCKED_DATES_QUERY,
+  SITE_SETTINGS_QUERY,
 } from "./queries";
 import type { Service } from "@/data/services";
 import type { Package } from "@/data/packages";
@@ -398,3 +399,8 @@ export async function getPortfolioCategories(): Promise<PortfolioCategory[]> {
   items.forEach((i) => seen.add(i.category));
   return order.filter((c) => seen.has(c));
 }
+
+export const getSiteSettings = cache(async (): Promise<{ youtubeReelUrl?: string }> => {
+  const data = await client.fetch(SITE_SETTINGS_QUERY, {}, REVALIDATE_FAST);
+  return data ?? {};
+});
