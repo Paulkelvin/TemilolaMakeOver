@@ -68,16 +68,11 @@ function TestimonialCard({ t }: { t: MarqueeItem }) {
 }
 
 export function TestimonialsMarquee({ items }: TestimonialsMarqueeProps) {
-  // Triple the items to guarantee no visible gap on wide screens
-  const tripled = [...items, ...items, ...items];
-
   return (
-    <div className="overflow-hidden">
-      <div
-        className="flex gap-5 animate-marquee"
-        style={{ width: "max-content" }}
-      >
-        {tripled.map((t, i) => (
+    <div className="w-full overflow-hidden">
+      <div className="flex gap-5 animate-marquee w-max">
+        {/* Two identical sets — animation shifts exactly -50% for seamless loop */}
+        {[...items, ...items].map((t, i) => (
           <TestimonialCard key={`${t.id}-${i}`} t={t} />
         ))}
       </div>

@@ -16,7 +16,7 @@ export async function WhyChooseUs() {
   const aboutImage = portfolioItems[2] ?? portfolioItems[0];
 
   return (
-    <SectionWrapper id="why-us" className="py-12 md:py-20">
+    <SectionWrapper id="why-us" className="py-12 md:py-20 overflow-hidden">
       <div className="mx-auto max-w-7xl px-4 md:px-6 lg:px-8">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
           <div>
