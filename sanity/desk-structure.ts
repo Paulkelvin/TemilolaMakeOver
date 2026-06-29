@@ -15,15 +15,32 @@ export const deskStructure = (S: StructureBuilder) =>
             .title("Site Settings")
         ),
 
-      // ── Page Copy (singleton) ──
+      // ── Page Copy (one doc per page) ──
       S.listItem()
         .title("Page Copy")
         .id("pageCopy")
         .child(
-          S.document()
-            .schemaType("pageCopy")
-            .documentId("pageCopy")
+          S.list()
             .title("Page Copy")
+            .items([
+              { id: "pageCopy-home", title: "Home" },
+              { id: "pageCopy-about", title: "About" },
+              { id: "pageCopy-services", title: "Services" },
+              { id: "pageCopy-portfolio", title: "Portfolio" },
+              { id: "pageCopy-pricing", title: "Pricing" },
+              { id: "pageCopy-book", title: "Book" },
+              { id: "pageCopy-transformations", title: "Transformations" },
+            ].map(({ id, title }) =>
+              S.listItem()
+                .title(title)
+                .id(id)
+                .child(
+                  S.document()
+                    .schemaType("pageCopy")
+                    .documentId(id)
+                    .title(title)
+                )
+            ))
         ),
 
       S.divider(),
