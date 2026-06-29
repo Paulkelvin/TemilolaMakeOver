@@ -12,7 +12,7 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { email, amount, service, name, eventDate } = body;
+    const { email, amount, service, name, eventDate, sanityBookingId } = body;
 
     if (!email || !amount || !service || !name) {
       return NextResponse.json(
@@ -38,6 +38,7 @@ export async function POST(request: Request) {
       reference,
       callback_url: callbackUrl,
       metadata: {
+        sanity_booking_id: sanityBookingId ?? null,
         custom_fields: [
           { display_name: "Client Name", variable_name: "client_name", value: name },
           { display_name: "Service", variable_name: "service", value: service },

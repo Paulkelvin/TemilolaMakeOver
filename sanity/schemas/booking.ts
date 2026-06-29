@@ -36,6 +36,12 @@ export const bookingSchema = defineType({
       type: "datetime",
       readOnly: true,
     }),
+    defineField({
+      name: "paidAt",
+      title: "Paid At",
+      type: "datetime",
+      readOnly: true,
+    }),
   ],
   orderings: [
     { title: "Newest first", name: "submittedDesc", by: [{ field: "submittedAt", direction: "desc" }] },

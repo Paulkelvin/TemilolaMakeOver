@@ -40,6 +40,7 @@ export function BookingForm({ className, preselectedService, preselectedDate, pr
   const [step, setStep] = useState(1);
   const [showCalendar, setShowCalendar] = useState(!preselectedDate);
   const submittedData = useRef<BookingFormValues | null>(null);
+  const sanityBookingId = useRef<string | null>(null);
   const formRef = useRef<HTMLFormElement>(null);
 
   const matchedService = preselectedService
@@ -107,13 +108,14 @@ export function BookingForm({ className, preselectedService, preselectedDate, pr
         body: JSON.stringify(payload),
       });
 
+      const resData = await res.json();
       if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.error ?? "Something went wrong");
+        throw new Error(resData.error ?? "Something went wrong");
       }
 
       trackEvent(analyticsEvents.formSubmit, { location: "booking_page" });
       submittedData.current = data;
+      sanityBookingId.current = resData.sanityBookingId ?? null;
       setStatus("success");
       reset();
       setStep(1);
@@ -168,6 +170,7 @@ export function BookingForm({ className, preselectedService, preselectedDate, pr
               service={selectedService!.name}
               depositAmount={depositAmount}
               eventDate={submittedData.current.eventDate}
+              sanityBookingId={sanityBookingId.current}
               className="w-full"
             />
           ) : (

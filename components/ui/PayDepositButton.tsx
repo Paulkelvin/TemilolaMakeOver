@@ -11,6 +11,7 @@ interface PayDepositButtonProps {
   service: string;
   depositAmount: number;
   eventDate?: string;
+  sanityBookingId?: string | null;
   className?: string;
 }
 
@@ -20,6 +21,7 @@ export function PayDepositButton({
   service,
   depositAmount,
   eventDate,
+  sanityBookingId,
   className,
 }: PayDepositButtonProps) {
   const [status, setStatus] = useState<"idle" | "loading" | "error">("idle");
@@ -40,6 +42,7 @@ export function PayDepositButton({
           name,
           service,
           eventDate,
+          sanityBookingId: sanityBookingId ?? undefined,
         }),
       });
 

@@ -116,26 +116,33 @@ export async function POST(request: Request) {
       sendBookingConfirmation(body),
     ]);
 
-    writeClient.create({
-      _type: "booking",
-      clientName: body.name,
-      phone: body.phone,
-      email: body.email ?? "",
-      service: body.service,
-      eventType: body.eventType,
-      eventDate: body.eventDate,
-      eventTime: body.preferredTime ?? "",
-      eventLocation: body.location,
-      numberOfFaces: Number(body.faces) || 1,
-      message: body.message ?? "",
-      status: "pending",
-      submittedAt: new Date().toISOString(),
-    }).catch((err: unknown) => console.error("[Sanity booking save failed]", err));
+    let sanityBookingId: string | null = null;
+    try {
+      const doc = await writeClient.create({
+        _type: "booking",
+        clientName: body.name,
+        phone: body.phone,
+        email: body.email ?? "",
+        service: body.service,
+        eventType: body.eventType,
+        eventDate: body.eventDate,
+        eventTime: body.preferredTime ?? "",
+        eventLocation: body.location,
+        numberOfFaces: Number(body.faces) || 1,
+        message: body.message ?? "",
+        status: "pending",
+        submittedAt: new Date().toISOString(),
+      });
+      sanityBookingId = doc._id;
+    } catch (err: unknown) {
+      console.error("[Sanity booking save failed]", err);
+    }
 
     return NextResponse.json({
       success: true,
       message:
         "Your booking request has been received. We'll confirm availability and send the next steps.",
+      sanityBookingId,
     });
   } catch {
     return NextResponse.json(

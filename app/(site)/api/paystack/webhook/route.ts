@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import crypto from "crypto";
+import { writeClient } from "@/sanity/write-client";
+import { sendPaymentConfirmation } from "@/lib/email";
 
 export async function POST(request: Request) {
   try {
@@ -19,7 +21,7 @@ export async function POST(request: Request) {
     const event = JSON.parse(body);
 
     if (event.event === "charge.success") {
-      const { reference, amount, currency, customer, metadata } = event.data;
+      const { reference, amount, currency, customer, metadata, paid_at } = event.data;
 
       console.log("[Paystack Webhook] Payment confirmed", {
         reference,
@@ -29,9 +31,37 @@ export async function POST(request: Request) {
         metadata,
       });
 
+      const sanityBookingId = metadata?.sanity_booking_id as string | undefined;
+
+      if (sanityBookingId) {
+        writeClient
+          .patch(sanityBookingId)
+          .set({ status: "paid", paidAt: paid_at ?? new Date().toISOString() })
+          .commit()
+          .catch((err: unknown) => console.error("[Sanity payment update failed]", err));
+      }
+
+      const clientEmail = customer?.email as string | undefined;
+      const customFields = Array.isArray(metadata?.custom_fields) ? metadata.custom_fields : [];
+      const clientName = customFields.find((f: { variable_name: string; value: string }) => f.variable_name === "client_name")?.value ?? "Client";
+      const service = customFields.find((f: { variable_name: string; value: string }) => f.variable_name === "service")?.value ?? "Makeup Service";
+      const eventDate = customFields.find((f: { variable_name: string; value: string }) => f.variable_name === "event_date")?.value ?? "";
+
+      if (clientEmail) {
+        sendPaymentConfirmation({
+          name: clientName,
+          email: clientEmail,
+          service,
+          eventDate,
+          amountPaid: amount / 100,
+          currency: currency ?? "NGN",
+          reference,
+        }).catch((err: unknown) => console.error("[Payment email failed]", err));
+      }
+
       const webhookUrl = process.env.BOOKING_WEBHOOK_URL;
       if (webhookUrl) {
-        await fetch(webhookUrl, {
+        fetch(webhookUrl, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -39,10 +69,10 @@ export async function POST(request: Request) {
             reference,
             amount: amount / 100,
             currency,
-            email: customer?.email,
+            email: clientEmail,
             metadata,
           }),
-        }).catch((err) => console.error("Booking webhook failed:", err));
+        }).catch((err: unknown) => console.error("Booking webhook failed:", err));
       }
     }
 
