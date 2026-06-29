@@ -19,6 +19,7 @@ export function AvailabilityModal({
   onClose,
 }: AvailabilityModalProps) {
   const [selectedDate, setSelectedDate] = useState<string>();
+  const [selectedTime, setSelectedTime] = useState("");
   const overlayRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
 
@@ -51,7 +52,8 @@ export function AvailabilityModal({
   function continueBooking() {
     if (!selectedDate) return;
     onClose();
-    router.push(`/book?date=${selectedDate}#booking-form`);
+    const timeParam = selectedTime ? `&time=${encodeURIComponent(selectedTime)}` : "";
+    router.push(`/book?date=${selectedDate}${timeParam}#booking-form`);
   }
 
   const whatsAppUrl = buildWhatsAppUrl({ intent: "availability" });
@@ -84,6 +86,8 @@ export function AvailabilityModal({
           blockedDates={blockedDates}
           selectedDate={selectedDate}
           onSelectDate={setSelectedDate}
+          selectedTime={selectedTime}
+          onSelectTime={setSelectedTime}
         />
 
         <button

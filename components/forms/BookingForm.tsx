@@ -30,10 +30,11 @@ interface BookingFormProps {
   className?: string;
   preselectedService?: string;
   preselectedDate?: string;
+  preselectedTime?: string;
   blockedDates?: string[];
 }
 
-export function BookingForm({ className, preselectedService, preselectedDate, blockedDates = [] }: BookingFormProps) {
+export function BookingForm({ className, preselectedService, preselectedDate, preselectedTime, blockedDates = [] }: BookingFormProps) {
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [errorMsg, setErrorMsg] = useState("");
   const [step, setStep] = useState(1);
@@ -58,7 +59,7 @@ export function BookingForm({ className, preselectedService, preselectedDate, bl
     defaultValues: {
       numberOfFaces: 1,
       email: "",
-      preferredTime: "",
+      preferredTime: preselectedTime ?? "",
       message: "",
       service: matchedService?.name ?? "",
       eventDate: preselectedDate ?? "",
@@ -66,6 +67,7 @@ export function BookingForm({ className, preselectedService, preselectedDate, bl
   });
 
   const watchedDate = watch("eventDate");
+  const watchedTime = watch("preferredTime");
 
   const step1Fields = ["name", "phone", "email", "service", "eventType", "eventDate"] as const;
 
@@ -259,6 +261,8 @@ export function BookingForm({ className, preselectedService, preselectedDate, bl
             blockedDates={blockedDates}
             selectedDate={watchedDate}
             onSelectDate={(date) => setValue("eventDate", date, { shouldValidate: true })}
+            selectedTime={watchedTime}
+            onSelectTime={(time) => setValue("preferredTime", time)}
           />
         </FormField>
 
@@ -321,31 +325,21 @@ export function BookingForm({ className, preselectedService, preselectedDate, bl
         <div className="rounded-lg bg-accent-rose/5 border border-accent-rose/20 px-4 py-3 text-sm text-text-muted leading-relaxed">
           A <span className="font-medium text-text-primary">50% deposit</span> secures your date after we confirm availability. Payment details are sent with your confirmation.
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-          <FormField
-            label="Number of Faces"
-            htmlFor="numberOfFaces"
-            error={errors.numberOfFaces?.message}
-            required
-          >
-            <input
-              id="numberOfFaces"
-              type="number"
-              min={1}
-              {...register("numberOfFaces", { valueAsNumber: true })}
-              className={cn(inputStyles, errors.numberOfFaces && "border-red-400")}
-              aria-invalid={!!errors.numberOfFaces}
-            />
-          </FormField>
-          <FormField label="Preferred Time" htmlFor="preferredTime">
-            <input
-              id="preferredTime"
-              {...register("preferredTime")}
-              className={inputStyles}
-              placeholder="e.g. 8:00 AM"
-            />
-          </FormField>
-        </div>
+        <FormField
+          label="Number of Faces"
+          htmlFor="numberOfFaces"
+          error={errors.numberOfFaces?.message}
+          required
+        >
+          <input
+            id="numberOfFaces"
+            type="number"
+            min={1}
+            {...register("numberOfFaces", { valueAsNumber: true })}
+            className={cn(inputStyles, errors.numberOfFaces && "border-red-400")}
+            aria-invalid={!!errors.numberOfFaces}
+          />
+        </FormField>
 
         <FormField
           label="Event Location"

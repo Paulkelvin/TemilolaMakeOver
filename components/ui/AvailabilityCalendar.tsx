@@ -1,13 +1,17 @@
 "use client";
 
 import { useCallback, useMemo, useState } from "react";
+import { AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { TimeSlotPicker } from "./TimeSlotPicker";
 
 interface AvailabilityCalendarProps {
   blockedDates: string[];
   onSelectDate: (date: string) => void;
   selectedDate?: string;
+  selectedTime?: string;
+  onSelectTime?: (time: string) => void;
 }
 
 const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -24,6 +28,8 @@ export function AvailabilityCalendar({
   blockedDates,
   onSelectDate,
   selectedDate,
+  selectedTime,
+  onSelectTime,
 }: AvailabilityCalendarProps) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -131,6 +137,15 @@ export function AvailabilityCalendar({
           );
         })}
       </div>
+
+      <AnimatePresence>
+        {selectedDate && onSelectTime && (
+          <TimeSlotPicker
+            selectedTime={selectedTime ?? ""}
+            onSelectTime={onSelectTime}
+          />
+        )}
+      </AnimatePresence>
 
       <div className="mt-3 flex items-center gap-4 text-[10px] text-text-muted">
         <span className="flex items-center gap-1">
