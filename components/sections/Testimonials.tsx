@@ -3,17 +3,18 @@ import type { PageCopySection } from "@/sanity/fetch";
 import { homeCopy } from "@/data/copy";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { SectionWrapper } from "@/components/ui/BackgroundDecor";
-import { Button } from "@/components/ui/Button";
 import { Reveal } from "@/components/ui/Reveal";
 import { TestimonialsMarquee } from "@/components/ui/TestimonialsMarquee";
+import { CheckAvailabilityButton } from "@/components/ui/CheckAvailabilityButton";
 
 const defaults = homeCopy.testimonials;
 
 interface TestimonialsProps {
   sectionCopy?: PageCopySection;
+  blockedDates?: string[];
 }
 
-export async function Testimonials({ sectionCopy }: TestimonialsProps) {
+export async function Testimonials({ sectionCopy, blockedDates = [] }: TestimonialsProps) {
   const testimonials = await getTestimonials();
 
   return (
@@ -31,9 +32,11 @@ export async function Testimonials({ sectionCopy }: TestimonialsProps) {
       <div className="mx-auto max-w-7xl px-4 md:px-6 lg:px-8">
         <Reveal className="mt-10 text-center">
           <p className="text-text-muted mb-4">{defaults.ctaIntro}</p>
-          <Button href="/book#booking-form" variant="primary" size="lg">
-            {sectionCopy?.cta ?? defaults.cta}
-          </Button>
+          <CheckAvailabilityButton
+            blockedDates={blockedDates}
+            label={sectionCopy?.cta ?? defaults.cta}
+            analyticsLabel="testimonials_section"
+          />
         </Reveal>
       </div>
     </SectionWrapper>
