@@ -65,7 +65,6 @@ export function BookingForm({ className, preselectedService, preselectedDate, pr
     resolver: zodResolver(bookingSchema),
     defaultValues: {
       numberOfFaces: 1,
-      email: "",
       preferredTime: preselectedTime ?? "",
       message: "",
       service: matchedService?.name ?? "",
@@ -102,7 +101,7 @@ export function BookingForm({ className, preselectedService, preselectedDate, pr
 
   const depositAmount = estimatedTotal ? Math.round(estimatedTotal * 0.5) : null;
 
-  const step1Fields = ["name", "phone", "email", "service", "eventDate"] as const;
+  const step1Fields = ["name", "phone", "service", "eventDate"] as const;
 
   async function goToStep2() {
     const valid = await trigger(step1Fields as unknown as (keyof BookingFormValues)[]);
@@ -130,7 +129,6 @@ export function BookingForm({ className, preselectedService, preselectedDate, pr
     const payload = {
       name: data.name,
       phone: data.phone,
-      email: data.email || undefined,
       service: data.service,
       eventDate: data.eventDate,
       location: data.eventLocation || zoneLabel,
@@ -226,7 +224,7 @@ export function BookingForm({ className, preselectedService, preselectedDate, pr
             </p>
             {deposit && submittedData.current ? (
               <PayDepositButton
-                email={submittedData.current.email || ""}
+                email=""
                 name={submittedData.current.name}
                 service={svc!.name}
                 depositAmount={deposit}
@@ -365,16 +363,6 @@ export function BookingForm({ className, preselectedService, preselectedDate, pr
               onSelectTime={(time) => setValue("preferredTime", time)}
             />
           )}
-        </FormField>
-
-        <FormField label="Email" htmlFor="email" error={errors.email?.message}>
-          <input
-            id="email"
-            type="email"
-            {...register("email")}
-            className={inputStyles}
-            placeholder="you@email.com (optional)"
-          />
         </FormField>
 
         <FormField label="Service Needed" htmlFor="service" error={errors.service?.message} required>
