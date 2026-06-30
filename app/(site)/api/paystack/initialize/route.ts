@@ -2,8 +2,29 @@ import { NextResponse } from "next/server";
 import { initializeTransaction, generateReference } from "@/lib/paystack";
 import { siteConfig } from "@/lib/site-config";
 
+const rateLimit = new Map<string, { count: number; resetAt: number }>();
+
+function isRateLimited(ip: string): boolean {
+  const now = Date.now();
+  const entry = rateLimit.get(ip);
+  if (!entry || now > entry.resetAt) {
+    rateLimit.set(ip, { count: 1, resetAt: now + 60_000 });
+    return false;
+  }
+  entry.count++;
+  return entry.count > 3;
+}
+
 export async function POST(request: Request) {
   try {
+    const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+    if (isRateLimited(ip)) {
+      return NextResponse.json(
+        { error: "Too many payment attempts. Please try again in a minute." },
+        { status: 429 }
+      );
+    }
+
     if (!process.env.PAYSTACK_SECRET_KEY) {
       return NextResponse.json(
         { error: "Payment is not configured yet. Please pay via bank transfer or WhatsApp." },
