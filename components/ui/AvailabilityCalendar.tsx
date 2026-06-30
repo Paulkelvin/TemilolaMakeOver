@@ -71,7 +71,7 @@ export function AvailabilityCalendar({
   for (let d = 1; d <= daysInMonth; d++) cells.push(d);
 
   return (
-    <div className="rounded-xl border border-border bg-card p-4">
+    <div className="rounded-xl border border-border bg-card p-4 overflow-hidden">
       <div className="flex items-center justify-between mb-4">
         <button
           type="button"

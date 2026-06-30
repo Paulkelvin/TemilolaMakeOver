@@ -269,7 +269,7 @@ export function BookingForm({ className, preselectedService, preselectedDate, pr
       onSubmit={handleSubmit(onSubmit)}
       noValidate
       className={cn(
-        "rounded-2xl border border-border bg-card p-5 md:p-8 shadow-card overflow-hidden scroll-mt-24",
+        "rounded-2xl border border-border bg-card p-5 md:p-8 shadow-card overflow-hidden scroll-mt-24 max-w-full",
         className
       )}
     >
