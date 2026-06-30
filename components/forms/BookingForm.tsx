@@ -19,15 +19,6 @@ import { PayDepositButton } from "@/components/ui/PayDepositButton";
 import { AvailabilityCalendar } from "@/components/ui/AvailabilityCalendar";
 import { MapPin } from "lucide-react";
 
-const eventTypes = [
-  "Wedding",
-  "Traditional Wedding",
-  "Birthday",
-  "Party / Event",
-  "Photoshoot",
-  "Other",
-];
-
 interface BookingFormProps {
   className?: string;
   preselectedService?: string;
@@ -111,7 +102,7 @@ export function BookingForm({ className, preselectedService, preselectedDate, pr
 
   const depositAmount = estimatedTotal ? Math.round(estimatedTotal * 0.5) : null;
 
-  const step1Fields = ["name", "phone", "email", "service", "eventType", "eventDate"] as const;
+  const step1Fields = ["name", "phone", "email", "service", "eventDate"] as const;
 
   async function goToStep2() {
     const valid = await trigger(step1Fields as unknown as (keyof BookingFormValues)[]);
@@ -141,7 +132,6 @@ export function BookingForm({ className, preselectedService, preselectedDate, pr
       phone: data.phone,
       email: data.email || undefined,
       service: data.service,
-      eventType: data.eventType,
       eventDate: data.eventDate,
       location: data.eventLocation || zoneLabel,
       travelZone: data.travelZone,
@@ -387,38 +377,21 @@ export function BookingForm({ className, preselectedService, preselectedDate, pr
           />
         </FormField>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-          <FormField label="Service Needed" htmlFor="service" error={errors.service?.message} required>
-            <select
-              id="service"
-              {...register("service")}
-              className={cn(inputStyles, errors.service && "border-red-400")}
-              aria-invalid={!!errors.service}
-            >
-              <option value="">Select a service</option>
-              {services.map((s) => (
-                <option key={s.id} value={s.name}>
-                  {s.name}
-                </option>
-              ))}
-            </select>
-          </FormField>
-          <FormField label="Event Type" htmlFor="eventType" error={errors.eventType?.message} required>
-            <select
-              id="eventType"
-              {...register("eventType")}
-              className={cn(inputStyles, errors.eventType && "border-red-400")}
-              aria-invalid={!!errors.eventType}
-            >
-              <option value="">Select event type</option>
-              {eventTypes.map((t) => (
-                <option key={t} value={t}>
-                  {t}
-                </option>
-              ))}
-            </select>
-          </FormField>
-        </div>
+        <FormField label="Service Needed" htmlFor="service" error={errors.service?.message} required>
+          <select
+            id="service"
+            {...register("service")}
+            className={cn(inputStyles, errors.service && "border-red-400")}
+            aria-invalid={!!errors.service}
+          >
+            <option value="">Select a service</option>
+            {services.map((s) => (
+              <option key={s.id} value={s.name}>
+                {s.name}
+              </option>
+            ))}
+          </select>
+        </FormField>
 
         <Button
           type="button"

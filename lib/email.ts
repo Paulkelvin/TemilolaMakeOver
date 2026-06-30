@@ -13,7 +13,7 @@ interface BookingEmailData {
   phone: string;
   email?: string;
   service: string;
-  eventType: string;
+  eventType?: string;
   eventDate: string;
   location: string;
   faces: string;
@@ -37,7 +37,7 @@ export async function sendBookingNotification(data: BookingEmailData) {
         <tr><td style="padding: 8px 0; border-bottom: 1px solid #eee; color: #666;">Phone</td><td style="padding: 8px 0; border-bottom: 1px solid #eee;">${data.phone}</td></tr>
         <tr><td style="padding: 8px 0; border-bottom: 1px solid #eee; color: #666;">Email</td><td style="padding: 8px 0; border-bottom: 1px solid #eee;">${data.email || "—"}</td></tr>
         <tr><td style="padding: 8px 0; border-bottom: 1px solid #eee; color: #666;">Service</td><td style="padding: 8px 0; border-bottom: 1px solid #eee;">${data.service}</td></tr>
-        <tr><td style="padding: 8px 0; border-bottom: 1px solid #eee; color: #666;">Event Type</td><td style="padding: 8px 0; border-bottom: 1px solid #eee;">${data.eventType}</td></tr>
+        ${data.eventType ? `<tr><td style="padding: 8px 0; border-bottom: 1px solid #eee; color: #666;">Event Type</td><td style="padding: 8px 0; border-bottom: 1px solid #eee;">${data.eventType}</td></tr>` : ""}
         <tr><td style="padding: 8px 0; border-bottom: 1px solid #eee; color: #666;">Event Date</td><td style="padding: 8px 0; border-bottom: 1px solid #eee;">${data.eventDate}</td></tr>
         <tr><td style="padding: 8px 0; border-bottom: 1px solid #eee; color: #666;">Location</td><td style="padding: 8px 0; border-bottom: 1px solid #eee;">${data.location}</td></tr>
         <tr><td style="padding: 8px 0; border-bottom: 1px solid #eee; color: #666;">Faces</td><td style="padding: 8px 0; border-bottom: 1px solid #eee;">${data.faces}</td></tr>

@@ -7,7 +7,7 @@ interface BookingPayload {
   phone: string;
   email?: string;
   service: string;
-  eventType: string;
+  eventType?: string;
   eventDate: string;
   location: string;
   travelZone?: string;
@@ -29,8 +29,6 @@ function validate(body: unknown): body is BookingPayload {
     b.phone.trim().length <= 20 &&
     typeof b.service === "string" &&
     b.service.trim().length > 0 &&
-    typeof b.eventType === "string" &&
-    b.eventType.trim().length > 0 &&
     typeof b.eventDate === "string" &&
     b.eventDate.trim().length > 0 &&
     typeof b.location === "string" &&
@@ -126,7 +124,7 @@ export async function POST(request: Request) {
         phone: body.phone,
         email: body.email ?? "",
         service: body.service,
-        eventType: body.eventType,
+        eventType: body.eventType ?? "",
         eventDate: body.eventDate,
         eventTime: body.preferredTime ?? "",
         eventLocation: body.location,

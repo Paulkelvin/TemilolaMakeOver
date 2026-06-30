@@ -24,7 +24,6 @@ export function buildBookingWhatsAppMessage(
 Name: ${data.name}
 Phone: ${data.phone}
 ${data.email ? `Email: ${data.email}\n` : ""}Service: ${data.service}
-Event Type: ${data.eventType}
 Event Date: ${data.eventDate}
 ${travelLine}
 Number of Faces: ${data.numberOfFaces}

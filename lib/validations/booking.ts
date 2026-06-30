@@ -11,7 +11,6 @@ export const bookingSchema = z.object({
       "Please enter a valid email"
     ),
   service: z.string().min(1, "Please select a service"),
-  eventType: z.string().min(1, "Please select an event type"),
   eventDate: z.string().min(1, "Please select your event date"),
   eventLocation: z.string().min(2, "Please select your event area"),
   travelZone: z.string().min(1, "Please select your event area"),
