@@ -10,6 +10,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { client } from "./client";
+import { urlFor } from "./image";
 import {
   SERVICES_QUERY,
   SERVICE_BY_SLUG_QUERY,
@@ -38,6 +39,14 @@ import type { FAQItem } from "@/data/faq";
 const REVALIDATE = { next: { revalidate: 60 } };
 const REVALIDATE_FAST = { next: { revalidate: 30 } };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function imgUrl(image: any, width?: number): string {
+  if (!image?.asset) return "";
+  let b = urlFor(image).auto("format");
+  if (width) b = b.width(width);
+  return b.url();
+}
+
 const iconMap: Record<string, LucideIcon> = {
   crown: Crown,
   sparkles: Sparkles,
@@ -63,7 +72,8 @@ interface RawService {
   priceFrom?: number;
   icon: string;
   highlighted?: boolean;
-  imageUrl?: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  image?: any;
 }
 
 export const getServices = cache(async (): Promise<Service[]> => {
@@ -81,7 +91,7 @@ export const getServices = cache(async (): Promise<Service[]> => {
     homeService: s.homeService ?? false,
     priceFrom: s.priceFrom,
     icon: iconMap[s.icon] ?? Sparkles,
-    imageUrl: s.imageUrl,
+    imageUrl: imgUrl(s.image, 800),
     highlighted: s.highlighted ?? false,
   }));
 });
@@ -102,7 +112,7 @@ export const getServiceBySlug = cache(async (slug: string): Promise<Service | nu
     homeService: s.homeService ?? false,
     priceFrom: s.priceFrom,
     icon: iconMap[s.icon] ?? Sparkles,
-    imageUrl: s.imageUrl,
+    imageUrl: imgUrl(s.image, 800),
     highlighted: s.highlighted ?? false,
   };
 });
@@ -140,7 +150,8 @@ interface RawPortfolioItem {
   alt: string;
   category: PortfolioCategory;
   aspect?: "portrait" | "square" | "tall";
-  imageUrl?: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  image?: any;
 }
 
 export const getPortfolioItems = cache(async (): Promise<PortfolioItem[]> => {
@@ -155,7 +166,7 @@ export const getPortfolioItems = cache(async (): Promise<PortfolioItem[]> => {
     alt: p.alt,
     category: p.category,
     aspect: p.aspect,
-    src: p.imageUrl ?? "",
+    src: imgUrl(p.image, 1200),
   }));
 });
 
@@ -167,7 +178,8 @@ interface RawTestimonial {
   text: string;
   rating: number;
   initials: string;
-  avatarUrl?: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  avatar?: any;
 }
 
 export const getTestimonials = cache(async (): Promise<Testimonial[]> => {
@@ -183,7 +195,7 @@ export const getTestimonials = cache(async (): Promise<Testimonial[]> => {
     text: t.text,
     rating: t.rating,
     initials: t.initials,
-    avatarUrl: t.avatarUrl,
+    avatarUrl: imgUrl(t.avatar, 100),
   }));
 });
 
@@ -240,36 +252,14 @@ export const getAboutValues = cache(async (): Promise<AboutValue[]> => {
 });
 
 // ─── Transformations ────────────────────────────────────────────────────────
-interface SanityHotspot {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-}
-
-interface SanityCrop {
-  top: number;
-  bottom: number;
-  left: number;
-  right: number;
-}
-
-interface SanityImageMeta {
-  metadata: { dimensions: { width: number; height: number } };
-}
-
 interface RawTransformation {
   _id: string;
   title: string;
-  beforeUrl: string;
-  beforeHotspot?: SanityHotspot;
-  beforeCrop?: SanityCrop;
-  beforeMeta?: SanityImageMeta;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  beforeImage?: any;
   beforeAlt: string;
-  afterUrl: string;
-  afterHotspot?: SanityHotspot;
-  afterCrop?: SanityCrop;
-  afterMeta?: SanityImageMeta;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  afterImage?: any;
   afterAlt: string;
 }
 
@@ -282,38 +272,14 @@ export interface Transformation {
   afterAlt: string;
 }
 
-function croppedUrl(
-  url: string,
-  meta?: SanityImageMeta,
-  crop?: SanityCrop,
-  hotspot?: SanityHotspot
-): string {
-  if (!url) return url;
-  if (crop && meta) {
-    const w = meta.metadata.dimensions.width;
-    const h = meta.metadata.dimensions.height;
-    const left = Math.round(crop.left * w);
-    const top = Math.round(crop.top * h);
-    const cropW = Math.round(w * (1 - crop.left - crop.right));
-    const cropH = Math.round(h * (1 - crop.top - crop.bottom));
-    const sep = url.includes("?") ? "&" : "?";
-    return `${url}${sep}rect=${left},${top},${cropW},${cropH}&w=800&h=1000`;
-  }
-  if (hotspot) {
-    const sep = url.includes("?") ? "&" : "?";
-    return `${url}${sep}w=800&h=1000&fit=crop&crop=focalpoint&fp-x=${hotspot.x.toFixed(2)}&fp-y=${hotspot.y.toFixed(2)}`;
-  }
-  return url;
-}
-
 export const getTransformations = cache(async (): Promise<Transformation[]> => {
   const raw: RawTransformation[] = await client.fetch(TRANSFORMATIONS_QUERY, {}, REVALIDATE_FAST);
   return raw.map((t) => ({
     id: t._id,
     title: t.title,
-    beforeUrl: croppedUrl(t.beforeUrl, t.beforeMeta, t.beforeCrop, t.beforeHotspot),
+    beforeUrl: imgUrl(t.beforeImage, 800),
     beforeAlt: t.beforeAlt,
-    afterUrl: croppedUrl(t.afterUrl, t.afterMeta, t.afterCrop, t.afterHotspot),
+    afterUrl: imgUrl(t.afterImage, 800),
     afterAlt: t.afterAlt,
   }));
 });
@@ -344,7 +310,8 @@ interface RawBlogPost {
   excerpt: string;
   body?: any[];
   category: string;
-  coverImageUrl?: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  coverImage?: any;
   author: string;
   publishedAt: string;
 }
@@ -357,7 +324,7 @@ export const getBlogPosts = cache(async (): Promise<BlogPost[]> => {
     slug: p.slug,
     excerpt: p.excerpt,
     category: p.category,
-    coverImageUrl: p.coverImageUrl,
+    coverImageUrl: imgUrl(p.coverImage, 1200),
     author: p.author ?? "Temilola",
     publishedAt: p.publishedAt,
   }));
@@ -373,7 +340,7 @@ export const getBlogPostBySlug = cache(async (slug: string): Promise<BlogPost | 
     excerpt: p.excerpt,
     body: p.body,
     category: p.category,
-    coverImageUrl: p.coverImageUrl,
+    coverImageUrl: imgUrl(p.coverImage, 1200),
     author: p.author ?? "Temilola",
     publishedAt: p.publishedAt,
   };
@@ -389,13 +356,14 @@ export interface InstagramFeedItem {
 }
 
 export const getInstagramFeed = cache(async (): Promise<InstagramFeedItem[]> => {
-  const raw: { _id: string; title: string; alt: string; imageUrl: string; instagramUrl?: string }[] =
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const raw: { _id: string; title: string; alt: string; image?: any; instagramUrl?: string }[] =
     await client.fetch(INSTAGRAM_FEED_QUERY, {}, REVALIDATE);
   return raw.map((p) => ({
     id: p._id,
     title: p.title,
     alt: p.alt,
-    imageUrl: p.imageUrl ?? "",
+    imageUrl: imgUrl(p.image, 600),
     instagramUrl: p.instagramUrl,
   }));
 });
@@ -448,7 +416,15 @@ export interface SiteSettings {
 
 export const getSiteSettings = cache(async (): Promise<SiteSettings> => {
   const data = await client.fetch(SITE_SETTINGS_QUERY, {}, REVALIDATE_FAST);
-  return data ?? {};
+  if (!data) return {};
+  return {
+    youtubeReelUrl: data.youtubeReelUrl,
+    heroImageMain: imgUrl(data.heroImageMain, 1200),
+    heroImageSecondary: imgUrl(data.heroImageSecondary, 800),
+    heroImageDetail: imgUrl(data.heroImageDetail, 600),
+    aboutImage: imgUrl(data.aboutImage, 800),
+    extraFaceDiscountPercent: data.extraFaceDiscountPercent,
+  };
 });
 
 export interface PageCopySection {
@@ -490,5 +466,9 @@ export { findSection };
 
 export const getPageCopy = cache(async (page: string): Promise<PageCopy> => {
   const data = await client.fetch(PAGE_COPY_QUERY, { page }, REVALIDATE_FAST);
-  return data ?? {};
+  if (!data) return {};
+  return {
+    ...data,
+    heroImageUrl: imgUrl(data.heroImage, 1200),
+  };
 });
