@@ -14,14 +14,14 @@ import {
 
 const links = [
   {
-    href: "/book",
+    href: "/book#booking-form",
     label: "Book Your Date",
     description: "Check availability & reserve",
     icon: Calendar,
     primary: true,
   },
   {
-    href: "/portfolio",
+    href: "/portfolio#gallery",
     label: "View Portfolio",
     description: "Real client looks & transformations",
     icon: Images,
@@ -63,17 +63,17 @@ export default async function LinksPage() {
   const whatsappUrl = buildWhatsAppUrl({ intent: "availability" });
 
   return (
-    <div className="flex min-h-screen flex-col items-center px-4 py-10 sm:py-16">
+    <div className="flex min-h-screen flex-col items-center px-4 py-6 sm:py-10">
       <div className="w-full max-w-md">
         {/* Profile */}
-        <div className="mb-8 text-center">
-          <div className="relative mx-auto mb-4 h-24 w-24 overflow-hidden rounded-full border-2 border-accent-rose/30 shadow-lg">
+        <div className="mb-5 text-center">
+          <div className="relative mx-auto mb-3 h-20 w-20 overflow-hidden rounded-full border-2 border-accent-rose/30 shadow-lg">
             {profileSrc ? (
               <Image
                 src={profileSrc}
                 alt={siteConfig.artistName}
                 fill
-                sizes="96px"
+                sizes="80px"
                 className="object-cover"
                 priority
               />
@@ -87,7 +87,7 @@ export default async function LinksPage() {
             {siteConfig.brand}
           </h1>
           <p className="mt-1 text-sm text-text-muted">
-            {siteConfig.tagline}
+            Makeup that makes you glow
           </p>
           <p className="mt-0.5 text-xs text-text-muted/70">
             {siteConfig.location}
@@ -95,7 +95,7 @@ export default async function LinksPage() {
         </div>
 
         {/* Links */}
-        <div className="space-y-3">
+        <div className="space-y-2.5">
           {links.map((link) => {
             const Icon = link.icon;
             const isExternal =
@@ -105,8 +105,8 @@ export default async function LinksPage() {
               link.href === "whatsapp" ? whatsappUrl : link.href;
 
             const className = link.primary
-              ? "group flex w-full items-center gap-4 rounded-2xl border border-accent-rose/20 bg-accent-rose px-5 py-4 text-white shadow-md transition-all hover:shadow-lg hover:scale-[1.02] active:scale-[0.98]"
-              : "group flex w-full items-center gap-4 rounded-2xl border border-border bg-card px-5 py-4 text-text-primary shadow-sm transition-all hover:shadow-md hover:scale-[1.02] hover:border-accent-rose/30 active:scale-[0.98]";
+              ? "group flex w-full items-center gap-4 rounded-2xl border border-accent-rose/20 bg-accent-rose px-4 py-3 text-white shadow-md transition-all hover:shadow-lg hover:scale-[1.02] active:scale-[0.98]"
+              : "group flex w-full items-center gap-4 rounded-2xl border border-border bg-card px-4 py-3 text-text-primary shadow-sm transition-all hover:shadow-md hover:scale-[1.02] hover:border-accent-rose/30 active:scale-[0.98]";
 
             const Comp = isExternal ? "a" : Link;
             const externalProps = isExternal
@@ -160,13 +160,6 @@ export default async function LinksPage() {
           })}
         </div>
 
-        {/* Footer */}
-        <div className="mt-10 text-center">
-          <div className="mx-auto mb-3 h-px w-12 bg-border" />
-          <p className="font-display text-xs text-text-muted/60 tracking-wide">
-            {siteConfig.brand}
-          </p>
-        </div>
       </div>
     </div>
   );
