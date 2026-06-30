@@ -62,10 +62,12 @@ export function PortfolioPreviewClient({ items, footnote, ctaLabel }: Props) {
       if (e.key === "ArrowLeft") goPrev();
     }
     const scrollY = window.scrollY;
+    const header = document.querySelector("header");
     document.body.style.position = "fixed";
     document.body.style.inset = "0";
     document.body.style.overflow = "hidden";
     document.body.style.top = `-${scrollY}px`;
+    if (header) header.style.pointerEvents = "none";
     window.addEventListener("keydown", onKey);
     return () => {
       document.body.style.position = "";
