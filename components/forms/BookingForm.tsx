@@ -210,16 +210,31 @@ export function BookingForm({ className, preselectedService, preselectedDate, pr
             </p>
           </div>
         ) : (
-          <div className="mt-6 rounded-xl border border-accent-rose/20 bg-accent-rose/5 p-5 space-y-3">
-            {deposit && fee !== null && (
-              <div className="text-xs text-text-muted space-y-1">
-                <p>Service: {formatPrice(svc!.priceFrom!)} · Travel: {fee > 0 ? formatPrice(fee) : "Included"}</p>
-                <p className="font-medium text-text-primary">
-                  Estimated total: {formatPrice(total!)} · 50% deposit: {formatPrice(deposit)}
-                </p>
+          <div className="mt-6 rounded-xl border border-border bg-white p-5 space-y-4 text-left shadow-sm">
+            {deposit && fee !== null && svc?.priceFrom && (
+              <div className="space-y-2">
+                <p className="text-xs font-semibold uppercase tracking-wider text-text-muted">Payment Summary</p>
+                <div className="flex justify-between text-sm">
+                  <span className="text-text-muted">{svc.name}</span>
+                  <span className="text-text-primary">{formatPrice(svc.priceFrom)}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-text-muted">Travel</span>
+                  <span className={fee === 0 ? "text-green-600 font-medium" : "text-text-primary"}>
+                    {fee === 0 ? "Free" : formatPrice(fee)}
+                  </span>
+                </div>
+                <div className="border-t border-dashed border-border pt-2 flex justify-between text-sm font-semibold">
+                  <span>Estimated Total</span>
+                  <span>{formatPrice(total!)}</span>
+                </div>
+                <div className="bg-accent-rose/10 rounded-md px-3 py-2.5 flex justify-between items-center">
+                  <span className="text-xs font-semibold text-accent-rose">50% Deposit Due Now</span>
+                  <span className="text-lg font-bold text-accent-rose">{formatPrice(deposit)}</span>
+                </div>
               </div>
             )}
-            <p className="text-xs text-text-muted">
+            <p className="text-xs text-text-muted text-center">
               Pay your deposit now to lock in your date
             </p>
             {deposit && submittedData.current ? (
@@ -233,7 +248,7 @@ export function BookingForm({ className, preselectedService, preselectedDate, pr
                 className="w-full"
               />
             ) : (
-              <p className="text-xs text-text-muted italic">
+              <p className="text-xs text-text-muted italic text-center">
                 Payment details will be included in your confirmation message.
               </p>
             )}
@@ -444,24 +459,35 @@ export function BookingForm({ className, preselectedService, preselectedDate, pr
                   </p>
                 </>
               ) : (
-                <>
-                  <p className="text-text-muted">
+                <div className="w-full space-y-2">
+                  <p className="text-text-muted text-xs">
                     {zones.find(z => z.id === watchedZone)?.areas}
                   </p>
-                  {travelFee !== null && travelFee > 0 && (
-                    <p className="font-medium text-text-primary">
-                      Travel fee: {formatPrice(travelFee)}
-                    </p>
+                  {selectedService?.priceFrom && travelFee !== null && (
+                    <div className="bg-white rounded-lg border border-border p-3 space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-text-muted">{selectedService.name}</span>
+                        <span className="text-text-primary">{formatPrice(selectedService.priceFrom)}</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-text-muted">Travel</span>
+                        <span className={travelFee === 0 ? "text-green-600 font-medium" : "text-text-primary"}>
+                          {travelFee === 0 ? "Free" : formatPrice(travelFee)}
+                        </span>
+                      </div>
+                      <div className="border-t border-dashed border-border pt-2 flex justify-between text-sm font-semibold">
+                        <span className="text-text-primary">Estimated Total</span>
+                        <span className="text-text-primary">{formatPrice(estimatedTotal!)}</span>
+                      </div>
+                      {depositAmount && (
+                        <div className="bg-accent-rose/10 rounded-md px-3 py-2 flex justify-between items-center">
+                          <span className="text-xs font-semibold text-accent-rose">50% Deposit to Book</span>
+                          <span className="text-base font-bold text-accent-rose">{formatPrice(depositAmount)}</span>
+                        </div>
+                      )}
+                    </div>
                   )}
-                  {travelFee === 0 && (
-                    <p className="font-medium text-accent-rose">Travel included — no extra charge</p>
-                  )}
-                  {estimatedTotal && (
-                    <p className="text-text-muted pt-1 border-t border-border/50 mt-1">
-                      Estimated total: {formatPrice(estimatedTotal)} · Deposit (50%): <span className="font-medium text-text-primary">{formatPrice(depositAmount!)}</span>
-                    </p>
-                  )}
-                </>
+                </div>
               )}
             </div>
           </div>
