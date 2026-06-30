@@ -180,6 +180,26 @@ export function BookingForm({ className, preselectedService, preselectedDate, pr
     const data = getValues();
     trackEvent(analyticsEvents.whatsappClick, { location: "booking_form" });
     window.open(getBookingWhatsAppUrl(data, zones), "_blank", "noopener,noreferrer");
+
+    const zoneLabel = getZoneLabel(data.travelZone);
+    const zoneFee = getZoneFee(data.travelZone);
+    const payload = {
+      name: data.name,
+      phone: data.phone,
+      service: data.service,
+      eventDate: data.eventDate,
+      location: data.eventLocation || zoneLabel,
+      travelZone: data.travelZone,
+      travelFee: zoneFee,
+      faces: String(data.numberOfFaces),
+      preferredTime: data.preferredTime,
+      message: data.message,
+    };
+    fetch("/api/booking", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    }).catch(() => {});
   }
 
   if (status === "success") {
@@ -414,7 +434,7 @@ export function BookingForm({ className, preselectedService, preselectedDate, pr
             <option value="">Select a service</option>
             {services.map((s) => (
               <option key={s.id} value={s.name}>
-                {s.name}
+                {s.name}{s.priceFrom ? ` — from ${formatPrice(s.priceFrom)}` : ""}
               </option>
             ))}
           </select>

@@ -9,6 +9,7 @@ import { buildWhatsAppUrl } from "@/lib/whatsapp";
 import { Button } from "@/components/ui/Button";
 import { Reveal } from "@/components/ui/Reveal";
 import { Container } from "@/components/ui/Container";
+import { ScrollToHash } from "@/components/ui/ScrollToHash";
 
 export const metadata = createPageMetadata({
   title: seoCopy.portfolio.title,
@@ -28,6 +29,7 @@ export default async function PortfolioPage() {
 
   return (
     <>
+      <ScrollToHash />
       <PageHero
         label={copy.hero.label}
         title={pageCopy.heroTitle ?? copy.hero.title}
@@ -39,7 +41,7 @@ export default async function PortfolioPage() {
           <Reveal className="mb-10 max-w-2xl mx-auto text-center">
             <p className="text-text-muted leading-relaxed">{copy.intro}</p>
           </Reveal>
-          <div id="gallery" className="scroll-mt-20" />
+          <div id="gallery" className="scroll-mt-24" />
           <PortfolioGallery
             items={items}
             categories={categories}
