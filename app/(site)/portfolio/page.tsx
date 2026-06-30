@@ -39,6 +39,7 @@ export default async function PortfolioPage() {
           <Reveal className="mb-10 max-w-2xl mx-auto text-center">
             <p className="text-text-muted leading-relaxed">{copy.intro}</p>
           </Reveal>
+          <div id="gallery" className="scroll-mt-20" />
           <PortfolioGallery
             items={items}
             categories={categories}

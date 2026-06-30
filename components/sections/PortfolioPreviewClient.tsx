@@ -57,7 +57,7 @@ export function PortfolioPreviewClient({ items, footnote, ctaLabel }: Props) {
 
   return (
     <>
-      <div className="grid grid-cols-2 md:grid-cols-2 gap-3 md:h-[440px] lg:h-[480px]">
+      <div className="grid grid-cols-2 md:grid-cols-2 gap-3 h-[420px] md:h-[520px] lg:h-[560px]">
         {previewItems.map((item, i) => {
           const isLast = i === VISIBLE_COUNT - 1 && remainingCount > 0;
           return (
@@ -85,7 +85,7 @@ export function PortfolioPreviewClient({ items, footnote, ctaLabel }: Props) {
                         ? "(max-width: 768px) 100vw, 50vw"
                         : "(max-width: 768px) 50vw, 50vw"
                     }
-                    className="object-cover transition-transform duration-700 group-hover:scale-105"
+                    className="object-cover object-top transition-transform duration-700 group-hover:scale-105"
                   />
                 )}
 
