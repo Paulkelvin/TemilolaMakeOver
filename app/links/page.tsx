@@ -73,7 +73,7 @@ export default async function LinksPage() {
                 src={profileSrc}
                 alt={siteConfig.artistName}
                 fill
-                sizes="80px"
+                sizes="88px"
                 className="object-cover"
                 priority
               />
