@@ -42,6 +42,13 @@ export async function POST(request: Request) {
       );
     }
 
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return NextResponse.json(
+        { error: "Please enter a valid email address (e.g. name@example.com)" },
+        { status: 400 }
+      );
+    }
+
     const numAmount = Number(amount);
     if (isNaN(numAmount) || numAmount < 5000 || numAmount > 2000000) {
       return NextResponse.json(
