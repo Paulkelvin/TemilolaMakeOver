@@ -160,7 +160,7 @@ export default async function LinksPage() {
           })}
         </div>
 
-        <p className="mt-4 text-center font-display text-xs tracking-widest text-text-muted/40">
+        <p className="mt-4 text-center font-display text-xs tracking-widest text-text-muted/70">
           GLEAM
         </p>
       </div>
