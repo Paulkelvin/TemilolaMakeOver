@@ -29,7 +29,7 @@ export function PayDepositButton({
   const [email, setEmail] = useState(initialEmail);
   const needsEmail = !initialEmail;
 
-  const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email);
 
   async function handlePay() {
     if (!email || !isValidEmail) {

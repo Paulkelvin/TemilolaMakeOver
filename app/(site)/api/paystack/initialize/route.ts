@@ -42,7 +42,7 @@ export async function POST(request: Request) {
       );
     }
 
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
       return NextResponse.json(
         { error: "Please enter a valid email address (e.g. name@example.com)" },
         { status: 400 }
@@ -82,9 +82,15 @@ export async function POST(request: Request) {
     });
   } catch (err) {
     console.error("[Paystack Init Error]", err);
+    const message = err instanceof Error ? err.message : "";
+    const isEmailIssue = /email/i.test(message) || /invalid.*customer/i.test(message);
     return NextResponse.json(
-      { error: "Unable to initialize payment. Please try again or use WhatsApp." },
-      { status: 500 }
+      {
+        error: isEmailIssue
+          ? "Please enter a valid email address (e.g. name@example.com)"
+          : "Unable to initialize payment. Please try again or use WhatsApp.",
+      },
+      { status: isEmailIssue ? 400 : 500 }
     );
   }
 }
