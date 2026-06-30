@@ -47,10 +47,18 @@ export function PortfolioPreviewClient({ items, footnote, ctaLabel }: Props) {
       if (e.key === "ArrowRight") goNext();
       if (e.key === "ArrowLeft") goPrev();
     }
+    const scrollY = window.scrollY;
+    document.body.style.position = "fixed";
+    document.body.style.inset = "0";
     document.body.style.overflow = "hidden";
+    document.body.style.top = `-${scrollY}px`;
     window.addEventListener("keydown", onKey);
     return () => {
+      document.body.style.position = "";
+      document.body.style.inset = "";
       document.body.style.overflow = "";
+      document.body.style.top = "";
+      window.scrollTo(0, scrollY);
       window.removeEventListener("keydown", onKey);
     };
   }, [galleryOpen, closeGallery, goNext, goPrev]);
@@ -147,7 +155,7 @@ export function PortfolioPreviewClient({ items, footnote, ctaLabel }: Props) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
-            className="fixed inset-0 z-[100] flex items-center justify-center"
+            className="fixed inset-0 z-[200] flex items-center justify-center"
             onClick={(e) => closeGallery(e)}
           >
             {/* Backdrop */}
@@ -155,7 +163,7 @@ export function PortfolioPreviewClient({ items, footnote, ctaLabel }: Props) {
 
             {/* Gallery content */}
             <div
-              className="portfolio-overlay-gallery relative z-10 w-full max-w-5xl mx-4 md:mx-8"
+              className="portfolio-overlay-gallery relative z-10 w-full max-w-5xl mx-4 md:mx-8 pt-[env(safe-area-inset-top,0px)]"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Top bar: counter + close */}
