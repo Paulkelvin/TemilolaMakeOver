@@ -63,7 +63,7 @@ export function PortfolioPreviewClient({ items, footnote, ctaLabel }: Props) {
           return (
             <Reveal
               key={item.id}
-              className={i === 0 ? "row-span-2" : ""}
+              className={i === 0 ? "row-span-2 h-full" : "h-full"}
             >
               <div
                 className={`group relative overflow-hidden rounded-2xl border border-border bg-card shadow-sm hover:shadow-lg transition-all duration-500 cursor-pointer ${
