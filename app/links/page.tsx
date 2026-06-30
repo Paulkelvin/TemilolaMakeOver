@@ -63,7 +63,7 @@ export default async function LinksPage() {
   const whatsappUrl = buildWhatsAppUrl({ intent: "availability" });
 
   return (
-    <div className="flex min-h-screen flex-col items-center px-4 py-6 sm:py-10">
+    <div className="flex h-[100dvh] flex-col items-center justify-center px-4 overflow-hidden">
       <div className="w-full max-w-md">
         {/* Profile */}
         <div className="mb-5 text-center">
@@ -95,7 +95,7 @@ export default async function LinksPage() {
         </div>
 
         {/* Links */}
-        <div className="space-y-2.5">
+        <div className="space-y-2.5 mt-2">
           {links.map((link) => {
             const Icon = link.icon;
             const isExternal =
@@ -160,6 +160,9 @@ export default async function LinksPage() {
           })}
         </div>
 
+        <p className="mt-4 text-center font-display text-xs tracking-widest text-text-muted/40">
+          GLEAM
+        </p>
       </div>
     </div>
   );
