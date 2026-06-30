@@ -57,59 +57,79 @@ export function PortfolioPreviewClient({ items, footnote, ctaLabel }: Props) {
 
   return (
     <>
-      <div className="grid grid-cols-2 md:grid-cols-2 gap-3 h-[420px] md:h-[520px] lg:h-[560px]">
-        {previewItems.map((item, i) => {
-          const isLast = i === VISIBLE_COUNT - 1 && remainingCount > 0;
-          return (
-            <Reveal
-              key={item.id}
-              className={i === 0 ? "row-span-2 h-full" : "h-full"}
-            >
-              <div
-                className={`group relative overflow-hidden rounded-2xl border border-border bg-card shadow-sm hover:shadow-lg transition-all duration-500 cursor-pointer ${
-                  i === 0 ? "h-full" : "h-full"
-                }`}
-                onClick={() => openGallery(i)}
-                onKeyDown={(e) => e.key === "Enter" && openGallery(i)}
-                role="button"
-                tabIndex={0}
-                aria-label={isLast ? `Explore ${remainingCount} more looks` : `View ${item.title}`}
-              >
-                {item.src && (
-                  <Image
-                    src={item.src}
-                    alt={item.alt}
-                    fill
-                    sizes={
-                      i === 0
-                        ? "(max-width: 768px) 100vw, 50vw"
-                        : "(max-width: 768px) 50vw, 50vw"
-                    }
-                    className="object-cover object-top transition-transform duration-700 group-hover:scale-105"
-                  />
-                )}
+      <div className="relative h-[420px] md:h-[520px] lg:h-[560px]">
+        {/* Left image — wide, full height */}
+        <Reveal className="absolute inset-y-0 left-0 w-[65%] md:w-[60%] z-0">
+          <div
+            className="group relative h-full overflow-hidden rounded-2xl border border-border bg-card shadow-sm hover:shadow-lg transition-all duration-500 cursor-pointer"
+            onClick={() => openGallery(0)}
+            onKeyDown={(e) => e.key === "Enter" && openGallery(0)}
+            role="button"
+            tabIndex={0}
+            aria-label={`View ${previewItems[0]?.title}`}
+          >
+            {previewItems[0]?.src && (
+              <Image
+                src={previewItems[0].src}
+                alt={previewItems[0].alt}
+                fill
+                sizes="(max-width: 768px) 65vw, 60vw"
+                className="object-cover object-top transition-transform duration-700 group-hover:scale-105"
+              />
+            )}
+            <div className="absolute inset-0 bg-gradient-to-t from-luxury-dark/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <div className="absolute bottom-3 left-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+              <p className="text-white text-sm font-medium">{previewItems[0]?.title}</p>
+            </div>
+          </div>
+        </Reveal>
 
-                {isLast ? (
-                  <div className="absolute inset-0 bg-luxury-dark/55 flex flex-col items-center justify-center gap-2 transition-colors duration-300 group-hover:bg-luxury-dark/70">
-                    <span className="font-display text-3xl md:text-4xl font-medium text-white">
-                      +{remainingCount}
-                    </span>
-                    <span className="text-sm text-white/90 font-medium">
-                      Explore more looks
-                    </span>
-                  </div>
-                ) : (
-                  <>
-                    <div className="absolute inset-0 bg-gradient-to-t from-luxury-dark/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                    <div className="absolute bottom-3 left-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                      <p className="text-white text-sm font-medium">{item.title}</p>
+        {/* Right stacked images — overlapping onto the left image */}
+        <div className="absolute top-0 bottom-0 right-0 w-[45%] md:w-[45%] z-10 flex flex-col gap-3">
+          {previewItems.slice(1).map((item, idx) => {
+            const i = idx + 1;
+            const isLast = i === VISIBLE_COUNT - 1 && remainingCount > 0;
+            return (
+              <Reveal key={item.id} className="flex-1 min-h-0">
+                <div
+                  className="group relative h-full overflow-hidden rounded-2xl border border-border bg-card shadow-lg hover:shadow-xl transition-all duration-500 cursor-pointer"
+                  onClick={() => openGallery(i)}
+                  onKeyDown={(e) => e.key === "Enter" && openGallery(i)}
+                  role="button"
+                  tabIndex={0}
+                  aria-label={isLast ? `Explore ${remainingCount} more looks` : `View ${item.title}`}
+                >
+                  {item.src && (
+                    <Image
+                      src={item.src}
+                      alt={item.alt}
+                      fill
+                      sizes="(max-width: 768px) 45vw, 45vw"
+                      className="object-cover object-top transition-transform duration-700 group-hover:scale-105"
+                    />
+                  )}
+                  {isLast ? (
+                    <div className="absolute inset-0 bg-luxury-dark/55 flex flex-col items-center justify-center gap-2 transition-colors duration-300 group-hover:bg-luxury-dark/70">
+                      <span className="font-display text-3xl md:text-4xl font-medium text-white">
+                        +{remainingCount}
+                      </span>
+                      <span className="text-sm text-white/90 font-medium">
+                        Explore more looks
+                      </span>
                     </div>
-                  </>
-                )}
-              </div>
-            </Reveal>
-          );
-        })}
+                  ) : (
+                    <>
+                      <div className="absolute inset-0 bg-gradient-to-t from-luxury-dark/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                      <div className="absolute bottom-3 left-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                        <p className="text-white text-sm font-medium">{item.title}</p>
+                      </div>
+                    </>
+                  )}
+                </div>
+              </Reveal>
+            );
+          })}
+        </div>
       </div>
 
       <Reveal className="mt-10 text-center">
