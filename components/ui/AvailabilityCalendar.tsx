@@ -124,7 +124,7 @@ export function AvailabilityCalendar({
               disabled={isDisabled}
               onClick={() => onSelectDate(dateStr)}
               className={cn(
-                "aspect-square flex items-center justify-center rounded-lg text-sm transition-all",
+                "w-full h-10 flex items-center justify-center rounded-lg text-sm transition-all",
                 isSelected && "bg-accent-rose text-white font-semibold",
                 !isSelected && !isDisabled && "hover:bg-bg-blush text-text-primary",
                 isBlocked && !isSelected && "bg-red-50 text-text-muted/40 line-through cursor-not-allowed",
