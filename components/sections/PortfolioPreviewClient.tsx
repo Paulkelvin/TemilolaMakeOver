@@ -27,8 +27,11 @@ export function PortfolioPreviewClient({ items, footnote, ctaLabel }: Props) {
     setGalleryOpen(true);
   }, []);
 
-  const closeGallery = useCallback((e?: React.MouseEvent | KeyboardEvent) => {
-    if (e && 'stopPropagation' in e) e.stopPropagation();
+  const closeGallery = useCallback((e?: React.MouseEvent | React.TouchEvent | KeyboardEvent) => {
+    if (e) {
+      e.stopPropagation();
+      if ('preventDefault' in e) e.preventDefault();
+    }
     setGalleryOpen(false);
   }, []);
 
@@ -157,14 +160,20 @@ export function PortfolioPreviewClient({ items, footnote, ctaLabel }: Props) {
             transition={{ duration: 0.3 }}
             className="fixed inset-0 z-[200] flex items-center justify-center"
             onClick={(e) => closeGallery(e)}
+            onTouchEnd={(e) => { e.stopPropagation(); }}
           >
             {/* Backdrop */}
-            <div className="absolute inset-0 bg-luxury-dark/92 backdrop-blur-sm" />
+            <div
+              className="absolute inset-0 bg-luxury-dark/92 backdrop-blur-sm"
+              onTouchStart={(e) => e.stopPropagation()}
+            />
 
             {/* Gallery content */}
             <div
               className="portfolio-overlay-gallery relative z-10 w-full max-w-5xl mx-4 md:mx-8 pt-[env(safe-area-inset-top,0px)]"
               onClick={(e) => e.stopPropagation()}
+              onTouchStart={(e) => e.stopPropagation()}
+              onTouchEnd={(e) => e.stopPropagation()}
             >
               {/* Top bar: counter + close */}
               <div className="flex items-center justify-between mb-3">
@@ -173,7 +182,8 @@ export function PortfolioPreviewClient({ items, footnote, ctaLabel }: Props) {
                 </div>
                 <button
                   onClick={(e) => closeGallery(e)}
-                  className="text-white/70 hover:text-white transition-colors p-2 -mr-2"
+                  onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); closeGallery(); }}
+                  className="text-white/70 hover:text-white transition-colors p-4 -mr-2"
                   aria-label="Close gallery"
                 >
                   <X className="w-7 h-7" />
