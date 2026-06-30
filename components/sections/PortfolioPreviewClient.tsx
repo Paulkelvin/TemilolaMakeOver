@@ -67,7 +67,7 @@ export function PortfolioPreviewClient({ items, footnote, ctaLabel }: Props) {
             >
               <div
                 className={`group relative overflow-hidden rounded-2xl border border-border bg-card shadow-sm hover:shadow-lg transition-all duration-500 cursor-pointer ${
-                  i === 0 ? "h-full md:aspect-auto aspect-[3/4]" : "aspect-[4/3] md:aspect-auto md:h-full"
+                  i === 0 ? "h-full" : "h-full"
                 }`}
                 onClick={() => openGallery(i)}
                 onKeyDown={(e) => e.key === "Enter" && openGallery(i)}
