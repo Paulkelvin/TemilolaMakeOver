@@ -26,9 +26,10 @@ interface BookingFormProps {
   preselectedTime?: string;
   blockedDates?: string[];
   travelZones?: TravelZone[];
+  extraFaceDiscountPercent?: number;
 }
 
-export function BookingForm({ className, preselectedService, preselectedDate, preselectedTime, blockedDates = [], travelZones: zonesProp }: BookingFormProps) {
+export function BookingForm({ className, preselectedService, preselectedDate, preselectedTime, blockedDates = [], travelZones: zonesProp, extraFaceDiscountPercent = 20 }: BookingFormProps) {
   const zones = zonesProp?.length ? zonesProp : defaultTravelZones;
 
   function getZoneFee(zoneId: string): number | null {
@@ -78,6 +79,7 @@ export function BookingForm({ className, preselectedService, preselectedDate, pr
   const watchedTime = watch("preferredTime");
   const watchedService = watch("service");
   const watchedZone = watch("travelZone");
+  const watchedFaces = watch("numberOfFaces");
 
   const selectedService = useMemo(
     () => services.find((s) => s.name === watchedService),
@@ -93,11 +95,20 @@ export function BookingForm({ className, preselectedService, preselectedDate, pr
     ? zones.find((z) => z.id === watchedZone)?.fee === -1
     : false;
 
+  const discountRate = extraFaceDiscountPercent / 100;
+  const faces = Math.max(1, watchedFaces || 1);
+
+  const extraFacePrice = useMemo(() => {
+    if (!selectedService?.priceFrom) return 0;
+    return Math.round(selectedService.priceFrom * (1 - discountRate));
+  }, [selectedService, discountRate]);
+
   const estimatedTotal = useMemo(() => {
     if (!selectedService?.priceFrom) return null;
     if (travelFee === null) return null;
-    return selectedService.priceFrom + travelFee;
-  }, [selectedService, travelFee]);
+    const facesTotal = selectedService.priceFrom + Math.max(0, faces - 1) * extraFacePrice;
+    return facesTotal + travelFee;
+  }, [selectedService, travelFee, faces, extraFacePrice]);
 
   const depositAmount = estimatedTotal ? Math.round(estimatedTotal * 0.5) : null;
 
@@ -177,8 +188,10 @@ export function BookingForm({ className, preselectedService, preselectedDate, pr
     );
     const zone = submittedData.current?.travelZone;
     const fee = zone ? getZoneFee(zone) : null;
+    const submittedFaces = Math.max(1, submittedData.current?.numberOfFaces || 1);
+    const perExtraFace = svc?.priceFrom ? Math.round(svc.priceFrom * (1 - extraFaceDiscountPercent / 100)) : 0;
     const total = svc?.priceFrom && fee !== null
-      ? svc.priceFrom + fee
+      ? svc.priceFrom + Math.max(0, submittedFaces - 1) * perExtraFace + fee
       : svc?.priceFrom ?? null;
     const deposit = total ? Math.round(total * 0.5) : null;
     const zoneIsQuote = zone
@@ -215,9 +228,20 @@ export function BookingForm({ className, preselectedService, preselectedDate, pr
               <div className="space-y-2">
                 <p className="text-xs font-semibold uppercase tracking-wider text-text-muted">Payment Summary</p>
                 <div className="flex justify-between text-sm">
-                  <span className="text-text-muted">{svc.name}</span>
+                  <span className="text-text-muted">
+                    {submittedFaces === 1 ? svc.name : `1st face — ${svc.name}`}
+                  </span>
                   <span className="text-text-primary">{formatPrice(svc.priceFrom)}</span>
                 </div>
+                {submittedFaces > 1 && (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-text-muted">
+                      +{submittedFaces - 1} extra {submittedFaces - 1 === 1 ? "face" : "faces"}{" "}
+                      <span className="text-green-600">({extraFaceDiscountPercent}% off)</span>
+                    </span>
+                    <span className="text-text-primary">{formatPrice((submittedFaces - 1) * perExtraFace)}</span>
+                  </div>
+                )}
                 <div className="flex justify-between text-sm">
                   <span className="text-text-muted">Travel</span>
                   <span className={fee === 0 ? "text-green-600 font-medium" : "text-text-primary"}>
@@ -438,6 +462,22 @@ export function BookingForm({ className, preselectedService, preselectedDate, pr
           <input type="hidden" {...register("eventLocation")} />
         </FormField>
 
+        <FormField
+          label="Number of Faces"
+          htmlFor="numberOfFaces"
+          error={errors.numberOfFaces?.message}
+          required
+        >
+          <input
+            id="numberOfFaces"
+            type="number"
+            min={1}
+            {...register("numberOfFaces", { valueAsNumber: true })}
+            className={cn(inputStyles, errors.numberOfFaces && "border-red-400")}
+            aria-invalid={!!errors.numberOfFaces}
+          />
+        </FormField>
+
         {/* Travel fee indicator */}
         {watchedZone && (
           <div className={cn(
@@ -466,9 +506,20 @@ export function BookingForm({ className, preselectedService, preselectedDate, pr
                   {selectedService?.priceFrom && travelFee !== null && (
                     <div className="bg-white rounded-lg border border-border p-3 space-y-2">
                       <div className="flex justify-between text-sm">
-                        <span className="text-text-muted">{selectedService.name}</span>
+                        <span className="text-text-muted">
+                          {faces === 1 ? selectedService.name : `1st face — ${selectedService.name}`}
+                        </span>
                         <span className="text-text-primary">{formatPrice(selectedService.priceFrom)}</span>
                       </div>
+                      {faces > 1 && (
+                        <div className="flex justify-between text-sm">
+                          <span className="text-text-muted">
+                            +{faces - 1} extra {faces - 1 === 1 ? "face" : "faces"}{" "}
+                            <span className="text-green-600">({extraFaceDiscountPercent}% off)</span>
+                          </span>
+                          <span className="text-text-primary">{formatPrice((faces - 1) * extraFacePrice)}</span>
+                        </div>
+                      )}
                       <div className="flex justify-between text-sm">
                         <span className="text-text-muted">Travel</span>
                         <span className={travelFee === 0 ? "text-green-600 font-medium" : "text-text-primary"}>
@@ -492,22 +543,6 @@ export function BookingForm({ className, preselectedService, preselectedDate, pr
             </div>
           </div>
         )}
-
-        <FormField
-          label="Number of Faces"
-          htmlFor="numberOfFaces"
-          error={errors.numberOfFaces?.message}
-          required
-        >
-          <input
-            id="numberOfFaces"
-            type="number"
-            min={1}
-            {...register("numberOfFaces", { valueAsNumber: true })}
-            className={cn(inputStyles, errors.numberOfFaces && "border-red-400")}
-            aria-invalid={!!errors.numberOfFaces}
-          />
-        </FormField>
 
         <FormField label="Message / Inspiration" htmlFor="message">
           <textarea

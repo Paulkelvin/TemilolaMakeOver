@@ -443,6 +443,7 @@ export interface SiteSettings {
   heroImageSecondary?: string;
   heroImageDetail?: string;
   aboutImage?: string;
+  extraFaceDiscountPercent?: number;
 }
 
 export const getSiteSettings = cache(async (): Promise<SiteSettings> => {

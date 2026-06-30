@@ -43,7 +43,7 @@ export async function POST(request: Request) {
     }
 
     const numAmount = Number(amount);
-    if (isNaN(numAmount) || numAmount < 5000 || numAmount > 500000) {
+    if (isNaN(numAmount) || numAmount < 5000 || numAmount > 2000000) {
       return NextResponse.json(
         { error: "Invalid payment amount." },
         { status: 400 }
