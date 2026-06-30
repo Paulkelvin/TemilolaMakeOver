@@ -32,7 +32,7 @@ export function JsonLd() {
     logo: `${siteConfig.url}/opengraph-image`,
     founder: {
       "@type": "Person",
-      name: siteConfig.artistName,
+      name: "Temilola Shyllon",
       jobTitle: "Professional Makeup Artist",
     },
     address: {
