@@ -67,7 +67,7 @@ export default async function LinksPage() {
       <div className="w-full max-w-md">
         {/* Profile */}
         <div className="mb-5 text-center">
-          <div className="relative mx-auto mb-3 h-20 w-20 overflow-hidden rounded-full border-2 border-accent-rose/30 shadow-lg">
+          <div className="relative mx-auto mb-3 h-[88px] w-[88px] overflow-hidden rounded-full border-2 border-accent-rose/30 shadow-lg">
             {profileSrc ? (
               <Image
                 src={profileSrc}
@@ -95,7 +95,7 @@ export default async function LinksPage() {
         </div>
 
         {/* Links */}
-        <div className="space-y-2.5 mt-5">
+        <div className="space-y-2.5 mt-8">
           {links.map((link) => {
             const Icon = link.icon;
             const isExternal =
