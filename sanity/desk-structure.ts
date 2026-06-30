@@ -91,6 +91,7 @@ export const deskStructure = (S: StructureBuilder) =>
             .items([
               S.documentTypeListItem("booking").title("Bookings"),
               S.documentTypeListItem("blockedDate").title("Blocked Dates"),
+              S.documentTypeListItem("travelZone").title("Travel Zones & Fees"),
             ])
         ),
 

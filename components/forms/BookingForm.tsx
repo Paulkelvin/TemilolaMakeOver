@@ -9,7 +9,7 @@ import {
 } from "@/lib/validations/booking";
 import { getBookingWhatsAppUrl } from "@/lib/whatsapp-form";
 import { services } from "@/data/services";
-import { travelZones, getTravelFee, getTravelZoneLabel } from "@/data/travel-zones";
+import { travelZones as defaultTravelZones, type TravelZone } from "@/data/travel-zones";
 import { bookPageCopy } from "@/data/copy";
 import { Button } from "@/components/ui/Button";
 import { trackEvent, analyticsEvents } from "@/lib/analytics";
@@ -34,9 +34,21 @@ interface BookingFormProps {
   preselectedDate?: string;
   preselectedTime?: string;
   blockedDates?: string[];
+  travelZones?: TravelZone[];
 }
 
-export function BookingForm({ className, preselectedService, preselectedDate, preselectedTime, blockedDates = [] }: BookingFormProps) {
+export function BookingForm({ className, preselectedService, preselectedDate, preselectedTime, blockedDates = [], travelZones: zonesProp }: BookingFormProps) {
+  const zones = zonesProp?.length ? zonesProp : defaultTravelZones;
+
+  function getZoneFee(zoneId: string): number | null {
+    const zone = zones.find((z) => z.id === zoneId);
+    if (!zone || zone.fee === -1) return null;
+    return zone.fee;
+  }
+
+  function getZoneLabel(zoneId: string): string {
+    return zones.find((z) => z.id === zoneId)?.label ?? zoneId;
+  }
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [errorMsg, setErrorMsg] = useState("");
   const [step, setStep] = useState(1);
@@ -84,10 +96,12 @@ export function BookingForm({ className, preselectedService, preselectedDate, pr
 
   const travelFee = useMemo(() => {
     if (!watchedZone) return null;
-    return getTravelFee(watchedZone);
+    return getZoneFee(watchedZone);
   }, [watchedZone]);
 
-  const isQuoteOnly = watchedZone === "outside-lagos";
+  const isQuoteOnly = watchedZone
+    ? zones.find((z) => z.id === watchedZone)?.fee === -1
+    : false;
 
   const estimatedTotal = useMemo(() => {
     if (!selectedService?.priceFrom) return null;
@@ -119,8 +133,8 @@ export function BookingForm({ className, preselectedService, preselectedDate, pr
     const honeypotEl = document.getElementById("website_url") as HTMLInputElement | null;
     if (honeypotEl?.value) return;
 
-    const zoneLabel = getTravelZoneLabel(data.travelZone);
-    const zoneFee = getTravelFee(data.travelZone);
+    const zoneLabel = getZoneLabel(data.travelZone);
+    const zoneFee = getZoneFee(data.travelZone);
 
     const payload = {
       name: data.name,
@@ -166,7 +180,7 @@ export function BookingForm({ className, preselectedService, preselectedDate, pr
     if (!valid) return;
     const data = getValues();
     trackEvent(analyticsEvents.whatsappClick, { location: "booking_form" });
-    window.open(getBookingWhatsAppUrl(data), "_blank", "noopener,noreferrer");
+    window.open(getBookingWhatsAppUrl(data, zones), "_blank", "noopener,noreferrer");
   }
 
   if (status === "success") {
@@ -174,12 +188,14 @@ export function BookingForm({ className, preselectedService, preselectedDate, pr
       (s) => s.name === submittedData.current?.service
     );
     const zone = submittedData.current?.travelZone;
-    const fee = zone ? getTravelFee(zone) : null;
+    const fee = zone ? getZoneFee(zone) : null;
     const total = svc?.priceFrom && fee !== null
       ? svc.priceFrom + fee
       : svc?.priceFrom ?? null;
     const deposit = total ? Math.round(total * 0.5) : null;
-    const zoneIsQuote = zone === "outside-lagos";
+    const zoneIsQuote = zone
+      ? zones.find((z) => z.id === zone)?.fee === -1
+      : false;
 
     return (
       <div
@@ -426,7 +442,7 @@ export function BookingForm({ className, preselectedService, preselectedDate, pr
             id="travelZone"
             {...register("travelZone", {
               onChange: (e) => {
-                const zone = travelZones.find((z) => z.id === e.target.value);
+                const zone = zones.find((z) => z.id === e.target.value);
                 if (zone) {
                   setValue("eventLocation", zone.label, { shouldValidate: true });
                 }
@@ -436,7 +452,7 @@ export function BookingForm({ className, preselectedService, preselectedDate, pr
             aria-invalid={!!errors.travelZone}
           >
             <option value="">Where is your event?</option>
-            {travelZones.map((zone) => (
+            {zones.map((zone) => (
               <option key={zone.id} value={zone.id}>
                 {zone.label}
                 {zone.fee === 0 ? " — Travel included" : zone.fee === -1 ? " — Quote on request" : ` — +${formatPrice(zone.fee)} travel`}
@@ -469,7 +485,7 @@ export function BookingForm({ className, preselectedService, preselectedDate, pr
               ) : (
                 <>
                   <p className="text-text-muted">
-                    {travelZones.find(z => z.id === watchedZone)?.areas}
+                    {zones.find(z => z.id === watchedZone)?.areas}
                   </p>
                   {travelFee !== null && travelFee > 0 && (
                     <p className="font-medium text-text-primary">

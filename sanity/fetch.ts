@@ -25,6 +25,7 @@ import {
   BLOG_POSTS_QUERY,
   BLOG_POST_BY_SLUG_QUERY,
   BLOCKED_DATES_QUERY,
+  TRAVEL_ZONES_QUERY,
   SITE_SETTINGS_QUERY,
   PAGE_COPY_QUERY,
 } from "./queries";
@@ -414,6 +415,27 @@ export async function getPortfolioCategories(): Promise<PortfolioCategory[]> {
   items.forEach((i) => seen.add(i.category));
   return order.filter((c) => seen.has(c));
 }
+
+// ─── Travel Zones ──────────────────────────────────────────────────────────
+export interface SanityTravelZone {
+  id: string;
+  label: string;
+  areas: string;
+  fee: number;
+  note?: string;
+}
+
+export const getTravelZones = cache(async (): Promise<SanityTravelZone[]> => {
+  const raw: { _id: string; label: string; areas: string; fee: number; note?: string }[] =
+    await client.fetch(TRAVEL_ZONES_QUERY, {}, REVALIDATE);
+  return raw.map((z) => ({
+    id: z._id,
+    label: z.label,
+    areas: z.areas,
+    fee: z.fee,
+    note: z.note,
+  }));
+});
 
 export interface SiteSettings {
   youtubeReelUrl?: string;

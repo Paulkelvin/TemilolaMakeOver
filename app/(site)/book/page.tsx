@@ -8,7 +8,7 @@ import { ContactCard } from "@/components/sections/ContactCard";
 import { Reveal } from "@/components/ui/Reveal";
 import { Container } from "@/components/ui/Container";
 import { ScrollToHash } from "@/components/ui/ScrollToHash";
-import { getBlockedDates } from "@/sanity/fetch";
+import { getBlockedDates, getTravelZones } from "@/sanity/fetch";
 
 export const metadata = createPageMetadata({
   title: seoCopy.book.title,
@@ -26,7 +26,11 @@ export default async function BookPage({
   const preselectedDate = typeof params.date === "string" ? params.date : undefined;
   const preselectedTime = typeof params.time === "string" ? params.time : undefined;
   const { getPageCopy } = await import("@/sanity/fetch");
-  const [blockedDates, pageCopy] = await Promise.all([getBlockedDates(), getPageCopy("book")]);
+  const [blockedDates, pageCopy, sanityZones] = await Promise.all([
+    getBlockedDates(),
+    getPageCopy("book"),
+    getTravelZones(),
+  ]);
   const copy = bookPageCopy;
 
   return (
@@ -52,6 +56,7 @@ export default async function BookPage({
                   preselectedDate={preselectedDate}
                   preselectedTime={preselectedTime}
                   blockedDates={blockedDates}
+                  travelZones={sanityZones.length ? sanityZones : undefined}
                 />
               </Reveal>
             </div>

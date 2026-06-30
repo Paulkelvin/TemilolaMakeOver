@@ -148,6 +148,15 @@ export const PAGE_COPY_QUERY = `*[_type == "pageCopy" && page == $page][0]{
   sections
 }`;
 
+export const TRAVEL_ZONES_QUERY = `*[_type == "travelZone"] | order(order asc) {
+  _id,
+  label,
+  areas,
+  fee,
+  note,
+  order
+}`;
+
 export const SITE_SETTINGS_QUERY = `*[_type == "siteSettings"][0]{
   youtubeReelUrl,
   "heroImageMain": heroImageMain.asset->url,
