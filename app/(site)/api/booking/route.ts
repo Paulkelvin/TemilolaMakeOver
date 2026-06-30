@@ -46,9 +46,11 @@ function validate(body: unknown): body is BookingPayload {
 function isAllowedOrigin(request: Request): boolean {
   const origin = request.headers.get("origin");
   if (!origin) return true;
+  const requestOrigin = new URL(request.url).origin;
+  if (origin === requestOrigin) return true;
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://temilolomakeup.com";
   const allowed = [siteUrl, "http://localhost:3000", "http://localhost:3001"];
-  return allowed.some((url) => origin === url.replace(/\/$/, ""));
+  return allowed.some((u) => origin === u.replace(/\/$/, ""));
 }
 
 const rateLimit = new Map<string, { count: number; resetAt: number }>();

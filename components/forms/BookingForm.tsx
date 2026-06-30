@@ -433,10 +433,6 @@ export function BookingForm({ className, preselectedService, preselectedDate, pr
 
       {/* Step 2: Event details & message */}
       <div className={cn("space-y-5", step !== 2 && "hidden")}>
-        <div className="rounded-lg bg-accent-rose/5 border border-accent-rose/20 px-4 py-3 text-sm text-text-muted leading-relaxed">
-          A <span className="font-medium text-text-primary">50% deposit</span> secures your date after we confirm availability. Payment details are sent with your confirmation.
-        </div>
-
         <FormField label="Event Area" htmlFor="travelZone" error={errors.travelZone?.message} required>
           <select
             id="travelZone"
@@ -479,68 +475,59 @@ export function BookingForm({ className, preselectedService, preselectedDate, pr
         </FormField>
 
         {/* Travel fee indicator */}
-        {watchedZone && (
-          <div className={cn(
-            "rounded-xl p-4 flex items-start gap-3",
-            isQuoteOnly
-              ? "border border-amber-200 bg-amber-50"
-              : "border border-accent-rose/20 bg-accent-rose/5"
-          )}>
-            <MapPin className={cn(
-              "w-4 h-4 mt-0.5 shrink-0",
-              isQuoteOnly ? "text-amber-600" : "text-accent-rose"
-            )} />
+        {watchedZone && isQuoteOnly && (
+          <div className="rounded-xl p-4 flex items-start gap-3 border border-amber-200 bg-amber-50">
+            <MapPin className="w-4 h-4 mt-0.5 shrink-0 text-amber-600" />
             <div className="text-xs space-y-1">
-              {isQuoteOnly ? (
-                <>
-                  <p className="font-medium text-amber-800">Outside Lagos — custom quote</p>
-                  <p className="text-amber-700">
-                    We&apos;ll include travel and accommodation costs in your personalised quote.
-                  </p>
-                </>
-              ) : (
-                <div className="w-full space-y-2">
-                  <p className="text-text-muted text-xs">
-                    {zones.find(z => z.id === watchedZone)?.areas}
-                  </p>
-                  {selectedService?.priceFrom && travelFee !== null && (
-                    <div className="bg-white rounded-lg border border-border p-3 space-y-2">
-                      <div className="flex justify-between text-sm">
-                        <span className="text-text-muted">
-                          {faces === 1 ? selectedService.name : `1st face — ${selectedService.name}`}
-                        </span>
-                        <span className="text-text-primary">{formatPrice(selectedService.priceFrom)}</span>
-                      </div>
-                      {faces > 1 && (
-                        <div className="flex justify-between text-sm">
-                          <span className="text-text-muted">
-                            +{faces - 1} extra {faces - 1 === 1 ? "face" : "faces"}{" "}
-                            <span className="text-green-600">({extraFaceDiscountPercent}% off)</span>
-                          </span>
-                          <span className="text-text-primary">{formatPrice((faces - 1) * extraFacePrice)}</span>
-                        </div>
-                      )}
-                      <div className="flex justify-between text-sm">
-                        <span className="text-text-muted">Travel</span>
-                        <span className={travelFee === 0 ? "text-green-600 font-medium" : "text-text-primary"}>
-                          {travelFee === 0 ? "Free" : formatPrice(travelFee)}
-                        </span>
-                      </div>
-                      <div className="border-t border-dashed border-border pt-2 flex justify-between text-sm font-semibold">
-                        <span className="text-text-primary">Estimated Total</span>
-                        <span className="text-text-primary">{formatPrice(estimatedTotal!)}</span>
-                      </div>
-                      {depositAmount && (
-                        <div className="bg-accent-rose/10 rounded-md px-3 py-2 flex justify-between items-center">
-                          <span className="text-xs font-semibold text-accent-rose">50% Deposit to Book</span>
-                          <span className="text-base font-bold text-accent-rose">{formatPrice(depositAmount)}</span>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
-              )}
+              <p className="font-medium text-amber-800">Outside Lagos — custom quote</p>
+              <p className="text-amber-700">
+                We&apos;ll include travel and accommodation costs in your personalised quote.
+              </p>
             </div>
+          </div>
+        )}
+
+        {watchedZone && !isQuoteOnly && (
+          <div className="rounded-xl border border-accent-rose/20 bg-accent-rose/5 p-4 space-y-3">
+            <div className="flex items-center gap-2 text-xs text-text-muted">
+              <MapPin className="w-4 h-4 shrink-0 text-accent-rose" />
+              <span>{zones.find(z => z.id === watchedZone)?.areas}</span>
+            </div>
+            {selectedService?.priceFrom && travelFee !== null && (
+              <div className="bg-white rounded-lg border border-border p-4 space-y-2.5">
+                <div className="flex justify-between text-sm">
+                  <span className="text-text-muted">
+                    {faces === 1 ? selectedService.name : `1st face — ${selectedService.name}`}
+                  </span>
+                  <span className="text-text-primary font-medium">{formatPrice(selectedService.priceFrom)}</span>
+                </div>
+                {faces > 1 && (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-text-muted">
+                      +{faces - 1} extra {faces - 1 === 1 ? "face" : "faces"}{" "}
+                      <span className="text-green-600">({extraFaceDiscountPercent}% off)</span>
+                    </span>
+                    <span className="text-text-primary font-medium">{formatPrice((faces - 1) * extraFacePrice)}</span>
+                  </div>
+                )}
+                <div className="flex justify-between text-sm">
+                  <span className="text-text-muted">Travel</span>
+                  <span className={travelFee === 0 ? "text-green-600 font-medium" : "text-text-primary font-medium"}>
+                    {travelFee === 0 ? "Free" : formatPrice(travelFee)}
+                  </span>
+                </div>
+                <div className="border-t border-dashed border-border pt-2.5 flex justify-between text-sm font-bold">
+                  <span className="text-text-primary">Estimated Total</span>
+                  <span className="text-text-primary">{formatPrice(estimatedTotal!)}</span>
+                </div>
+                {depositAmount && (
+                  <div className="bg-accent-rose/10 rounded-lg px-4 py-2.5 flex justify-between items-center">
+                    <span className="text-sm font-semibold text-accent-rose">50% Deposit to Book</span>
+                    <span className="text-lg font-bold text-accent-rose">{formatPrice(depositAmount)}</span>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         )}
 
