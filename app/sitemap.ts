@@ -2,6 +2,7 @@ import type { MetadataRoute } from "next";
 import { siteConfig } from "@/lib/site-config";
 import { getServices } from "@/sanity/fetch";
 import { getBlogPosts } from "@/sanity/fetch";
+import { locations } from "@/data/locations";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = siteConfig.url;
@@ -38,5 +39,20 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.7,
   }));
 
-  return [...staticRoutes, ...serviceRoutes, ...blogRoutes];
+  const locationRoutes: MetadataRoute.Sitemap = [
+    {
+      url: `${base}/locations`,
+      lastModified: new Date(),
+      changeFrequency: "monthly" as const,
+      priority: 0.8,
+    },
+    ...locations.map((l) => ({
+      url: `${base}/locations/${l.slug}`,
+      lastModified: new Date(),
+      changeFrequency: "monthly" as const,
+      priority: 0.8,
+    })),
+  ];
+
+  return [...staticRoutes, ...serviceRoutes, ...blogRoutes, ...locationRoutes];
 }
