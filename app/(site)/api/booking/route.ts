@@ -10,6 +10,8 @@ interface BookingPayload {
   eventType: string;
   eventDate: string;
   location: string;
+  travelZone?: string;
+  travelFee?: number | null;
   faces: string;
   preferredTime?: string;
   message?: string;
@@ -128,6 +130,8 @@ export async function POST(request: Request) {
         eventDate: body.eventDate,
         eventTime: body.preferredTime ?? "",
         eventLocation: body.location,
+        travelZone: body.travelZone ?? "",
+        travelFee: typeof body.travelFee === "number" ? body.travelFee : 0,
         numberOfFaces: Number(body.faces) || 1,
         message: body.message ?? "",
         status: "pending",

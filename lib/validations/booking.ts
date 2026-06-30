@@ -13,7 +13,8 @@ export const bookingSchema = z.object({
   service: z.string().min(1, "Please select a service"),
   eventType: z.string().min(1, "Please select an event type"),
   eventDate: z.string().min(1, "Please select your event date"),
-  eventLocation: z.string().min(2, "Please enter your event location"),
+  eventLocation: z.string().min(2, "Please select your event area"),
+  travelZone: z.string().min(1, "Please select your event area"),
   numberOfFaces: z
     .number({ message: "Please enter number of faces" })
     .min(1, "At least 1 face is required"),

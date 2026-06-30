@@ -13,6 +13,8 @@ export const bookingSchema = defineType({
     defineField({ name: "eventDate", title: "Event Date", type: "string" }),
     defineField({ name: "eventTime", title: "Preferred Time", type: "string" }),
     defineField({ name: "eventLocation", title: "Location", type: "string" }),
+    defineField({ name: "travelZone", title: "Travel Zone", type: "string" }),
+    defineField({ name: "travelFee", title: "Travel Fee (₦)", type: "number" }),
     defineField({ name: "numberOfFaces", title: "Number of Faces", type: "number" }),
     defineField({ name: "message", title: "Message / Inspiration", type: "text" }),
     defineField({
