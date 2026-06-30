@@ -95,7 +95,7 @@ export default async function LinksPage() {
         </div>
 
         {/* Links */}
-        <div className="space-y-2.5 mt-2">
+        <div className="space-y-2.5 mt-5">
           {links.map((link) => {
             const Icon = link.icon;
             const isExternal =

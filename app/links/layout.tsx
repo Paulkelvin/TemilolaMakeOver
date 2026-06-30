@@ -28,8 +28,8 @@ export default function LinksLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${cormorant.variable} ${jakarta.variable}`}>
-      <body className="min-h-screen antialiased font-body bg-gradient-to-b from-bg-cream via-bg-ivory to-bg-blush">
+    <html lang="en" className={`${cormorant.variable} ${jakarta.variable} h-full`}>
+      <body className="h-full overflow-hidden antialiased font-body bg-gradient-to-b from-bg-cream via-bg-ivory to-bg-blush">
         {children}
       </body>
     </html>
