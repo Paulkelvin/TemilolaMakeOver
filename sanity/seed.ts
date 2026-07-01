@@ -1525,6 +1525,19 @@ const blogPosts = [
 ];
 
 // ─── Seed function ──────────────────────────────────────────────────────
+
+// Document types that may have images or assets uploaded manually in Studio.
+// These use createIfNotExists so re-seeding never wipes uploaded media.
+const ASSET_TYPES = new Set([
+  "portfolioItem",
+  "service",
+  "trainingCourse",
+  "transformation",
+  "siteSettings",
+  "pageCopy",
+  "shopLink",
+]);
+
 async function seed() {
   console.log("Seeding Sanity...\n");
 
@@ -1540,18 +1553,25 @@ async function seed() {
     ...aboutValues,
     ...pageCopyDocs,
     ...blogPosts,
+    ...trainingCourses,
   ];
 
   let created = 0;
+  let skipped = 0;
   let updated = 0;
 
   for (const doc of allDocs) {
     try {
       const existing = await client.getDocument(doc._id);
       if (existing) {
-        await client.createOrReplace(doc);
-        updated++;
-        console.log(`  Updated: [${doc._type}] ${doc._id}`);
+        if (ASSET_TYPES.has(doc._type)) {
+          skipped++;
+          console.log(`  Skipped (has assets): [${doc._type}] ${doc._id}`);
+        } else {
+          await client.createOrReplace(doc);
+          updated++;
+          console.log(`  Updated: [${doc._type}] ${doc._id}`);
+        }
       } else {
         await client.createOrReplace(doc);
         created++;
@@ -1564,13 +1584,13 @@ async function seed() {
     }
   }
 
-  console.log(`\nDone! Created: ${created}, Updated: ${updated}`);
+  console.log(`\nDone! Created: ${created}, Updated: ${updated}, Skipped: ${skipped}`);
   console.log("Total documents: " + allDocs.length);
   console.log(
-    "\nNote: Portfolio items and service images need to be uploaded manually"
+    "\nDocuments with uploaded images/assets are never overwritten."
   );
   console.log(
-    "in the Sanity Studio. The text content is fully seeded."
+    "To force-update them, delete them in Sanity Studio first, then re-seed."
   );
 }
 
