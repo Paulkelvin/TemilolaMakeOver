@@ -20,9 +20,8 @@ export function PortfolioPreviewClient({ items, footnote, ctaLabel }: Props) {
   const previewItems = items.slice(0, VISIBLE_COUNT);
   const remainingCount = Math.max(0, items.length - VISIBLE_COUNT);
   const [galleryOpen, setGalleryOpen] = useState(false);
-  const [shieldActive, setShieldActive] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
-  const shieldTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const pointerTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   const openGallery = useCallback((startIndex = 0) => {
     setActiveIndex(startIndex);
@@ -34,10 +33,13 @@ export function PortfolioPreviewClient({ items, footnote, ctaLabel }: Props) {
       e.stopPropagation();
       if ('preventDefault' in e) e.preventDefault();
     }
+    const header = document.querySelector("header");
+    if (header) header.style.pointerEvents = "none";
+    clearTimeout(pointerTimer.current);
+    pointerTimer.current = setTimeout(() => {
+      if (header) header.style.pointerEvents = "";
+    }, 600);
     setGalleryOpen(false);
-    setShieldActive(true);
-    clearTimeout(shieldTimer.current);
-    shieldTimer.current = setTimeout(() => setShieldActive(false), 500);
   }, []);
 
   const goNext = useCallback(() => {
@@ -49,7 +51,7 @@ export function PortfolioPreviewClient({ items, footnote, ctaLabel }: Props) {
   }, [items.length]);
 
   useEffect(() => {
-    return () => clearTimeout(shieldTimer.current);
+    return () => clearTimeout(pointerTimer.current);
   }, []);
 
   useEffect(() => {
@@ -60,10 +62,12 @@ export function PortfolioPreviewClient({ items, footnote, ctaLabel }: Props) {
       if (e.key === "ArrowLeft") goPrev();
     }
     const scrollY = window.scrollY;
+    const header = document.querySelector("header");
     document.body.style.position = "fixed";
     document.body.style.inset = "0";
     document.body.style.overflow = "hidden";
     document.body.style.top = `-${scrollY}px`;
+    if (header) header.style.pointerEvents = "none";
     window.addEventListener("keydown", onKey);
     return () => {
       document.body.style.position = "";
@@ -279,15 +283,6 @@ export function PortfolioPreviewClient({ items, footnote, ctaLabel }: Props) {
           </motion.div>
         )}
       </AnimatePresence>
-
-      {shieldActive && (
-        <div
-          className="fixed inset-0 z-[200]"
-          onClick={(e) => { e.stopPropagation(); e.preventDefault(); }}
-          onTouchEnd={(e) => { e.stopPropagation(); e.preventDefault(); }}
-          aria-hidden="true"
-        />
-      )}
     </>
   );
 }
