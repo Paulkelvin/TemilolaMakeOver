@@ -19,7 +19,7 @@ interface TestimonialsMarqueeProps {
 
 function TestimonialCard({ t }: { t: MarqueeItem }) {
   return (
-    <div className="shrink-0 w-[260px] md:w-[280px] group">
+    <div className="shrink-0 w-[300px] md:w-[340px] group">
       <div className="relative rounded-2xl overflow-hidden border border-border bg-card shadow-sm hover:shadow-lg transition-shadow duration-500">
         <div className="relative h-[280px] md:h-[300px] bg-bg-blush">
           {t.avatarUrl ? (

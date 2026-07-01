@@ -13,6 +13,8 @@ import { bookingSchema } from "./booking";
 import { pageCopySchema } from "./pageCopy";
 import { shopLinkSchema } from "./shopLink";
 import { shopPageSettingsSchema } from "./shopPageSettings";
+import { aboutValueSchema } from "./aboutValue";
+import { travelZoneSchema } from "./travelZone";
 
 export const schemaTypes = [
   serviceSchema,
@@ -30,4 +32,6 @@ export const schemaTypes = [
   pageCopySchema,
   shopLinkSchema,
   shopPageSettingsSchema,
+  aboutValueSchema,
+  travelZoneSchema,
 ];

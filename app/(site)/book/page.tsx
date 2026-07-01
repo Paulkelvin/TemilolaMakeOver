@@ -8,7 +8,7 @@ import { ContactCard } from "@/components/sections/ContactCard";
 import { Reveal } from "@/components/ui/Reveal";
 import { Container } from "@/components/ui/Container";
 import { ScrollToHash } from "@/components/ui/ScrollToHash";
-import { getBlockedDates } from "@/sanity/fetch";
+import { getBlockedDates, getTravelZones, getSiteSettings } from "@/sanity/fetch";
 
 export const metadata = createPageMetadata({
   title: seoCopy.book.title,
@@ -26,7 +26,12 @@ export default async function BookPage({
   const preselectedDate = typeof params.date === "string" ? params.date : undefined;
   const preselectedTime = typeof params.time === "string" ? params.time : undefined;
   const { getPageCopy } = await import("@/sanity/fetch");
-  const [blockedDates, pageCopy] = await Promise.all([getBlockedDates(), getPageCopy("book")]);
+  const [blockedDates, pageCopy, sanityZones, siteSettings] = await Promise.all([
+    getBlockedDates(),
+    getPageCopy("book"),
+    getTravelZones(),
+    getSiteSettings(),
+  ]);
   const copy = bookPageCopy;
 
   return (
@@ -40,8 +45,8 @@ export default async function BookPage({
 
       <SectionWrapper>
         <Container>
-          <div className="grid lg:grid-cols-5 gap-10 lg:gap-12">
-            <div className="lg:col-span-3">
+          <div className="grid lg:grid-cols-5 gap-10 lg:gap-12 min-w-0">
+            <div className="lg:col-span-3 min-w-0">
               <Reveal>
                 <h2 id="booking-form" className="scroll-mt-20 font-display text-2xl text-text-primary mb-2">
                   {copy.form.title}
@@ -52,10 +57,12 @@ export default async function BookPage({
                   preselectedDate={preselectedDate}
                   preselectedTime={preselectedTime}
                   blockedDates={blockedDates}
+                  travelZones={sanityZones.length ? sanityZones : undefined}
+                  extraFaceDiscountPercent={siteSettings.extraFaceDiscountPercent ?? 20}
                 />
               </Reveal>
             </div>
-            <div className="lg:col-span-2">
+            <div className="lg:col-span-2 min-w-0">
               <Reveal>
                 <ContactCard />
               </Reveal>

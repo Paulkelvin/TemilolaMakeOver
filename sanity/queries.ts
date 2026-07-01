@@ -12,7 +12,7 @@ export const SERVICES_QUERY = `*[_type == "service"] | order(order asc) {
   priceFrom,
   icon,
   highlighted,
-  "imageUrl": image.asset->url
+  image
 }`;
 
 export const SERVICE_BY_SLUG_QUERY = `*[_type == "service" && slug.current == $slug][0] {
@@ -29,7 +29,7 @@ export const SERVICE_BY_SLUG_QUERY = `*[_type == "service" && slug.current == $s
   priceFrom,
   icon,
   highlighted,
-  "imageUrl": image.asset->url
+  image
 }`;
 
 export const PACKAGES_QUERY = `*[_type == "pricingPackage"] | order(order asc) {
@@ -49,7 +49,7 @@ export const PORTFOLIO_QUERY = `*[_type == "portfolioItem"] | order(order asc) {
   alt,
   category,
   aspect,
-  "imageUrl": image.asset->url,
+  image,
   instagramFeatured,
   instagramUrl
 }`;
@@ -58,7 +58,7 @@ export const INSTAGRAM_FEED_QUERY = `*[_type == "portfolioItem" && instagramFeat
   _id,
   title,
   alt,
-  "imageUrl": image.asset->url,
+  image,
   instagramUrl
 }`;
 
@@ -69,7 +69,7 @@ export const TESTIMONIALS_QUERY = `*[_type == "testimonial"] | order(order asc) 
   text,
   rating,
   initials,
-  "avatarUrl": avatar.asset->url
+  avatar
 }`;
 
 export const FAQ_QUERY = `*[_type == "faq"] | order(order asc) {
@@ -91,18 +91,20 @@ export const WHY_CHOOSE_US_QUERY = `*[_type == "whyChooseUs"] | order(order asc)
   description
 }`;
 
+export const ABOUT_VALUES_QUERY = `*[_type == "aboutValue"] | order(order asc) {
+  _id,
+  title,
+  text,
+  icon,
+  order
+}`;
+
 export const TRANSFORMATIONS_QUERY = `*[_type == "transformation"] | order(order asc) {
   _id,
   title,
-  "beforeUrl": beforeImage.asset->url,
-  "beforeHotspot": beforeImage.hotspot,
-  "beforeCrop": beforeImage.crop,
-  "beforeMeta": beforeImage.asset->{metadata{dimensions}},
+  beforeImage,
   beforeAlt,
-  "afterUrl": afterImage.asset->url,
-  "afterHotspot": afterImage.hotspot,
-  "afterCrop": afterImage.crop,
-  "afterMeta": afterImage.asset->{metadata{dimensions}},
+  afterImage,
   afterAlt
 }`;
 
@@ -112,7 +114,7 @@ export const BLOG_POSTS_QUERY = `*[_type == "blogPost"] | order(publishedAt desc
   "slug": slug.current,
   excerpt,
   category,
-  "coverImageUrl": coverImage.asset->url,
+  coverImage,
   author,
   publishedAt
 }`;
@@ -126,7 +128,7 @@ export const BLOG_POST_BY_SLUG_QUERY = `*[_type == "blogPost" && slug.current ==
   excerpt,
   body,
   category,
-  "coverImageUrl": coverImage.asset->url,
+  coverImage,
   author,
   publishedAt
 }`;
@@ -136,16 +138,26 @@ export const PAGE_COPY_QUERY = `*[_type == "pageCopy" && page == $page][0]{
   seoTitle, seoDescription,
   heroLabel, heroTitle, heroSubtitle, heroEyebrow, heroTrustLine,
   heroBadges, heroPrimaryCta, heroSecondaryCta,
-  "heroImageUrl": heroImage.asset->url,
+  heroImage,
   sections
+}`;
+
+export const TRAVEL_ZONES_QUERY = `*[_type == "travelZone"] | order(order asc) {
+  _id,
+  label,
+  areas,
+  fee,
+  note,
+  order
 }`;
 
 export const SITE_SETTINGS_QUERY = `*[_type == "siteSettings"][0]{
   youtubeReelUrl,
-  "heroImageMain": heroImageMain.asset->url,
-  "heroImageSecondary": heroImageSecondary.asset->url,
-  "heroImageDetail": heroImageDetail.asset->url,
-  "aboutImage": aboutImage.asset->url
+  heroImageMain,
+  heroImageSecondary,
+  heroImageDetail,
+  aboutImage,
+  extraFaceDiscountPercent
 }`;
 
 export const SHOP_LINKS_QUERY = `*[_type == "shopLink"] | order(sectionOrder asc, order asc) {

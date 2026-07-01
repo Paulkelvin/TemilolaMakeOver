@@ -47,11 +47,26 @@ export function Footer() {
               Services
             </h3>
             <ul className="space-y-2 text-sm text-white/70">
-              <li>Bridal Makeup</li>
-              <li>Soft & Event Glam</li>
-              <li>Home Service</li>
-              <li>Group Bookings</li>
-              <li>Gele Styling</li>
+              {[
+                { label: "Bridal Makeup", slug: "bridal-makeup" },
+                { label: "Traditional Bridal", slug: "traditional-bridal" },
+                { label: "Soft Glam", slug: "soft-glam" },
+                { label: "Event Glam", slug: "event-glam" },
+                { label: "Birthday Glam", slug: "birthday-makeup" },
+                { label: "Photoshoot Makeup", slug: "photoshoot-makeup" },
+                { label: "Home Service", slug: "home-service" },
+                { label: "Group Booking", slug: "group-booking" },
+                { label: "Gele Styling", slug: "gele-styling" },
+              ].map(({ label, slug }) => (
+                <li key={slug}>
+                  <Link
+                    href={`/services/${slug}`}
+                    className="hover:text-white transition-colors"
+                  >
+                    {label}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 

@@ -25,12 +25,20 @@ export function PayDepositButton({
   className,
 }: PayDepositButtonProps) {
   const [status, setStatus] = useState<"idle" | "loading" | "error">("idle");
+  const [errorMsg, setErrorMsg] = useState("");
   const [email, setEmail] = useState(initialEmail);
   const needsEmail = !initialEmail;
 
+  const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email);
+
   async function handlePay() {
-    if (!email || !email.includes("@")) return;
+    if (!email || !isValidEmail) {
+      setStatus("error");
+      setErrorMsg("Please enter a valid email address (e.g. name@example.com)");
+      return;
+    }
     setStatus("loading");
+    setErrorMsg("");
 
     try {
       const res = await fetch("/api/paystack/initialize", {
@@ -53,8 +61,13 @@ export function PayDepositButton({
       }
 
       window.location.href = data.authorization_url;
-    } catch {
+    } catch (err) {
       setStatus("error");
+      setErrorMsg(
+        err instanceof Error && err.message
+          ? err.message
+          : "Couldn’t connect to payment. Please try again or pay via bank transfer."
+      );
     }
   }
 
@@ -72,7 +85,7 @@ export function PayDepositButton({
       <button
         type="button"
         onClick={handlePay}
-        disabled={status === "loading" || !email || !email.includes("@")}
+        disabled={status === "loading"}
         className="w-full flex items-center justify-center gap-2 rounded-full bg-accent-rose hover:bg-accent-rose-dark text-white font-medium text-sm px-6 py-3 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
       >
         {status === "loading" ? (
@@ -87,9 +100,9 @@ export function PayDepositButton({
           </>
         )}
       </button>
-      {status === "error" && (
+      {status === "error" && errorMsg && (
         <p className="text-xs text-red-500 text-center">
-          Couldn&apos;t connect to payment. Please try again or pay via bank transfer.
+          {errorMsg}
         </p>
       )}
     </div>

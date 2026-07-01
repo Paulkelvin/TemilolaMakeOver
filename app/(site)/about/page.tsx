@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { getPortfolioItems, getPageCopy, findSection } from "@/sanity/fetch";
+import { getPortfolioItems, getPageCopy, findSection, getAboutValues } from "@/sanity/fetch";
 import { aboutPageCopy, seoCopy } from "@/data/copy";
 import { createPageMetadata } from "@/lib/metadata";
 import { buildWhatsAppUrl } from "@/lib/whatsapp";
@@ -9,9 +9,10 @@ import { CTASection } from "@/components/sections/CTASection";
 import { Button } from "@/components/ui/Button";
 import { Reveal } from "@/components/ui/Reveal";
 import { Container } from "@/components/ui/Container";
-import { Heart, Award, Sparkles } from "lucide-react";
+import { Heart, Award, Sparkles, Star, Shield } from "lucide-react";
 import { siteConfig } from "@/lib/site-config";
 import Link from "next/link";
+import type { LucideIcon } from "lucide-react";
 
 export const metadata = createPageMetadata({
   title: seoCopy.about.title,
@@ -19,30 +20,27 @@ export const metadata = createPageMetadata({
   path: "/about",
 });
 
-const defaultValues = [
-  {
-    icon: Heart,
-    title: "Beauty with intention",
-    text: "Every choice — from primer to powder — serves how you need to look and feel for your specific event.",
-  },
-  {
-    icon: Award,
-    title: "Professional without the pressure",
-    text: "Punctual, prepared, and calm. Your getting-ready time should feel like care, not chaos.",
-  },
-  {
-    icon: Sparkles,
-    title: "Confidence that lasts",
-    text: "Makeup that holds through photos, hugs, dancing, and Lagos heat — still looking like you at the end.",
-  },
+const iconMap: Record<string, LucideIcon> = {
+  heart: Heart,
+  award: Award,
+  sparkles: Sparkles,
+  star: Star,
+  shield: Shield,
+};
+
+const hardcodedValues = [
+  { icon: "heart", title: "Beauty with intention", text: "Every choice — from primer to powder — serves how you need to look and feel for your specific event." },
+  { icon: "award", title: "Professional without the pressure", text: "Punctual, prepared, and calm. Your getting-ready time should feel like care, not chaos." },
+  { icon: "sparkles", title: "Confidence that lasts", text: "Makeup that holds through photos, hugs, dancing, and Lagos heat — still looking like you at the end." },
 ];
 
 const defaults = aboutPageCopy;
 
 export default async function AboutPage() {
-  const [portfolioItems, pageCopy] = await Promise.all([
+  const [portfolioItems, pageCopy, aboutValues] = await Promise.all([
     getPortfolioItems(),
     getPageCopy("about"),
+    getAboutValues(),
   ]);
 
   const url = buildWhatsAppUrl({ intent: "availability" });
@@ -60,6 +58,8 @@ export default async function AboutPage() {
   const philosophyTitle = philosophySec?.title ?? defaults.philosophy.title;
   const trustTitle = trustSec?.title ?? defaults.trust.title;
   const trustBody = trustSec?.body ?? defaults.trust.body;
+
+  const values = aboutValues.length ? aboutValues : hardcodedValues;
 
   return (
     <>
@@ -118,15 +118,18 @@ export default async function AboutPage() {
           </Reveal>
 
           <div className="grid md:grid-cols-3 gap-6">
-            {defaultValues.map((v) => (
-              <Reveal key={v.title}>
-                <div className="rounded-2xl border border-border bg-card p-8 text-center h-full">
-                  <v.icon className="w-8 h-8 text-accent-rose mx-auto mb-4" strokeWidth={1.5} />
-                  <h3 className="font-display text-xl text-text-primary">{v.title}</h3>
-                  <p className="mt-3 text-sm text-text-muted leading-relaxed">{v.text}</p>
-                </div>
-              </Reveal>
-            ))}
+            {values.map((v) => {
+              const Icon = iconMap[v.icon] ?? Sparkles;
+              return (
+                <Reveal key={v.title}>
+                  <div className="rounded-2xl border border-border bg-card p-8 text-center h-full">
+                    <Icon className="w-8 h-8 text-accent-rose mx-auto mb-4" strokeWidth={1.5} />
+                    <h3 className="font-display text-xl text-text-primary">{v.title}</h3>
+                    <p className="mt-3 text-sm text-text-muted leading-relaxed">{v.text}</p>
+                  </div>
+                </Reveal>
+              );
+            })}
           </div>
 
           <Reveal className="mt-16 max-w-2xl mx-auto text-center">
