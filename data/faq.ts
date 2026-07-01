@@ -65,4 +65,79 @@ export const faqItems: FAQItem[] = [
     answer:
       "After we agree on your date and quote, you'll receive deposit payment details. Once received, your date is confirmed. I'll follow up with arrival time, prep tips, and anything I need from you before the day.",
   },
+  {
+    id: "11",
+    question: "How much does bridal makeup cost in Lagos?",
+    answer:
+      "Bridal makeup at Gleam by Temi starts from ₦120,000 for a white wedding look and ₦130,000 for traditional bridal makeup. The final price depends on location, whether you need a trial session, and the number of faces in your bridal party. You'll get a clear quote before committing.",
+  },
+  {
+    id: "12",
+    question: "How much does a makeup session cost in Lagos?",
+    answer:
+      "Soft glam starts from ₦35,000, event glam from ₦45,000, and birthday glam from ₦40,000. Bridal starts from ₦120,000. Home service is an additional ₦10,000. Every quote is customised to your needs — message me with your event details for exact pricing.",
+  },
+  {
+    id: "13",
+    question: "What is the best makeup artist in Lagos for weddings?",
+    answer:
+      "The best makeup artist is one who listens, preps your skin properly, and delivers a look that lasts all day. At Gleam by Temi, I specialise in bridal makeup across Lagos — from Ikeja to Lekki to Victoria Island. Check my portfolio to see real bridal looks, then decide if my style matches your vision.",
+  },
+  {
+    id: "14",
+    question: "Do I need a bridal makeup trial?",
+    answer:
+      "A trial is strongly recommended for brides. It lets us test your look against your outfit, skin tone, and event lighting before your wedding day. We refine everything in advance so there are no surprises on the morning. Book your trial when you reserve your wedding date.",
+  },
+  {
+    id: "15",
+    question: "What should I do to prepare my skin before makeup?",
+    answer:
+      "Drink plenty of water in the days leading up to your appointment. Cleanse and moisturise the night before, but skip heavy skincare products on the morning. Arrive with a clean, bare face — no foundation or sunscreen. I'll handle skin prep from there.",
+  },
+  {
+    id: "16",
+    question: "Can I book same-day or last-minute makeup in Lagos?",
+    answer:
+      "Same-day bookings depend on my schedule. If I have availability, I'll fit you in — message me on WhatsApp and I'll confirm honestly. For the best experience, especially for events and bridal, booking at least 2–4 weeks ahead is ideal.",
+  },
+  {
+    id: "17",
+    question: "What areas in Lagos do you cover for home service?",
+    answer:
+      "I cover Ikeja, Lekki, Victoria Island, Ikoyi, Ajah, Yaba, Surulere, Mainland, and surrounding Lagos areas. For locations outside central Lagos, a travel fee may apply. Share your address when booking and I'll confirm coverage and any additional cost.",
+  },
+];
+
+export const pricingFaqItems: FAQItem[] = [
+  {
+    id: "p1",
+    question: "How much does bridal makeup cost in Lagos?",
+    answer:
+      "Bridal makeup at Gleam by Temi starts from ₦120,000 for a white wedding and ₦130,000 for traditional bridal. Your final quote factors in location, trial sessions, and bridal party size. You'll receive a clear, written quote before paying any deposit.",
+  },
+  {
+    id: "p2",
+    question: "What does makeup artist pricing include?",
+    answer:
+      "Every package includes skin prep, professional-grade product application, lash enhancement, and long-wear setting. Bridal packages also include a consultation and touch-up guidance. The price shown is a starting point — your custom quote covers your specific needs.",
+  },
+  {
+    id: "p3",
+    question: "Is a bridal trial included in the price?",
+    answer:
+      "A bridal trial is a separate session and not included in the base bridal price. However, I strongly recommend it — we test your look, adjust for your skin and outfit, and fine-tune everything so your wedding morning is stress-free. Ask about trial pricing when booking.",
+  },
+  {
+    id: "p4",
+    question: "Do you charge extra for home service?",
+    answer:
+      "Yes, home service is an add-on starting from ₦10,000 depending on location within Lagos. I bring a full professional kit and set up at your home, hotel, or venue. The fee covers travel and on-location setup.",
+  },
+  {
+    id: "p5",
+    question: "Can I get a discount for booking multiple faces?",
+    answer:
+      "Group bookings are priced per face starting from ₦30,000 each, which is already our most competitive rate. For larger bridal parties (5+ faces), message me with the details and I'll work out the best package for your group.",
+  },
 ];

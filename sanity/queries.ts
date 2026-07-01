@@ -140,6 +140,21 @@ export const PAGE_COPY_QUERY = `*[_type == "pageCopy" && page == $page][0]{
   sections
 }`;
 
+export const TRAINING_COURSES_QUERY = `*[_type == "trainingCourse"] | order(order asc) {
+  _id,
+  title,
+  "slug": slug.current,
+  level,
+  description,
+  duration,
+  price,
+  classSize,
+  certification,
+  curriculum,
+  highlights,
+  "imageUrl": image.asset->url
+}`;
+
 export const SITE_SETTINGS_QUERY = `*[_type == "siteSettings"][0]{
   youtubeReelUrl,
   "heroImageMain": heroImageMain.asset->url,

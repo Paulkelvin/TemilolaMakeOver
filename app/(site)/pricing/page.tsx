@@ -1,12 +1,14 @@
 import { getPackages } from "@/sanity/fetch";
 import { siteConfig } from "@/lib/site-config";
 import { pricingPageCopy, seoCopy } from "@/data/copy";
-import { pricingFactors } from "@/data/packages";
+import { pricingFactors, pricingTableData } from "@/data/packages";
+import { pricingFaqItems } from "@/data/faq";
 import { createPageMetadata } from "@/lib/metadata";
 import { PageHero } from "@/components/sections/PageHero";
 import { SectionWrapper } from "@/components/ui/BackgroundDecor";
 import { PricingCard } from "@/components/sections/PricingCard";
-import { FAQSection } from "@/components/sections/FAQSection";
+import { PricingComparisonTable } from "@/components/sections/PricingComparisonTable";
+import { PricingFAQ } from "@/components/sections/PricingFAQ";
 import { CTASection } from "@/components/sections/CTASection";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Reveal, StaggerGrid, StaggerItem } from "@/components/ui/Reveal";
@@ -112,7 +114,26 @@ export default async function PricingPage() {
         </Container>
       </SectionWrapper>
 
-      <FAQSection limit={6} />
+      <SectionWrapper variant="blush">
+        <Container>
+          <PricingComparisonTable data={pricingTableData} />
+        </Container>
+      </SectionWrapper>
+
+      <SectionWrapper>
+        <Container>
+          <PricingFAQ items={pricingFaqItems} />
+          <Reveal className="mt-8 text-center">
+            <Link
+              href="/faq"
+              className="text-sm text-accent-rose font-medium hover:underline"
+            >
+              View all FAQs →
+            </Link>
+          </Reveal>
+        </Container>
+      </SectionWrapper>
+
       <CTASection
         title={copy.finalCta.headline}
         subtitle={copy.finalCta.subtitle}

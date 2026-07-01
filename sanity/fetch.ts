@@ -2,6 +2,7 @@ import { cache } from "react";
 import {
   Camera,
   Crown,
+  GraduationCap,
   Home,
   Palette,
   PartyPopper,
@@ -26,6 +27,7 @@ import {
   BLOCKED_DATES_QUERY,
   SITE_SETTINGS_QUERY,
   PAGE_COPY_QUERY,
+  TRAINING_COURSES_QUERY,
 } from "./queries";
 import type { Service } from "@/data/services";
 import type { Package } from "@/data/packages";
@@ -44,6 +46,7 @@ const iconMap: Record<string, LucideIcon> = {
   camera: Camera,
   home: Home,
   users: Users,
+  "graduation-cap": GraduationCap,
 };
 
 // ─── Services ────────────────────────────────────────────────────────────────
@@ -382,6 +385,55 @@ export const getInstagramFeed = cache(async (): Promise<InstagramFeedItem[]> => 
     alt: p.alt,
     imageUrl: p.imageUrl ?? "",
     instagramUrl: p.instagramUrl,
+  }));
+});
+
+// ─── Training Courses ──────────────────────────────────────────────────────
+export interface TrainingCourse {
+  id: string;
+  title: string;
+  slug?: string;
+  level: "Beginner" | "Advanced" | "Bridal Specialty";
+  description: string;
+  duration: string;
+  price: number;
+  classSize: number;
+  certification: boolean;
+  curriculum: string[];
+  highlights?: string[];
+  imageUrl?: string;
+}
+
+interface RawTrainingCourse {
+  _id: string;
+  title: string;
+  slug?: string;
+  level: "Beginner" | "Advanced" | "Bridal Specialty";
+  description: string;
+  duration: string;
+  price: number;
+  classSize: number;
+  certification: boolean;
+  curriculum: string[];
+  highlights?: string[];
+  imageUrl?: string;
+}
+
+export const getTrainingCourses = cache(async (): Promise<TrainingCourse[]> => {
+  const raw: RawTrainingCourse[] = await client.fetch(TRAINING_COURSES_QUERY, {}, REVALIDATE);
+  return raw.map((c) => ({
+    id: c._id,
+    title: c.title,
+    slug: c.slug,
+    level: c.level,
+    description: c.description ?? "",
+    duration: c.duration ?? "",
+    price: c.price ?? 0,
+    classSize: c.classSize ?? 0,
+    certification: c.certification ?? false,
+    curriculum: c.curriculum ?? [],
+    highlights: c.highlights,
+    imageUrl: c.imageUrl,
   }));
 });
 

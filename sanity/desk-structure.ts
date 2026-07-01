@@ -37,6 +37,7 @@ export const deskStructure = (S: StructureBuilder) =>
             .items([
               S.documentTypeListItem("service").title("Services"),
               S.documentTypeListItem("pricingPackage").title("Pricing Packages"),
+              S.documentTypeListItem("trainingCourse").title("Training Courses"),
             ])
         ),
 

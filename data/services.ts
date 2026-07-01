@@ -1,6 +1,7 @@
 import {
   Camera,
   Crown,
+  GraduationCap,
   Home,
   Palette,
   PartyPopper,
@@ -210,5 +211,25 @@ export const services: Service[] = [
     homeService: true,
     priceFrom: 15000,
     icon: Crown,
+  },
+  {
+    id: "training",
+    name: "Makeup Training",
+    slug: "makeup-training",
+    shortDescription:
+      "Learn professional makeup artistry — from beginner fundamentals to bridal mastery.",
+    description:
+      "Hands-on courses in Lagos taught by a working makeup artist. Small class sizes, real-face practice, and certification on completion. Build the skills Lagos clients pay for.",
+    whoFor: "Aspiring makeup artists, beauty enthusiasts, and professionals looking to upskill.",
+    bestFor: "Career start · Skill upgrade · Bridal specialisation",
+    included: [
+      "Hands-on training with live models",
+      "Professional product knowledge",
+      "Certification on completion",
+    ],
+    duration: "1–3 weeks",
+    homeService: false,
+    priceFrom: 150000,
+    icon: GraduationCap,
   },
 ];

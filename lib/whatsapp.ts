@@ -6,7 +6,8 @@ export type WhatsAppIntent =
   | "quote"
   | "reserve"
   | "service"
-  | "look";
+  | "look"
+  | "training";
 
 interface WhatsAppOptions {
   intent?: WhatsAppIntent;
@@ -62,6 +63,12 @@ Name:
 Event Date:
 Location:
 Number of Faces:`,
+  training: `Hello, I'm interested in your makeup training programme.
+
+Name:
+Course Level (Beginner/Advanced/Bridal):
+Preferred Start Date:
+Any questions:`,
 };
 
 export function buildWhatsAppUrl(options: WhatsAppOptions = {}): string {
