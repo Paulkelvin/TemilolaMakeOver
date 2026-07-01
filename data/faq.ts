@@ -51,7 +51,7 @@ export const faqItems: FAQItem[] = [
     id: "8",
     question: "How long does each makeup session take?",
     answer:
-      "Bridal makeup: 2–3 hours. Soft glam and event makeup: 1.5–2 hours. Gele styling: 30–45 minutes. Group bookings are timed per face at roughly 1–1.5 hours each. I'll confirm timing when we book.",
+      "Bridal makeup: 2–3 hours. Soft glam and event makeup: 1.5–2 hours. Group bookings are timed per face at roughly 1–1.5 hours each. I'll confirm timing when we book.",
   },
   {
     id: "9",

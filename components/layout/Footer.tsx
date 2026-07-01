@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ChevronDown } from "lucide-react";
 import { siteConfig, navLinks } from "@/lib/site-config";
 import { buildWhatsAppUrl } from "@/lib/whatsapp";
 import { analyticsEvents } from "@/lib/analytics";
@@ -20,8 +21,9 @@ export function Footer() {
               <span className="text-accent-rose">.</span>
             </Link>
             <p className="mt-4 text-sm text-white/60 leading-relaxed max-w-xs">
-              Premium bridal and event makeup in {siteConfig.location}. Making
-              every special moment beautifully unforgettable.
+              Premium makeup artistry in {siteConfig.location} — soft glam, event,
+              and bridal makeup. Making every special moment beautifully
+              unforgettable.
             </p>
           </div>
 
@@ -54,10 +56,8 @@ export function Footer() {
                 { label: "Soft Glam", slug: "soft-glam" },
                 { label: "Event Glam", slug: "event-glam" },
                 { label: "Birthday Glam", slug: "birthday-makeup" },
-                { label: "Photoshoot Makeup", slug: "photoshoot-makeup" },
                 { label: "Home Service", slug: "home-service" },
                 { label: "Group Booking", slug: "group-booking" },
-                { label: "Gele Styling", slug: "gele-styling" },
               ].map(({ label, slug }) => (
                 <li key={slug}>
                   <Link
@@ -80,15 +80,27 @@ export function Footer() {
             <h3 className="text-xs font-semibold uppercase tracking-[0.2em] text-accent-gold mb-4">
               Locations
             </h3>
-            <ul className="space-y-2 text-sm text-white/70">
+            <ul className="space-y-1 text-sm text-white/70">
               {locations.map((l) => (
                 <li key={l.slug}>
-                  <Link
-                    href={`/locations/${l.slug}`}
-                    className="hover:text-white transition-colors"
-                  >
-                    {l.name}
-                  </Link>
+                  <details className="group">
+                    <summary className="flex items-center justify-between gap-2 py-1 cursor-pointer list-none [&::-webkit-details-marker]:hidden">
+                      <Link
+                        href={`/locations/${l.slug}`}
+                        className="hover:text-white transition-colors"
+                      >
+                        {l.name}
+                      </Link>
+                      <ChevronDown className="w-3.5 h-3.5 shrink-0 text-white/40 transition-transform duration-200 group-open:rotate-180" />
+                    </summary>
+                    <ul className="pl-3 mt-1 mb-2 space-y-1 border-l border-white/10">
+                      {l.areas.map((area) => (
+                        <li key={area} className="text-xs text-white/50">
+                          {area}
+                        </li>
+                      ))}
+                    </ul>
+                  </details>
                 </li>
               ))}
             </ul>

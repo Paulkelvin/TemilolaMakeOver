@@ -59,7 +59,7 @@ export default function OgImage() {
               maxWidth: 700,
             }}
           >
-            Bridal & Event Makeup in Lagos, Nigeria
+            Soft Glam, Event & Bridal Makeup in Lagos, Nigeria
           </p>
           <div
             style={{

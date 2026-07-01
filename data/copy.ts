@@ -9,28 +9,28 @@ const location = siteConfig.location.split(",")[0]; // Lagos
 
 export const seoCopy = {
   home: {
-    title: `${siteConfig.brand} | Bridal & Event Makeup Artist in ${location}`,
-    description: `Book professional bridal, soft glam, and event makeup in ${location}. Home service available. View real client looks, packages, and check availability for your date.`,
+    title: `${siteConfig.brand} | Makeup Artist in ${location}`,
+    description: `Book a professional makeup artist in ${location} for soft glam, event, and bridal makeup. Home service available. View real client looks, packages, and check availability for your date.`,
   },
   services: {
     title: `Makeup Services in ${location}`,
-    description: `Bridal makeup, traditional glam, soft glam, event makeup, photoshoot glam, and home service in ${location}. See what's included and book your session.`,
+    description: `Soft glam, event makeup, bridal makeup, traditional glam, photoshoot glam, and home service in ${location}. See what's included and book your session.`,
   },
   portfolio: {
     title: `Makeup Portfolio & Client Looks`,
-    description: `Browse bridal, soft glam, event, traditional, and photoshoot makeup by Temilola at Gleam by Temi — professional makeup artist in ${location}.`,
+    description: `Browse soft glam, event, bridal, traditional, and photoshoot makeup by Temilola at Gleam by Temi — professional makeup artist in ${location}.`,
   },
   pricing: {
     title: `Makeup Packages & Pricing`,
-    description: `Bridal makeup from ₦120,000, event glam from ₦45,000, soft glam from ₦35,000 in ${location}. Compare all services, home service pricing, and group rates. Request your custom quote.`,
+    description: `Makeup services in ${location} start from ₦30,000. Compare bridal, soft glam, event, and group pricing, plus home service rates. Request your custom quote.`,
   },
   book: {
     title: `Book Your Makeup Session`,
-    description: `Check availability and book bridal or event makeup in ${location}. WhatsApp or booking form — fast, simple, professional.`,
+    description: `Check availability and book event or bridal makeup in ${location}. WhatsApp or booking form — fast, simple, professional.`,
   },
   about: {
     title: `About Temilola — Gleam by Temi`,
-    description: `Meet Temilola, the artist behind Gleam by Temi — bridal and event makeup artist in ${location}. Calm, professional glam tailored to your face, your outfit, and your moment.`,
+    description: `Meet Temilola, the makeup artist behind Gleam by Temi in ${location} — offering soft glam, event, and bridal makeup. Calm, professional glam tailored to your face, your outfit, and your moment.`,
   },
   faq: {
     title: `Frequently Asked Questions`,
@@ -45,12 +45,12 @@ export const seoCopy = {
 export const homeCopy = {
   hero: {
     eyebrow: `Premium Makeup Artist · ${location}`,
-    headline: "Bridal & Event Makeup That Makes You Feel Effortlessly Confident",
+    headline: "Makeup That Makes You Feel Effortlessly Confident",
     subheadline:
       "Soft, elegant makeup in Lagos — skin-prep focused, camera-ready, and designed to last beautifully from your first photo to your last dance.",
-    trustLine: `Trusted for bridal, event, and photoshoot glam across ${siteConfig.serviceArea}.`,
+    trustLine: `Trusted for soft glam, event, bridal, and photoshoot makeup across ${siteConfig.serviceArea}.`,
     badges: [
-      "Bridal Specialist",
+      "Makeup Artist",
       "Soft Glam",
       "Home Service",
       location,
@@ -59,11 +59,11 @@ export const homeCopy = {
     secondaryCta: "Book Your Transformation",
   },
   trustStrip: [
-    "Bridal Glam",
+    "Soft Glam Specialist",
     "Event Makeup",
     "Home Service Available",
     `Based in ${location}`,
-    "Soft Glam Specialist",
+    "Bridal Makeup",
   ],
   portfolio: {
     label: "Portfolio",
@@ -77,7 +77,7 @@ export const homeCopy = {
     label: "Services",
     headline: "Glam for Every Special Moment",
     intro:
-      "Bridal, event, birthday, and photoshoot makeup tailored to your look, timeline, and venue.",
+      "Soft glam, event, birthday, bridal, and photoshoot-ready makeup tailored to your look, timeline, and venue.",
     cardCta: "Book This Service",
   },
   whyChooseUs: {
@@ -134,7 +134,7 @@ export const servicesPageCopy = {
     label: "Services",
     title: "Makeup Services for Every Kind of Special Day",
     subtitle:
-      "From quiet bridal mornings to high-energy celebrations — each service is built around how you need to look, feel, and last.",
+      "From soft glam sessions to bridal mornings and high-energy celebrations — each service is built around how you need to look, feel, and last.",
   },
   intro: {
     title: "Not Sure Which Service Fits?",
@@ -167,11 +167,11 @@ export const pricingPageCopy = {
     label: "Pricing",
     title: "Packages That Help You Plan Ahead",
     subtitle:
-      "Starting prices for the most requested looks. Your custom quote reflects travel, timing, and party size.",
+      "Services start from ₦30,000. Your custom quote reflects your location, event date, and party size.",
   },
   explanation: {
     title: "How Pricing Works",
-    body: "I believe in clarity upfront. Packages show where your investment begins — we'll confirm the full amount once I know your venue, date, and exact requirements.",
+    body: "I believe in clarity upfront — services start from ₦30,000. From there, your final quote is shaped by your location and travel distance, your event date, and how many faces we're glamming.",
   },
   deposit: {
     title: "Securing Your Date",
@@ -198,7 +198,7 @@ export const aboutPageCopy = {
   intro: {
     title: "Makeup Should Feel Like You — Just Elevated",
     paragraphs: [
-      "I'm Temilola, the artist behind Gleam by Temi — a professional makeup studio based in Lagos, specialising in bridal, traditional, soft glam, and event makeup.",
+      "I'm Temilola, the artist behind Gleam by Temi — a professional makeup studio based in Lagos, specialising in soft glam, event, bridal, and traditional makeup.",
       "I started this work because I love the quiet confidence that appears when someone looks in the mirror and recognises themselves — just more radiant. That moment matters whether it's a wedding morning or a milestone birthday.",
       "On your day, I bring calm energy, punctual timing, and a kit that's clean, organised, and ready. No chaos. No rushing. Just focused glam that holds up to photos, dancing, and emotion.",
     ],

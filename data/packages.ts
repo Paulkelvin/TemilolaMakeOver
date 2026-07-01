@@ -87,20 +87,6 @@ export const packages: Package[] = [
       "Group timeline planning",
     ],
   },
-  {
-    id: "home-service",
-    name: "Home Service Add-on",
-    bestFor: "Getting ready at home, hotel, or venue",
-    shortDescription:
-      "I come to you across Lagos with a full kit — add to any package.",
-    priceFrom: 10000,
-    duration: "Added to your service",
-    features: [
-      "Travel within service area",
-      "On-location setup",
-      "Hotel & private venue service",
-    ],
-  },
 ];
 
 export interface PricingTableRow {
@@ -117,16 +103,13 @@ export const pricingTableData: PricingTableRow[] = [
   { service: "Soft Glam", priceFrom: 35000, duration: "1.5–2 hours", included: "Skin prep, soft glam application, lash enhancement, setting spray", homeService: true },
   { service: "Event Glam", priceFrom: 45000, duration: "1.5–2 hours", included: "Skin prep, full event glam, defined features, flash-ready finish", homeService: true },
   { service: "Birthday Glam", priceFrom: 40000, duration: "1.5–2 hours", included: "Skin prep, custom glam, lash application, photo-ready setting", homeService: true },
-  { service: "Photoshoot Makeup", priceFrom: 50000, duration: "1.5–2 hours", included: "HD skin prep, camera-ready base & contour, professional setting", homeService: true },
   { service: "Bridesmaids (per face)", priceFrom: 30000, duration: "1–1.5 hours", included: "Coordinated looks, skin prep, group timeline planning", homeService: true },
-  { service: "Gele Styling", priceFrom: 15000, duration: "30–45 min", included: "Gele styling & securing, finishing touches", homeService: true },
-  { service: "Home Service Add-on", priceFrom: 10000, duration: "Added to service", included: "Travel within Lagos, on-location setup, full kit", homeService: false },
 ];
+
+export const pricingStartingFrom = 30000;
 
 export const pricingFactors = [
   "Number of faces and group size",
   "Event date and peak-season demand",
   "Venue location and travel distance",
-  "Service type and add-ons (e.g. gele, trial)",
-  "Early-morning or late-night call times",
 ];

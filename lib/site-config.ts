@@ -4,15 +4,15 @@ export const siteConfig = {
   artistName: "Temilola",
   shortBrand: "Gleam",
   whatsappNumber: "2347058596531",
-  tagline: "Bridal & Event Makeup That Makes You Feel Effortlessly Confident",
+  tagline: "Makeup That Makes You Feel Effortlessly Confident",
   description:
-    "Book professional bridal, soft glam, and event makeup in Lagos. Home service available. View real client looks, packages, and check availability for your date.",
+    "Book a professional makeup artist in Lagos for soft glam, event, and bridal makeup. Home service available. View real client looks, packages, and check availability for your date.",
   usp: [
     "Soft glam specialist",
     "Bridal & traditional wedding experience",
     "Home service across Lagos",
     "Skin-prep focused, camera-ready finish",
-    "Calm, punctual wedding-morning service",
+    "Calm, punctual service for every event",
   ],
   url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://temilolomakeup.com",
   location: "Lagos, Nigeria",

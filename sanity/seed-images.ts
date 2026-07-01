@@ -134,11 +134,6 @@ const serviceImages: {
     alt: "Birthday glam makeup by Temilola",
   },
   {
-    docId: "service-photoshoot",
-    photoId: "photo-1524504388940-b1c1722653e1",
-    alt: "Photoshoot makeup by Temilola",
-  },
-  {
     docId: "service-home",
     photoId: "photo-1516975080664-ed2fc6a32937",
     alt: "Home service makeup by Temilola",
@@ -147,11 +142,6 @@ const serviceImages: {
     docId: "service-group",
     photoId: "photo-1580618672591-eb180b1a973f",
     alt: "Group booking makeup by Temilola",
-  },
-  {
-    docId: "service-gele",
-    photoId: "photo-1531746020798-e6953c6e8e04",
-    alt: "Gele styling by Temilola",
   },
 ];
 

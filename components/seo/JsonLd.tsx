@@ -90,22 +90,6 @@ export function JsonLd() {
           "@type": "Offer",
           itemOffered: {
             "@type": "Service",
-            name: "Bridal Makeup",
-            description: "Professional bridal makeup with skin prep, trial session, and long-lasting finish for your wedding day in Lagos",
-          },
-        },
-        {
-          "@type": "Offer",
-          itemOffered: {
-            "@type": "Service",
-            name: "Traditional Bridal Makeup",
-            description: "Traditional wedding makeup coordinated with gele and outfit for Nigerian ceremonies in Lagos",
-          },
-        },
-        {
-          "@type": "Offer",
-          itemOffered: {
-            "@type": "Service",
             name: "Soft Glam Makeup",
             description: "Soft glam makeup for engagements, parties, and special occasions in Lagos",
           },
@@ -116,6 +100,22 @@ export function JsonLd() {
             "@type": "Service",
             name: "Event Glam Makeup",
             description: "Event and party makeup services with home service available across Lagos",
+          },
+        },
+        {
+          "@type": "Offer",
+          itemOffered: {
+            "@type": "Service",
+            name: "Bridal Makeup",
+            description: "Professional bridal makeup with skin prep, trial session, and long-lasting finish for your wedding day in Lagos",
+          },
+        },
+        {
+          "@type": "Offer",
+          itemOffered: {
+            "@type": "Service",
+            name: "Traditional Bridal Makeup",
+            description: "Traditional wedding makeup coordinated with gele and outfit for Nigerian ceremonies in Lagos",
           },
         },
       ],

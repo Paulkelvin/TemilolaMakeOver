@@ -82,7 +82,7 @@ export function MobileMenu({
                             {services.map((s) => (
                               <li key={s.slug}>
                                 <Link
-                                  href={`/services/${s.slug}`}
+                                  href={s.id === "training" ? "/training" : `/services/${s.slug}`}
                                   onClick={onClose}
                                   className="block py-2 text-sm text-text-muted hover:text-accent-rose transition-colors"
                                 >

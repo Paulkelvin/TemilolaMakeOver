@@ -33,7 +33,7 @@ export function NewsletterSignup() {
         Beauty tips in your inbox
       </h3>
       <p className="mt-2 text-sm text-text-muted leading-relaxed">
-        Get bridal prep guides, glam tips, and exclusive offers. No spam — just
+        Get glam tips, bridal prep guides, and exclusive offers. No spam — just
         beauty.
       </p>
 

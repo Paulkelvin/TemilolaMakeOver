@@ -40,15 +40,15 @@ const siteConfig = {
   brand: "Temilola Makeup",
   artistName: "Temilola",
   tagline:
-    "Bridal & Event Makeup That Makes You Feel Effortlessly Confident",
+    "Makeup That Makes You Feel Effortlessly Confident",
   description:
-    "Book professional bridal, soft glam, and event makeup in Lagos. Home service available. View real client looks, packages, and check availability for your date.",
+    "Book a professional makeup artist in Lagos for soft glam, event, and bridal makeup. Home service available. View real client looks, packages, and check availability for your date.",
   usp: [
     "Soft glam specialist",
     "Bridal & traditional wedding experience",
     "Home service across Lagos",
     "Skin-prep focused, camera-ready finish",
-    "Calm, punctual wedding-morning service",
+    "Calm, punctual service for every event",
   ],
   url: "https://temilolomakeup.com",
   location: "Lagos, Nigeria",
@@ -94,7 +94,7 @@ const services = [
     homeService: true,
     priceFrom: 120000,
     icon: "crown",
-    highlighted: true,
+    highlighted: false,
     order: 1,
   },
   {
@@ -129,10 +129,10 @@ const services = [
     shortDescription:
       "Romantic, blended glam that enhances — never overpowers — your features.",
     description:
-      "Soft glam is my signature: diffused contour, glowing skin, and lashes that open the eyes without heaviness. Perfect when you want to look polished and feminine, not overdone.",
+      "Soft glam is my signature: diffused contour, glowing skin, and lashes that open the eyes without heaviness. Perfect when you want to look polished and feminine, not overdone — and it photographs beautifully, so it's a favourite for photoshoots too.",
     whoFor:
       "Bridesmaids, guests, and anyone who wants an effortless elevated look.",
-    bestFor: "Engagement · Dinner · Graduation · Date night",
+    bestFor: "Engagement · Dinner · Graduation · Photoshoot",
     included: [
       "Skin prep & priming",
       "Soft glam eye & face application",
@@ -143,6 +143,7 @@ const services = [
     homeService: true,
     priceFrom: 35000,
     icon: "palette",
+    highlighted: true,
     order: 3,
   },
   {
@@ -153,9 +154,9 @@ const services = [
     shortDescription:
       "Defined, camera-ready makeup built to carry you through the night.",
     description:
-      "Parties, launches, and celebrations need makeup that reads on camera and in person. I sculpt, define, and set your look so it survives lights, dancing, and late-night photos.",
+      "Parties, launches, and celebrations need makeup that reads on camera and in person. I sculpt, define, and set your look so it survives lights, dancing, late-night photos, and photoshoots.",
     whoFor: "Hosts, guests, and anyone who wants to make an entrance.",
-    bestFor: "Party · Corporate event · Anniversary · Red carpet",
+    bestFor: "Party · Corporate event · Anniversary · Photoshoot",
     included: [
       "Skin prep",
       "Full glam application",
@@ -191,30 +192,6 @@ const services = [
     priceFrom: 40000,
     icon: "sparkles",
     order: 5,
-  },
-  {
-    _id: "service-photoshoot",
-    _type: "service",
-    name: "Photoshoot Makeup",
-    slug: { _type: "slug", current: "photoshoot-makeup" },
-    shortDescription:
-      "HD makeup that translates cleanly on camera, screen, and print.",
-    description:
-      "Studio lights and outdoor sun demand different techniques. I adjust coverage, contour, and finish so your skin looks smooth and dimensional — not flat — in every frame.",
-    whoFor:
-      "Creators, models, professionals, and anyone investing in quality images.",
-    bestFor: "Editorial · Brand shoot · Headshots · Content creation",
-    included: [
-      "Skin prep for HD application",
-      "Camera-ready base & contour",
-      "Eye & lip definition for lens",
-      "Professional setting",
-    ],
-    duration: "1.5–2 hours",
-    homeService: true,
-    priceFrom: 50000,
-    icon: "camera",
-    order: 6,
   },
   {
     _id: "service-home",
@@ -261,25 +238,6 @@ const services = [
     priceFrom: 30000,
     icon: "users",
     order: 8,
-  },
-  {
-    _id: "service-gele",
-    _type: "service",
-    name: "Gele Styling",
-    slug: { _type: "slug", current: "gele-styling" },
-    shortDescription:
-      "Expert gele tying to complete your traditional bridal ensemble.",
-    description:
-      "A beautifully tied gele elevates your entire look. I style to complement your face shape, outfit, and makeup — secure enough to last the full ceremony.",
-    whoFor:
-      "Traditional brides and guests wearing gele for cultural events.",
-    bestFor: "Traditional wedding · Engagement · Cultural event",
-    included: ["Gele styling & securing", "Finishing touches with your look"],
-    duration: "30–45 minutes",
-    homeService: true,
-    priceFrom: 15000,
-    icon: "crown",
-    order: 9,
   },
 ];
 
@@ -374,23 +332,6 @@ const packages = [
     ],
     highlighted: false,
     order: 5,
-  },
-  {
-    _id: "pkg-home-service",
-    _type: "pricingPackage",
-    name: "Home Service Add-on",
-    bestFor: "Getting ready at home, hotel, or venue",
-    shortDescription:
-      "I come to you across Lagos with a full kit — add to any package.",
-    priceFrom: 10000,
-    duration: "Added to your service",
-    features: [
-      "Travel within service area",
-      "On-location setup",
-      "Hotel & private venue service",
-    ],
-    highlighted: false,
-    order: 6,
   },
 ];
 
@@ -623,7 +564,7 @@ const faqItems = [
     _type: "faq",
     question: "How long does each makeup session take?",
     answer:
-      "Bridal makeup: 2–3 hours. Soft glam and event makeup: 1.5–2 hours. Gele styling: 30–45 minutes. Group bookings are timed per face at roughly 1–1.5 hours each. I'll confirm timing when we book.",
+      "Bridal makeup: 2–3 hours. Soft glam and event makeup: 1.5–2 hours. Group bookings are timed per face at roughly 1–1.5 hours each. I'll confirm timing when we book.",
     order: 8,
   },
   {
@@ -814,17 +755,17 @@ const pageCopyDocs = [
     _id: "pageCopy-home",
     _type: "pageCopy",
     page: "home",
-    seoTitle: "Temilola Makeup | Bridal & Event Makeup Artist in Lagos",
+    seoTitle: "Temilola Makeup | Makeup Artist in Lagos",
     seoDescription:
-      "Book professional bridal, soft glam, and event makeup in Lagos. Home service available. View real client looks, packages, and check availability for your date.",
+      "Book a professional makeup artist in Lagos for soft glam, event, and bridal makeup. Home service available. View real client looks, packages, and check availability for your date.",
     heroEyebrow: "Premium Makeup Artist · Lagos",
     heroTitle:
-      "Bridal & Event Makeup That Makes You Feel Effortlessly Confident",
+      "Makeup That Makes You Feel Effortlessly Confident",
     heroSubtitle:
       "Soft, elegant makeup in Lagos — skin-prep focused, camera-ready, and designed to last beautifully from your first photo to your last dance.",
     heroTrustLine:
-      "Trusted for bridal, event, and photoshoot glam across Lagos & nearby areas (Ikeja, Lekki, Victoria Island, Mainland).",
-    heroBadges: ["Bridal Specialist", "Soft Glam", "Home Service", "Lagos"],
+      "Trusted for soft glam, event, bridal, and photoshoot makeup across Lagos & nearby areas (Ikeja, Lekki, Victoria Island, Mainland).",
+    heroBadges: ["Makeup Artist", "Soft Glam", "Home Service", "Lagos"],
     heroPrimaryCta: "Check Availability",
     heroSecondaryCta: "View Makeup Looks",
     sections: [
@@ -852,7 +793,7 @@ const pageCopyDocs = [
         label: "Services",
         headline: "Glam for Every Special Moment",
         intro:
-          "Bridal, event, birthday, and photoshoot makeup tailored to your look, timeline, and venue.",
+          "Soft glam, event, birthday, bridal, and photoshoot-ready makeup tailored to your look, timeline, and venue.",
         cta: "Book This Service",
       },
       {
@@ -925,11 +866,11 @@ const pageCopyDocs = [
     page: "services",
     seoTitle: "Makeup Services in Lagos",
     seoDescription:
-      "Bridal makeup, traditional glam, soft glam, event makeup, photoshoot glam, and home service in Lagos. See what's included and book your session.",
+      "Soft glam, event makeup, bridal makeup, traditional glam, photoshoot glam, and home service in Lagos. See what's included and book your session.",
     heroLabel: "Services",
     heroTitle: "Makeup Services for Every Kind of Special Day",
     heroSubtitle:
-      "From quiet bridal mornings to high-energy celebrations — each service is built around how you need to look, feel, and last.",
+      "From soft glam sessions to bridal mornings and high-energy celebrations — each service is built around how you need to look, feel, and last.",
     sections: [
       {
         _key: "intro",
@@ -952,7 +893,7 @@ const pageCopyDocs = [
     page: "portfolio",
     seoTitle: "Makeup Portfolio & Client Looks",
     seoDescription:
-      "Browse bridal, soft glam, event, traditional, and photoshoot makeup by Temilola — professional makeup artist in Lagos.",
+      "Browse soft glam, event, bridal, traditional, and photoshoot makeup by Temilola — professional makeup artist in Lagos.",
     heroLabel: "Portfolio",
     heroTitle: "A Curated Gallery of Client Glam",
     heroSubtitle:
@@ -980,17 +921,17 @@ const pageCopyDocs = [
     page: "pricing",
     seoTitle: "Makeup Packages & Pricing",
     seoDescription:
-      "Transparent starting prices for bridal, event, and soft glam makeup in Lagos. Home service and group bookings available. Request your custom quote.",
+      "Makeup services in Lagos start from ₦30,000. Compare bridal, soft glam, event, and group pricing, plus home service rates. Request your custom quote.",
     heroLabel: "Pricing",
     heroTitle: "Packages That Help You Plan Ahead",
     heroSubtitle:
-      "Starting prices for the most requested looks. Your custom quote reflects travel, timing, and party size.",
+      "Services start from ₦30,000. Your custom quote reflects your location, event date, and party size.",
     sections: [
       {
         _key: "explanation",
         key: "explanation",
         title: "How Pricing Works",
-        body: "I believe in clarity upfront. Packages show where your investment begins — we'll confirm the full amount once I know your venue, date, and exact requirements.",
+        body: "I believe in clarity upfront — services start from ₦30,000. From there, your final quote is shaped by your location and travel distance, your event date, and how many faces we're glamming.",
       },
       {
         _key: "deposit",
@@ -1020,7 +961,7 @@ const pageCopyDocs = [
     page: "about",
     seoTitle: "About Temilola",
     seoDescription:
-      "Meet Temilola — bridal and event makeup artist in Lagos. Calm, professional glam tailored to your face, your outfit, and your moment.",
+      "Meet Temilola — makeup artist in Lagos offering soft glam, event, and bridal makeup. Calm, professional glam tailored to your face, your outfit, and your moment.",
     heroLabel: "About",
     heroTitle: "The Artist Behind the Brush",
     heroSubtitle:
@@ -1031,7 +972,7 @@ const pageCopyDocs = [
         key: "intro",
         title: "Makeup Should Feel Like You — Just Elevated",
         paragraphs: [
-          "I'm Temilola, a professional makeup artist based in Lagos, specialising in bridal, traditional, soft glam, and event makeup.",
+          "I'm Temilola, a professional makeup artist based in Lagos, specialising in soft glam, event, bridal, and traditional makeup.",
           "I started this work because I love the quiet confidence that appears when someone looks in the mirror and recognises themselves — just more radiant. That moment matters whether it's a wedding morning or a milestone birthday.",
           "On your day, I bring calm energy, punctual timing, and a kit that's clean, organised, and ready. No chaos. No rushing. Just focused glam that holds up to photos, dancing, and emotion.",
         ],
@@ -1057,7 +998,7 @@ const pageCopyDocs = [
     page: "book",
     seoTitle: "Book Your Makeup Session",
     seoDescription:
-      "Check availability and book bridal or event makeup in Lagos. WhatsApp or booking form — fast, simple, professional.",
+      "Check availability and book event or bridal makeup in Lagos. WhatsApp or booking form — fast, simple, professional.",
     heroLabel: "Book Now",
     heroTitle: "Let's Find a Date for Your Glam",
     heroSubtitle:
@@ -1096,7 +1037,7 @@ const pageCopyDocs = [
     page: "transformations",
     seoTitle: "Before & After Transformations | Temilola Makeup",
     seoDescription:
-      "Drag to compare real before and after makeup transformations by Temilola Makeup in Lagos. Bridal, soft glam, event, and photoshoot results.",
+      "Drag to compare real before and after makeup transformations by Temilola Makeup in Lagos. Soft glam, event, bridal, and photoshoot results.",
     heroLabel: "Before & After",
     heroTitle: "Real Transformations You Can Drag to Compare",
     heroSubtitle:

@@ -1,5 +1,4 @@
 import {
-  Camera,
   Crown,
   GraduationCap,
   Home,
@@ -49,7 +48,6 @@ export const services: Service[] = [
     homeService: true,
     priceFrom: 120000,
     icon: Crown,
-    highlighted: true,
   },
   {
     id: "traditional",
@@ -79,9 +77,9 @@ export const services: Service[] = [
     shortDescription:
       "Romantic, blended glam that enhances — never overpowers — your features.",
     description:
-      "Soft glam is my signature: diffused contour, glowing skin, and lashes that open the eyes without heaviness. Perfect when you want to look polished and feminine, not overdone.",
+      "Soft glam is my signature: diffused contour, glowing skin, and lashes that open the eyes without heaviness. Perfect when you want to look polished and feminine, not overdone — and it photographs beautifully, so it's a favourite for photoshoots too.",
     whoFor: "Bridesmaids, guests, and anyone who wants an effortless elevated look.",
-    bestFor: "Engagement · Dinner · Graduation · Date night",
+    bestFor: "Engagement · Dinner · Graduation · Photoshoot",
     included: [
       "Skin prep & priming",
       "Soft glam eye & face application",
@@ -92,6 +90,7 @@ export const services: Service[] = [
     homeService: true,
     priceFrom: 35000,
     icon: Palette,
+    highlighted: true,
   },
   {
     id: "event",
@@ -100,9 +99,9 @@ export const services: Service[] = [
     shortDescription:
       "Defined, camera-ready makeup built to carry you through the night.",
     description:
-      "Parties, launches, and celebrations need makeup that reads on camera and in person. I sculpt, define, and set your look so it survives lights, dancing, and late-night photos.",
+      "Parties, launches, and celebrations need makeup that reads on camera and in person. I sculpt, define, and set your look so it survives lights, dancing, late-night photos, and photoshoots.",
     whoFor: "Hosts, guests, and anyone who wants to make an entrance.",
-    bestFor: "Party · Corporate event · Anniversary · Red carpet",
+    bestFor: "Party · Corporate event · Anniversary · Photoshoot",
     included: [
       "Skin prep",
       "Full glam application",
@@ -134,27 +133,6 @@ export const services: Service[] = [
     homeService: true,
     priceFrom: 40000,
     icon: Sparkles,
-  },
-  {
-    id: "photoshoot",
-    name: "Photoshoot Makeup",
-    slug: "photoshoot-makeup",
-    shortDescription:
-      "HD makeup that translates cleanly on camera, screen, and print.",
-    description:
-      "Studio lights and outdoor sun demand different techniques. I adjust coverage, contour, and finish so your skin looks smooth and dimensional — not flat — in every frame.",
-    whoFor: "Creators, models, professionals, and anyone investing in quality images.",
-    bestFor: "Editorial · Brand shoot · Headshots · Content creation",
-    included: [
-      "Skin prep for HD application",
-      "Camera-ready base & contour",
-      "Eye & lip definition for lens",
-      "Professional setting",
-    ],
-    duration: "1.5–2 hours",
-    homeService: true,
-    priceFrom: 50000,
-    icon: Camera,
   },
   {
     id: "home",
@@ -195,22 +173,6 @@ export const services: Service[] = [
     homeService: true,
     priceFrom: 30000,
     icon: Users,
-  },
-  {
-    id: "gele",
-    name: "Gele Styling",
-    slug: "gele-styling",
-    shortDescription:
-      "Expert gele tying to complete your traditional bridal ensemble.",
-    description:
-      "A beautifully tied gele elevates your entire look. I style to complement your face shape, outfit, and makeup — secure enough to last the full ceremony.",
-    whoFor: "Traditional brides and guests wearing gele for cultural events.",
-    bestFor: "Traditional wedding · Engagement · Cultural event",
-    included: ["Gele styling & securing", "Finishing touches with your look"],
-    duration: "30–45 minutes",
-    homeService: true,
-    priceFrom: 15000,
-    icon: Crown,
   },
   {
     id: "training",
