@@ -22,7 +22,7 @@ export const seoCopy = {
   },
   pricing: {
     title: `Makeup Packages & Pricing`,
-    description: `Transparent starting prices for bridal, event, and soft glam makeup in ${location}. Home service and group bookings available. Request your custom quote.`,
+    description: `Bridal makeup from ₦120,000, event glam from ₦45,000, soft glam from ₦35,000 in ${location}. Compare all services, home service pricing, and group rates. Request your custom quote.`,
   },
   book: {
     title: `Book Your Makeup Session`,
@@ -31,6 +31,14 @@ export const seoCopy = {
   about: {
     title: `About Temilola — Gleam by Temi`,
     description: `Meet Temilola, the artist behind Gleam by Temi — bridal and event makeup artist in ${location}. Calm, professional glam tailored to your face, your outfit, and your moment.`,
+  },
+  faq: {
+    title: `Frequently Asked Questions`,
+    description: `Answers to common questions about booking makeup in ${location} — pricing, bridal trials, home service, same-day availability, and more.`,
+  },
+  training: {
+    title: `Makeup Training & Courses`,
+    description: `Learn professional makeup artistry in ${location}. Beginner, advanced, and bridal specialty courses with hands-on training, professional kits, and certification.`,
   },
 } as const;
 
@@ -234,6 +242,69 @@ export const bookPageCopy = {
   },
   success:
     "Your booking request has been received. We'll confirm availability and send the next steps shortly.",
+} as const;
+
+export const trainingPageCopy = {
+  hero: {
+    label: "Training",
+    title: "Learn Professional Makeup Artistry",
+    subtitle:
+      "Hands-on courses in Lagos — from beginner fundamentals to advanced bridal technique. Build real skills with a working artist.",
+  },
+  intro: {
+    title: "Why Train With Gleam by Temi?",
+    body: "You learn in a real studio environment, working on real faces from day one. My courses focus on the skills Lagos clients actually pay for — bridal glam, skin prep, and long-wear technique. Small class sizes mean personal attention and honest feedback.",
+  },
+  curriculum: {
+    label: "What You'll Learn",
+    title: "Core Skills Covered Across All Levels",
+    items: [
+      "Skin analysis & prep techniques",
+      "Foundation matching for dark skin tones",
+      "Contouring, highlighting & sculpting",
+      "Eye makeup — soft glam to dramatic",
+      "Lash application & styling",
+      "Bridal & traditional wedding looks",
+      "Long-wear setting for Lagos heat",
+      "Client consultation & pricing",
+    ],
+  },
+  staticTiers: [
+    {
+      level: "Beginner" as const,
+      title: "Foundation Course",
+      description: "Start from zero. Learn skin prep, base application, and everyday glam techniques.",
+      price: 150000,
+      duration: "2 weeks",
+      classSize: 6,
+      certification: true,
+      curriculum: ["Skin prep & analysis", "Foundation & concealer application", "Basic contouring & highlighting", "Everyday eye makeup", "Lip techniques", "Setting for longevity"],
+    },
+    {
+      level: "Advanced" as const,
+      title: "Professional Masterclass",
+      description: "Elevate your artistry. Advanced techniques for bridal, editorial, and high-definition makeup.",
+      price: 250000,
+      duration: "3 weeks",
+      classSize: 4,
+      certification: true,
+      curriculum: ["Advanced skin prep & correction", "Bridal glam — white & traditional", "Editorial & photoshoot techniques", "HD makeup for camera", "Client management & pricing", "Building your portfolio"],
+    },
+    {
+      level: "Bridal Specialty" as const,
+      title: "Bridal Intensive",
+      description: "Specialise in bridal. Master the techniques that Lagos brides are willing to pay premium for.",
+      price: 200000,
+      duration: "1 week intensive",
+      classSize: 4,
+      certification: true,
+      curriculum: ["Bridal consultation process", "White wedding & traditional looks", "Long-wear bridal setting", "Bridal party scheduling", "Pricing bridal packages", "Building bridal clientele"],
+    },
+  ],
+  finalCta: {
+    headline: "Ready to Start Your Makeup Career?",
+    subtitle: "Message me on WhatsApp with questions about the next intake, or reserve your spot today.",
+  },
 } as const;
 
 export const ctaBank = {

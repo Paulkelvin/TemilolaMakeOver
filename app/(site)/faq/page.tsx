@@ -1,0 +1,42 @@
+import { getFaqItems } from "@/sanity/fetch";
+import { faqItems as staticFaqItems } from "@/data/faq";
+import { seoCopy } from "@/data/copy";
+import { createPageMetadata } from "@/lib/metadata";
+import { PageHero } from "@/components/sections/PageHero";
+import { FAQAccordion } from "@/components/sections/FAQAccordion";
+import { CTASection } from "@/components/sections/CTASection";
+import { SectionWrapper } from "@/components/ui/BackgroundDecor";
+import { Container } from "@/components/ui/Container";
+
+export const metadata = createPageMetadata({
+  title: seoCopy.faq.title,
+  description: seoCopy.faq.description,
+  path: "/faq",
+});
+
+export default async function FAQPage() {
+  let items = await getFaqItems();
+  if (!items.length) items = staticFaqItems;
+
+  return (
+    <>
+      <PageHero
+        label="FAQ"
+        title="Frequently Asked Questions"
+        subtitle="Straight answers to help you plan your booking — pricing, bridal trials, home service, and more."
+      />
+
+      <SectionWrapper variant="blush">
+        <Container size="narrow">
+          <FAQAccordion items={items} />
+        </Container>
+      </SectionWrapper>
+
+      <CTASection
+        title="Have a Question Not Listed Here?"
+        subtitle="Message me on WhatsApp — I'll respond with honest answers, usually the same day."
+        location="faq_page"
+      />
+    </>
+  );
+}

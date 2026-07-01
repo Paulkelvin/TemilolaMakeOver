@@ -2,6 +2,7 @@ import { cache } from "react";
 import {
   Camera,
   Crown,
+  GraduationCap,
   Home,
   Palette,
   PartyPopper,
@@ -10,6 +11,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { client } from "./client";
+import { urlFor } from "./image";
 import {
   SERVICES_QUERY,
   SERVICE_BY_SLUG_QUERY,
@@ -20,12 +22,17 @@ import {
   FAQ_QUERY,
   BOOKING_STEPS_QUERY,
   WHY_CHOOSE_US_QUERY,
+  ABOUT_VALUES_QUERY,
   TRANSFORMATIONS_QUERY,
   BLOG_POSTS_QUERY,
   BLOG_POST_BY_SLUG_QUERY,
   BLOCKED_DATES_QUERY,
+  TRAVEL_ZONES_QUERY,
   SITE_SETTINGS_QUERY,
   PAGE_COPY_QUERY,
+  TRAINING_COURSES_QUERY,
+  SHOP_LINKS_QUERY,
+  SHOP_PAGE_SETTINGS_QUERY,
 } from "./queries";
 import type { Service } from "@/data/services";
 import type { Package } from "@/data/packages";
@@ -36,6 +43,14 @@ import type { FAQItem } from "@/data/faq";
 const REVALIDATE = { next: { revalidate: 60 } };
 const REVALIDATE_FAST = { next: { revalidate: 30 } };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function imgUrl(image: any, width?: number): string {
+  if (!image?.asset) return "";
+  let b = urlFor(image).auto("format");
+  if (width) b = b.width(width);
+  return b.url();
+}
+
 const iconMap: Record<string, LucideIcon> = {
   crown: Crown,
   sparkles: Sparkles,
@@ -44,6 +59,7 @@ const iconMap: Record<string, LucideIcon> = {
   camera: Camera,
   home: Home,
   users: Users,
+  "graduation-cap": GraduationCap,
 };
 
 // ─── Services ────────────────────────────────────────────────────────────────
@@ -61,7 +77,8 @@ interface RawService {
   priceFrom?: number;
   icon: string;
   highlighted?: boolean;
-  imageUrl?: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  image?: any;
 }
 
 export const getServices = cache(async (): Promise<Service[]> => {
@@ -79,7 +96,7 @@ export const getServices = cache(async (): Promise<Service[]> => {
     homeService: s.homeService ?? false,
     priceFrom: s.priceFrom,
     icon: iconMap[s.icon] ?? Sparkles,
-    imageUrl: s.imageUrl,
+    imageUrl: imgUrl(s.image, 800),
     highlighted: s.highlighted ?? false,
   }));
 });
@@ -100,7 +117,7 @@ export const getServiceBySlug = cache(async (slug: string): Promise<Service | nu
     homeService: s.homeService ?? false,
     priceFrom: s.priceFrom,
     icon: iconMap[s.icon] ?? Sparkles,
-    imageUrl: s.imageUrl,
+    imageUrl: imgUrl(s.image, 800),
     highlighted: s.highlighted ?? false,
   };
 });
@@ -138,7 +155,8 @@ interface RawPortfolioItem {
   alt: string;
   category: PortfolioCategory;
   aspect?: "portrait" | "square" | "tall";
-  imageUrl?: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  image?: any;
 }
 
 export const getPortfolioItems = cache(async (): Promise<PortfolioItem[]> => {
@@ -153,7 +171,7 @@ export const getPortfolioItems = cache(async (): Promise<PortfolioItem[]> => {
     alt: p.alt,
     category: p.category,
     aspect: p.aspect,
-    src: p.imageUrl ?? "",
+    src: imgUrl(p.image, 1200),
   }));
 });
 
@@ -165,7 +183,8 @@ interface RawTestimonial {
   text: string;
   rating: number;
   initials: string;
-  avatarUrl?: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  avatar?: any;
 }
 
 export const getTestimonials = cache(async (): Promise<Testimonial[]> => {
@@ -181,7 +200,7 @@ export const getTestimonials = cache(async (): Promise<Testimonial[]> => {
     text: t.text,
     rating: t.rating,
     initials: t.initials,
-    avatarUrl: t.avatarUrl,
+    avatarUrl: imgUrl(t.avatar, 100),
   }));
 });
 
@@ -224,37 +243,28 @@ export const getWhyChooseUs = cache(async (): Promise<WhyChooseUsItem[]> => {
   return client.fetch(WHY_CHOOSE_US_QUERY, {}, REVALIDATE);
 });
 
+// ─── About Values ────────────────────────────────────────────────────────────
+export interface AboutValue {
+  _id: string;
+  title: string;
+  text: string;
+  icon: string;
+  order: number;
+}
+
+export const getAboutValues = cache(async (): Promise<AboutValue[]> => {
+  return client.fetch(ABOUT_VALUES_QUERY, {}, REVALIDATE);
+});
+
 // ─── Transformations ────────────────────────────────────────────────────────
-interface SanityHotspot {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-}
-
-interface SanityCrop {
-  top: number;
-  bottom: number;
-  left: number;
-  right: number;
-}
-
-interface SanityImageMeta {
-  metadata: { dimensions: { width: number; height: number } };
-}
-
 interface RawTransformation {
   _id: string;
   title: string;
-  beforeUrl: string;
-  beforeHotspot?: SanityHotspot;
-  beforeCrop?: SanityCrop;
-  beforeMeta?: SanityImageMeta;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  beforeImage?: any;
   beforeAlt: string;
-  afterUrl: string;
-  afterHotspot?: SanityHotspot;
-  afterCrop?: SanityCrop;
-  afterMeta?: SanityImageMeta;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  afterImage?: any;
   afterAlt: string;
 }
 
@@ -267,38 +277,14 @@ export interface Transformation {
   afterAlt: string;
 }
 
-function croppedUrl(
-  url: string,
-  meta?: SanityImageMeta,
-  crop?: SanityCrop,
-  hotspot?: SanityHotspot
-): string {
-  if (!url) return url;
-  if (crop && meta) {
-    const w = meta.metadata.dimensions.width;
-    const h = meta.metadata.dimensions.height;
-    const left = Math.round(crop.left * w);
-    const top = Math.round(crop.top * h);
-    const cropW = Math.round(w * (1 - crop.left - crop.right));
-    const cropH = Math.round(h * (1 - crop.top - crop.bottom));
-    const sep = url.includes("?") ? "&" : "?";
-    return `${url}${sep}rect=${left},${top},${cropW},${cropH}&w=800&h=1000`;
-  }
-  if (hotspot) {
-    const sep = url.includes("?") ? "&" : "?";
-    return `${url}${sep}w=800&h=1000&fit=crop&crop=focalpoint&fp-x=${hotspot.x.toFixed(2)}&fp-y=${hotspot.y.toFixed(2)}`;
-  }
-  return url;
-}
-
 export const getTransformations = cache(async (): Promise<Transformation[]> => {
   const raw: RawTransformation[] = await client.fetch(TRANSFORMATIONS_QUERY, {}, REVALIDATE_FAST);
   return raw.map((t) => ({
     id: t._id,
     title: t.title,
-    beforeUrl: croppedUrl(t.beforeUrl, t.beforeMeta, t.beforeCrop, t.beforeHotspot),
+    beforeUrl: imgUrl(t.beforeImage, 800),
     beforeAlt: t.beforeAlt,
-    afterUrl: croppedUrl(t.afterUrl, t.afterMeta, t.afterCrop, t.afterHotspot),
+    afterUrl: imgUrl(t.afterImage, 800),
     afterAlt: t.afterAlt,
   }));
 });
@@ -329,7 +315,8 @@ interface RawBlogPost {
   excerpt: string;
   body?: any[];
   category: string;
-  coverImageUrl?: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  coverImage?: any;
   author: string;
   publishedAt: string;
 }
@@ -342,7 +329,7 @@ export const getBlogPosts = cache(async (): Promise<BlogPost[]> => {
     slug: p.slug,
     excerpt: p.excerpt,
     category: p.category,
-    coverImageUrl: p.coverImageUrl,
+    coverImageUrl: imgUrl(p.coverImage, 1200),
     author: p.author ?? "Temilola",
     publishedAt: p.publishedAt,
   }));
@@ -358,7 +345,7 @@ export const getBlogPostBySlug = cache(async (slug: string): Promise<BlogPost | 
     excerpt: p.excerpt,
     body: p.body,
     category: p.category,
-    coverImageUrl: p.coverImageUrl,
+    coverImageUrl: imgUrl(p.coverImage, 1200),
     author: p.author ?? "Temilola",
     publishedAt: p.publishedAt,
   };
@@ -374,14 +361,64 @@ export interface InstagramFeedItem {
 }
 
 export const getInstagramFeed = cache(async (): Promise<InstagramFeedItem[]> => {
-  const raw: { _id: string; title: string; alt: string; imageUrl: string; instagramUrl?: string }[] =
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const raw: { _id: string; title: string; alt: string; image?: any; instagramUrl?: string }[] =
     await client.fetch(INSTAGRAM_FEED_QUERY, {}, REVALIDATE);
   return raw.map((p) => ({
     id: p._id,
     title: p.title,
     alt: p.alt,
-    imageUrl: p.imageUrl ?? "",
+    imageUrl: imgUrl(p.image, 600),
     instagramUrl: p.instagramUrl,
+  }));
+});
+
+// ─── Training Courses ──────────────────────────────────────────────────────
+export interface TrainingCourse {
+  id: string;
+  title: string;
+  slug?: string;
+  level: "Beginner" | "Advanced" | "Bridal Specialty";
+  description: string;
+  duration: string;
+  price: number;
+  classSize: number;
+  certification: boolean;
+  curriculum: string[];
+  highlights?: string[];
+  imageUrl?: string;
+}
+
+interface RawTrainingCourse {
+  _id: string;
+  title: string;
+  slug?: string;
+  level: "Beginner" | "Advanced" | "Bridal Specialty";
+  description: string;
+  duration: string;
+  price: number;
+  classSize: number;
+  certification: boolean;
+  curriculum: string[];
+  highlights?: string[];
+  imageUrl?: string;
+}
+
+export const getTrainingCourses = cache(async (): Promise<TrainingCourse[]> => {
+  const raw: RawTrainingCourse[] = await client.fetch(TRAINING_COURSES_QUERY, {}, REVALIDATE);
+  return raw.map((c) => ({
+    id: c._id,
+    title: c.title,
+    slug: c.slug,
+    level: c.level,
+    description: c.description ?? "",
+    duration: c.duration ?? "",
+    price: c.price ?? 0,
+    classSize: c.classSize ?? 0,
+    certification: c.certification ?? false,
+    curriculum: c.curriculum ?? [],
+    highlights: c.highlights,
+    imageUrl: c.imageUrl,
   }));
 });
 
@@ -401,17 +438,47 @@ export async function getPortfolioCategories(): Promise<PortfolioCategory[]> {
   return order.filter((c) => seen.has(c));
 }
 
+// ─── Travel Zones ──────────────────────────────────────────────────────────
+export interface SanityTravelZone {
+  id: string;
+  label: string;
+  areas: string;
+  fee: number;
+  note?: string;
+}
+
+export const getTravelZones = cache(async (): Promise<SanityTravelZone[]> => {
+  const raw: { _id: string; label: string; areas: string; fee: number; note?: string }[] =
+    await client.fetch(TRAVEL_ZONES_QUERY, {}, REVALIDATE);
+  return raw.map((z) => ({
+    id: z._id,
+    label: z.label,
+    areas: z.areas,
+    fee: z.fee,
+    note: z.note,
+  }));
+});
+
 export interface SiteSettings {
   youtubeReelUrl?: string;
   heroImageMain?: string;
   heroImageSecondary?: string;
   heroImageDetail?: string;
   aboutImage?: string;
+  extraFaceDiscountPercent?: number;
 }
 
 export const getSiteSettings = cache(async (): Promise<SiteSettings> => {
   const data = await client.fetch(SITE_SETTINGS_QUERY, {}, REVALIDATE_FAST);
-  return data ?? {};
+  if (!data) return {};
+  return {
+    youtubeReelUrl: data.youtubeReelUrl,
+    heroImageMain: imgUrl(data.heroImageMain, 1200),
+    heroImageSecondary: imgUrl(data.heroImageSecondary, 800),
+    heroImageDetail: imgUrl(data.heroImageDetail, 600),
+    aboutImage: imgUrl(data.aboutImage, 800),
+    extraFaceDiscountPercent: data.extraFaceDiscountPercent,
+  };
 });
 
 export interface PageCopySection {
@@ -453,5 +520,72 @@ export { findSection };
 
 export const getPageCopy = cache(async (page: string): Promise<PageCopy> => {
   const data = await client.fetch(PAGE_COPY_QUERY, { page }, REVALIDATE_FAST);
+  if (!data) return {};
+  return {
+    ...data,
+    heroImageUrl: imgUrl(data.heroImage, 1200),
+  };
+});
+
+// ─── Shop Links ─────────────────────────────────────────────────────────────
+export interface ShopLink {
+  id: string;
+  title: string;
+  url: string;
+  section: string;
+  mediaType: "image" | "video";
+  imageUrl?: string;
+  videoUrl?: string;
+  thumbnailUrl?: string;
+  alt?: string;
+  layout: "compact" | "featured" | "wide";
+  description?: string;
+  order: number;
+  sectionOrder: number;
+}
+
+interface RawShopLink {
+  _id: string;
+  title: string;
+  url: string;
+  section: string;
+  mediaType: "image" | "video";
+  imageUrl?: string;
+  videoUrl?: string;
+  thumbnailUrl?: string;
+  alt?: string;
+  layout: "compact" | "featured" | "wide";
+  description?: string;
+  order: number;
+  sectionOrder: number;
+}
+
+export const getShopLinks = cache(async (): Promise<ShopLink[]> => {
+  const raw: RawShopLink[] = await client.fetch(SHOP_LINKS_QUERY, {}, REVALIDATE);
+  return raw.map((l) => ({
+    id: l._id,
+    title: l.title,
+    url: l.url,
+    section: l.section,
+    mediaType: l.mediaType ?? "image",
+    imageUrl: l.imageUrl,
+    videoUrl: l.videoUrl,
+    thumbnailUrl: l.thumbnailUrl,
+    alt: l.alt,
+    layout: l.layout ?? "compact",
+    description: l.description,
+    order: l.order ?? 0,
+    sectionOrder: l.sectionOrder ?? 0,
+  }));
+});
+
+export interface ShopPageSettings {
+  pageTitle?: string;
+  pageSubtitle?: string;
+  showSectionHeaders?: boolean;
+}
+
+export const getShopPageSettings = cache(async (): Promise<ShopPageSettings> => {
+  const data = await client.fetch(SHOP_PAGE_SETTINGS_QUERY, {}, REVALIDATE);
   return data ?? {};
 });

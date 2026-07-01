@@ -642,6 +642,62 @@ const faqItems = [
       "After we agree on your date and quote, you'll receive deposit payment details. Once received, your date is confirmed. I'll follow up with arrival time, prep tips, and anything I need from you before the day.",
     order: 10,
   },
+  {
+    _id: "faq-11",
+    _type: "faq",
+    question: "How much does bridal makeup cost in Lagos?",
+    answer:
+      "Bridal makeup at Gleam by Temi starts from ₦120,000 for a white wedding look and ₦130,000 for traditional bridal makeup. The final price depends on location, whether you need a trial session, and the number of faces in your bridal party. You'll get a clear quote before committing.",
+    order: 11,
+  },
+  {
+    _id: "faq-12",
+    _type: "faq",
+    question: "How much does a makeup session cost in Lagos?",
+    answer:
+      "Soft glam starts from ₦35,000, event glam from ₦45,000, and birthday glam from ₦40,000. Bridal starts from ₦120,000. Home service is an additional ₦10,000. Every quote is customised to your needs — message me with your event details for exact pricing.",
+    order: 12,
+  },
+  {
+    _id: "faq-13",
+    _type: "faq",
+    question: "What is the best makeup artist in Lagos for weddings?",
+    answer:
+      "The best makeup artist is one who listens, preps your skin properly, and delivers a look that lasts all day. At Gleam by Temi, I specialise in bridal makeup across Lagos — from Ikeja to Lekki to Victoria Island. Check my portfolio to see real bridal looks, then decide if my style matches your vision.",
+    order: 13,
+  },
+  {
+    _id: "faq-14",
+    _type: "faq",
+    question: "Do I need a bridal makeup trial?",
+    answer:
+      "A trial is strongly recommended for brides. It lets us test your look against your outfit, skin tone, and event lighting before your wedding day. We refine everything in advance so there are no surprises on the morning. Book your trial when you reserve your wedding date.",
+    order: 14,
+  },
+  {
+    _id: "faq-15",
+    _type: "faq",
+    question: "What should I do to prepare my skin before makeup?",
+    answer:
+      "Drink plenty of water in the days leading up to your appointment. Cleanse and moisturise the night before, but skip heavy skincare products on the morning. Arrive with a clean, bare face — no foundation or sunscreen. I'll handle skin prep from there.",
+    order: 15,
+  },
+  {
+    _id: "faq-16",
+    _type: "faq",
+    question: "Can I book same-day or last-minute makeup in Lagos?",
+    answer:
+      "Same-day bookings depend on my schedule. If I have availability, I'll fit you in — message me on WhatsApp and I'll confirm honestly. For the best experience, especially for events and bridal, booking at least 2–4 weeks ahead is ideal.",
+    order: 16,
+  },
+  {
+    _id: "faq-17",
+    _type: "faq",
+    question: "What areas in Lagos do you cover for home service?",
+    answer:
+      "I cover Ikeja, Lekki, Victoria Island, Ikoyi, Ajah, Yaba, Surulere, Mainland, and surrounding Lagos areas. For locations outside central Lagos, a travel fee may apply. Share your address when booking and I'll confirm coverage and any additional cost.",
+    order: 17,
+  },
 ];
 
 // ─── Booking Steps ──────────────────────────────────────────────────────
@@ -1521,6 +1577,91 @@ const blogPosts = [
       { _type: "block", _key: "bp8-h11", style: "h2", markDefs: [], children: [{ _type: "span", _key: "bp8-h11-s1", text: "Ready for the Next Step?", marks: [] }] },
       { _type: "block", _key: "bp8-b23", style: "normal", markDefs: [{ _type: "link", _key: "bp8-l1", href: "/blog/soft-glam-makeup-tutorial-step-by-step" }, { _type: "link", _key: "bp8-l2", href: "/blog/how-to-make-makeup-last-all-day-lagos-heat" }, { _type: "link", _key: "bp8-l3", href: "/blog/how-early-should-you-book-your-bridal-makeup-artist" }], children: [{ _type: "span", _key: "bp8-b23-s1", text: "Now that your skin is prepped like a professional, you are ready to apply makeup that actually stays. Follow our ", marks: [] }, { _type: "span", _key: "bp8-b23-s2", text: "step-by-step soft glam makeup tutorial", marks: ["bp8-l1"] }, { _type: "span", _key: "bp8-b23-s3", text: " to put this prep to work. Want to make sure your finished look survives Lagos weather? Read our guide on ", marks: [] }, { _type: "span", _key: "bp8-b23-s4", text: "how to make your makeup last all day in Lagos heat", marks: ["bp8-l2"] }, { _type: "span", _key: "bp8-b23-s5", text: ". And if you want this done professionally for your wedding or event, find out ", marks: [] }, { _type: "span", _key: "bp8-b23-s6", text: "how early you should book your bridal makeup artist", marks: ["bp8-l3"] }, { _type: "span", _key: "bp8-b23-s7", text: " — your skin (and your photos) will thank you.", marks: [] }] },
     ],
+  },
+];
+
+// ─── Training Courses ──────────────────────────────────────────────────
+const trainingCourses = [
+  {
+    _id: "training-beginner",
+    _type: "trainingCourse",
+    title: "Foundation Course",
+    slug: { _type: "slug", current: "foundation-course" },
+    level: "Beginner",
+    description:
+      "Start from zero. Learn skin prep, base application, and everyday glam techniques.",
+    duration: "2 weeks",
+    price: 150000,
+    classSize: 6,
+    certification: true,
+    curriculum: [
+      "Skin prep & analysis",
+      "Foundation & concealer application",
+      "Basic contouring & highlighting",
+      "Everyday eye makeup",
+      "Lip techniques",
+      "Setting for longevity",
+    ],
+    highlights: [
+      "Hands-on practice from day one",
+      "Small class — personal attention",
+      "Professional starter kit included",
+    ],
+    order: 1,
+  },
+  {
+    _id: "training-advanced",
+    _type: "trainingCourse",
+    title: "Professional Masterclass",
+    slug: { _type: "slug", current: "professional-masterclass" },
+    level: "Advanced",
+    description:
+      "Elevate your artistry. Advanced techniques for bridal, editorial, and high-definition makeup.",
+    duration: "3 weeks",
+    price: 250000,
+    classSize: 4,
+    certification: true,
+    curriculum: [
+      "Advanced skin prep & correction",
+      "Bridal glam — white & traditional",
+      "Editorial & photoshoot techniques",
+      "HD makeup for camera",
+      "Client management & pricing",
+      "Building your portfolio",
+    ],
+    highlights: [
+      "Real bridal and editorial shoots",
+      "Portfolio-building sessions",
+      "Business & pricing guidance",
+    ],
+    order: 2,
+  },
+  {
+    _id: "training-bridal",
+    _type: "trainingCourse",
+    title: "Bridal Intensive",
+    slug: { _type: "slug", current: "bridal-intensive" },
+    level: "Bridal Specialty",
+    description:
+      "Specialise in bridal. Master the techniques that Lagos brides are willing to pay premium for.",
+    duration: "1 week intensive",
+    price: 200000,
+    classSize: 4,
+    certification: true,
+    curriculum: [
+      "Bridal consultation process",
+      "White wedding & traditional looks",
+      "Long-wear bridal setting",
+      "Bridal party scheduling",
+      "Pricing bridal packages",
+      "Building bridal clientele",
+    ],
+    highlights: [
+      "Focused bridal specialisation",
+      "Real bridal mock sessions",
+      "Bridal business blueprint",
+    ],
+    order: 3,
   },
 ];
 

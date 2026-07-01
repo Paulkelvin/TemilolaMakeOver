@@ -25,6 +25,7 @@ export const siteConfig = {
   instagramHandle: "@gleambytemi",
   tiktok: "https://tiktok.com/@temilolomakeup",
   tiktokHandle: "@temilolomakeup",
+  facebook: "https://www.facebook.com/gleambytemi",
   hours: "Mon–Sat: 8:00 AM – 8:00 PM",
   currency: "NGN",
   depositNote: "50% deposit required to secure your date",

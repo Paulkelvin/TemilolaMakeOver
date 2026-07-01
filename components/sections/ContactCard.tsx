@@ -10,7 +10,7 @@ export function ContactCard() {
   const whatsappUrl = buildWhatsAppUrl({ intent: "booking" });
 
   return (
-    <div className="rounded-2xl border border-border bg-bg-blush p-6 md:p-8 space-y-6">
+    <div className="rounded-2xl border border-border bg-bg-blush p-6 md:p-8 space-y-6 overflow-hidden">
       <div>
         <h3 className="font-display text-2xl text-text-primary">{copy.title}</h3>
         <p className="mt-2 text-sm text-text-muted leading-relaxed">{copy.body}</p>

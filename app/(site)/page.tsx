@@ -37,7 +37,7 @@ export default async function HomePage() {
       <BeforeAfter />
       <VideoReel youtubeUrl={siteSettings.youtubeReelUrl} />
       <WhyChooseUs aboutImageUrl={siteSettings.aboutImage} sectionCopy={whyUsSec} />
-      <Testimonials sectionCopy={testimonialsSec} />
+      <Testimonials sectionCopy={testimonialsSec} blockedDates={blockedDates} />
       <BookingProcess />
       <InstagramFeed items={instagramItems} />
       <BlogPreview />

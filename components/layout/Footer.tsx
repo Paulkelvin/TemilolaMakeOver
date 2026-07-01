@@ -3,6 +3,7 @@ import { siteConfig, navLinks } from "@/lib/site-config";
 import { buildWhatsAppUrl } from "@/lib/whatsapp";
 import { analyticsEvents } from "@/lib/analytics";
 import { CopyButton } from "@/components/ui/CopyButton";
+import { locations } from "@/data/locations";
 
 export function Footer() {
   const whatsappUrl = buildWhatsAppUrl({ intent: "booking" });
@@ -12,7 +13,7 @@ export function Footer() {
     <footer className="relative bg-luxury-dark text-white pt-16 pb-8">
       <div className="orb orb-rose w-64 h-64 -top-32 right-0 opacity-20" />
       <div className="relative z-10 mx-auto max-w-7xl px-4 md:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12 mb-12">
           <div className="lg:col-span-1">
             <Link href="/" className="font-display text-2xl font-semibold">
               {siteConfig.shortBrand}
@@ -47,11 +48,49 @@ export function Footer() {
               Services
             </h3>
             <ul className="space-y-2 text-sm text-white/70">
-              <li>Bridal Makeup</li>
-              <li>Soft & Event Glam</li>
-              <li>Home Service</li>
-              <li>Group Bookings</li>
-              <li>Gele Styling</li>
+              {[
+                { label: "Bridal Makeup", slug: "bridal-makeup" },
+                { label: "Traditional Bridal", slug: "traditional-bridal" },
+                { label: "Soft Glam", slug: "soft-glam" },
+                { label: "Event Glam", slug: "event-glam" },
+                { label: "Birthday Glam", slug: "birthday-makeup" },
+                { label: "Photoshoot Makeup", slug: "photoshoot-makeup" },
+                { label: "Home Service", slug: "home-service" },
+                { label: "Group Booking", slug: "group-booking" },
+                { label: "Gele Styling", slug: "gele-styling" },
+              ].map(({ label, slug }) => (
+                <li key={slug}>
+                  <Link
+                    href={`/services/${slug}`}
+                    className="hover:text-white transition-colors"
+                  >
+                    {label}
+                  </Link>
+                </li>
+              ))}
+              <li>
+                <Link href="/training" className="hover:text-white transition-colors">
+                  Makeup Training
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          <div>
+            <h3 className="text-xs font-semibold uppercase tracking-[0.2em] text-accent-gold mb-4">
+              Locations
+            </h3>
+            <ul className="space-y-2 text-sm text-white/70">
+              {locations.map((l) => (
+                <li key={l.slug}>
+                  <Link
+                    href={`/locations/${l.slug}`}
+                    className="hover:text-white transition-colors"
+                  >
+                    {l.name}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 
@@ -117,6 +156,17 @@ export function Footer() {
                   <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.32 6.32 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.78 1.52V6.76a4.85 4.85 0 01-1.01-.07z"/>
                 </svg>
               </a>
+              <a
+                href={siteConfig.facebook}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Facebook"
+                className="p-2 rounded-full border border-white/20 hover:border-accent-rose hover:text-accent-rose transition-colors"
+              >
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden>
+                  <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                </svg>
+              </a>
             </div>
           </div>
         </div>
@@ -158,6 +208,9 @@ export function Footer() {
           <div className="flex flex-wrap gap-4 justify-center">
             <Link href="/blog" className="hover:text-white/70 transition-colors">
               Beauty Tips
+            </Link>
+            <Link href="/faq" className="hover:text-white/70 transition-colors">
+              FAQ
             </Link>
             <Link href="/privacy-policy" className="hover:text-white/70 transition-colors">
               Privacy Policy
