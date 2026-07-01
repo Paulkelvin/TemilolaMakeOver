@@ -6,7 +6,7 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const reference = searchParams.get("reference");
 
-    if (!reference) {
+    if (!reference || !/^GLM-[A-Z0-9]+-[A-Z0-9]+$/.test(reference)) {
       return NextResponse.json(
         { error: "No payment reference provided." },
         { status: 400 }

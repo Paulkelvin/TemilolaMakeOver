@@ -7,9 +7,11 @@ interface BookingPayload {
   phone: string;
   email?: string;
   service: string;
-  eventType: string;
+  eventType?: string;
   eventDate: string;
   location: string;
+  travelZone?: string;
+  travelFee?: number | null;
   faces: string;
   preferredTime?: string;
   message?: string;
@@ -27,8 +29,6 @@ function validate(body: unknown): body is BookingPayload {
     b.phone.trim().length <= 20 &&
     typeof b.service === "string" &&
     b.service.trim().length > 0 &&
-    typeof b.eventType === "string" &&
-    b.eventType.trim().length > 0 &&
     typeof b.eventDate === "string" &&
     b.eventDate.trim().length > 0 &&
     typeof b.location === "string" &&
@@ -46,9 +46,11 @@ function validate(body: unknown): body is BookingPayload {
 function isAllowedOrigin(request: Request): boolean {
   const origin = request.headers.get("origin");
   if (!origin) return true;
+  const requestOrigin = new URL(request.url).origin;
+  if (origin === requestOrigin) return true;
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://temilolomakeup.com";
   const allowed = [siteUrl, "http://localhost:3000", "http://localhost:3001"];
-  return allowed.some((url) => origin === url.replace(/\/$/, ""));
+  return allowed.some((u) => origin === u.replace(/\/$/, ""));
 }
 
 const rateLimit = new Map<string, { count: number; resetAt: number }>();
@@ -124,10 +126,12 @@ export async function POST(request: Request) {
         phone: body.phone,
         email: body.email ?? "",
         service: body.service,
-        eventType: body.eventType,
+        eventType: body.eventType ?? "",
         eventDate: body.eventDate,
         eventTime: body.preferredTime ?? "",
         eventLocation: body.location,
+        travelZone: body.travelZone ?? "",
+        travelFee: typeof body.travelFee === "number" ? body.travelFee : 0,
         numberOfFaces: Number(body.faces) || 1,
         message: body.message ?? "",
         status: "pending",

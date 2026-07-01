@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -9,22 +9,15 @@ import {
 } from "@/lib/validations/booking";
 import { getBookingWhatsAppUrl } from "@/lib/whatsapp-form";
 import { services } from "@/data/services";
+import { travelZones as defaultTravelZones, type TravelZone } from "@/data/travel-zones";
 import { bookPageCopy } from "@/data/copy";
 import { Button } from "@/components/ui/Button";
 import { trackEvent, analyticsEvents } from "@/lib/analytics";
-import { cn } from "@/lib/utils";
+import { cn, formatPrice } from "@/lib/utils";
 import { FormField, inputStyles } from "./FormField";
 import { PayDepositButton } from "@/components/ui/PayDepositButton";
 import { AvailabilityCalendar } from "@/components/ui/AvailabilityCalendar";
-
-const eventTypes = [
-  "Wedding",
-  "Traditional Wedding",
-  "Birthday",
-  "Party / Event",
-  "Photoshoot",
-  "Other",
-];
+import { MapPin } from "lucide-react";
 
 interface BookingFormProps {
   className?: string;
@@ -32,9 +25,22 @@ interface BookingFormProps {
   preselectedDate?: string;
   preselectedTime?: string;
   blockedDates?: string[];
+  travelZones?: TravelZone[];
+  extraFaceDiscountPercent?: number;
 }
 
-export function BookingForm({ className, preselectedService, preselectedDate, preselectedTime, blockedDates = [] }: BookingFormProps) {
+export function BookingForm({ className, preselectedService, preselectedDate, preselectedTime, blockedDates = [], travelZones: zonesProp, extraFaceDiscountPercent = 20 }: BookingFormProps) {
+  const zones = zonesProp?.length ? zonesProp : defaultTravelZones;
+
+  function getZoneFee(zoneId: string): number | null {
+    const zone = zones.find((z) => z.id === zoneId);
+    if (!zone || zone.fee === -1) return null;
+    return zone.fee;
+  }
+
+  function getZoneLabel(zoneId: string): string {
+    return zones.find((z) => z.id === zoneId)?.label ?? zoneId;
+  }
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [errorMsg, setErrorMsg] = useState("");
   const [step, setStep] = useState(1);
@@ -60,18 +66,53 @@ export function BookingForm({ className, preselectedService, preselectedDate, pr
     resolver: zodResolver(bookingSchema),
     defaultValues: {
       numberOfFaces: 1,
-      email: "",
       preferredTime: preselectedTime ?? "",
       message: "",
       service: matchedService?.name ?? "",
       eventDate: preselectedDate ?? "",
+      travelZone: "",
+      eventLocation: "",
     },
   });
 
   const watchedDate = watch("eventDate");
   const watchedTime = watch("preferredTime");
+  const watchedService = watch("service");
+  const watchedZone = watch("travelZone");
+  const watchedFaces = watch("numberOfFaces");
 
-  const step1Fields = ["name", "phone", "email", "service", "eventType", "eventDate"] as const;
+  const selectedService = useMemo(
+    () => services.find((s) => s.name === watchedService),
+    [watchedService]
+  );
+
+  const travelFee = useMemo(() => {
+    if (!watchedZone) return null;
+    return getZoneFee(watchedZone);
+  }, [watchedZone]);
+
+  const isQuoteOnly = watchedZone
+    ? zones.find((z) => z.id === watchedZone)?.fee === -1
+    : false;
+
+  const discountRate = extraFaceDiscountPercent / 100;
+  const faces = Math.max(1, watchedFaces || 1);
+
+  const extraFacePrice = useMemo(() => {
+    if (!selectedService?.priceFrom) return 0;
+    return Math.round(selectedService.priceFrom * (1 - discountRate));
+  }, [selectedService, discountRate]);
+
+  const estimatedTotal = useMemo(() => {
+    if (!selectedService?.priceFrom) return null;
+    if (travelFee === null) return null;
+    const facesTotal = selectedService.priceFrom + Math.max(0, faces - 1) * extraFacePrice;
+    return facesTotal + travelFee;
+  }, [selectedService, travelFee, faces, extraFacePrice]);
+
+  const depositAmount = estimatedTotal ? Math.round(estimatedTotal * 0.5) : null;
+
+  const step1Fields = ["name", "phone", "service", "eventDate"] as const;
 
   async function goToStep2() {
     const valid = await trigger(step1Fields as unknown as (keyof BookingFormValues)[]);
@@ -79,7 +120,6 @@ export function BookingForm({ className, preselectedService, preselectedDate, pr
       setStep(2);
       setTimeout(() => formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
     } else {
-      // scroll to first visible error
       setTimeout(() => {
         const firstError = formRef.current?.querySelector("[aria-invalid='true'], .border-red-400");
         if (firstError) (firstError as HTMLElement).scrollIntoView({ behavior: "smooth", block: "center" });
@@ -94,14 +134,17 @@ export function BookingForm({ className, preselectedService, preselectedDate, pr
     const honeypotEl = document.getElementById("website_url") as HTMLInputElement | null;
     if (honeypotEl?.value) return;
 
+    const zoneLabel = getZoneLabel(data.travelZone);
+    const zoneFee = getZoneFee(data.travelZone);
+
     const payload = {
       name: data.name,
       phone: data.phone,
-      email: data.email || undefined,
       service: data.service,
-      eventType: data.eventType,
       eventDate: data.eventDate,
-      location: data.eventLocation,
+      location: data.eventLocation || zoneLabel,
+      travelZone: data.travelZone,
+      travelFee: zoneFee,
       faces: String(data.numberOfFaces),
       preferredTime: data.preferredTime,
       message: data.message,
@@ -136,16 +179,45 @@ export function BookingForm({ className, preselectedService, preselectedDate, pr
     if (!valid) return;
     const data = getValues();
     trackEvent(analyticsEvents.whatsappClick, { location: "booking_form" });
-    window.open(getBookingWhatsAppUrl(data), "_blank", "noopener,noreferrer");
+    window.open(getBookingWhatsAppUrl(data, zones), "_blank", "noopener,noreferrer");
+
+    const zoneLabel = getZoneLabel(data.travelZone);
+    const zoneFee = getZoneFee(data.travelZone);
+    const payload = {
+      name: data.name,
+      phone: data.phone,
+      service: data.service,
+      eventDate: data.eventDate,
+      location: data.eventLocation || zoneLabel,
+      travelZone: data.travelZone,
+      travelFee: zoneFee,
+      faces: String(data.numberOfFaces),
+      preferredTime: data.preferredTime,
+      message: data.message,
+    };
+    fetch("/api/booking", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    }).catch(() => {});
   }
 
   if (status === "success") {
-    const selectedService = services.find(
-      (s) => s.name === getValues("service")
+    const svc = services.find(
+      (s) => s.name === submittedData.current?.service
     );
-    const depositAmount = selectedService?.priceFrom
-      ? Math.round(selectedService.priceFrom * 0.5)
-      : null;
+    const zone = submittedData.current?.travelZone;
+    const fee = zone ? getZoneFee(zone) : null;
+    const submittedFaces = Math.max(1, submittedData.current?.numberOfFaces || 1);
+    const perExtraFace = svc?.priceFrom ? Math.round(svc.priceFrom * (1 - extraFaceDiscountPercent / 100)) : 0;
+    const total = svc?.priceFrom && fee !== null
+      ? svc.priceFrom + Math.max(0, submittedFaces - 1) * perExtraFace + fee
+      : svc?.priceFrom ?? null;
+    const deposit = total ? Math.round(total * 0.5) : null;
+    const zoneIsQuote = zone
+      ? zones.find((z) => z.id === zone)?.fee === -1
+      : false;
+
     return (
       <div
         className={cn(
@@ -161,26 +233,71 @@ export function BookingForm({ className, preselectedService, preselectedDate, pr
           We&apos;ll confirm your date and send next steps within 24 hours.
         </p>
 
-        <div className="mt-6 rounded-xl border border-accent-rose/20 bg-accent-rose/5 p-5 space-y-3">
-          <p className="text-xs text-text-muted">
-            50% deposit secures your date — pay now to lock it in
-          </p>
-          {depositAmount && submittedData.current ? (
-            <PayDepositButton
-              email={submittedData.current.email || ""}
-              name={submittedData.current.name}
-              service={selectedService!.name}
-              depositAmount={depositAmount}
-              eventDate={submittedData.current.eventDate}
-              sanityBookingId={sanityBookingId.current}
-              className="w-full"
-            />
-          ) : (
-            <p className="text-xs text-text-muted italic">
-              Payment details will be included in your confirmation message.
+        {zoneIsQuote ? (
+          <div className="mt-6 rounded-xl border border-amber-200 bg-amber-50 p-5 space-y-2">
+            <p className="text-sm font-medium text-amber-800">
+              Outside Lagos — custom quote
             </p>
-          )}
-        </div>
+            <p className="text-xs text-amber-700">
+              We&apos;ll send you a full quote including travel and accommodation within 24 hours.
+            </p>
+          </div>
+        ) : (
+          <div className="mt-6 rounded-xl border border-border bg-white p-5 space-y-4 text-left shadow-sm">
+            {deposit && fee !== null && svc?.priceFrom && (
+              <div className="space-y-2">
+                <p className="text-xs font-semibold uppercase tracking-wider text-text-muted">Payment Summary</p>
+                <div className="flex justify-between text-sm">
+                  <span className="text-text-muted">
+                    {submittedFaces === 1 ? svc.name : `1st face — ${svc.name}`}
+                  </span>
+                  <span className="text-text-primary">{formatPrice(svc.priceFrom)}</span>
+                </div>
+                {submittedFaces > 1 && (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-text-muted">
+                      +{submittedFaces - 1} extra {submittedFaces - 1 === 1 ? "face" : "faces"}{" "}
+                      <span className="text-green-600">({extraFaceDiscountPercent}% off)</span>
+                    </span>
+                    <span className="text-text-primary">{formatPrice((submittedFaces - 1) * perExtraFace)}</span>
+                  </div>
+                )}
+                <div className="flex justify-between text-sm">
+                  <span className="text-text-muted">Travel</span>
+                  <span className={fee === 0 ? "text-green-600 font-medium" : "text-text-primary"}>
+                    {fee === 0 ? "Free" : formatPrice(fee)}
+                  </span>
+                </div>
+                <div className="border-t border-dashed border-border pt-2 flex justify-between text-sm font-semibold">
+                  <span>Estimated Total</span>
+                  <span>{formatPrice(total!)}</span>
+                </div>
+                <div className="bg-accent-rose/10 rounded-md px-3 py-2.5 flex justify-between items-center">
+                  <span className="text-xs font-semibold text-accent-rose">50% Deposit Due Now</span>
+                  <span className="text-lg font-bold text-accent-rose">{formatPrice(deposit)}</span>
+                </div>
+              </div>
+            )}
+            <p className="text-xs text-text-muted text-center">
+              Pay your deposit now to lock in your date
+            </p>
+            {deposit && submittedData.current ? (
+              <PayDepositButton
+                email=""
+                name={submittedData.current.name}
+                service={svc!.name}
+                depositAmount={deposit}
+                eventDate={submittedData.current.eventDate}
+                sanityBookingId={sanityBookingId.current}
+                className="w-full"
+              />
+            ) : (
+              <p className="text-xs text-text-muted italic text-center">
+                Payment details will be included in your confirmation message.
+              </p>
+            )}
+          </div>
+        )}
 
         <button
           type="button"
@@ -199,7 +316,7 @@ export function BookingForm({ className, preselectedService, preselectedDate, pr
       onSubmit={handleSubmit(onSubmit)}
       noValidate
       className={cn(
-        "rounded-2xl border border-border bg-card p-5 md:p-8 shadow-card overflow-hidden scroll-mt-24",
+        "rounded-2xl border border-border bg-card p-5 md:p-8 shadow-card overflow-hidden scroll-mt-24 max-w-full",
         className
       )}
     >
@@ -307,48 +424,21 @@ export function BookingForm({ className, preselectedService, preselectedDate, pr
           )}
         </FormField>
 
-        <FormField label="Email" htmlFor="email" error={errors.email?.message}>
-          <input
-            id="email"
-            type="email"
-            {...register("email")}
-            className={inputStyles}
-            placeholder="you@email.com (optional)"
-          />
+        <FormField label="Service Needed" htmlFor="service" error={errors.service?.message} required>
+          <select
+            id="service"
+            {...register("service")}
+            className={cn(inputStyles, errors.service && "border-red-400")}
+            aria-invalid={!!errors.service}
+          >
+            <option value="">Select a service</option>
+            {services.map((s) => (
+              <option key={s.id} value={s.name}>
+                {s.name}{s.priceFrom ? ` — from ${formatPrice(s.priceFrom)}` : ""}
+              </option>
+            ))}
+          </select>
         </FormField>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-          <FormField label="Service Needed" htmlFor="service" error={errors.service?.message} required>
-            <select
-              id="service"
-              {...register("service")}
-              className={cn(inputStyles, errors.service && "border-red-400")}
-              aria-invalid={!!errors.service}
-            >
-              <option value="">Select a service</option>
-              {services.map((s) => (
-                <option key={s.id} value={s.name}>
-                  {s.name}
-                </option>
-              ))}
-            </select>
-          </FormField>
-          <FormField label="Event Type" htmlFor="eventType" error={errors.eventType?.message} required>
-            <select
-              id="eventType"
-              {...register("eventType")}
-              className={cn(inputStyles, errors.eventType && "border-red-400")}
-              aria-invalid={!!errors.eventType}
-            >
-              <option value="">Select event type</option>
-              {eventTypes.map((t) => (
-                <option key={t} value={t}>
-                  {t}
-                </option>
-              ))}
-            </select>
-          </FormField>
-        </div>
 
         <Button
           type="button"
@@ -363,9 +453,31 @@ export function BookingForm({ className, preselectedService, preselectedDate, pr
 
       {/* Step 2: Event details & message */}
       <div className={cn("space-y-5", step !== 2 && "hidden")}>
-        <div className="rounded-lg bg-accent-rose/5 border border-accent-rose/20 px-4 py-3 text-sm text-text-muted leading-relaxed">
-          A <span className="font-medium text-text-primary">50% deposit</span> secures your date after we confirm availability. Payment details are sent with your confirmation.
-        </div>
+        <FormField label="Event Area" htmlFor="travelZone" error={errors.travelZone?.message} required>
+          <select
+            id="travelZone"
+            {...register("travelZone", {
+              onChange: (e) => {
+                const zone = zones.find((z) => z.id === e.target.value);
+                if (zone) {
+                  setValue("eventLocation", zone.label, { shouldValidate: true });
+                }
+              },
+            })}
+            className={cn(inputStyles, errors.travelZone && "border-red-400")}
+            aria-invalid={!!errors.travelZone}
+          >
+            <option value="">Where is your event?</option>
+            {zones.map((zone) => (
+              <option key={zone.id} value={zone.id}>
+                {zone.label}
+                {zone.fee === 0 ? " — Travel included" : zone.fee === -1 ? " — Quote on request" : ` — +${formatPrice(zone.fee)} travel`}
+              </option>
+            ))}
+          </select>
+          <input type="hidden" {...register("eventLocation")} />
+        </FormField>
+
         <FormField
           label="Number of Faces"
           htmlFor="numberOfFaces"
@@ -382,20 +494,62 @@ export function BookingForm({ className, preselectedService, preselectedDate, pr
           />
         </FormField>
 
-        <FormField
-          label="Event Location"
-          htmlFor="eventLocation"
-          error={errors.eventLocation?.message}
-          required
-        >
-          <input
-            id="eventLocation"
-            {...register("eventLocation")}
-            className={cn(inputStyles, errors.eventLocation && "border-red-400")}
-            placeholder="Venue or area in Lagos"
-            aria-invalid={!!errors.eventLocation}
-          />
-        </FormField>
+        {/* Travel fee indicator */}
+        {watchedZone && isQuoteOnly && (
+          <div className="rounded-xl p-4 flex items-start gap-3 border border-amber-200 bg-amber-50">
+            <MapPin className="w-4 h-4 mt-0.5 shrink-0 text-amber-600" />
+            <div className="text-xs space-y-1">
+              <p className="font-medium text-amber-800">Outside Lagos — custom quote</p>
+              <p className="text-amber-700">
+                We&apos;ll include travel and accommodation costs in your personalised quote.
+              </p>
+            </div>
+          </div>
+        )}
+
+        {watchedZone && !isQuoteOnly && (
+          <div className="rounded-xl border border-accent-rose/20 bg-accent-rose/5 p-4 space-y-3">
+            <div className="flex items-center gap-2 text-xs text-text-muted">
+              <MapPin className="w-4 h-4 shrink-0 text-accent-rose" />
+              <span>{zones.find(z => z.id === watchedZone)?.areas}</span>
+            </div>
+            {selectedService?.priceFrom && travelFee !== null && (
+              <div className="bg-white rounded-lg border border-border p-4 space-y-2.5">
+                <div className="flex justify-between text-sm">
+                  <span className="text-text-muted">
+                    {faces === 1 ? selectedService.name : `1st face — ${selectedService.name}`}
+                  </span>
+                  <span className="text-text-primary font-medium">{formatPrice(selectedService.priceFrom)}</span>
+                </div>
+                {faces > 1 && (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-text-muted">
+                      +{faces - 1} extra {faces - 1 === 1 ? "face" : "faces"}{" "}
+                      <span className="text-green-600">({extraFaceDiscountPercent}% off)</span>
+                    </span>
+                    <span className="text-text-primary font-medium">{formatPrice((faces - 1) * extraFacePrice)}</span>
+                  </div>
+                )}
+                <div className="flex justify-between text-sm">
+                  <span className="text-text-muted">Travel</span>
+                  <span className={travelFee === 0 ? "text-green-600 font-medium" : "text-text-primary font-medium"}>
+                    {travelFee === 0 ? "Free" : formatPrice(travelFee)}
+                  </span>
+                </div>
+                <div className="border-t border-dashed border-border pt-2.5 flex justify-between text-sm font-bold">
+                  <span className="text-text-primary">Estimated Total</span>
+                  <span className="text-text-primary">{formatPrice(estimatedTotal!)}</span>
+                </div>
+                {depositAmount && (
+                  <div className="bg-accent-rose/10 rounded-lg px-4 py-2.5 flex justify-between items-center">
+                    <span className="text-sm font-semibold text-accent-rose">50% Deposit to Book</span>
+                    <span className="text-lg font-bold text-accent-rose">{formatPrice(depositAmount)}</span>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
 
         <FormField label="Message / Inspiration" htmlFor="message">
           <textarea

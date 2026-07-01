@@ -3,6 +3,7 @@ import { siteConfig, navLinks } from "@/lib/site-config";
 import { buildWhatsAppUrl } from "@/lib/whatsapp";
 import { analyticsEvents } from "@/lib/analytics";
 import { CopyButton } from "@/components/ui/CopyButton";
+import { locations } from "@/data/locations";
 
 export function Footer() {
   const whatsappUrl = buildWhatsAppUrl({ intent: "booking" });
@@ -12,7 +13,7 @@ export function Footer() {
     <footer className="relative bg-luxury-dark text-white pt-16 pb-8">
       <div className="orb orb-rose w-64 h-64 -top-32 right-0 opacity-20" />
       <div className="relative z-10 mx-auto max-w-7xl px-4 md:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12 mb-12">
           <div className="lg:col-span-1">
             <Link href="/" className="font-display text-2xl font-semibold">
               {siteConfig.shortBrand}
@@ -47,16 +48,49 @@ export function Footer() {
               Services
             </h3>
             <ul className="space-y-2 text-sm text-white/70">
-              <li>Bridal Makeup</li>
-              <li>Soft & Event Glam</li>
-              <li>Home Service</li>
-              <li>Group Bookings</li>
-              <li>Gele Styling</li>
+              {[
+                { label: "Bridal Makeup", slug: "bridal-makeup" },
+                { label: "Traditional Bridal", slug: "traditional-bridal" },
+                { label: "Soft Glam", slug: "soft-glam" },
+                { label: "Event Glam", slug: "event-glam" },
+                { label: "Birthday Glam", slug: "birthday-makeup" },
+                { label: "Photoshoot Makeup", slug: "photoshoot-makeup" },
+                { label: "Home Service", slug: "home-service" },
+                { label: "Group Booking", slug: "group-booking" },
+                { label: "Gele Styling", slug: "gele-styling" },
+              ].map(({ label, slug }) => (
+                <li key={slug}>
+                  <Link
+                    href={`/services/${slug}`}
+                    className="hover:text-white transition-colors"
+                  >
+                    {label}
+                  </Link>
+                </li>
+              ))}
               <li>
                 <Link href="/training" className="hover:text-white transition-colors">
                   Makeup Training
                 </Link>
               </li>
+            </ul>
+          </div>
+
+          <div>
+            <h3 className="text-xs font-semibold uppercase tracking-[0.2em] text-accent-gold mb-4">
+              Locations
+            </h3>
+            <ul className="space-y-2 text-sm text-white/70">
+              {locations.map((l) => (
+                <li key={l.slug}>
+                  <Link
+                    href={`/locations/${l.slug}`}
+                    className="hover:text-white transition-colors"
+                  >
+                    {l.name}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 
