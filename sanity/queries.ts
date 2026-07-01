@@ -147,3 +147,15 @@ export const SITE_SETTINGS_QUERY = `*[_type == "siteSettings"][0]{
   "heroImageDetail": heroImageDetail.asset->url,
   "aboutImage": aboutImage.asset->url
 }`;
+
+export const SHOP_LINKS_QUERY = `*[_type == "shopLink"] | order(sectionOrder asc, order asc) {
+  _id, title, url, section, mediaType,
+  "imageUrl": image.asset->url,
+  "videoUrl": video.asset->url,
+  "thumbnailUrl": thumbnail.asset->url,
+  alt, layout, description, order, sectionOrder
+}`;
+
+export const SHOP_PAGE_SETTINGS_QUERY = `*[_type == "shopPageSettings"][0] {
+  pageTitle, pageSubtitle, showSectionHeaders
+}`;

@@ -88,4 +88,26 @@ export const deskStructure = (S: StructureBuilder) =>
               S.documentTypeListItem("bookingStep").title("Booking Steps"),
             ])
         ),
+
+      S.divider(),
+
+      // ── Shop & Links ──
+      S.listItem()
+        .title("Shop & Links")
+        .child(
+          S.list()
+            .title("Shop & Links")
+            .items([
+              S.listItem()
+                .title("Page Settings")
+                .id("shopPageSettings")
+                .child(
+                  S.document()
+                    .schemaType("shopPageSettings")
+                    .documentId("shopPageSettings")
+                    .title("Shop Page Settings")
+                ),
+              S.documentTypeListItem("shopLink").title("Shop Links"),
+            ])
+        ),
     ]);

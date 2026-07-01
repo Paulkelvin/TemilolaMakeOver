@@ -26,6 +26,8 @@ import {
   BLOCKED_DATES_QUERY,
   SITE_SETTINGS_QUERY,
   PAGE_COPY_QUERY,
+  SHOP_LINKS_QUERY,
+  SHOP_PAGE_SETTINGS_QUERY,
 } from "./queries";
 import type { Service } from "@/data/services";
 import type { Package } from "@/data/packages";
@@ -453,5 +455,68 @@ export { findSection };
 
 export const getPageCopy = cache(async (page: string): Promise<PageCopy> => {
   const data = await client.fetch(PAGE_COPY_QUERY, { page }, REVALIDATE_FAST);
+  return data ?? {};
+});
+
+// ─── Shop Links ─────────────────────────────────────────────────────────────
+export interface ShopLink {
+  id: string;
+  title: string;
+  url: string;
+  section: string;
+  mediaType: "image" | "video";
+  imageUrl?: string;
+  videoUrl?: string;
+  thumbnailUrl?: string;
+  alt?: string;
+  layout: "compact" | "featured" | "wide";
+  description?: string;
+  order: number;
+  sectionOrder: number;
+}
+
+interface RawShopLink {
+  _id: string;
+  title: string;
+  url: string;
+  section: string;
+  mediaType: "image" | "video";
+  imageUrl?: string;
+  videoUrl?: string;
+  thumbnailUrl?: string;
+  alt?: string;
+  layout: "compact" | "featured" | "wide";
+  description?: string;
+  order: number;
+  sectionOrder: number;
+}
+
+export const getShopLinks = cache(async (): Promise<ShopLink[]> => {
+  const raw: RawShopLink[] = await client.fetch(SHOP_LINKS_QUERY, {}, REVALIDATE);
+  return raw.map((l) => ({
+    id: l._id,
+    title: l.title,
+    url: l.url,
+    section: l.section,
+    mediaType: l.mediaType ?? "image",
+    imageUrl: l.imageUrl,
+    videoUrl: l.videoUrl,
+    thumbnailUrl: l.thumbnailUrl,
+    alt: l.alt,
+    layout: l.layout ?? "compact",
+    description: l.description,
+    order: l.order ?? 0,
+    sectionOrder: l.sectionOrder ?? 0,
+  }));
+});
+
+export interface ShopPageSettings {
+  pageTitle?: string;
+  pageSubtitle?: string;
+  showSectionHeaders?: boolean;
+}
+
+export const getShopPageSettings = cache(async (): Promise<ShopPageSettings> => {
+  const data = await client.fetch(SHOP_PAGE_SETTINGS_QUERY, {}, REVALIDATE);
   return data ?? {};
 });
