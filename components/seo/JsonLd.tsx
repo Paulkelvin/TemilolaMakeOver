@@ -1,5 +1,6 @@
 import { siteConfig } from "@/lib/site-config";
 import { testimonials } from "@/data/testimonials";
+import { getServices } from "@/sanity/fetch";
 
 function computeAggregateRating() {
   const count = testimonials.length;
@@ -15,8 +16,9 @@ function computeAggregateRating() {
   };
 }
 
-export function JsonLd() {
+export async function JsonLd() {
   const aggregateRating = computeAggregateRating();
+  const services = await getServices();
 
   const schema = {
     "@context": "https://schema.org",
@@ -85,40 +87,14 @@ export function JsonLd() {
     hasOfferCatalog: {
       "@type": "OfferCatalog",
       name: "Makeup Services",
-      itemListElement: [
-        {
-          "@type": "Offer",
-          itemOffered: {
-            "@type": "Service",
-            name: "Soft Glam Makeup",
-            description: "Soft glam makeup for engagements, parties, and special occasions in Lagos",
-          },
+      itemListElement: services.map((s) => ({
+        "@type": "Offer",
+        itemOffered: {
+          "@type": "Service",
+          name: s.name,
+          description: s.shortDescription,
         },
-        {
-          "@type": "Offer",
-          itemOffered: {
-            "@type": "Service",
-            name: "Event Glam Makeup",
-            description: "Event and party makeup services with home service available across Lagos",
-          },
-        },
-        {
-          "@type": "Offer",
-          itemOffered: {
-            "@type": "Service",
-            name: "Bridal Makeup",
-            description: "Professional bridal makeup with skin prep, trial session, and long-lasting finish for your wedding day in Lagos",
-          },
-        },
-        {
-          "@type": "Offer",
-          itemOffered: {
-            "@type": "Service",
-            name: "Traditional Bridal Makeup",
-            description: "Traditional wedding makeup coordinated with gele and outfit for Nigerian ceremonies in Lagos",
-          },
-        },
-      ],
+      })),
     },
   };
 

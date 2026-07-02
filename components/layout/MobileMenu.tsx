@@ -7,19 +7,25 @@ import { ChevronDown } from "lucide-react";
 import { navLinks } from "@/lib/site-config";
 import { Button, WhatsAppButton } from "@/components/ui/Button";
 import { buildWhatsAppUrl } from "@/lib/whatsapp";
-import { services } from "@/data/services";
 import { cn } from "@/lib/utils";
+
+interface NavService {
+  name: string;
+  slug: string;
+}
 
 interface MobileMenuProps {
   isOpen: boolean;
   onClose: () => void;
   onCheckAvailability: () => void;
+  services?: NavService[];
 }
 
 export function MobileMenu({
   isOpen,
   onClose,
   onCheckAvailability,
+  services = [],
 }: MobileMenuProps) {
   const bookingUrl = buildWhatsAppUrl({ intent: "booking" });
   const [servicesOpen, setServicesOpen] = useState(false);
@@ -82,7 +88,7 @@ export function MobileMenu({
                             {services.map((s) => (
                               <li key={s.slug}>
                                 <Link
-                                  href={s.id === "training" ? "/training" : `/services/${s.slug}`}
+                                  href={`/services/${s.slug}`}
                                   onClick={onClose}
                                   className="block py-2 text-sm text-text-muted hover:text-accent-rose transition-colors"
                                 >
@@ -90,6 +96,15 @@ export function MobileMenu({
                                 </Link>
                               </li>
                             ))}
+                            <li>
+                              <Link
+                                href="/training"
+                                onClick={onClose}
+                                className="block py-2 text-sm text-text-muted hover:text-accent-rose transition-colors"
+                              >
+                                Makeup Training
+                              </Link>
+                            </li>
                             <li>
                               <Link
                                 href="/services"

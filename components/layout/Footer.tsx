@@ -5,10 +5,12 @@ import { buildWhatsAppUrl } from "@/lib/whatsapp";
 import { analyticsEvents } from "@/lib/analytics";
 import { CopyButton } from "@/components/ui/CopyButton";
 import { locations } from "@/data/locations";
+import { getServices } from "@/sanity/fetch";
 
-export function Footer() {
+export async function Footer() {
   const whatsappUrl = buildWhatsAppUrl({ intent: "booking" });
   const year = new Date().getFullYear();
+  const services = await getServices();
 
   return (
     <footer className="relative bg-luxury-dark text-white pt-16 pb-8">
@@ -50,21 +52,13 @@ export function Footer() {
               Services
             </h3>
             <ul className="space-y-2 text-sm text-white/70">
-              {[
-                { label: "Bridal Makeup", slug: "bridal-makeup" },
-                { label: "Traditional Bridal", slug: "traditional-bridal" },
-                { label: "Soft Glam", slug: "soft-glam" },
-                { label: "Event Glam", slug: "event-glam" },
-                { label: "Birthday Glam", slug: "birthday-makeup" },
-                { label: "Home Service", slug: "home-service" },
-                { label: "Group Booking", slug: "group-booking" },
-              ].map(({ label, slug }) => (
-                <li key={slug}>
+              {services.map((s) => (
+                <li key={s.slug}>
                   <Link
-                    href={`/services/${slug}`}
+                    href={`/services/${s.slug}`}
                     className="hover:text-white transition-colors"
                   >
-                    {label}
+                    {s.name}
                   </Link>
                 </li>
               ))}

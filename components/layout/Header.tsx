@@ -9,13 +9,18 @@ import { Button } from "@/components/ui/Button";
 import { MobileMenu } from "./MobileMenu";
 import { AvailabilityModal } from "@/components/ui/AvailabilityModal";
 import { analyticsEvents } from "@/lib/analytics";
-import { services } from "@/data/services";
+
+interface NavService {
+  name: string;
+  slug: string;
+}
 
 interface HeaderProps {
   blockedDates?: string[];
+  services?: NavService[];
 }
 
-export function Header({ blockedDates = [] }: HeaderProps) {
+export function Header({ blockedDates = [], services = [] }: HeaderProps) {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [calendarOpen, setCalendarOpen] = useState(false);
@@ -77,7 +82,7 @@ export function Header({ blockedDates = [] }: HeaderProps) {
                     </button>
                     {servicesOpen && (
                       <div className="absolute top-full left-1/2 -translate-x-1/2 mt-3 w-56 bg-card rounded-xl border border-border shadow-lg overflow-hidden py-1 z-50">
-                        {services.slice(0, 7).map((s) => (
+                        {services.map((s) => (
                           <Link
                             key={s.slug}
                             href={`/services/${s.slug}`}
@@ -87,6 +92,13 @@ export function Header({ blockedDates = [] }: HeaderProps) {
                             {s.name}
                           </Link>
                         ))}
+                        <Link
+                          href="/training"
+                          onClick={() => setServicesOpen(false)}
+                          className="block px-4 py-2 text-sm text-text-muted hover:text-accent-rose hover:bg-bg-blush transition-colors"
+                        >
+                          Makeup Training
+                        </Link>
                         <div className="border-t border-border mt-1 pt-1">
                           <Link
                             href="/services"
@@ -159,6 +171,7 @@ export function Header({ blockedDates = [] }: HeaderProps) {
           setMenuOpen(false);
           setCalendarOpen(true);
         }}
+        services={services}
       />
 
       <AvailabilityModal

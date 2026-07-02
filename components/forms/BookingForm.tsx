@@ -8,7 +8,6 @@ import {
   type BookingFormValues,
 } from "@/lib/validations/booking";
 import { getBookingWhatsAppUrl } from "@/lib/whatsapp-form";
-import { services } from "@/data/services";
 import { travelZones as defaultTravelZones, type TravelZone } from "@/data/travel-zones";
 import { bookPageCopy } from "@/data/copy";
 import { Button } from "@/components/ui/Button";
@@ -19,6 +18,13 @@ import { PayDepositButton } from "@/components/ui/PayDepositButton";
 import { AvailabilityCalendar } from "@/components/ui/AvailabilityCalendar";
 import { MapPin } from "lucide-react";
 
+interface BookingService {
+  id: string;
+  name: string;
+  slug: string;
+  priceFrom?: number;
+}
+
 interface BookingFormProps {
   className?: string;
   preselectedService?: string;
@@ -27,9 +33,10 @@ interface BookingFormProps {
   blockedDates?: string[];
   travelZones?: TravelZone[];
   extraFaceDiscountPercent?: number;
+  services?: BookingService[];
 }
 
-export function BookingForm({ className, preselectedService, preselectedDate, preselectedTime, blockedDates = [], travelZones: zonesProp, extraFaceDiscountPercent = 20 }: BookingFormProps) {
+export function BookingForm({ className, preselectedService, preselectedDate, preselectedTime, blockedDates = [], travelZones: zonesProp, extraFaceDiscountPercent = 20, services = [] }: BookingFormProps) {
   const zones = zonesProp?.length ? zonesProp : defaultTravelZones;
 
   function getZoneFee(zoneId: string): number | null {
