@@ -33,6 +33,7 @@ export const metadata: Metadata = {
     template: `%s | ${siteConfig.brand}`,
   },
   description: seoCopy.home.description,
+  alternates: { canonical: siteConfig.url },
   keywords: [
     "makeup artist in Lagos",
     "event makeup artist Lagos",

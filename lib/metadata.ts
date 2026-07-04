@@ -50,7 +50,7 @@ export function createPageMetadata({
         };
 
   return {
-    title: fullTitle,
+    title: { absolute: fullTitle },
     description: desc,
     alternates: { canonical: url },
     ...(noindex && { robots: { index: false, follow: false } }),
