@@ -3,6 +3,7 @@
 import { useState, useMemo, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { motion, AnimatePresence } from "framer-motion";
 import { Search, ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -114,54 +115,65 @@ export function BlogListClient({ posts, postsPerPage = POSTS_PER_PAGE }: BlogLis
         </div>
       ) : (
         <>
-          <div
+          <motion.div
+            layout
             ref={gridRef}
-            key={`${activeCategory}-${search}-${page}`}
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 scroll-mt-24"
           >
-            {paged.map((post) => (
-              <Link key={post.id} href={`/blog/${post.slug}`} className="group block">
-                <article className="rounded-2xl border border-border bg-card overflow-hidden shadow-sm hover:shadow-lg transition-all duration-500 hover:-translate-y-1">
-                  <div className="relative aspect-[16/10] bg-bg-blush overflow-hidden">
-                    {post.coverImageUrl ? (
-                      <Image
-                        src={post.coverImageUrl}
-                        alt={post.title}
-                        fill
-                        sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                        className="object-cover transition-transform duration-700 group-hover:scale-105"
-                      />
-                    ) : (
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <span className="text-text-muted text-sm">
-                          {post.category}
+            <AnimatePresence mode="popLayout">
+              {paged.map((post) => (
+                <motion.div
+                  key={post.id}
+                  layout
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+                >
+                  <Link href={`/blog/${post.slug}`} className="group block">
+                    <article className="rounded-2xl border border-border bg-card overflow-hidden shadow-sm hover:shadow-lg transition-all duration-500 hover:-translate-y-1">
+                      <div className="relative aspect-[16/10] bg-bg-blush overflow-hidden">
+                        {post.coverImageUrl ? (
+                          <Image
+                            src={post.coverImageUrl}
+                            alt={post.title}
+                            fill
+                            sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                            className="object-cover transition-transform duration-700 group-hover:scale-105"
+                          />
+                        ) : (
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            <span className="text-text-muted text-sm">
+                              {post.category}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                      <div className="p-5 md:p-6">
+                        <div className="flex items-center gap-3 mb-3">
+                          <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-accent-gold">
+                            {post.category}
+                          </span>
+                          <span className="text-xs text-text-muted">
+                            {formatDate(post.publishedAt)}
+                          </span>
+                        </div>
+                        <h2 className="font-display text-lg md:text-xl font-medium text-text-primary group-hover:text-accent-rose transition-colors leading-snug">
+                          {post.title}
+                        </h2>
+                        <p className="mt-2 text-sm text-text-muted leading-relaxed line-clamp-2">
+                          {post.excerpt}
+                        </p>
+                        <span className="inline-block mt-4 text-sm font-medium text-accent-rose">
+                          Read more →
                         </span>
                       </div>
-                    )}
-                  </div>
-                  <div className="p-5 md:p-6">
-                    <div className="flex items-center gap-3 mb-3">
-                      <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-accent-gold">
-                        {post.category}
-                      </span>
-                      <span className="text-xs text-text-muted">
-                        {formatDate(post.publishedAt)}
-                      </span>
-                    </div>
-                    <h2 className="font-display text-lg md:text-xl font-medium text-text-primary group-hover:text-accent-rose transition-colors leading-snug">
-                      {post.title}
-                    </h2>
-                    <p className="mt-2 text-sm text-text-muted leading-relaxed line-clamp-2">
-                      {post.excerpt}
-                    </p>
-                    <span className="inline-block mt-4 text-sm font-medium text-accent-rose">
-                      Read more →
-                    </span>
-                  </div>
-                </article>
-              </Link>
-            ))}
-          </div>
+                    </article>
+                  </Link>
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </motion.div>
 
           {/* Pagination */}
           {totalPages > 1 && (

@@ -36,7 +36,7 @@ export function ServiceCard({
       <div className="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-accent-rose/60 via-accent-gold/40 to-transparent" />
 
       <Link href={`/services/${service.slug}`} className="block flex-grow w-full">
-        <h3 className="font-display text-xl md:text-2xl font-medium text-text-primary">
+        <h3 className="font-display text-xl md:text-2xl font-semibold text-text-primary">
           {service.name}
         </h3>
 
