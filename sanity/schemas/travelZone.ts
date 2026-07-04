@@ -30,7 +30,6 @@ export const travelZoneSchema = defineType({
       type: "array",
       of: [{ type: "string" }],
       description: "Add or remove specific areas covered by this zone.",
-      options: { layout: "tags" },
       validation: (r) => r.required().min(1),
     }),
     defineField({
