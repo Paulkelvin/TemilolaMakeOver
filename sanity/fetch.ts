@@ -15,7 +15,6 @@ import { urlFor } from "./image";
 import {
   SERVICES_QUERY,
   SERVICE_BY_SLUG_QUERY,
-  PACKAGES_QUERY,
   PORTFOLIO_QUERY,
   INSTAGRAM_FEED_QUERY,
   TESTIMONIALS_QUERY,
@@ -35,7 +34,6 @@ import {
   SHOP_PAGE_SETTINGS_QUERY,
 } from "./queries";
 import type { Service } from "@/data/services";
-import type { Package } from "@/data/packages";
 import type { PortfolioItem, PortfolioCategory } from "@/data/portfolio";
 import type { Testimonial } from "@/data/testimonials";
 import type { FAQItem } from "@/data/faq";
@@ -120,32 +118,6 @@ export const getServiceBySlug = cache(async (slug: string): Promise<Service | nu
     imageUrl: imgUrl(s.image, 800),
     highlighted: s.highlighted ?? false,
   };
-});
-
-// ─── Packages ────────────────────────────────────────────────────────────────
-interface RawPackage {
-  _id: string;
-  name: string;
-  bestFor: string;
-  shortDescription: string;
-  priceFrom: number;
-  duration: string;
-  features: string[];
-  highlighted?: boolean;
-}
-
-export const getPackages = cache(async (): Promise<Package[]> => {
-  const raw: RawPackage[] = await client.fetch(PACKAGES_QUERY, {}, REVALIDATE);
-  return raw.map((p) => ({
-    id: p._id,
-    name: p.name,
-    bestFor: p.bestFor,
-    shortDescription: p.shortDescription,
-    priceFrom: p.priceFrom,
-    duration: p.duration,
-    features: p.features ?? [],
-    highlighted: p.highlighted ?? false,
-  }));
 });
 
 // ─── Portfolio ───────────────────────────────────────────────────────────────

@@ -241,100 +241,6 @@ const services = [
   },
 ];
 
-// ─── Pricing Packages ───────────────────────────────────────────────────
-const packages = [
-  {
-    _id: "pkg-soft-glam",
-    _type: "pricingPackage",
-    name: "Soft Glam",
-    bestFor: "Bridesmaids, engagements & elegant evenings",
-    shortDescription:
-      "Romantic, blended makeup with a natural glow — polished without looking heavy.",
-    priceFrom: 35000,
-    duration: "1.5–2 hours",
-    features: [
-      "Skin prep & priming",
-      "Soft glam application",
-      "Lash enhancement",
-      "Long-wear setting spray",
-    ],
-    highlighted: false,
-    order: 1,
-  },
-  {
-    _id: "pkg-event-glam",
-    _type: "pricingPackage",
-    name: "Event Glam",
-    bestFor: "Parties, launches & nights you want to own",
-    shortDescription:
-      "More definition, more presence — built to last under lights and late hours.",
-    priceFrom: 45000,
-    duration: "1.5–2 hours",
-    features: [
-      "Skin prep",
-      "Full event glam",
-      "Defined eyes, brows & lips",
-      "Photo & flash-ready finish",
-    ],
-    highlighted: true,
-    order: 2,
-  },
-  {
-    _id: "pkg-birthday",
-    _type: "pricingPackage",
-    name: "Birthday Glam",
-    bestFor: "Milestone birthdays & celebration photos",
-    shortDescription:
-      "Custom glam aligned with your outfit and party energy.",
-    priceFrom: 40000,
-    duration: "1.5–2 hours",
-    features: [
-      "Skin prep",
-      "Tailored birthday look",
-      "Lash application",
-      "Photo-ready setting",
-    ],
-    highlighted: false,
-    order: 3,
-  },
-  {
-    _id: "pkg-bridal",
-    _type: "pricingPackage",
-    name: "Bridal Glam",
-    bestFor: "Your wedding day",
-    shortDescription:
-      "The full bridal experience — prep, application, and a finish made for an entire day of memories.",
-    priceFrom: 120000,
-    duration: "2–3 hours",
-    features: [
-      "Bridal consultation",
-      "Skin prep & priming",
-      "Full bridal makeup",
-      "Lashes & touch-up guidance",
-      "Ceremony-to-reception wear",
-    ],
-    highlighted: true,
-    order: 4,
-  },
-  {
-    _id: "pkg-bridesmaids",
-    _type: "pricingPackage",
-    name: "Bridesmaids Package",
-    bestFor: "Bridal party (per face)",
-    shortDescription:
-      "Coordinated party glam with efficient scheduling — per person pricing.",
-    priceFrom: 30000,
-    duration: "1–1.5 hours per face",
-    features: [
-      "Matching or complementary looks",
-      "Skin prep per guest",
-      "Group timeline planning",
-    ],
-    highlighted: false,
-    order: 5,
-  },
-];
-
 // ─── Portfolio Items ────────────────────────────────────────────────────
 const portfolioItems = [
   {
@@ -1626,7 +1532,6 @@ async function seed() {
   const allDocs = [
     siteConfig,
     ...services,
-    ...packages,
     ...portfolioItems,
     ...testimonials,
     ...faqItems,

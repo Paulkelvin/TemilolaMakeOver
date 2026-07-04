@@ -1,4 +1,4 @@
-import { getPackages } from "@/sanity/fetch";
+import { getServices } from "@/sanity/fetch";
 import { siteConfig } from "@/lib/site-config";
 import { pricingPageCopy, seoCopy } from "@/data/copy";
 import { pricingFactors, pricingTableData } from "@/data/packages";
@@ -25,7 +25,7 @@ export const metadata = createPageMetadata({
 
 export default async function PricingPage() {
   const { getPageCopy } = await import("@/sanity/fetch");
-  const [packages, pageCopy] = await Promise.all([getPackages(), getPageCopy("pricing")]);
+  const [services, pageCopy] = await Promise.all([getServices(), getPageCopy("pricing")]);
   const copy = pricingPageCopy;
   const quoteUrl = buildWhatsAppUrl({ intent: "quote" });
 
@@ -40,9 +40,9 @@ export default async function PricingPage() {
       <SectionWrapper variant="blush">
         <Container>
           <StaggerGrid className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {packages.map((pkg) => (
-              <StaggerItem key={pkg.id}>
-                <PricingCard pkg={pkg} />
+            {services.map((service) => (
+              <StaggerItem key={service.id}>
+                <PricingCard pkg={service} />
               </StaggerItem>
             ))}
           </StaggerGrid>

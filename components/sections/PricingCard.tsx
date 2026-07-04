@@ -1,17 +1,24 @@
 import { ArrowRight, Check } from "lucide-react";
-import type { Package } from "@/data/packages";
 import { buildWhatsAppUrl } from "@/lib/whatsapp";
 import { formatPrice } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 
+interface PricingCardData {
+  name: string;
+  shortDescription: string;
+  priceFrom?: number;
+  included: string[];
+  highlighted?: boolean;
+}
+
 interface PricingCardProps {
-  pkg: Package;
+  pkg: PricingCardData;
 }
 
 export function PricingCard({ pkg }: PricingCardProps) {
   const url = buildWhatsAppUrl({ intent: "quote" });
   const isPopular = pkg.highlighted;
-  const highlights = pkg.features.slice(0, 4);
+  const highlights = pkg.included.slice(0, 4);
 
   return (
     <div className={cn("relative", isPopular && "mt-4")}>
@@ -38,14 +45,16 @@ export function PricingCard({ pkg }: PricingCardProps) {
         {pkg.shortDescription}
       </p>
 
-      <div className="mt-5">
-        <span className="block text-xs font-medium uppercase tracking-wide text-text-muted/70">
-          From
-        </span>
-        <span className="font-display text-4xl md:text-5xl font-semibold leading-tight text-accent-rose">
-          {formatPrice(pkg.priceFrom)}
-        </span>
-      </div>
+      {pkg.priceFrom && (
+        <div className="mt-5">
+          <span className="block text-xs font-medium uppercase tracking-wide text-text-muted/70">
+            From
+          </span>
+          <span className="font-display text-4xl md:text-5xl font-semibold leading-tight text-accent-rose">
+            {formatPrice(pkg.priceFrom)}
+          </span>
+        </div>
+      )}
 
       <div className="my-6 h-px w-full bg-border" />
 

@@ -32,17 +32,6 @@ export const SERVICE_BY_SLUG_QUERY = `*[_type == "service" && slug.current == $s
   image
 }`;
 
-export const PACKAGES_QUERY = `*[_type == "pricingPackage"] | order(order asc) {
-  _id,
-  name,
-  bestFor,
-  shortDescription,
-  priceFrom,
-  duration,
-  features,
-  highlighted
-}`;
-
 export const PORTFOLIO_QUERY = `*[_type == "portfolioItem"] | order(order asc) {
   _id,
   title,

@@ -1,5 +1,4 @@
 import { serviceSchema } from "./service";
-import { pricingPackageSchema } from "./pricingPackage";
 import { portfolioItemSchema } from "./portfolioItem";
 import { testimonialSchema } from "./testimonial";
 import { faqSchema } from "./faq";
@@ -19,7 +18,6 @@ import { travelZoneSchema } from "./travelZone";
 
 export const schemaTypes = [
   serviceSchema,
-  pricingPackageSchema,
   portfolioItemSchema,
   testimonialSchema,
   faqSchema,
