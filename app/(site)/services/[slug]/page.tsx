@@ -176,6 +176,9 @@ export default async function ServiceDetailPage({
               <Link href="/blog/how-early-should-you-book-your-bridal-makeup-artist" className="text-sm text-accent-rose font-medium hover:underline">
                 When to Book Your Artist
               </Link>
+              <Link href="/blog/how-to-choose-a-makeup-artist-in-lagos" className="text-sm text-accent-rose font-medium hover:underline">
+                How to Choose the Right Artist
+              </Link>
             </div>
           </Reveal>
         </Container>

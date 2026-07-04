@@ -142,6 +142,26 @@ export default async function BlogPostPage({
                     block: {
                       h1: ({ children }) => <h2>{children}</h2>,
                     },
+                    marks: {
+                      link: ({ value, children }) => {
+                        const href = value?.href ?? "#";
+                        const isInternal = href.startsWith("/");
+                        return isInternal ? (
+                          <Link href={href} className="text-accent-rose underline hover:no-underline">
+                            {children}
+                          </Link>
+                        ) : (
+                          <a
+                            href={href}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-accent-rose underline hover:no-underline"
+                          >
+                            {children}
+                          </a>
+                        );
+                      },
+                    },
                   }}
                 />
               </div>
