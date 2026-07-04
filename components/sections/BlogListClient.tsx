@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Search, ChevronLeft, ChevronRight } from "lucide-react";
@@ -35,6 +35,12 @@ export function BlogListClient({ posts, postsPerPage = POSTS_PER_PAGE }: BlogLis
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState("All");
   const [page, setPage] = useState(1);
+  const gridRef = useRef<HTMLDivElement>(null);
+
+  function goToPage(n: number) {
+    setPage(n);
+    gridRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
 
   const categories = [
     "All",
@@ -109,8 +115,9 @@ export function BlogListClient({ posts, postsPerPage = POSTS_PER_PAGE }: BlogLis
       ) : (
         <>
           <div
+            ref={gridRef}
             key={`${activeCategory}-${search}-${page}`}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8"
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 scroll-mt-24"
           >
             {paged.map((post) => (
               <Link key={post.id} href={`/blog/${post.slug}`} className="group block">
@@ -160,7 +167,7 @@ export function BlogListClient({ posts, postsPerPage = POSTS_PER_PAGE }: BlogLis
           {totalPages > 1 && (
             <nav className="mt-10 flex items-center justify-center gap-2" aria-label="Blog pagination">
               <button
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                onClick={() => goToPage(Math.max(1, page - 1))}
                 disabled={page === 1}
                 className="p-2 rounded-full border border-border bg-card text-text-muted hover:bg-bg-blush disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                 aria-label="Previous page"
@@ -171,7 +178,7 @@ export function BlogListClient({ posts, postsPerPage = POSTS_PER_PAGE }: BlogLis
               {Array.from({ length: totalPages }, (_, i) => i + 1).map((n) => (
                 <button
                   key={n}
-                  onClick={() => setPage(n)}
+                  onClick={() => goToPage(n)}
                   className={cn(
                     "w-9 h-9 rounded-full text-sm font-medium transition-colors",
                     page === n
@@ -186,7 +193,7 @@ export function BlogListClient({ posts, postsPerPage = POSTS_PER_PAGE }: BlogLis
               ))}
 
               <button
-                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                onClick={() => goToPage(Math.min(totalPages, page + 1))}
                 disabled={page === totalPages}
                 className="p-2 rounded-full border border-border bg-card text-text-muted hover:bg-bg-blush disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                 aria-label="Next page"
