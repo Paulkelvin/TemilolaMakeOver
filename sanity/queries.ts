@@ -67,6 +67,12 @@ export const FAQ_QUERY = `*[_type == "faq"] | order(order asc) {
   answer
 }`;
 
+export const FAQ_BY_CATEGORY_QUERY = `*[_type == "faq" && $category in category] | order(order asc) {
+  _id,
+  question,
+  answer
+}`;
+
 export const BOOKING_STEPS_QUERY = `*[_type == "bookingStep"] | order(step asc) {
   _id,
   step,

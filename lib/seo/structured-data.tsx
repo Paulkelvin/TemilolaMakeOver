@@ -1,11 +1,11 @@
-import { faqItems } from "@/data/faq";
+import type { FAQItem } from "@/data/faq";
 import { siteConfig } from "@/lib/site-config";
 
-export function FAQPageJsonLd() {
+export function FAQPageJsonLd({ items }: { items: FAQItem[] }) {
   const schema = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
-    mainEntity: faqItems.map((item) => ({
+    mainEntity: items.map((item) => ({
       "@type": "Question",
       name: item.question,
       acceptedAnswer: {

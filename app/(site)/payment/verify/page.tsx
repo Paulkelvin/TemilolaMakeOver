@@ -7,6 +7,7 @@ export const metadata = createPageMetadata({
   title: "Payment Confirmation",
   description: "Verify your deposit payment status.",
   path: "/payment/verify",
+  noindex: true,
 });
 
 export default function PaymentVerifyPage() {

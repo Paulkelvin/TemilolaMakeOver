@@ -10,7 +10,7 @@ import { JsonLd } from "@/components/seo/JsonLd";
 import { FAQPageJsonLd, WebSiteJsonLd } from "@/lib/seo/structured-data";
 import { seoCopy } from "@/data/copy";
 import { siteConfig } from "@/lib/site-config";
-import { getBlockedDates, getServices } from "@/sanity/fetch";
+import { getBlockedDates, getServices, getFaqItems } from "@/sanity/fetch";
 
 const cormorant = Cormorant_Garamond({
   variable: "--font-cormorant",
@@ -90,9 +90,10 @@ export default async function RootLayout({
 }>) {
   const gaId = process.env.NEXT_PUBLIC_GA_ID;
   const pixelId = process.env.NEXT_PUBLIC_META_PIXEL_ID;
-  const [blockedDates, rawServices] = await Promise.all([
+  const [blockedDates, rawServices, faqItems] = await Promise.all([
     getBlockedDates(),
     getServices(),
+    getFaqItems(),
   ]);
   const services = rawServices.map(({ name, slug }) => ({ name, slug }));
 
@@ -101,7 +102,7 @@ export default async function RootLayout({
       <head>
         <JsonLd />
         <WebSiteJsonLd />
-        <FAQPageJsonLd />
+        <FAQPageJsonLd items={faqItems} />
       </head>
       <body className="min-h-screen antialiased font-body">
         <a

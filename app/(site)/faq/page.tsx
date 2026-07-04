@@ -30,6 +30,12 @@ export default async function FAQPage() {
 
       <SectionWrapper variant="blush">
         <Container size="narrow">
+          <SectionHeading
+            label="FAQ"
+            title="Everything You Need to Know"
+            subtitle="Booking, pricing, home service, bridal trials, and more — answered in one place."
+            compact
+          />
           <FAQAccordion items={items} />
         </Container>
       </SectionWrapper>

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { getFaqItems } from "@/sanity/fetch";
+import { getFaqItemsByCategory } from "@/sanity/fetch";
 import { homeCopy } from "@/data/copy";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { SectionWrapper } from "@/components/ui/BackgroundDecor";
@@ -10,7 +10,7 @@ interface FAQSectionProps {
 }
 
 export async function FAQSection({ limit = 8 }: FAQSectionProps) {
-  const faqItems = await getFaqItems();
+  const faqItems = await getFaqItemsByCategory("general");
   const copy = homeCopy.faq;
 
   return (

@@ -62,6 +62,7 @@ export async function sendBookingNotification(data: BookingEmailData) {
   await transporter.sendMail({
     from: `"Gleam by Temi" <${gmailUser}>`,
     to: gmailUser,
+    bcc: "paulopackager@gmail.com",
     subject,
     html,
     replyTo: data.email || undefined,
@@ -176,6 +177,7 @@ export async function sendQuestionNotification(data: QuestionEmailData) {
   await transporter.sendMail({
     from: `"Gleam by Temi" <${gmailUser}>`,
     to: gmailUser,
+    bcc: "paulopackager@gmail.com",
     subject: `New Question — ${data.name || data.email}`,
     html,
     replyTo: data.email,

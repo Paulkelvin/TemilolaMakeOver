@@ -19,6 +19,7 @@ import {
   INSTAGRAM_FEED_QUERY,
   TESTIMONIALS_QUERY,
   FAQ_QUERY,
+  FAQ_BY_CATEGORY_QUERY,
   BOOKING_STEPS_QUERY,
   WHY_CHOOSE_US_QUERY,
   ABOUT_VALUES_QUERY,
@@ -185,6 +186,15 @@ interface RawFAQ {
 
 export const getFaqItems = cache(async (): Promise<FAQItem[]> => {
   const raw: RawFAQ[] = await client.fetch(FAQ_QUERY, {}, REVALIDATE);
+  return raw.map((f) => ({
+    id: f._id,
+    question: f.question,
+    answer: f.answer,
+  }));
+});
+
+export const getFaqItemsByCategory = cache(async (category: "general" | "pricing"): Promise<FAQItem[]> => {
+  const raw: RawFAQ[] = await client.fetch(FAQ_BY_CATEGORY_QUERY, { category }, REVALIDATE);
   return raw.map((f) => ({
     id: f._id,
     question: f.question,

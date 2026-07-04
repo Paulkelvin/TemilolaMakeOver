@@ -25,22 +25,24 @@ export function FAQAccordion({ items, limit }: FAQAccordionProps) {
             key={item.id}
             className="rounded-xl border border-border bg-card overflow-hidden"
           >
-            <button
-              type="button"
-              className="w-full flex items-center justify-between gap-4 p-5 md:p-6 text-left min-h-[56px]"
-              aria-expanded={isOpen}
-              onClick={() => setOpenId(isOpen ? null : item.id)}
-            >
-              <span className="font-medium text-text-primary pr-4">
-                {item.question}
-              </span>
-              <ChevronDown
-                className={cn(
-                  "w-5 h-5 shrink-0 text-accent-rose transition-transform duration-300",
-                  isOpen && "rotate-180"
-                )}
-              />
-            </button>
+            <h3>
+              <button
+                type="button"
+                className="w-full flex items-center justify-between gap-4 p-5 md:p-6 text-left min-h-[56px]"
+                aria-expanded={isOpen}
+                onClick={() => setOpenId(isOpen ? null : item.id)}
+              >
+                <span className="font-medium text-text-primary pr-4">
+                  {item.question}
+                </span>
+                <ChevronDown
+                  className={cn(
+                    "w-5 h-5 shrink-0 text-accent-rose transition-transform duration-300",
+                    isOpen && "rotate-180"
+                  )}
+                />
+              </button>
+            </h3>
             <AnimatePresence initial={false}>
               {isOpen && (
                 <motion.div

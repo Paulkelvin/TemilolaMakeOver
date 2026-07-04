@@ -1,8 +1,7 @@
-import { getServices } from "@/sanity/fetch";
+import { getServices, getFaqItemsByCategory } from "@/sanity/fetch";
 import { siteConfig } from "@/lib/site-config";
 import { pricingPageCopy, seoCopy } from "@/data/copy";
 import { pricingFactors, pricingTableData } from "@/data/packages";
-import { pricingFaqItems } from "@/data/faq";
 import { createPageMetadata } from "@/lib/metadata";
 import { PageHero } from "@/components/sections/PageHero";
 import { SectionWrapper } from "@/components/ui/BackgroundDecor";
@@ -25,7 +24,11 @@ export const metadata = createPageMetadata({
 
 export default async function PricingPage() {
   const { getPageCopy } = await import("@/sanity/fetch");
-  const [services, pageCopy] = await Promise.all([getServices(), getPageCopy("pricing")]);
+  const [services, faqItems, pageCopy] = await Promise.all([
+    getServices(),
+    getFaqItemsByCategory("pricing"),
+    getPageCopy("pricing"),
+  ]);
   const copy = pricingPageCopy;
   const quoteUrl = buildWhatsAppUrl({ intent: "quote" });
 
@@ -39,6 +42,12 @@ export default async function PricingPage() {
 
       <SectionWrapper variant="blush">
         <Container>
+          <SectionHeading
+            label={copy.hero.label}
+            title="Pricing Packages"
+            subtitle="Transparent starting prices for every service — your final quote depends on your event details."
+            compact
+          />
           <StaggerGrid className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {services.map((service) => (
               <StaggerItem key={service.id}>
@@ -122,7 +131,7 @@ export default async function PricingPage() {
 
       <SectionWrapper>
         <Container>
-          <PricingFAQ items={pricingFaqItems} />
+          <PricingFAQ items={faqItems} />
           <Reveal className="mt-8 text-center">
             <Link
               href="/faq"

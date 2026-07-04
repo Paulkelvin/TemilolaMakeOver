@@ -1,4 +1,4 @@
-import { getServices, getFaqItems } from "@/sanity/fetch";
+import { getServices, getFaqItemsByCategory } from "@/sanity/fetch";
 import { servicesPageCopy, seoCopy } from "@/data/copy";
 import { createPageMetadata } from "@/lib/metadata";
 import { PageHero } from "@/components/sections/PageHero";
@@ -21,7 +21,7 @@ export const metadata = createPageMetadata({
 
 export default async function ServicesPage() {
   const { getPageCopy } = await import("@/sanity/fetch");
-  const [services, faqItems, pageCopy] = await Promise.all([getServices(), getFaqItems(), getPageCopy("services")]);
+  const [services, faqItems, pageCopy] = await Promise.all([getServices(), getFaqItemsByCategory("general"), getPageCopy("services")]);
   const copy = servicesPageCopy;
 
   return (
@@ -34,6 +34,12 @@ export default async function ServicesPage() {
 
       <SectionWrapper variant="blush" decor={false}>
         <Container>
+          <SectionHeading
+            label={copy.hero.label}
+            title="Our Services"
+            subtitle="Explore every service and find the perfect fit for your event or occasion."
+            compact
+          />
           <StaggerGrid className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
             {services.map((s) => (
               <StaggerItem key={s.id}>

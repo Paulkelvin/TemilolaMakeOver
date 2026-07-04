@@ -7,10 +7,30 @@ export const faqSchema = defineType({
   fields: [
     defineField({ name: "question", title: "Question", type: "string" }),
     defineField({ name: "answer", title: "Answer", type: "text" }),
+    defineField({
+      name: "category",
+      title: "Category",
+      type: "array",
+      of: [{ type: "string" }],
+      options: {
+        list: [
+          { title: "General", value: "general" },
+          { title: "Pricing", value: "pricing" },
+        ],
+      },
+      description: "Where this question shows up. A question can belong to more than one category.",
+      initialValue: ["general"],
+    }),
     defineField({ name: "order", title: "Display Order", type: "number" }),
   ],
   orderings: [{ title: "Display Order", name: "orderAsc", by: [{ field: "order", direction: "asc" }] }],
   preview: {
-    select: { title: "question" },
+    select: { title: "question", category: "category" },
+    prepare({ title, category }) {
+      return {
+        title,
+        subtitle: Array.isArray(category) ? category.join(", ") : undefined,
+      };
+    },
   },
 });

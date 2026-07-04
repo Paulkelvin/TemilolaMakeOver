@@ -33,6 +33,9 @@ export async function generateMetadata({
     title: post.title,
     description: post.excerpt,
     path: `/blog/${slug}`,
+    ogType: "article",
+    publishedTime: post.publishedAt,
+    author: post.author,
   });
 }
 
@@ -135,6 +138,9 @@ export default async function BlogPostPage({
                       videoEmbed: ({ value }) => (
                         <VideoEmbed url={value.url} caption={value.caption} />
                       ),
+                    },
+                    block: {
+                      h1: ({ children }) => <h2>{children}</h2>,
                     },
                   }}
                 />

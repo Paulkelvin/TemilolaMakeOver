@@ -99,9 +99,9 @@ export const services: Service[] = [
     shortDescription:
       "Defined, camera-ready makeup built to carry you through the night.",
     description:
-      "Parties, launches, and celebrations need makeup that reads on camera and in person. I sculpt, define, and set your look so it survives lights, dancing, late-night photos, and photoshoots.",
+      "Parties, owambe celebrations, launches, and events need makeup that reads on camera and in person. I sculpt, define, and set your look so it survives lights, dancing, late-night photos, and photoshoots.",
     whoFor: "Hosts, guests, and anyone who wants to make an entrance.",
-    bestFor: "Party · Corporate event · Anniversary · Photoshoot",
+    bestFor: "Party · Owambe · Corporate event · Anniversary · Photoshoot",
     included: [
       "Skin prep",
       "Full glam application",
