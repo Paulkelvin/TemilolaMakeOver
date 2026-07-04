@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { getFaqItems } from "@/sanity/fetch";
 import { homeCopy } from "@/data/copy";
 import { SectionHeading } from "@/components/ui/SectionHeading";
@@ -21,6 +22,16 @@ export async function FAQSection({ limit = 8 }: FAQSectionProps) {
           subtitle={copy.subtitle}
         />
         <FAQAccordion items={faqItems} limit={limit} />
+        {faqItems.length > limit && (
+          <div className="mt-8 text-center">
+            <Link
+              href="/faq"
+              className="text-sm font-medium text-accent-rose hover:underline"
+            >
+              View all FAQs →
+            </Link>
+          </div>
+        )}
       </div>
     </SectionWrapper>
   );

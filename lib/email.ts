@@ -146,6 +146,76 @@ export async function sendPaymentConfirmation(data: PaymentConfirmationData) {
   ]);
 }
 
+interface QuestionEmailData {
+  name?: string;
+  email: string;
+  question: string;
+}
+
+export async function sendQuestionNotification(data: QuestionEmailData) {
+  const gmailUser = process.env.GMAIL_USER;
+  if (!gmailUser || !process.env.GMAIL_APP_PASSWORD) return;
+
+  const html = `
+    <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; color: #1a1a1a;">
+      <h2 style="color: #c0687b; margin-bottom: 4px;">New Question from the Website</h2>
+      <p style="color: #666; font-size: 13px; margin-top: 0;">Received at ${new Date().toLocaleString("en-NG", { timeZone: "Africa/Lagos" })}</p>
+
+      <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+        <tr><td style="padding: 8px 0; border-bottom: 1px solid #eee; color: #666; width: 140px;">Name</td><td style="padding: 8px 0; border-bottom: 1px solid #eee; font-weight: 600;">${data.name ? esc(data.name) : "—"}</td></tr>
+        <tr><td style="padding: 8px 0; border-bottom: 1px solid #eee; color: #666;">Email</td><td style="padding: 8px 0; border-bottom: 1px solid #eee;">${esc(data.email)}</td></tr>
+        <tr><td style="padding: 8px 0; color: #666; vertical-align: top;">Question</td><td style="padding: 8px 0;">${esc(data.question).replace(/\n/g, "<br>")}</td></tr>
+      </table>
+
+      <div style="margin-top: 24px; padding: 16px; background: #fdf5f6; border-radius: 8px;">
+        <p style="margin: 0; font-size: 13px; color: #666;">Reply directly to this email to answer them.</p>
+      </div>
+    </div>
+  `;
+
+  await transporter.sendMail({
+    from: `"Gleam by Temi" <${gmailUser}>`,
+    to: gmailUser,
+    subject: `New Question — ${data.name || data.email}`,
+    html,
+    replyTo: data.email,
+  });
+}
+
+export async function sendQuestionConfirmation(data: QuestionEmailData) {
+  const gmailUser = process.env.GMAIL_USER;
+  if (!gmailUser || !process.env.GMAIL_APP_PASSWORD) return;
+
+  const html = `
+    <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; color: #1a1a1a;">
+      <h2 style="color: #c0687b;">Got Your Question, ${data.name ? esc(data.name) : "Thanks"}!</h2>
+      <p>I've received your question and will reply to this email address within 24 hours.</p>
+
+      <div style="margin: 24px 0; padding: 20px; background: #fdf5f6; border-radius: 8px;">
+        <h3 style="margin-top: 0; font-size: 15px; color: #c0687b;">Your Question</h3>
+        <p style="margin: 0;">${esc(data.question).replace(/\n/g, "<br>")}</p>
+      </div>
+
+      <p style="font-size: 14px; color: #666;">
+        For a faster response, you can also reach me on
+        <a href="https://wa.me/2347058596531" style="color: #c0687b;">WhatsApp</a>.
+      </p>
+
+      <p style="font-size: 13px; color: #999; margin-top: 32px; border-top: 1px solid #eee; padding-top: 16px;">
+        Gleam by Temi — Lagos, Nigeria<br>
+        <a href="https://www.instagram.com/gleambytemi/" style="color: #c0687b;">@gleambytemi</a>
+      </p>
+    </div>
+  `;
+
+  await transporter.sendMail({
+    from: `"Gleam by Temi" <${gmailUser}>`,
+    to: data.email,
+    subject: "We got your question",
+    html,
+  });
+}
+
 export async function sendBookingConfirmation(data: BookingEmailData) {
   if (!data.email || !process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD) return;
 

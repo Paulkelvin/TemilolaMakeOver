@@ -29,6 +29,7 @@ export const analyticsEvents = {
   portfolioCta: "portfolio_cta",
   packageCta: "package_cta",
   availabilityCta: "check_availability",
+  faqQuestionSubmit: "faq_question_submit",
 } as const;
 
 /** Track with optional page location for conversion analysis */

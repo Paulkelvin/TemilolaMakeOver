@@ -6,7 +6,9 @@ import { PageHero } from "@/components/sections/PageHero";
 import { FAQAccordion } from "@/components/sections/FAQAccordion";
 import { CTASection } from "@/components/sections/CTASection";
 import { SectionWrapper } from "@/components/ui/BackgroundDecor";
+import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Container } from "@/components/ui/Container";
+import { AskQuestionForm } from "@/components/forms/AskQuestionForm";
 
 export const metadata = createPageMetadata({
   title: seoCopy.faq.title,
@@ -32,8 +34,20 @@ export default async function FAQPage() {
         </Container>
       </SectionWrapper>
 
+      <SectionWrapper>
+        <Container size="narrow">
+          <SectionHeading
+            label="Still Have Questions?"
+            title="Ask Us Anything"
+            subtitle="Send your question below and we'll reply to your email within 24 hours."
+            compact
+          />
+          <AskQuestionForm />
+        </Container>
+      </SectionWrapper>
+
       <CTASection
-        title="Have a Question Not Listed Here?"
+        title="Prefer a Faster Answer?"
         subtitle="Message me on WhatsApp — I'll respond with honest answers, usually the same day."
         location="faq_page"
       />
