@@ -518,7 +518,7 @@ export function BookingForm({ className, preselectedService, preselectedDate, pr
           <div className="rounded-xl border border-accent-rose/20 bg-accent-rose/5 p-4 space-y-3">
             <div className="flex items-center gap-2 text-xs text-text-muted">
               <MapPin className="w-4 h-4 shrink-0 text-accent-rose" />
-              <span>{zones.find(z => z.id === watchedZone)?.areas}</span>
+              <span>{zones.find(z => z.id === watchedZone)?.areas.join(", ")}</span>
             </div>
             {selectedService?.priceFrom && travelFee !== null && (
               <div className="bg-white rounded-lg border border-border p-4 space-y-2.5">

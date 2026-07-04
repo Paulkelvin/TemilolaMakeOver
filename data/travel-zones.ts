@@ -1,7 +1,7 @@
 export interface TravelZone {
   id: string;
   label: string;
-  areas: string;
+  areas: string[];
   fee: number;
   note?: string;
 }
@@ -10,43 +10,43 @@ export const travelZones: TravelZone[] = [
   {
     id: "island-central",
     label: "Lekki / VI / Ikoyi",
-    areas: "Lekki Phase 1 & 2, Victoria Island, Ikoyi, Oniru",
+    areas: ["Lekki Phase 1", "Lekki Phase 2", "Victoria Island", "Ikoyi", "Oniru", "Banana Island", "Parkview Estate"],
     fee: 0,
   },
   {
     id: "island-extended",
     label: "Ajah / Sangotedo / Chevron",
-    areas: "Ajah, Sangotedo, Chevron, Ikota, VGC, Abraham Adesanya",
+    areas: ["Ajah", "Sangotedo", "Chevron", "Ikota", "VGC", "Abraham Adesanya", "Osapa London", "Agungi", "Ilasan", "Idado", "Awoyaya"],
     fee: 5000,
   },
   {
     id: "ikeja-axis",
     label: "Ikeja / GRA / Magodo",
-    areas: "Ikeja, Ikeja GRA, Maryland, Ojodu, Magodo, Omole, Berger",
+    areas: ["Ikeja", "Ikeja GRA", "Maryland", "Ojodu", "Magodo", "Omole", "Berger", "Opebi", "Allen Avenue", "Alausa", "Ogba", "Agidingbi"],
     fee: 10000,
   },
   {
     id: "mainland-central",
     label: "Yaba / Surulere / Gbagada",
-    areas: "Yaba, Surulere, Gbagada, Shomolu, Bariga, Ogudu",
+    areas: ["Yaba", "Surulere", "Gbagada", "Shomolu", "Bariga", "Ogudu", "Akoka", "Palmgrove", "Ebute Metta"],
     fee: 10000,
   },
   {
     id: "mainland-extended",
     label: "Festac / Amuwo / Oshodi",
-    areas: "Festac, Amuwo-Odofin, Oshodi, Isolo, Egbeda, Idimu",
+    areas: ["Festac", "Amuwo-Odofin", "Oshodi", "Isolo", "Egbeda", "Idimu", "Satellite Town", "Okota", "Ejigbo"],
     fee: 15000,
   },
   {
     id: "outskirts",
     label: "Ikorodu / Epe / Badagry",
-    areas: "Ikorodu, Epe, Badagry, Alimosho, Agbara",
+    areas: ["Ikorodu", "Epe", "Badagry", "Alimosho", "Agbara", "Igbogbo", "Ijede"],
     fee: 20000,
   },
   {
     id: "outside-lagos",
     label: "Outside Lagos (Ibadan, Abeokuta, etc.)",
-    areas: "Ibadan, Abeokuta, Ogun State, and other locations",
+    areas: ["Ibadan", "Abeokuta", "Ogun State", "and other locations"],
     fee: -1,
     note: "Travel fee quoted separately — includes transport + accommodation if needed",
   },

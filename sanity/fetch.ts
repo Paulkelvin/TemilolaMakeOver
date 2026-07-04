@@ -414,13 +414,13 @@ export async function getPortfolioCategories(): Promise<PortfolioCategory[]> {
 export interface SanityTravelZone {
   id: string;
   label: string;
-  areas: string;
+  areas: string[];
   fee: number;
   note?: string;
 }
 
 export const getTravelZones = cache(async (): Promise<SanityTravelZone[]> => {
-  const raw: { _id: string; label: string; areas: string; fee: number; note?: string }[] =
+  const raw: { _id: string; label: string; areas: string[]; fee: number; note?: string }[] =
     await client.fetch(TRAVEL_ZONES_QUERY, {}, REVALIDATE);
   return raw.map((z) => ({
     id: z._id,
