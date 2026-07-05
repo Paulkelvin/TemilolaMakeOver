@@ -1,8 +1,14 @@
 import { notFound } from "next/navigation";
+import Image from "next/image";
 import Link from "next/link";
 import { MapPin, Check, Clock, Home, ArrowRight } from "lucide-react";
-import { locations, getLocationBySlug, getLocationTravelFee } from "@/data/locations";
-import { getServices, getTestimonials, getTravelZones } from "@/sanity/fetch";
+import {
+  getServices,
+  getLocations,
+  getLocationBySlug,
+  getTestimonialsByLocation,
+  getPortfolioItemsByLocation,
+} from "@/sanity/fetch";
 import { createPageMetadata } from "@/lib/metadata";
 import { BreadcrumbJsonLd } from "@/lib/seo/structured-data";
 import { formatPrice } from "@/lib/utils";
@@ -11,12 +17,13 @@ import { PageHero } from "@/components/sections/PageHero";
 import { SectionWrapper } from "@/components/ui/BackgroundDecor";
 import { CTASection } from "@/components/sections/CTASection";
 import { Button, WhatsAppButton } from "@/components/ui/Button";
-import { Reveal } from "@/components/ui/Reveal";
+import { Reveal, StaggerGrid, StaggerItem } from "@/components/ui/Reveal";
 import { Container } from "@/components/ui/Container";
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 import { siteConfig } from "@/lib/site-config";
 
 export async function generateStaticParams() {
+  const locations = await getLocations();
   return locations.map((l) => ({ slug: l.slug }));
 }
 
@@ -26,7 +33,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const location = getLocationBySlug(slug);
+  const location = await getLocationBySlug(slug);
   if (!location) return {};
   return createPageMetadata({
     title: location.seoTitle,
@@ -41,15 +48,16 @@ export default async function LocationPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const location = getLocationBySlug(slug);
+  const location = await getLocationBySlug(slug);
   if (!location) notFound();
 
-  const [services, testimonials, zones] = await Promise.all([
+  const [services, allLocations, localTestimonials, localPortfolio] = await Promise.all([
     getServices(),
-    getTestimonials(),
-    getTravelZones(),
+    getLocations(),
+    getTestimonialsByLocation(slug),
+    getPortfolioItemsByLocation(slug),
   ]);
-  const travelFee = getLocationTravelFee(location, zones);
+  const travelFee = location.travelZone && location.travelZone.fee !== -1 ? location.travelZone.fee : null;
 
   const bookUrl = `/book#booking-form`;
   const whatsappUrl = buildWhatsAppUrl({ intent: "booking" });
@@ -115,6 +123,9 @@ export default async function LocationPage({
                 {p}
               </p>
             ))}
+            {location.localNotes && (
+              <p className="text-text-muted leading-relaxed mt-4">{location.localNotes}</p>
+            )}
           </Reveal>
 
           {/* Areas served */}
@@ -217,17 +228,41 @@ export default async function LocationPage({
             </div>
           </Reveal>
 
-          {/* Testimonial highlight */}
-          {testimonials.length > 0 && (
+          {/* Real portfolio work from this location — only renders once real work is tagged here */}
+          {localPortfolio.length > 0 && (
+            <Reveal className="mb-16">
+              <h2 className="font-display text-2xl md:text-3xl font-medium text-text-primary text-center mb-8">
+                Real Looks From {location.name}
+              </h2>
+              <StaggerGrid className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                {localPortfolio.slice(0, 6).map((item) => (
+                  <StaggerItem key={item.id}>
+                    <div className="relative aspect-[4/5] rounded-2xl overflow-hidden border border-border">
+                      <Image
+                        src={item.src}
+                        alt={item.alt}
+                        fill
+                        sizes="(max-width: 768px) 50vw, 33vw"
+                        className="object-cover"
+                      />
+                    </div>
+                  </StaggerItem>
+                ))}
+              </StaggerGrid>
+            </Reveal>
+          )}
+
+          {/* Testimonial highlight — only real, tagged testimonials for this location */}
+          {localTestimonials.length > 0 && (
             <Reveal className="mb-16 max-w-2xl mx-auto">
               <div className="p-6 md:p-8 rounded-2xl bg-bg-blush border border-border text-center">
                 <p className="text-text-primary leading-relaxed italic">
-                  &ldquo;{testimonials[0].text}&rdquo;
+                  &ldquo;{localTestimonials[0].text}&rdquo;
                 </p>
                 <p className="mt-4 text-sm font-medium text-text-primary">
-                  {testimonials[0].name}
+                  {localTestimonials[0].name}
                 </p>
-                <p className="text-xs text-text-muted">{testimonials[0].event}</p>
+                <p className="text-xs text-text-muted">{localTestimonials[0].event}</p>
               </div>
             </Reveal>
           )}
@@ -260,7 +295,7 @@ export default async function LocationPage({
               Also Serving Other Areas in Lagos
             </h3>
             <div className="flex flex-wrap justify-center gap-3">
-              {locations
+              {allLocations
                 .filter((l) => l.slug !== location.slug)
                 .map((l) => (
                   <Link

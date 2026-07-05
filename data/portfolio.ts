@@ -13,6 +13,12 @@ export interface PortfolioItem {
   category: PortfolioCategory;
   title: string;
   aspect?: "portrait" | "square" | "tall";
+  service?: string;
+  style?: string;
+  occasion?: string;
+  weddingType?: string;
+  location?: string;
+  artist?: string;
 }
 
 const u = (id: string, w = 900) =>

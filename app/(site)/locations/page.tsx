@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { MapPin, ArrowRight } from "lucide-react";
-import { locations, getLocationTravelFee } from "@/data/locations";
-import { getTravelZones } from "@/sanity/fetch";
+import { getLocations } from "@/sanity/fetch";
 import { createPageMetadata } from "@/lib/metadata";
 import { BreadcrumbJsonLd } from "@/lib/seo/structured-data";
 import { formatPrice } from "@/lib/utils";
@@ -20,7 +19,7 @@ export const metadata = createPageMetadata({
 });
 
 export default async function LocationsPage() {
-  const zones = await getTravelZones();
+  const locations = await getLocations();
 
   return (
     <>
@@ -53,7 +52,7 @@ export default async function LocationsPage() {
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {locations.map((location) => {
-              const travelFee = getLocationTravelFee(location, zones);
+              const travelFee = location.travelZone && location.travelZone.fee !== -1 ? location.travelZone.fee : null;
               return (
                 <Reveal key={location.slug}>
                   <Link

@@ -3,6 +3,9 @@ export interface FAQItem {
   question: string;
   answer: string;
   category?: ("general" | "pricing")[];
+  service?: string;
+  occasion?: string;
+  location?: string;
 }
 
 export const faqItems: FAQItem[] = [

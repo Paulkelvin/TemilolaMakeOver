@@ -15,6 +15,13 @@ import { shopLinkSchema } from "./shopLink";
 import { shopPageSettingsSchema } from "./shopPageSettings";
 import { aboutValueSchema } from "./aboutValue";
 import { travelZoneSchema } from "./travelZone";
+import { citySchema } from "./city";
+import { branchSchema } from "./branch";
+import { artistSchema } from "./artist";
+import { makeupStyleSchema } from "./makeupStyle";
+import { occasionSchema } from "./occasion";
+import { weddingTypeSchema } from "./weddingType";
+import { locationSchema } from "./location";
 
 export const schemaTypes = [
   serviceSchema,
@@ -34,4 +41,11 @@ export const schemaTypes = [
   shopPageSettingsSchema,
   aboutValueSchema,
   travelZoneSchema,
+  citySchema,
+  branchSchema,
+  artistSchema,
+  makeupStyleSchema,
+  occasionSchema,
+  weddingTypeSchema,
+  locationSchema,
 ];

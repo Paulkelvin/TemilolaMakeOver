@@ -33,6 +33,14 @@ import {
   TRAINING_COURSES_QUERY,
   SHOP_LINKS_QUERY,
   SHOP_PAGE_SETTINGS_QUERY,
+  LOCATIONS_QUERY,
+  LOCATION_BY_SLUG_QUERY,
+  ARTISTS_QUERY,
+  MAKEUP_STYLES_QUERY,
+  OCCASIONS_QUERY,
+  WEDDING_TYPES_QUERY,
+  PORTFOLIO_BY_LOCATION_QUERY,
+  TESTIMONIALS_BY_LOCATION_QUERY,
 } from "./queries";
 import type { Service } from "@/data/services";
 import type { PortfolioItem, PortfolioCategory } from "@/data/portfolio";
@@ -73,9 +81,12 @@ interface RawService {
   included: string[];
   duration: string;
   homeService: boolean;
+  availableInStudio?: boolean;
   priceFrom?: number;
   icon: string;
   highlighted?: boolean;
+  styles?: string[];
+  occasions?: string[];
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   image?: any;
 }
@@ -93,10 +104,13 @@ export const getServices = cache(async (): Promise<Service[]> => {
     included: s.included ?? [],
     duration: s.duration,
     homeService: s.homeService ?? false,
+    availableInStudio: s.availableInStudio ?? false,
     priceFrom: s.priceFrom,
     icon: iconMap[s.icon] ?? Sparkles,
     imageUrl: imgUrl(s.image, 800),
     highlighted: s.highlighted ?? false,
+    styles: s.styles ?? [],
+    occasions: s.occasions ?? [],
   }));
 });
 
@@ -114,10 +128,13 @@ export const getServiceBySlug = cache(async (slug: string): Promise<Service | nu
     included: s.included ?? [],
     duration: s.duration,
     homeService: s.homeService ?? false,
+    availableInStudio: s.availableInStudio ?? false,
     priceFrom: s.priceFrom,
     icon: iconMap[s.icon] ?? Sparkles,
     imageUrl: imgUrl(s.image, 800),
     highlighted: s.highlighted ?? false,
+    styles: s.styles ?? [],
+    occasions: s.occasions ?? [],
   };
 });
 
@@ -128,8 +145,31 @@ interface RawPortfolioItem {
   alt: string;
   category: PortfolioCategory;
   aspect?: "portrait" | "square" | "tall";
+  service?: string;
+  style?: string;
+  occasion?: string;
+  weddingType?: string;
+  location?: string;
+  artist?: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   image?: any;
+}
+
+function mapPortfolioItem(p: RawPortfolioItem): PortfolioItem {
+  return {
+    id: p._id,
+    title: p.title,
+    alt: p.alt,
+    category: p.category,
+    aspect: p.aspect,
+    src: imgUrl(p.image, 1200),
+    service: p.service,
+    style: p.style,
+    occasion: p.occasion,
+    weddingType: p.weddingType,
+    location: p.location,
+    artist: p.artist,
+  };
 }
 
 export const getPortfolioItems = cache(async (): Promise<PortfolioItem[]> => {
@@ -138,14 +178,14 @@ export const getPortfolioItems = cache(async (): Promise<PortfolioItem[]> => {
     {},
     REVALIDATE
   );
-  return raw.map((p) => ({
-    id: p._id,
-    title: p.title,
-    alt: p.alt,
-    category: p.category,
-    aspect: p.aspect,
-    src: imgUrl(p.image, 1200),
-  }));
+  return raw.map(mapPortfolioItem);
+});
+
+// Powers location pages: only returns real, editorially-tagged proof for that
+// location — an untagged location simply gets an empty array, not fabricated content.
+export const getPortfolioItemsByLocation = cache(async (locationSlug: string): Promise<PortfolioItem[]> => {
+  const raw: RawPortfolioItem[] = await client.fetch(PORTFOLIO_BY_LOCATION_QUERY, { slug: locationSlug }, REVALIDATE);
+  return raw.map(mapPortfolioItem);
 });
 
 // ─── Testimonials ─────────────────────────────────────────────────────────────
@@ -156,8 +196,34 @@ interface RawTestimonial {
   text: string;
   rating: number;
   initials: string;
+  audienceType?: "client" | "student";
+  service?: string;
+  style?: string;
+  occasion?: string;
+  weddingType?: string;
+  location?: string;
+  artist?: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   avatar?: any;
+}
+
+function mapTestimonial(t: RawTestimonial): Testimonial {
+  return {
+    id: t._id,
+    name: t.name,
+    event: t.event,
+    text: t.text,
+    rating: t.rating,
+    initials: t.initials,
+    avatarUrl: imgUrl(t.avatar, 100),
+    audienceType: t.audienceType ?? "client",
+    service: t.service,
+    style: t.style,
+    occasion: t.occasion,
+    weddingType: t.weddingType,
+    location: t.location,
+    artist: t.artist,
+  };
 }
 
 export const getTestimonials = cache(async (): Promise<Testimonial[]> => {
@@ -166,15 +232,13 @@ export const getTestimonials = cache(async (): Promise<Testimonial[]> => {
     {},
     REVALIDATE
   );
-  return raw.map((t) => ({
-    id: t._id,
-    name: t.name,
-    event: t.event,
-    text: t.text,
-    rating: t.rating,
-    initials: t.initials,
-    avatarUrl: imgUrl(t.avatar, 100),
-  }));
+  return raw.map(mapTestimonial);
+});
+
+// Powers location pages: real, editorially-tagged testimonials only.
+export const getTestimonialsByLocation = cache(async (locationSlug: string): Promise<Testimonial[]> => {
+  const raw: RawTestimonial[] = await client.fetch(TESTIMONIALS_BY_LOCATION_QUERY, { slug: locationSlug }, REVALIDATE);
+  return raw.map(mapTestimonial);
 });
 
 // ─── FAQ ────────────────────────────────────────────────────────────────────
@@ -182,24 +246,30 @@ interface RawFAQ {
   _id: string;
   question: string;
   answer: string;
+  service?: string;
+  occasion?: string;
+  location?: string;
+}
+
+function mapFaq(f: RawFAQ): FAQItem {
+  return {
+    id: f._id,
+    question: f.question,
+    answer: f.answer,
+    service: f.service,
+    occasion: f.occasion,
+    location: f.location,
+  };
 }
 
 export const getFaqItems = cache(async (): Promise<FAQItem[]> => {
   const raw: RawFAQ[] = await client.fetch(FAQ_QUERY, {}, REVALIDATE);
-  return raw.map((f) => ({
-    id: f._id,
-    question: f.question,
-    answer: f.answer,
-  }));
+  return raw.map(mapFaq);
 });
 
 export const getFaqItemsByCategory = cache(async (category: "general" | "pricing"): Promise<FAQItem[]> => {
   const raw: RawFAQ[] = await client.fetch(FAQ_BY_CATEGORY_QUERY, { category }, REVALIDATE);
-  return raw.map((f) => ({
-    id: f._id,
-    question: f.question,
-    answer: f.answer,
-  }));
+  return raw.map(mapFaq);
 });
 
 // ─── Booking Steps ─────────────────────────────────────────────────────────
@@ -248,6 +318,12 @@ interface RawTransformation {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   afterImage?: any;
   afterAlt: string;
+  service?: string;
+  style?: string;
+  occasion?: string;
+  weddingType?: string;
+  location?: string;
+  artist?: string;
 }
 
 export interface Transformation {
@@ -257,6 +333,12 @@ export interface Transformation {
   beforeAlt: string;
   afterUrl: string;
   afterAlt: string;
+  service?: string;
+  style?: string;
+  occasion?: string;
+  weddingType?: string;
+  location?: string;
+  artist?: string;
 }
 
 export const getTransformations = cache(async (): Promise<Transformation[]> => {
@@ -268,6 +350,12 @@ export const getTransformations = cache(async (): Promise<Transformation[]> => {
     beforeAlt: t.beforeAlt,
     afterUrl: imgUrl(t.afterImage, 800),
     afterAlt: t.afterAlt,
+    service: t.service,
+    style: t.style,
+    occasion: t.occasion,
+    weddingType: t.weddingType,
+    location: t.location,
+    artist: t.artist,
   }));
 });
 
@@ -288,6 +376,11 @@ export interface BlogPost {
   coverImageUrl?: string;
   author: string;
   publishedAt: string;
+  primaryService?: string;
+  relatedStyle?: string;
+  relatedOccasion?: string;
+  relatedWeddingType?: string;
+  relatedLocations?: string[];
 }
 
 interface RawBlogPost {
@@ -301,6 +394,11 @@ interface RawBlogPost {
   coverImage?: any;
   author: string;
   publishedAt: string;
+  primaryService?: string;
+  relatedStyle?: string;
+  relatedOccasion?: string;
+  relatedWeddingType?: string;
+  relatedLocations?: string[];
 }
 
 export const getBlogPosts = cache(async (): Promise<BlogPost[]> => {
@@ -314,6 +412,11 @@ export const getBlogPosts = cache(async (): Promise<BlogPost[]> => {
     coverImageUrl: imgUrl(p.coverImage, 1200),
     author: p.author ?? "Temilola",
     publishedAt: p.publishedAt,
+    primaryService: p.primaryService,
+    relatedStyle: p.relatedStyle,
+    relatedOccasion: p.relatedOccasion,
+    relatedWeddingType: p.relatedWeddingType,
+    relatedLocations: p.relatedLocations,
   }));
 });
 
@@ -330,6 +433,11 @@ export const getBlogPostBySlug = cache(async (slug: string): Promise<BlogPost | 
     coverImageUrl: imgUrl(p.coverImage, 1200),
     author: p.author ?? "Temilola",
     publishedAt: p.publishedAt,
+    primaryService: p.primaryService,
+    relatedStyle: p.relatedStyle,
+    relatedOccasion: p.relatedOccasion,
+    relatedWeddingType: p.relatedWeddingType,
+    relatedLocations: p.relatedLocations,
   };
 });
 
@@ -440,6 +548,156 @@ export const getTravelZones = cache(async (): Promise<SanityTravelZone[]> => {
     note: z.note,
   }));
 });
+
+// ─── Locations ───────────────────────────────────────────────────────────────
+export interface SanityLocation {
+  id: string;
+  name: string;
+  slug: string;
+  city?: string;
+  areas: string[];
+  travelZone?: { label: string; fee: number; note?: string };
+  headline: string;
+  subtitle: string;
+  seoTitle: string;
+  seoDescription: string;
+  intro: string[];
+  keywords: string[];
+  localNotes?: string;
+}
+
+export const getLocations = cache(async (): Promise<SanityLocation[]> => {
+  const raw: SanityLocation[] = await client.fetch(LOCATIONS_QUERY, {}, REVALIDATE);
+  return raw;
+});
+
+export const getLocationBySlug = cache(async (slug: string): Promise<SanityLocation | null> => {
+  const raw: SanityLocation | null = await client.fetch(LOCATION_BY_SLUG_QUERY, { slug }, REVALIDATE);
+  return raw;
+});
+
+// ─── Artists ─────────────────────────────────────────────────────────────────
+export interface Artist {
+  id: string;
+  name: string;
+  slug: string;
+  role?: string;
+  bio?: string;
+  photoUrl?: string;
+  specialties?: string[];
+  isPrimary: boolean;
+  instagramUrl?: string;
+}
+
+interface RawArtist {
+  _id: string;
+  name: string;
+  slug: string;
+  role?: string;
+  bio?: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  photo?: any;
+  specialties?: string[];
+  isPrimary?: boolean;
+  socialLinks?: { instagram?: string };
+}
+
+export const getArtists = cache(async (): Promise<Artist[]> => {
+  const raw: RawArtist[] = await client.fetch(ARTISTS_QUERY, {}, REVALIDATE);
+  return raw.map((a) => ({
+    id: a._id,
+    name: a.name,
+    slug: a.slug,
+    role: a.role,
+    bio: a.bio,
+    photoUrl: imgUrl(a.photo, 600),
+    specialties: a.specialties ?? [],
+    isPrimary: a.isPrimary ?? false,
+    instagramUrl: a.socialLinks?.instagram,
+  }));
+});
+
+// ─── Taxonomy: Makeup Styles, Occasions, Wedding Types ──────────────────────
+export interface MakeupStyle {
+  id: string;
+  name: string;
+  slug: string;
+  description?: string;
+  bestFor?: string;
+  imageUrl?: string;
+  order?: number;
+}
+
+export const getMakeupStyles = cache(async (): Promise<MakeupStyle[]> => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const raw: any[] = await client.fetch(MAKEUP_STYLES_QUERY, {}, REVALIDATE);
+  return raw.map((s) => ({
+    id: s._id,
+    name: s.name,
+    slug: s.slug,
+    description: s.description,
+    bestFor: s.bestFor,
+    imageUrl: imgUrl(s.image, 800),
+    order: s.order,
+  }));
+});
+
+export interface Occasion {
+  id: string;
+  name: string;
+  slug: string;
+  description?: string;
+  seoTitle?: string;
+  seoDescription?: string;
+  order?: number;
+}
+
+export const getOccasions = cache(async (): Promise<Occasion[]> => {
+  const raw: Occasion[] = await client.fetch(OCCASIONS_QUERY, {}, REVALIDATE);
+  return raw;
+});
+
+export interface WeddingType {
+  id: string;
+  name: string;
+  slug: string;
+  description?: string;
+  culturalNotes?: string;
+  imageUrl?: string;
+  order?: number;
+}
+
+export const getWeddingTypes = cache(async (): Promise<WeddingType[]> => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const raw: any[] = await client.fetch(WEDDING_TYPES_QUERY, {}, REVALIDATE);
+  return raw.map((w) => ({
+    id: w._id,
+    name: w.name,
+    slug: w.slug,
+    description: w.description,
+    culturalNotes: w.culturalNotes,
+    imageUrl: imgUrl(w.image, 800),
+    order: w.order,
+  }));
+});
+
+// ─── Minimum-proof gate ──────────────────────────────────────────────────────
+// Reusable check for future combination pages (e.g. a wedding-type or occasion
+// detail page): only generate a page once real tagged proof exists for it,
+// rather than generating every mathematically-possible combination up front.
+// Example: hasMinimumTaggedProof("portfolioItem", "weddingType", weddingTypeId, 3)
+export async function hasMinimumTaggedProof(
+  leafType: "portfolioItem" | "testimonial" | "transformation",
+  refField: "service" | "style" | "occasion" | "weddingType" | "location" | "artist",
+  refId: string,
+  minimum = 1
+): Promise<boolean> {
+  const count: number = await client.fetch(
+    `count(*[_type == $leafType && ${refField}._ref == $refId])`,
+    { leafType, refId }
+  );
+  return count >= minimum;
+}
 
 export interface SiteSettings {
   youtubeReelUrl?: string;

@@ -20,10 +20,13 @@ export interface Service {
   included: string[];
   duration: string;
   homeService: boolean;
+  availableInStudio?: boolean;
   priceFrom?: number;
   icon: LucideIcon;
   imageUrl?: string;
   highlighted?: boolean;
+  styles?: string[];
+  occasions?: string[];
 }
 
 export const services: Service[] = [

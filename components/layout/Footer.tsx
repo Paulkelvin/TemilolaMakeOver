@@ -4,13 +4,12 @@ import { siteConfig, navLinks } from "@/lib/site-config";
 import { buildWhatsAppUrl } from "@/lib/whatsapp";
 import { analyticsEvents } from "@/lib/analytics";
 import { CopyButton } from "@/components/ui/CopyButton";
-import { locations } from "@/data/locations";
-import { getServices } from "@/sanity/fetch";
+import { getServices, getLocations } from "@/sanity/fetch";
 
 export async function Footer() {
   const whatsappUrl = buildWhatsAppUrl({ intent: "booking" });
   const year = new Date().getFullYear();
-  const services = await getServices();
+  const [services, locations] = await Promise.all([getServices(), getLocations()]);
 
   return (
     <footer className="relative bg-luxury-dark text-white pt-16 pb-8">

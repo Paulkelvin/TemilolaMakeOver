@@ -24,6 +24,7 @@ export const serviceSchema = defineType({
     }),
     defineField({ name: "duration", title: "Duration", type: "string" }),
     defineField({ name: "homeService", title: "Home Service Available", type: "boolean" }),
+    defineField({ name: "availableInStudio", title: "Available In-Studio", type: "boolean", initialValue: false }),
     defineField({ name: "priceFrom", title: "Starting Price (₦)", type: "number" }),
     defineField({
       name: "icon",

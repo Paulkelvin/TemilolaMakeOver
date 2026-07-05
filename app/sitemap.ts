@@ -1,8 +1,6 @@
 import type { MetadataRoute } from "next";
 import { siteConfig } from "@/lib/site-config";
-import { getServices } from "@/sanity/fetch";
-import { getBlogPosts } from "@/sanity/fetch";
-import { locations } from "@/data/locations";
+import { getServices, getBlogPosts, getLocations } from "@/sanity/fetch";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = siteConfig.url;
@@ -24,9 +22,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${base}/links`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.5 },
   ];
 
-  const [services, blogPosts] = await Promise.all([
+  const [services, blogPosts, locations] = await Promise.all([
     getServices(),
     getBlogPosts(),
+    getLocations(),
   ]);
 
   const serviceRoutes: MetadataRoute.Sitemap = services.map((s) => ({

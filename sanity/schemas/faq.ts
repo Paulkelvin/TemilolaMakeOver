@@ -22,6 +22,9 @@ export const faqSchema = defineType({
       initialValue: ["general"],
     }),
     defineField({ name: "order", title: "Display Order", type: "number" }),
+    defineField({ name: "service", title: "Service", type: "reference", to: [{ type: "service" }] }),
+    defineField({ name: "occasion", title: "Occasion", type: "reference", to: [{ type: "occasion" }] }),
+    defineField({ name: "location", title: "Location", type: "reference", to: [{ type: "location" }] }),
   ],
   orderings: [{ title: "Display Order", name: "orderAsc", by: [{ field: "order", direction: "asc" }] }],
   preview: {

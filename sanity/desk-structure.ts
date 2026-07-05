@@ -57,6 +57,33 @@ export const deskStructure = (S: StructureBuilder) =>
             ])
         ),
 
+      // ── Taxonomy (Styles, Occasions, Wedding Types) ──
+      S.listItem()
+        .title("Taxonomy")
+        .child(
+          S.list()
+            .title("Taxonomy")
+            .items([
+              S.documentTypeListItem("makeupStyle").title("Makeup Styles"),
+              S.documentTypeListItem("occasion").title("Occasions"),
+              S.documentTypeListItem("weddingType").title("Wedding Types"),
+            ])
+        ),
+
+      // ── Locations & Team ──
+      S.listItem()
+        .title("Locations & Team")
+        .child(
+          S.list()
+            .title("Locations & Team")
+            .items([
+              S.documentTypeListItem("location").title("Locations"),
+              S.documentTypeListItem("city").title("Cities"),
+              S.documentTypeListItem("branch").title("Studio Branches"),
+              S.documentTypeListItem("artist").title("Artists"),
+            ])
+        ),
+
       // ── Portfolio & Transformations ──
       S.listItem()
         .title("Portfolio & Looks")

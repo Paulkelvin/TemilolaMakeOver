@@ -6,6 +6,13 @@ export interface Testimonial {
   rating: number;
   initials: string;
   avatarUrl?: string;
+  audienceType?: "client" | "student";
+  service?: string;
+  style?: string;
+  occasion?: string;
+  weddingType?: string;
+  location?: string;
+  artist?: string;
 }
 
 export const testimonials: Testimonial[] = [

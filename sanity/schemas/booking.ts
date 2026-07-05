@@ -18,6 +18,26 @@ export const bookingSchema = defineType({
     defineField({ name: "numberOfFaces", title: "Number of Faces", type: "number" }),
     defineField({ name: "message", title: "Message / Inspiration", type: "text" }),
     defineField({
+      name: "appointmentType",
+      title: "Appointment Type",
+      type: "string",
+      options: { list: [{ title: "Home Service", value: "home" }, { title: "In-Studio", value: "studio" }], layout: "radio" },
+    }),
+    defineField({
+      name: "branch",
+      title: "Studio Branch",
+      type: "reference",
+      to: [{ type: "branch" }],
+      description: "Only set when appointmentType is 'studio'.",
+    }),
+    defineField({
+      name: "artist",
+      title: "Assigned Artist",
+      type: "reference",
+      to: [{ type: "artist" }],
+      description: "Leave empty while there is only one artist.",
+    }),
+    defineField({
       name: "status",
       title: "Status",
       type: "string",

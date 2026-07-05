@@ -60,6 +60,16 @@ export const blogPostSchema = defineType({
     }),
     defineField({ name: "publishedAt", title: "Published At", type: "datetime" }),
     defineField({ name: "order", title: "Display Order", type: "number" }),
+    defineField({ name: "primaryService", title: "Primary Service", type: "reference", to: [{ type: "service" }] }),
+    defineField({ name: "relatedStyle", title: "Related Style", type: "reference", to: [{ type: "makeupStyle" }] }),
+    defineField({ name: "relatedOccasion", title: "Related Occasion", type: "reference", to: [{ type: "occasion" }] }),
+    defineField({ name: "relatedWeddingType", title: "Related Wedding Type", type: "reference", to: [{ type: "weddingType" }] }),
+    defineField({
+      name: "relatedLocations",
+      title: "Related Locations",
+      type: "array",
+      of: [{ type: "reference", to: [{ type: "location" }] }],
+    }),
   ],
   orderings: [
     { title: "Published Date", name: "publishedAtDesc", by: [{ field: "publishedAt", direction: "desc" }] },

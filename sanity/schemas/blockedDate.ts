@@ -40,6 +40,13 @@ export const blockedDateSchema = defineType({
       type: "string",
       description: "e.g. 'Wedding booked', 'Personal day', 'Holiday'",
     }),
+    defineField({
+      name: "artist",
+      title: "Artist",
+      type: "reference",
+      to: [{ type: "artist" }],
+      description: "Leave empty if this date is blocked for the whole business. Set an artist once there is more than one artist to scope this to their calendar specifically.",
+    }),
   ],
   orderings: [
     {
