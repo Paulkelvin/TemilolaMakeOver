@@ -156,4 +156,17 @@ export const deskStructure = (S: StructureBuilder) =>
               S.documentTypeListItem("shopLink").title("Shop Links"),
             ])
         ),
+
+      S.divider(),
+
+      // ── System (Business Command Center) ──
+      S.listItem()
+        .title("System")
+        .child(
+          S.list()
+            .title("System")
+            .items([
+              S.documentTypeListItem("metricSnapshot").title("Metric Snapshots"),
+            ])
+        ),
     ]);

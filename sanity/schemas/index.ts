@@ -22,6 +22,7 @@ import { makeupStyleSchema } from "./makeupStyle";
 import { occasionSchema } from "./occasion";
 import { weddingTypeSchema } from "./weddingType";
 import { locationSchema } from "./location";
+import { metricSnapshotSchema } from "./metricSnapshot";
 
 export const schemaTypes = [
   serviceSchema,
@@ -48,4 +49,5 @@ export const schemaTypes = [
   occasionSchema,
   weddingTypeSchema,
   locationSchema,
+  metricSnapshotSchema,
 ];

@@ -17,7 +17,7 @@ import {
   Button,
   Spinner,
 } from "@sanity/ui";
-import { TAXONOMY_TYPES } from "./registry";
+import { TAXONOMY_TYPES } from "@/lib/intelligence/registry";
 import {
   fetchAllTaxonomyNodes,
   computeCoverage,
@@ -30,7 +30,7 @@ import {
   computePublishReadiness,
   getRelatedDocuments,
   type FetchClient,
-} from "./compute";
+} from "@/lib/intelligence/content";
 import type {
   TaxonomyNode,
   CoverageCounts,
@@ -40,8 +40,8 @@ import type {
   RoadmapRecommendation,
   PublishReadinessResult,
   RoadmapRecommendation as Rec,
-} from "./types";
-import type { RelatedDocument } from "./compute";
+} from "@/lib/intelligence/types";
+import type { RelatedDocument } from "@/lib/intelligence/content";
 
 const API_VERSION = "2024-01-01";
 
