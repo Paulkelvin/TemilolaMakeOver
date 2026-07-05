@@ -316,3 +316,156 @@ export async function getRelatedDocuments(client: FetchClient, node: TaxonomyNod
   results.push(services.map((s): RelatedDocument => ({ id: s._id, type: "service", typeLabel: "Services", title: s.name })));
   return results.flat();
 }
+
+// One hop further: for each document related to `node`, which OTHER
+// taxonomy nodes does that document itself point to? Lets the explorer go
+// location -> portfolio item -> the style/occasion that same item is
+// tagged with, without hand-building a graph engine.
+const SECOND_HOP_FIELDS: { field: string; type: string }[] = [
+  { field: "service", type: "service" },
+  { field: "style", type: "makeupStyle" },
+  { field: "occasion", type: "occasion" },
+  { field: "weddingType", type: "weddingType" },
+  { field: "location", type: "location" },
+  { field: "artist", type: "artist" },
+];
+
+export interface RelatedDocumentWithTags extends RelatedDocument {
+  tags: { type: string; id: string; name: string }[];
+}
+
+export async function getRelatedDocumentsWithTags(
+  client: FetchClient,
+  node: TaxonomyNode
+): Promise<RelatedDocumentWithTags[]> {
+  const base = await getRelatedDocuments(client, node);
+  return Promise.all(
+    base.map(async (doc): Promise<RelatedDocumentWithTags> => {
+      const raw = await client.fetch<Record<string, { _id: string; name: string } | null>>(
+        `*[_id == $id][0]{ ${SECOND_HOP_FIELDS.map((r) => `"${r.field}": ${r.field}->{_id, name}`).join(", ")} }`,
+        { id: doc.id }
+      );
+      const tags = SECOND_HOP_FIELDS.map((r) => {
+        const val = raw?.[r.field];
+        return val ? { type: r.type, id: val._id, name: val.name } : null;
+      }).filter((t): t is { type: string; id: string; name: string } => t !== null && t.id !== node.id);
+      return { ...doc, tags };
+    })
+  );
+}
+
+// ─── Thin content ────────────────────────────────────────────────────────────
+
+export interface ThinContentItem {
+  id: string;
+  type: string;
+  typeLabel: string;
+  title: string;
+  textLength: number;
+  minimum: number;
+}
+
+export async function detectThinContent(client: FetchClient): Promise<ThinContentItem[]> {
+  const items: ThinContentItem[] = [];
+  for (const leaf of LEAF_TYPES) {
+    if (!leaf.textFieldExpr || !leaf.minTextLength) continue;
+    const docs = await client.fetch<{ _id: string; title?: string; text?: string }[]>(
+      `*[_type == $type]{ _id, "title": coalesce(title, name, question), "text": ${leaf.textFieldExpr} }`,
+      { type: leaf.type }
+    );
+    for (const doc of docs) {
+      const length = (doc.text ?? "").trim().length;
+      if (length < leaf.minTextLength) {
+        items.push({
+          id: doc._id,
+          type: leaf.type,
+          typeLabel: leaf.label,
+          title: doc.title ?? doc._id,
+          textLength: length,
+          minimum: leaf.minTextLength,
+        });
+      }
+    }
+  }
+  return items;
+}
+
+// ─── Stale content ───────────────────────────────────────────────────────────
+
+export interface StaleContentItem {
+  id: string;
+  type: string;
+  typeLabel: string;
+  title: string;
+  updatedAt: string;
+  daysSinceUpdate: number;
+}
+
+export async function detectStaleContent(client: FetchClient): Promise<StaleContentItem[]> {
+  const items: StaleContentItem[] = [];
+  const now = Date.now();
+  for (const leaf of LEAF_TYPES) {
+    if (!leaf.staleAfterDays) continue;
+    const docs = await client.fetch<{ _id: string; title?: string; _updatedAt: string }[]>(
+      `*[_type == $type]{ _id, "title": coalesce(title, name, question), _updatedAt }`,
+      { type: leaf.type }
+    );
+    for (const doc of docs) {
+      const daysSinceUpdate = Math.floor((now - new Date(doc._updatedAt).getTime()) / 86_400_000);
+      if (daysSinceUpdate >= leaf.staleAfterDays) {
+        items.push({
+          id: doc._id,
+          type: leaf.type,
+          typeLabel: leaf.label,
+          title: doc.title ?? doc._id,
+          updatedAt: doc._updatedAt,
+          daysSinceUpdate,
+        });
+      }
+    }
+  }
+  return items.sort((a, b) => b.daysSinceUpdate - a.daysSinceUpdate);
+}
+
+// ─── Generation eligibility (locations gated on real proof) ─────────────────
+
+const GENERATION_PROOF_THRESHOLDS = [
+  { type: "portfolioItem", label: "Portfolio", minimum: 3 },
+  { type: "testimonial", label: "Testimonials", minimum: 1 },
+];
+
+export interface GenerationEligibility {
+  id: string;
+  name: string;
+  currentStatus: "draft" | "published";
+  proof: { label: string; count: number; minimum: number; met: boolean }[];
+  proofMet: boolean;
+  /** "published" = already live. "eligible" = draft but proof bar cleared, ready to flip live. "blocked" = draft, still short on proof. */
+  state: "published" | "eligible" | "blocked";
+}
+
+export async function computeGenerationEligibility(client: FetchClient): Promise<GenerationEligibility[]> {
+  const locations = await client.fetch<{ _id: string; name: string; status?: string }[]>(
+    `*[_type == "location"]{ _id, name, status }`
+  );
+
+  return Promise.all(
+    locations.map(async (loc): Promise<GenerationEligibility> => {
+      const proof = await Promise.all(
+        GENERATION_PROOF_THRESHOLDS.map(async (t) => {
+          const count = await client.fetch<number>(
+            `count(*[_type == $type && location._ref == $id])`,
+            { type: t.type, id: loc._id }
+          );
+          return { label: t.label, count, minimum: t.minimum, met: count >= t.minimum };
+        })
+      );
+      const proofMet = proof.every((p) => p.met);
+      const currentStatus: "draft" | "published" = loc.status === "published" ? "published" : "draft";
+      const state: GenerationEligibility["state"] =
+        currentStatus === "published" ? "published" : proofMet ? "eligible" : "blocked";
+
+      return { id: loc._id, name: loc.name, currentStatus, proof, proofMet, state };
+    })
+  );
+}

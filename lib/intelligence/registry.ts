@@ -21,6 +21,20 @@ export interface LeafTypeConfig {
   minimumForHealthy: number;
   /** Field used as the human-readable title when listing documents of this type. */
   titleField: string;
+  /**
+   * GROQ expression selecting this leaf's main body text, for thin-content
+   * detection. Omit for image-only types (portfolioItem, transformation)
+   * where a word-count floor wouldn't mean anything.
+   */
+  textFieldExpr?: string;
+  minTextLength?: number;
+  /**
+   * Days after which this type is flagged stale. Only set for genuinely
+   * time-sensitive content (a pricing guide going out of date) — most
+   * taxonomy-adjacent content (a testimonial, a portfolio caption) has no
+   * natural "expiry" and is deliberately left unset.
+   */
+  staleAfterDays?: number;
 }
 
 // Weights sum to 85 — the remaining 15 points come from the taxonomy's own
@@ -28,9 +42,9 @@ export interface LeafTypeConfig {
 // since not every taxonomy has an image field.
 export const LEAF_TYPES: LeafTypeConfig[] = [
   { type: "portfolioItem", label: "Portfolio Items", weight: 25, minimumForHealthy: 3, titleField: "title" },
-  { type: "testimonial", label: "Testimonials", weight: 20, minimumForHealthy: 2, titleField: "name" },
-  { type: "faq", label: "FAQs", weight: 15, minimumForHealthy: 2, titleField: "question" },
-  { type: "blogPost", label: "Blog Posts", weight: 15, minimumForHealthy: 1, titleField: "title" },
+  { type: "testimonial", label: "Testimonials", weight: 20, minimumForHealthy: 2, titleField: "name", textFieldExpr: "text", minTextLength: 40 },
+  { type: "faq", label: "FAQs", weight: 15, minimumForHealthy: 2, titleField: "question", textFieldExpr: "answer", minTextLength: 60 },
+  { type: "blogPost", label: "Blog Posts", weight: 15, minimumForHealthy: 1, titleField: "title", textFieldExpr: "pt::text(body)", minTextLength: 300, staleAfterDays: 365 },
   { type: "transformation", label: "Transformations", weight: 10, minimumForHealthy: 1, titleField: "title" },
 ];
 
