@@ -1,8 +1,18 @@
 /**
- * Sanity seed script — pushes all hardcoded content into Sanity.
+ * Sanity bootstrap seed script — populates a Sanity project with the
+ * current content model. Safe to run any number of times: existing
+ * documents are never overwritten or deleted (see the "Seed function"
+ * section at the bottom for the exact guarantees).
+ *
+ * This is a bootstrap script, not a migration runner — it's meant for
+ * standing up a new/empty project correctly, or filling in taxonomy
+ * documents this project didn't have yet. Changes to already-live data
+ * (renaming a field, re-tagging content, deleting a document) should be
+ * a one-off script in sanity/migrations/ instead, reviewed and run once.
  *
  * Usage:
- *   npx tsx sanity/seed.ts
+ *   npx tsx sanity/seed.ts --dry-run   # preview only, zero writes
+ *   npx tsx sanity/seed.ts             # apply
  *
  * Requires NEXT_PUBLIC_SANITY_PROJECT_ID, NEXT_PUBLIC_SANITY_DATASET,
  * and SANITY_API_TOKEN in .env.local
@@ -74,170 +84,139 @@ const services = [
   {
     _id: "service-bridal",
     _type: "service",
-    name: "Bridal Makeup",
-    slug: { _type: "slug", current: "bridal-makeup" },
+    name: "Soft Glam",
+    slug: { _type: "slug", current: "Soft-glam" },
     shortDescription:
-      "Elegant wedding-day makeup that stays flawless from vows to the last dance.",
+      "A polished look perfect for everyday elegance and special occasions.",
     description:
-      "Your wedding morning deserves calm, focused artistry. I build a seamless base, define your features softly, and set everything for hours of photos, tears, and celebration.",
-    whoFor:
-      "Brides who want a timeless, photo-ready look that still feels like them.",
-    bestFor: "Wedding day · Engagement dinner · Bridal shower",
+      "Soft Glam is our signature beauty experience for clients who want to look effortlessly elegant. Designed to enhance your features rather than transform them, this service delivers flawless skin, softly defined eyes, sculpted brows, and a beautiful lip combination that feels luxurious without appearing overdone. Perfect for clients who appreciate understated sophistication.",
+    whoFor: "Clients who want a natural yet polished makeup look with a radiant finish.",
+    bestFor: "* Birthday celebrations * Date nights * Church * Brunch * Graduation * Dinner events * Everyday luxury",
     included: [
-      "Consultation on your look & outfit",
-      "Skin prep & priming",
-      "Full bridal makeup application",
-      "Lash application",
-      "Touch-up guidance for the day",
+      "Luxury skin prep",
+      "Flawless foundation application",
+      "Concealer & complexion correction",
+      "Soft contour & blush",
+      "Soft eyeshadow",
+      "Defined brows",
+      "Premium strip lashes",
+      "Lip liner & lipstick/gloss",
+      "Setting spray for long wear",
     ],
-    duration: "2–3 hours",
+    duration: "1 hour 30 minutes",
     homeService: true,
-    priceFrom: 120000,
-    icon: "crown",
-    highlighted: false,
-    order: 1,
-  },
-  {
-    _id: "service-traditional",
-    _type: "service",
-    name: "Traditional Bridal Makeup",
-    slug: { _type: "slug", current: "traditional-bridal" },
-    shortDescription:
-      "Rich, radiant glam honouring cultural colour and ceremony.",
-    description:
-      "Traditional weddings call for definition, warmth, and longevity. I create looks that complement your outfit, gele, and jewellery — bold enough for ceremony, refined enough for portraits.",
-    whoFor:
-      "Brides at traditional weddings, engagements, and cultural celebrations.",
-    bestFor: "Traditional wedding · Engagement · Cultural ceremony",
-    included: [
-      "Skin prep suited to long wear",
-      "Full traditional glam application",
-      "Defined eyes & lips",
-      "Setting for heat and flash photography",
-    ],
-    duration: "2–3 hours",
-    homeService: true,
-    priceFrom: 130000,
+    priceFrom: 30000,
     icon: "sparkles",
-    order: 2,
+    highlighted: true,
+    order: 1,
   },
   {
     _id: "service-soft-glam",
     _type: "service",
-    name: "Soft Glam",
-    slug: { _type: "slug", current: "soft-glam" },
+    name: "Event/Owambe Glam",
+    slug: { _type: "slug", current: "Event-owambe-glam" },
     shortDescription:
-      "Romantic, blended glam that enhances — never overpowers — your features.",
+      "Owambe Glamour is designed to stand out beautifully at every celebration.",
     description:
-      "Soft glam is my signature: diffused contour, glowing skin, and lashes that open the eyes without heaviness. Perfect when you want to look polished and feminine, not overdone — and it photographs beautifully, so it's a favourite for photoshoots too.",
-    whoFor:
-      "Bridesmaids, guests, and anyone who wants an effortless elevated look.",
-    bestFor: "Engagement · Dinner · Graduation · Photoshoot",
+      "Event/Owambe Glam is created to ensure you look impeccable in person and on camera whether you're attending a wedding, birthday, engagement, gala or a special event. \n\nThis service features enhanced complexion work, more detailed eye makeup, and a longer-lasting finish that stays throughout your event.",
+    bestFor: "• Wedding guests • Birthday celebrants • Owambe guests • Engagement parties • Corporate events • Gala nights",
     included: [
       "Skin prep & priming",
-      "Soft glam eye & face application",
-      "Lash enhancement",
-      "Setting spray",
+      "Premium complexion application",
+      "Sculpted contour",
+      "Blush & highlight",
+      "Detailed eyeshadow",
+      "Premium Lashes",
+      "Defined brows ",
+      "Customized lip combination",
+      "Long-wear setting spray",
     ],
-    duration: "1.5–2 hours",
-    homeService: true,
-    priceFrom: 35000,
-    icon: "palette",
-    highlighted: true,
-    order: 3,
-  },
-  {
-    _id: "service-event",
-    _type: "service",
-    name: "Event Glam",
-    slug: { _type: "slug", current: "event-glam" },
-    shortDescription:
-      "Defined, camera-ready makeup built to carry you through the night.",
-    description:
-      "Parties, owambe celebrations, launches, and events need makeup that reads on camera and in person. I sculpt, define, and set your look so it survives lights, dancing, late-night photos, and photoshoots.",
-    whoFor: "Hosts, guests, and anyone who wants to make an entrance.",
-    bestFor: "Party · Owambe · Corporate event · Anniversary · Photoshoot",
-    included: [
-      "Skin prep",
-      "Full glam application",
-      "Defined eyes, brows & lips",
-      "Long-wear setting",
-    ],
-    duration: "1.5–2 hours",
-    homeService: true,
-    priceFrom: 45000,
-    icon: "party-popper",
-    order: 4,
-  },
-  {
-    _id: "service-birthday",
-    _type: "service",
-    name: "Birthday Glam",
-    slug: { _type: "slug", current: "birthday-makeup" },
-    shortDescription:
-      "Birthday-ready makeup matched to your outfit, venue, and vibe.",
-    description:
-      "Whether you want soft and pretty or bold and celebratory, I tailor your look to your theme. You'll feel photo-ready the moment you walk in.",
-    whoFor:
-      "Birthday celebrants at any age — milestone parties and intimate dinners.",
-    bestFor: "Birthday party · Photoshoot · Dinner celebration",
-    included: [
-      "Skin prep",
-      "Custom glam to your brief",
-      "Lash application",
-      "Photo-ready finish",
-    ],
-    duration: "1.5–2 hours",
+    duration: "2 hours",
     homeService: true,
     priceFrom: 40000,
-    icon: "sparkles",
-    order: 5,
-  },
-  {
-    _id: "service-home",
-    _type: "service",
-    name: "Home Service Makeup",
-    slug: { _type: "slug", current: "home-service" },
-    shortDescription:
-      "Full salon-quality glam at your home, hotel, or venue.",
-    description:
-      "Skip the traffic and get ready where you're comfortable. I arrive with a complete kit and set up efficiently — ideal for bridal parties and early-morning weddings.",
-    whoFor:
-      "Anyone who values privacy, convenience, or a relaxed getting-ready experience.",
-    bestFor: "Bridal prep · Hotel getting-ready · Private residence",
-    included: [
-      "Travel to your location in Lagos",
-      "Full professional kit & setup",
-      "Same standard as studio service",
-    ],
-    duration: "Based on chosen service",
-    homeService: true,
-    priceFrom: 10000,
-    icon: "home",
-    order: 7,
+    icon: "party-popper",
+    highlighted: false,
+    order: 2,
   },
   {
     _id: "service-group",
     _type: "service",
-    name: "Bridesmaids / Group Booking",
-    slug: { _type: "slug", current: "group-booking" },
+    name: "Photoshoot Makeup",
+    slug: { _type: "slug", current: "Photoshoot-makeup" },
     shortDescription:
-      "Coordinated looks for your party — efficient timing, consistent quality.",
+      "Created to look just as beautiful on camera as it does in real life.",
     description:
-      "I plan a schedule that keeps everyone calm and on time. Looks can match or complement — each face still suits the individual wearing it.",
-    whoFor:
-      "Bridesmaids, mothers of the bride, flower girls, and group celebrations.",
-    bestFor: "Bridal party · Family event · Group birthday",
+      "Camera flashes and studio lights can change the way makeup looks. That's why our Photoshoot Makeup is carefully tailored to photography, giving you a flawless finish that translates beautifully in every shot. Whether it's your graduation shoot, birthday shoot, maternity session or brand photos, we've got you covered.",
+    whoFor: "Clients preparing for any kind of professional photoshoot.",
+    bestFor: "• Birthday shoots • graduation • maternity • branding sessions • studio portraits and content creation",
     included: [
-      "Per-face makeup application",
-      "Coordinated look planning",
-      "Timed schedule for the group",
+      "Camera-ready skin prep",
+      "HD complexion",
+      "Detailed eye makeup",
+      "Premium lashes",
+      "Sculpted contour",
+      "Beautiful lip finish",
+      "Long-wear setting spray",
     ],
-    duration: "1–1.5 hours per face",
+    duration: "2 hours",
     homeService: true,
-    priceFrom: 30000,
-    icon: "users",
-    order: 8,
+    priceFrom: 45000,
+    icon: "camera",
+    order: 3,
+  },
+  {
+    _id: "service-home",
+    _type: "service",
+    name: "Luxury Full Glam",
+    slug: { _type: "slug", current: "Luxury-full-glam" },
+    shortDescription:
+      "For the woman who wants all the glam, all the confidence and all the attention.",
+    description:
+      "Luxury Full Glam is our premium makeup experience. Every detail is carefully perfected—from your skin to your eyes and lips—to give you a rich, glamorous finish that's impossible to ignore. If your outfit is making a statement, your makeup should too.",
+    whoFor: "Clients who love bold, glamorous makeup.",
+    bestFor: "• Luxury events • birthdays • weddings • gala nights • content creation and special occasions.",
+    included: [
+      "Luxury skin prep",
+      "Premium complexion products",
+      "Full contour and highlight",
+      "Detailed eye artistry",
+      "Luxury lashes",
+      "Defined brows",
+      "Custom lip combination ",
+      "Long-lasting finish",
+    ],
+    duration: "2hrs",
+    homeService: true,
+    priceFrom: 50000,
+    icon: "crown",
+    order: 4,
+  },
+  {
+    _id: "service-traditional",
+    _type: "service",
+    name: "Bridal Makeup",
+    slug: { _type: "slug", current: "bridal-makeup" },
+    shortDescription:
+      "Beautiful, timeless bridal makeup that lets you enjoy every moment of your big day with confidence.",
+    description:
+      "Your wedding day isn't the day to worry about your makeup. From the moment you sit in our chair, our focus is making sure you look radiant, feel confident and stay flawless throughout the day. We use premium products and long-wear techniques so your makeup looks just as beautiful during your first look as it does at the end of the celebration.",
+    whoFor: "Brides who want a timeless, elegant and long-lasting bridal look.",
+    bestFor: "• Traditional weddings • white weddings and civil ceremonies",
+    included: [
+      "Bridal consultation",
+      "Luxury skin prep",
+      "Waterproof, long-lasting makeup",
+      "Premium lashes",
+      "Customized eye look",
+      "Flawless complexion",
+      "Lip touch-up product",
+      "Setting spray",
+    ],
+    duration: "2 hours 30 minutes",
+    homeService: true,
+    priceFrom: 120000,
+    icon: "palette",
+    order: 5,
   },
 ];
 
@@ -271,24 +250,6 @@ const portfolioItems = [
     order: 3,
   },
   {
-    _id: "portfolio-4",
-    _type: "portfolioItem",
-    title: "Traditional Bridal",
-    alt: "Traditional bridal makeup — Lagos wedding",
-    category: "Traditional",
-    aspect: "tall",
-    order: 4,
-  },
-  {
-    _id: "portfolio-5",
-    _type: "portfolioItem",
-    title: "Editorial Photoshoot",
-    alt: "Photoshoot makeup — camera-ready glam",
-    category: "Photoshoot",
-    aspect: "portrait",
-    order: 5,
-  },
-  {
     _id: "portfolio-6",
     _type: "portfolioItem",
     title: "Classic Bridal Beauty",
@@ -318,9 +279,9 @@ const portfolioItems = [
   {
     _id: "portfolio-9",
     _type: "portfolioItem",
-    title: "Bridal Transformation",
-    alt: "Before and after makeup transformation",
-    category: "Before & After",
+    title: "Photoshoot Makeup",
+    alt: "Photoshoot makeup — camera-ready glam",
+    category: "Photoshoot",
     aspect: "square",
     order: 9,
   },
@@ -332,24 +293,6 @@ const portfolioItems = [
     category: "Photoshoot",
     aspect: "portrait",
     order: 10,
-  },
-  {
-    _id: "portfolio-11",
-    _type: "portfolioItem",
-    title: "Cultural Elegance",
-    alt: "Traditional wedding glam — Nigerian bride",
-    category: "Traditional",
-    aspect: "tall",
-    order: 11,
-  },
-  {
-    _id: "portfolio-12",
-    _type: "portfolioItem",
-    title: "Soft Glam Reveal",
-    alt: "Before and after soft glam transformation",
-    category: "Before & After",
-    aspect: "portrait",
-    order: 12,
   },
 ];
 
@@ -1621,25 +1564,381 @@ const trainingCourses = [
   },
 ];
 
+// ─── Travel Zones ───────────────────────────────────────────────────────
+const travelZones = [
+  {
+    _id: "travelZone-island-central",
+    _type: "travelZone",
+    label: "Lekki / VI / Ikoyi",
+    areas: ["Lekki Phase 1", "Lekki Phase 2", "Victoria Island", "Ikoyi", "Oniru", "Banana Island", "Parkview Estate"],
+    fee: 0,
+    order: 1,
+  },
+  {
+    _id: "travelZone-island-extended",
+    _type: "travelZone",
+    label: "Ajah / Sangotedo / Chevron",
+    areas: ["Ajah", "Sangotedo", "Chevron", "Ikota", "VGC", "Abraham Adesanya", "Osapa London", "Agungi", "Ilasan", "Idado", "Awoyaya"],
+    fee: 35000,
+    order: 2,
+  },
+  {
+    _id: "travelZone-ikeja-axis",
+    _type: "travelZone",
+    label: "Ikeja / GRA / Magodo",
+    areas: ["Ikeja", "Ikeja GRA", "Maryland", "Ojodu", "Magodo", "Omole", "Berger", "Opebi", "Allen Avenue", "Alausa", "Ogba", "Agidingbi"],
+    fee: 20000,
+    order: 3,
+  },
+  {
+    _id: "travelZone-mainland-central",
+    _type: "travelZone",
+    label: "Yaba / Surulere / Gbagada",
+    areas: ["Yaba", "Surulere", "Gbagada", "Shomolu", "Bariga", "Ogudu", "Akoka", "Palmgrove", "Ebute Metta"],
+    fee: 20000,
+    order: 4,
+  },
+  {
+    _id: "travelZone-mainland-extended",
+    _type: "travelZone",
+    label: "Festac / Amuwo / Oshodi",
+    areas: ["Festac", "Amuwo-Odofin", "Oshodi", "Isolo", "Egbeda", "Idimu", "Satellite Town", "Okota", "Ejigbo"],
+    fee: 20000,
+    order: 5,
+  },
+  {
+    _id: "travelZone-outskirts",
+    _type: "travelZone",
+    label: "Ikorodu / Epe / Badagry",
+    areas: ["Ikorodu", "Epe", "Badagry", "Alimosho", "Agbara", "Igbogbo", "Ijede"],
+    fee: 30000,
+    order: 6,
+  },
+  {
+    _id: "travelZone-outside-lagos",
+    _type: "travelZone",
+    label: "Outside Lagos (Ibadan, Abeokuta, etc.)",
+    areas: ["Ibadan", "Abeokuta", "Ogun State", "and other locations"],
+    fee: -1,
+    note: "Travel fee quoted separately — includes transport + accommodation if needed",
+    order: 7,
+  },
+];
+
+// ─── Cities ─────────────────────────────────────────────────────────────
+const cities = [
+  { _id: "city-lagos", _type: "city", name: "Lagos", slug: { _type: "slug", current: "lagos" }, state: "Lagos State", isActive: true },
+];
+
+// ─── Artists ────────────────────────────────────────────────────────────
+const artists = [
+  {
+    _id: "artist-temilola",
+    _type: "artist",
+    name: "Temilola",
+    slug: { _type: "slug", current: "temilola" },
+    role: "Founder & Lead Artist",
+    bio: "I'm Temilola, the artist behind Gleam by Temi — a professional makeup studio based in Lagos, specialising in soft glam, event, bridal, and traditional makeup.\n\nI started this work because I love the quiet confidence that appears when someone looks in the mirror and recognises themselves — just more radiant. That moment matters whether it's a wedding morning or a milestone birthday.\n\nOn your day, I bring calm energy, punctual timing, and a kit that's clean, organised, and ready. No chaos. No rushing. Just focused glam that holds up to photos, dancing, and emotion.",
+    isPrimary: true,
+    specialties: [
+      { _type: "reference", _ref: "style-soft-glam" },
+      { _type: "reference", _ref: "style-bold-glam" },
+    ],
+  },
+];
+
+// ─── Makeup Styles ──────────────────────────────────────────────────────
+const makeupStyles = [
+  {
+    _id: "style-soft-glam",
+    _type: "makeupStyle",
+    name: "Soft Glam",
+    slug: { _type: "slug", current: "soft-glam" },
+    description: "Blended neutrals, a skin-like base, and subtle dimension — wearable, natural-looking glam.",
+    bestFor: "Everyday elegance, daytime events, and clients who want to look like a more radiant version of themselves.",
+    order: 1,
+  },
+  {
+    _id: "style-bold-glam",
+    _type: "makeupStyle",
+    name: "Bold / Full Glam",
+    slug: { _type: "slug", current: "bold-full-glam" },
+    description: "More definition on the eyes, a fuller lip, and contour that photographs well under event lighting and phone flashes.",
+    bestFor: "Owambe, parties, and events where the makeup needs to hold up for hours and read from a distance.",
+    order: 2,
+  },
+];
+
+// ─── Occasions ──────────────────────────────────────────────────────────
+const occasions = [
+  { _id: "occasion-wedding", _type: "occasion", name: "Wedding", slug: { _type: "slug", current: "wedding" }, description: "Bridal makeup for the wedding day itself, including trials.", order: 1 },
+  { _id: "occasion-owambe-party", _type: "occasion", name: "Owambe / Party", slug: { _type: "slug", current: "owambe-party" }, description: "Event and celebration glam — owambe, parties, and social events.", order: 2 },
+  { _id: "occasion-birthday", _type: "occasion", name: "Birthday", slug: { _type: "slug", current: "birthday" }, description: "Birthday celebration makeup.", order: 3 },
+  { _id: "occasion-photoshoot", _type: "occasion", name: "Photoshoot", slug: { _type: "slug", current: "photoshoot" }, description: "HD makeup built for camera and studio lighting.", order: 4 },
+  { _id: "occasion-corporate", _type: "occasion", name: "Corporate", slug: { _type: "slug", current: "corporate" }, description: "Professional makeup for corporate events and headshots.", order: 5 },
+];
+
+// ─── Wedding Types ──────────────────────────────────────────────────────
+const weddingTypes = [
+  { _id: "weddingtype-white-wedding", _type: "weddingType", name: "White Wedding", slug: { _type: "slug", current: "white-wedding" }, description: "Church/white wedding bridal makeup — typically softer, more romantic styling.", order: 1 },
+  { _id: "weddingtype-traditional-wedding", _type: "weddingType", name: "Traditional Wedding", slug: { _type: "slug", current: "traditional-wedding" }, description: "Traditional wedding makeup — bolder colours, heavier contour, coordinated with gele/aso-oke.", order: 2 },
+];
+
+// ─── Locations ──────────────────────────────────────────────────────────
+const locations = [
+  {
+    _id: "location-lekki",
+    _type: "location",
+    name: "Lekki",
+    slug: { _type: "slug", current: "lekki" },
+    city: { _type: "reference", _ref: "city-lagos" },
+    areas: ["Lekki Phase 1", "Lekki Phase 2", "Chevron", "Ikota", "VGC", "Abraham Adesanya", "Ajah", "Sangotedo"],
+    travelZone: { _type: "reference", _ref: "travelZone-island-central" },
+    headline: "Professional Makeup Artist in Lekki, Lagos",
+    subtitle: "Soft glam, event, and bridal makeup — delivered to your doorstep in Lekki Phase 1, Phase 2, Chevron, Ajah, and Sangotedo.",
+    seoTitle: "Makeup Artist in Lekki Lagos — Soft Glam, Event & Bridal",
+    seoDescription: "Book a professional makeup artist in Lekki, Lagos. Gleam by Temi offers soft glam, event glam, and bridal makeup, plus traditional wedding makeup, with home service across Lekki Phase 1, Phase 2, Ajah, Chevron, and VGC.",
+    intro: [
+      "Looking for a reliable makeup artist in Lekki? Gleam by Temi brings professional soft glam, event, and bridal makeup directly to you — whether you're getting ready at home, a hotel, or a venue anywhere in Lekki.",
+      "From intimate Lekki Phase 1 apartments to grand Ajah venues, every session starts with careful skin prep and ends with a camera-ready finish designed to last through your entire event.",
+    ],
+    keywords: ["makeup artist in Lekki", "bridal makeup artist Lekki", "makeup artist Lekki Phase 1", "makeup artist Ajah Lagos", "home service makeup Lekki", "wedding makeup artist Lekki", "soft glam makeup Lekki", "event makeup Lekki Lagos", "makeup artist near me Lekki", "makeup artist Chevron Lagos", "makeup artist VGC Lagos", "makeup artist Sangotedo"],
+    status: "published",
+  },
+  {
+    _id: "location-victoria-island",
+    _type: "location",
+    name: "Victoria Island",
+    slug: { _type: "slug", current: "victoria-island" },
+    city: { _type: "reference", _ref: "city-lagos" },
+    areas: ["Victoria Island", "Ikoyi", "Oniru", "Banana Island"],
+    travelZone: { _type: "reference", _ref: "travelZone-island-central" },
+    headline: "Makeup Artist in Victoria Island & Ikoyi, Lagos",
+    subtitle: "Luxury soft glam, event, and bridal makeup for VI, Ikoyi, Oniru, and Banana Island — with punctual home service and a polished, lasting finish.",
+    seoTitle: "Makeup Artist in Victoria Island Lagos — Luxury Glam & Bridal",
+    seoDescription: "Book a professional makeup artist in Victoria Island, Lagos. Gleam by Temi provides soft glam, event, and bridal makeup with home service across VI, Ikoyi, Oniru, and Banana Island.",
+    intro: [
+      "Gleam by Temi provides luxury makeup services across Victoria Island, Ikoyi, and Oniru. Whether it's a bridal morning at a VI hotel or a private event in Banana Island, expect calm, professional service from start to finish.",
+      "Victoria Island clients appreciate punctuality, discretion, and a finish that photographs beautifully under any lighting. That's exactly what every session delivers — skin-prep focused, camera-ready glam.",
+    ],
+    keywords: ["makeup artist Victoria Island Lagos", "makeup artist VI Lagos", "bridal makeup Victoria Island", "makeup artist Ikoyi Lagos", "luxury makeup artist Lagos", "wedding makeup Victoria Island", "event makeup artist VI", "makeup artist Oniru", "makeup artist Banana Island", "home service makeup Victoria Island", "soft glam makeup VI Lagos"],
+    status: "published",
+  },
+  {
+    _id: "location-ikeja",
+    _type: "location",
+    name: "Ikeja",
+    slug: { _type: "slug", current: "ikeja" },
+    city: { _type: "reference", _ref: "city-lagos" },
+    areas: ["Ikeja", "Ikeja GRA", "Maryland", "Ojodu", "Magodo", "Omole", "Berger"],
+    travelZone: { _type: "reference", _ref: "travelZone-ikeja-axis" },
+    headline: "Makeup Artist in Ikeja & GRA, Lagos",
+    subtitle: "Professional soft glam, event, and bridal makeup with home service across Ikeja, GRA, Maryland, Magodo, and Omole.",
+    seoTitle: "Makeup Artist in Ikeja Lagos — Event, Soft Glam & Bridal",
+    seoDescription: "Book a makeup artist in Ikeja, Lagos. Gleam by Temi offers soft glam, event glam, and bridal makeup, plus traditional wedding makeup, with home service across Ikeja GRA, Maryland, Magodo, Omole, and Ojodu.",
+    intro: [
+      "Need a professional makeup artist in Ikeja? Gleam by Temi covers Ikeja GRA, Maryland, Magodo, Omole, Ojodu, and Berger — bringing a full professional kit directly to your home or venue.",
+      "Ikeja is one of the busiest wedding and event hubs in Lagos. From traditional engagement ceremonies at Ikeja GRA halls to birthday celebrations in Magodo, every session is tailored to your skin tone, outfit, and event timeline.",
+    ],
+    keywords: ["makeup artist in Ikeja", "bridal makeup artist Ikeja", "makeup artist Ikeja GRA", "wedding makeup artist Ikeja Lagos", "makeup artist Maryland Lagos", "makeup artist Magodo", "home service makeup Ikeja", "event makeup Ikeja Lagos", "traditional makeup artist Ikeja", "makeup artist Omole Lagos", "makeup artist Ojodu Berger", "soft glam makeup Ikeja"],
+    status: "published",
+  },
+  {
+    _id: "location-surulere",
+    _type: "location",
+    name: "Surulere & Yaba",
+    slug: { _type: "slug", current: "surulere" },
+    city: { _type: "reference", _ref: "city-lagos" },
+    areas: ["Surulere", "Yaba", "Gbagada", "Shomolu", "Bariga", "Ogudu"],
+    travelZone: { _type: "reference", _ref: "travelZone-mainland-central" },
+    headline: "Makeup Artist in Surulere, Yaba & Gbagada, Lagos",
+    subtitle: "Soft glam, event, and bridal makeup with home service in Surulere, Yaba, Gbagada, Shomolu, and surrounding areas.",
+    seoTitle: "Makeup Artist in Surulere & Yaba Lagos — Event & Soft Glam",
+    seoDescription: "Book a professional makeup artist in Surulere and Yaba, Lagos. Gleam by Temi offers soft glam, event glam, and bridal makeup with home service across Surulere, Yaba, Gbagada, Shomolu, and Ogudu.",
+    intro: [
+      "Gleam by Temi brings professional makeup services to Surulere, Yaba, Gbagada, and the wider Lagos mainland. Home service means you don't have to worry about traffic — the artist comes to you, fully equipped and on schedule.",
+      "Whether you're preparing for a wedding at a Surulere event hall, a birthday dinner in Gbagada, or a photoshoot in Yaba, expect polished, long-lasting makeup built on proper skin prep.",
+    ],
+    keywords: ["makeup artist Surulere Lagos", "makeup artist Yaba Lagos", "bridal makeup Surulere", "makeup artist Gbagada", "event makeup artist Surulere", "wedding makeup Yaba Lagos", "home service makeup Surulere", "makeup artist Shomolu", "makeup artist mainland Lagos", "soft glam makeup Surulere", "makeup artist near me Yaba"],
+    status: "published",
+  },
+  {
+    _id: "location-festac",
+    _type: "location",
+    name: "Festac & Amuwo-Odofin",
+    slug: { _type: "slug", current: "festac" },
+    city: { _type: "reference", _ref: "city-lagos" },
+    areas: ["Festac", "Amuwo-Odofin", "Oshodi", "Isolo", "Egbeda", "Idimu"],
+    travelZone: { _type: "reference", _ref: "travelZone-mainland-extended" },
+    headline: "Makeup Artist in Festac, Oshodi & Amuwo-Odofin, Lagos",
+    subtitle: "Professional soft glam, event, and bridal makeup with home service across Festac, Amuwo-Odofin, Oshodi, Isolo, and Egbeda.",
+    seoTitle: "Makeup Artist in Festac & Oshodi Lagos — Event & Soft Glam",
+    seoDescription: "Book a professional makeup artist in Festac and Oshodi, Lagos. Gleam by Temi offers soft glam, event glam, and bridal makeup, plus traditional wedding makeup, with home service across Festac, Amuwo-Odofin, Isolo, Egbeda, and Idimu.",
+    intro: [
+      "Serving Festac, Amuwo-Odofin, Oshodi, Isolo, and surrounding areas — Gleam by Temi brings full professional makeup to your doorstep so you can focus on enjoying your day.",
+      "From church wedding mornings in Festac to traditional ceremonies in Egbeda, every session includes thorough skin prep, clean professional tools, and a finish that holds up to Lagos heat and celebration.",
+    ],
+    keywords: ["makeup artist Festac Lagos", "makeup artist Amuwo-Odofin", "bridal makeup Festac", "makeup artist Oshodi Lagos", "wedding makeup Festac Lagos", "event makeup Oshodi", "home service makeup Festac", "makeup artist Isolo Lagos", "makeup artist Egbeda", "soft glam makeup Festac", "makeup artist near me Festac"],
+    status: "published",
+  },
+  {
+    _id: "location-ikorodu",
+    _type: "location",
+    name: "Ikorodu & Epe",
+    slug: { _type: "slug", current: "ikorodu" },
+    city: { _type: "reference", _ref: "city-lagos" },
+    areas: ["Ikorodu", "Epe", "Badagry", "Alimosho", "Agbara"],
+    travelZone: { _type: "reference", _ref: "travelZone-outskirts" },
+    headline: "Makeup Artist in Ikorodu, Epe & Badagry, Lagos",
+    subtitle: "Professional soft glam, event, and bridal makeup — now available with home service in Ikorodu, Epe, Badagry, Alimosho, and Agbara.",
+    seoTitle: "Makeup Artist in Ikorodu & Epe Lagos — Event & Soft Glam Makeup",
+    seoDescription: "Book a professional makeup artist in Ikorodu and Epe, Lagos. Gleam by Temi provides soft glam, event glam, and bridal makeup, plus traditional wedding makeup, with home service in Ikorodu, Epe, Badagry, Alimosho, and Agbara.",
+    intro: [
+      "Gleam by Temi extends professional makeup services to Ikorodu, Epe, Badagry, Alimosho, and Agbara. Distance shouldn't keep you from looking and feeling your best on your special day.",
+      "Every booking includes a dedicated timeline, full professional kit, and the same standard of skin prep and camera-ready finish that clients across Lagos trust — no matter the location.",
+    ],
+    keywords: ["makeup artist Ikorodu Lagos", "makeup artist Epe Lagos", "bridal makeup Ikorodu", "makeup artist Badagry Lagos", "wedding makeup Ikorodu", "event makeup Epe Lagos", "home service makeup Ikorodu", "makeup artist Alimosho Lagos", "traditional makeup Ikorodu", "makeup artist near me Ikorodu", "soft glam makeup Epe"],
+    status: "published",
+  },
+];
+
+// ─── Additive taxonomy tagging (setIfMissing only — see seed function) ──
+// Mirrors the live backfill applied when the taxonomy graph was introduced.
+// Each entry: which document, which fields, what value — applied only if
+// the field is not already set, so any manual edit always wins.
+const taxonomyPatches: { id: string; fields: Record<string, unknown> }[] = [
+  // Services
+  { id: "service-traditional", fields: { occasions: [{ _type: "reference", _ref: "occasion-wedding" }] } },
+  { id: "service-bridal", fields: { styles: [{ _type: "reference", _ref: "style-soft-glam" }] } },
+  { id: "service-soft-glam", fields: { styles: [{ _type: "reference", _ref: "style-bold-glam" }], occasions: [{ _type: "reference", _ref: "occasion-owambe-party" }, { _type: "reference", _ref: "occasion-birthday" }] } },
+  { id: "service-group", fields: { occasions: [{ _type: "reference", _ref: "occasion-photoshoot" }] } },
+  { id: "service-home", fields: { styles: [{ _type: "reference", _ref: "style-bold-glam" }], occasions: [{ _type: "reference", _ref: "occasion-owambe-party" }] } },
+  // Portfolio
+  { id: "portfolio-1", fields: { occasion: { _type: "reference", _ref: "occasion-wedding" }, artist: { _type: "reference", _ref: "artist-temilola" } } },
+  { id: "portfolio-6", fields: { occasion: { _type: "reference", _ref: "occasion-wedding" }, artist: { _type: "reference", _ref: "artist-temilola" } } },
+  { id: "portfolio-2", fields: { style: { _type: "reference", _ref: "style-soft-glam" }, artist: { _type: "reference", _ref: "artist-temilola" } } },
+  { id: "portfolio-7", fields: { style: { _type: "reference", _ref: "style-soft-glam" }, occasion: { _type: "reference", _ref: "occasion-owambe-party" }, artist: { _type: "reference", _ref: "artist-temilola" } } },
+  { id: "portfolio-3", fields: { style: { _type: "reference", _ref: "style-bold-glam" }, occasion: { _type: "reference", _ref: "occasion-owambe-party" }, artist: { _type: "reference", _ref: "artist-temilola" } } },
+  { id: "portfolio-8", fields: { style: { _type: "reference", _ref: "style-bold-glam" }, occasion: { _type: "reference", _ref: "occasion-birthday" }, artist: { _type: "reference", _ref: "artist-temilola" } } },
+  { id: "portfolio-10", fields: { occasion: { _type: "reference", _ref: "occasion-photoshoot" }, artist: { _type: "reference", _ref: "artist-temilola" } } },
+  { id: "portfolio-9", fields: { occasion: { _type: "reference", _ref: "occasion-photoshoot" }, artist: { _type: "reference", _ref: "artist-temilola" } } },
+  // Testimonials
+  { id: "testimonial-1", fields: { occasion: { _type: "reference", _ref: "occasion-wedding" }, weddingType: { _type: "reference", _ref: "weddingtype-white-wedding" }, artist: { _type: "reference", _ref: "artist-temilola" }, audienceType: "client" } },
+  { id: "testimonial-2", fields: { occasion: { _type: "reference", _ref: "occasion-birthday" }, artist: { _type: "reference", _ref: "artist-temilola" }, audienceType: "client" } },
+  { id: "testimonial-3", fields: { occasion: { _type: "reference", _ref: "occasion-wedding" }, weddingType: { _type: "reference", _ref: "weddingtype-traditional-wedding" }, artist: { _type: "reference", _ref: "artist-temilola" }, audienceType: "client" } },
+  { id: "testimonial-4", fields: { occasion: { _type: "reference", _ref: "occasion-wedding" }, artist: { _type: "reference", _ref: "artist-temilola" }, audienceType: "client" } },
+  { id: "testimonial-5", fields: { occasion: { _type: "reference", _ref: "occasion-corporate" }, artist: { _type: "reference", _ref: "artist-temilola" }, audienceType: "client" } },
+  // Transformations
+  { id: "transformation-1", fields: { occasion: { _type: "reference", _ref: "occasion-wedding" }, artist: { _type: "reference", _ref: "artist-temilola" } } },
+  { id: "transformation-2", fields: { style: { _type: "reference", _ref: "style-soft-glam" }, artist: { _type: "reference", _ref: "artist-temilola" } } },
+  { id: "transformation-3", fields: { occasion: { _type: "reference", _ref: "occasion-photoshoot" }, artist: { _type: "reference", _ref: "artist-temilola" } } },
+  { id: "transformation-4", fields: { occasion: { _type: "reference", _ref: "occasion-wedding" }, weddingType: { _type: "reference", _ref: "weddingtype-traditional-wedding" }, artist: { _type: "reference", _ref: "artist-temilola" } } },
+  { id: "transformation-5", fields: { style: { _type: "reference", _ref: "style-bold-glam" }, occasion: { _type: "reference", _ref: "occasion-owambe-party" }, artist: { _type: "reference", _ref: "artist-temilola" } } },
+  // Blog posts
+  { id: "blog-post-1", fields: { primaryService: { _type: "reference", _ref: "service-traditional" }, relatedOccasion: { _type: "reference", _ref: "occasion-wedding" } } },
+  { id: "blog-post-4", fields: { primaryService: { _type: "reference", _ref: "service-traditional" }, relatedOccasion: { _type: "reference", _ref: "occasion-wedding" } } },
+  { id: "blog-post-2", fields: { primaryService: { _type: "reference", _ref: "service-soft-glam" }, relatedOccasion: { _type: "reference", _ref: "occasion-owambe-party" } } },
+  { id: "blog-post-9", fields: { primaryService: { _type: "reference", _ref: "service-soft-glam" }, relatedOccasion: { _type: "reference", _ref: "occasion-owambe-party" }, relatedStyle: { _type: "reference", _ref: "style-bold-glam" } } },
+  { id: "blog-post-5", fields: { relatedStyle: { _type: "reference", _ref: "style-soft-glam" } } },
+  { id: "blog-post-6", fields: { relatedStyle: { _type: "reference", _ref: "style-soft-glam" } } },
+  // FAQs (bridal-specific only)
+  { id: "faq-6", fields: { service: { _type: "reference", _ref: "service-traditional" }, occasion: { _type: "reference", _ref: "occasion-wedding" } } },
+  { id: "faq-7", fields: { service: { _type: "reference", _ref: "service-traditional" }, occasion: { _type: "reference", _ref: "occasion-wedding" } } },
+  { id: "faq-11", fields: { service: { _type: "reference", _ref: "service-traditional" }, occasion: { _type: "reference", _ref: "occasion-wedding" } } },
+  { id: "faq-13", fields: { service: { _type: "reference", _ref: "service-traditional" }, occasion: { _type: "reference", _ref: "occasion-wedding" } } },
+  { id: "faq-p3", fields: { service: { _type: "reference", _ref: "service-traditional" }, occasion: { _type: "reference", _ref: "occasion-wedding" } } },
+];
+
 // ─── Seed function ──────────────────────────────────────────────────────
+//
+// Safety model (see the discussion this was designed around — kept here
+// so it isn't lost the next time this file is touched):
+//
+//   1. Every document is written with client.createIfNotExists(). If a
+//      document with that _id already exists — because it was seeded
+//      before, or created/edited manually in Studio — this is a complete
+//      no-op. Nothing is read back and merged; nothing is ever replaced.
+//      This alone guarantees the script is safe to run any number of
+//      times and can never delete or overwrite existing content.
+//
+//   2. Taxonomy reference fields being backfilled onto documents that
+//      predate the taxonomy graph (services, portfolio, testimonials,
+//      transformations, blog posts, FAQs — see taxonomyPatches above) go
+//      through client.patch(id).setIfMissing({...}). A field is only
+//      written if it currently has no value at all, so a manual edit in
+//      Studio always wins and is never touched.
+//
+//   3. Run with --dry-run to see the exact plan with zero writes:
+//        npx tsx sanity/seed.ts --dry-run
+//      The dry run and the real run share the same planning code, so the
+//      preview is guaranteed to match what actually happens.
 
-// Document types that may have images or assets uploaded manually in Studio.
-// These use createIfNotExists so re-seeding never wipes uploaded media.
-const ASSET_TYPES = new Set([
-  "portfolioItem",
-  "service",
-  "trainingCourse",
-  "transformation",
-  "siteSettings",
-  "pageCopy",
-  "shopLink",
-]);
+const DRY_RUN = process.argv.includes("--dry-run");
 
-async function seed() {
-  console.log("Seeding Sanity...\n");
+interface SeedDoc {
+  _id: string;
+  _type: string;
+  [key: string]: unknown;
+}
 
-  const allDocs = [
+interface DocPlan {
+  id: string;
+  type: string;
+  action: "create" | "skip-exists";
+}
+
+interface PatchPlanEntry {
+  id: string;
+  action: "patch" | "skip-already-set" | "skip-missing-target";
+  fieldsPlanned: string[];
+  fieldsAlreadySet: string[];
+  fieldsToSet: Record<string, unknown>;
+}
+
+async function planDocs(docs: SeedDoc[]): Promise<DocPlan[]> {
+  const plans: DocPlan[] = [];
+  for (const doc of docs) {
+    const existing = await client.getDocument(doc._id).catch(() => null);
+    plans.push({ id: doc._id, type: doc._type, action: existing ? "skip-exists" : "create" });
+  }
+  return plans;
+}
+
+async function planPatches(patches: typeof taxonomyPatches): Promise<PatchPlanEntry[]> {
+  const results: PatchPlanEntry[] = [];
+  for (const p of patches) {
+    const existing = await client.getDocument<Record<string, unknown>>(p.id).catch(() => null);
+    if (!existing) {
+      results.push({ id: p.id, action: "skip-missing-target", fieldsPlanned: Object.keys(p.fields), fieldsAlreadySet: [], fieldsToSet: {} });
+      continue;
+    }
+    const toSet: Record<string, unknown> = {};
+    const alreadySet: string[] = [];
+    for (const [key, value] of Object.entries(p.fields)) {
+      if (existing[key] === undefined) toSet[key] = value;
+      else alreadySet.push(key);
+    }
+    if (Object.keys(toSet).length === 0) {
+      results.push({ id: p.id, action: "skip-already-set", fieldsPlanned: [], fieldsAlreadySet: alreadySet, fieldsToSet: {} });
+    } else {
+      results.push({ id: p.id, action: "patch", fieldsPlanned: Object.keys(toSet), fieldsAlreadySet: alreadySet, fieldsToSet: toSet });
+    }
+  }
+  return results;
+}
+
+async function main() {
+  console.log(DRY_RUN ? "DRY RUN — no writes will be made.\n" : "Seeding Sanity...\n");
+
+  const allDocs: SeedDoc[] = [
     siteConfig,
+    ...cities,
+    ...artists,
+    ...makeupStyles,
+    ...occasions,
+    ...weddingTypes,
+    ...travelZones,
+    ...locations,
     ...services,
     ...portfolioItems,
     ...testimonials,
@@ -1650,47 +1949,69 @@ async function seed() {
     ...pageCopyDocs,
     ...blogPosts,
     ...trainingCourses,
-  ];
+  ] as SeedDoc[];
 
-  let created = 0;
-  let skipped = 0;
-  let updated = 0;
+  const docPlans = await planDocs(allDocs);
+  const patchPlans = await planPatches(taxonomyPatches);
 
-  for (const doc of allDocs) {
-    try {
-      const existing = await client.getDocument(doc._id);
-      if (existing) {
-        if (ASSET_TYPES.has(doc._type)) {
-          skipped++;
-          console.log(`  Skipped (has assets): [${doc._type}] ${doc._id}`);
-        } else {
-          await client.createOrReplace(doc);
-          updated++;
-          console.log(`  Updated: [${doc._type}] ${doc._id}`);
-        }
-      } else {
-        await client.createOrReplace(doc);
-        created++;
-        console.log(`  Created: [${doc._type}] ${doc._id}`);
-      }
-    } catch {
-      await client.createOrReplace(doc);
-      created++;
-      console.log(`  Created: [${doc._type}] ${doc._id}`);
-    }
+  const toCreate = docPlans.filter((p) => p.action === "create");
+  const toSkipExisting = docPlans.filter((p) => p.action === "skip-exists");
+  const toPatch = patchPlans.filter((p) => p.action === "patch");
+  const toSkipPatch = patchPlans.filter((p) => p.action === "skip-already-set");
+  const conflicts = patchPlans.filter((p) => p.action === "skip-missing-target");
+
+  console.log("=== PLAN ===");
+
+  console.log(`\nDocuments that would be CREATED (${toCreate.length}):`);
+  toCreate.forEach((p) => console.log(`  + [${p.type}] ${p.id}`));
+
+  console.log(`\nDocuments already present — SKIPPED, left untouched (${toSkipExisting.length}):`);
+  toSkipExisting.forEach((p) => console.log(`  = [${p.type}] ${p.id}`));
+
+  console.log(`\nAdditive patches that would be APPLIED (${toPatch.length}):`);
+  toPatch.forEach((p) => console.log(`  ~ ${p.id} -> setIfMissing: ${p.fieldsPlanned.join(", ")}`));
+
+  console.log(`\nPatches SKIPPED — field(s) already set, manual edits preserved (${toSkipPatch.length}):`);
+  toSkipPatch.forEach((p) => console.log(`  = ${p.id} -> already has: ${p.fieldsAlreadySet.join(", ")}`));
+
+  if (conflicts.length > 0) {
+    console.log(`\n⚠ CONFLICTS / unexpected conditions (${conflicts.length}):`);
+    conflicts.forEach((p) => console.log(`  ! ${p.id} -> patch target does not exist yet; skipping this patch (it will apply automatically once the document is created)`));
+  } else {
+    console.log(`\nConflicts / unexpected conditions: none.`);
   }
 
-  console.log(`\nDone! Created: ${created}, Updated: ${updated}, Skipped: ${skipped}`);
-  console.log("Total documents: " + allDocs.length);
   console.log(
-    "\nDocuments with uploaded images/assets are never overwritten."
+    `\nSummary: ${toCreate.length} would be created, ${toPatch.length} would be patched, ${toSkipExisting.length + toSkipPatch.length} left completely untouched.`
   );
   console.log(
-    "To force-update them, delete them in Sanity Studio first, then re-seed."
+    "No existing document will be overwritten or deleted: creates only ever apply to IDs that don't exist yet, and patches only ever fill in fields that are currently empty."
+  );
+
+  if (DRY_RUN) {
+    console.log("\nDry run complete — no changes were made. Re-run without --dry-run to apply.");
+    return;
+  }
+
+  console.log("\n=== APPLYING ===");
+
+  const byId = new Map(allDocs.map((d) => [d._id, d]));
+  for (const p of toCreate) {
+    const doc = byId.get(p.id)!;
+    await client.createIfNotExists(doc);
+    console.log(`  Created: [${doc._type}] ${doc._id}`);
+  }
+  for (const p of toPatch) {
+    await client.patch(p.id).setIfMissing(p.fieldsToSet).commit();
+    console.log(`  Patched: ${p.id} -> ${p.fieldsPlanned.join(", ")}`);
+  }
+
+  console.log(
+    `\nDone. Created: ${toCreate.length}, Patched: ${toPatch.length}, Left untouched: ${toSkipExisting.length + toSkipPatch.length}.`
   );
 }
 
-seed().catch((err) => {
+main().catch((err) => {
   console.error("Seed failed:", err);
   process.exit(1);
 });

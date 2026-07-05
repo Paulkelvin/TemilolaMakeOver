@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "seed": "tsx sanity/seed.ts",
+    "seed:dry-run": "tsx sanity/seed.ts --dry-run",
     "seed:images": "tsx sanity/seed-images.ts"
   },
   "dependencies": {
