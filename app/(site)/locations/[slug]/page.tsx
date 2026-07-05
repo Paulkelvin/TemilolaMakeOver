@@ -1,8 +1,8 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { MapPin, Check, Clock, Home, ArrowRight } from "lucide-react";
-import { locations, getLocationBySlug } from "@/data/locations";
-import { getServices, getTestimonials } from "@/sanity/fetch";
+import { locations, getLocationBySlug, getLocationTravelFee } from "@/data/locations";
+import { getServices, getTestimonials, getTravelZones } from "@/sanity/fetch";
 import { createPageMetadata } from "@/lib/metadata";
 import { BreadcrumbJsonLd } from "@/lib/seo/structured-data";
 import { formatPrice } from "@/lib/utils";
@@ -44,10 +44,12 @@ export default async function LocationPage({
   const location = getLocationBySlug(slug);
   if (!location) notFound();
 
-  const [services, testimonials] = await Promise.all([
+  const [services, testimonials, zones] = await Promise.all([
     getServices(),
     getTestimonials(),
+    getTravelZones(),
   ]);
+  const travelFee = getLocationTravelFee(location, zones);
 
   const bookUrl = `/book#booking-form`;
   const whatsappUrl = buildWhatsAppUrl({ intent: "booking" });
@@ -131,12 +133,12 @@ export default async function LocationPage({
                 </span>
               ))}
             </div>
-            {location.travelFee !== null && location.travelFee > 0 && (
+            {travelFee !== null && travelFee > 0 && (
               <p className="text-center text-sm text-text-muted mt-4">
-                Travel fee for this area: {formatPrice(location.travelFee)}
+                Travel fee for this area: {formatPrice(travelFee)}
               </p>
             )}
-            {location.travelFee === 0 && (
+            {travelFee === 0 && (
               <p className="text-center text-sm text-accent-rose font-medium mt-4">
                 No travel fee for this area
               </p>

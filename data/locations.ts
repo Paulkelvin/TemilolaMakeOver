@@ -77,7 +77,7 @@ export const locations: LocationPage[] = [
     slug: "ikeja",
     name: "Ikeja",
     areas: ["Ikeja", "Ikeja GRA", "Maryland", "Ojodu", "Magodo", "Omole", "Berger"],
-    travelFee: 10000,
+    travelFee: 20000,
     headline: "Makeup Artist in Ikeja & GRA, Lagos",
     subtitle:
       "Professional soft glam, event, and bridal makeup with home service across Ikeja, GRA, Maryland, Magodo, and Omole.",
@@ -107,7 +107,7 @@ export const locations: LocationPage[] = [
     slug: "surulere",
     name: "Surulere & Yaba",
     areas: ["Surulere", "Yaba", "Gbagada", "Shomolu", "Bariga", "Ogudu"],
-    travelFee: 10000,
+    travelFee: 20000,
     headline: "Makeup Artist in Surulere, Yaba & Gbagada, Lagos",
     subtitle:
       "Soft glam, event, and bridal makeup with home service in Surulere, Yaba, Gbagada, Shomolu, and surrounding areas.",
@@ -136,7 +136,7 @@ export const locations: LocationPage[] = [
     slug: "festac",
     name: "Festac & Amuwo-Odofin",
     areas: ["Festac", "Amuwo-Odofin", "Oshodi", "Isolo", "Egbeda", "Idimu"],
-    travelFee: 15000,
+    travelFee: 20000,
     headline: "Makeup Artist in Festac, Oshodi & Amuwo-Odofin, Lagos",
     subtitle:
       "Professional soft glam, event, and bridal makeup with home service across Festac, Amuwo-Odofin, Oshodi, Isolo, and Egbeda.",
@@ -165,7 +165,7 @@ export const locations: LocationPage[] = [
     slug: "ikorodu",
     name: "Ikorodu & Epe",
     areas: ["Ikorodu", "Epe", "Badagry", "Alimosho", "Agbara"],
-    travelFee: 20000,
+    travelFee: 30000,
     headline: "Makeup Artist in Ikorodu, Epe & Badagry, Lagos",
     subtitle:
       "Professional soft glam, event, and bridal makeup — now available with home service in Ikorodu, Epe, Badagry, Alimosho, and Agbara.",
@@ -194,4 +194,21 @@ export const locations: LocationPage[] = [
 
 export function getLocationBySlug(slug: string): LocationPage | undefined {
   return locations.find((l) => l.slug === slug);
+}
+
+interface ZoneLike {
+  areas: string[];
+  fee: number;
+}
+
+// Resolves a location's travel fee from live travel-zone data so location
+// pages stay in sync with whatever is set in Sanity, instead of a hardcoded
+// number. Falls back to the location's static travelFee if no zone matches.
+export function getLocationTravelFee(location: LocationPage, zones: ZoneLike[]): number | null {
+  const name = location.name.toLowerCase();
+  const zone =
+    zones.find((z) => z.areas.some((a) => a.toLowerCase() === name)) ??
+    zones.find((z) => z.areas.some((a) => a.toLowerCase().startsWith(name) || name.startsWith(a.toLowerCase())));
+  if (!zone) return location.travelFee;
+  return zone.fee === -1 ? null : zone.fee;
 }

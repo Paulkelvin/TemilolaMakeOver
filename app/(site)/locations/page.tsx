@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { MapPin, ArrowRight } from "lucide-react";
-import { locations } from "@/data/locations";
+import { locations, getLocationTravelFee } from "@/data/locations";
+import { getTravelZones } from "@/sanity/fetch";
 import { createPageMetadata } from "@/lib/metadata";
 import { BreadcrumbJsonLd } from "@/lib/seo/structured-data";
 import { formatPrice } from "@/lib/utils";
@@ -18,7 +19,9 @@ export const metadata = createPageMetadata({
   path: "/locations",
 });
 
-export default function LocationsPage() {
+export default async function LocationsPage() {
+  const zones = await getTravelZones();
+
   return (
     <>
       <BreadcrumbJsonLd
@@ -49,42 +52,45 @@ export default function LocationsPage() {
           </Reveal>
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {locations.map((location) => (
-              <Reveal key={location.slug}>
-                <Link
-                  href={`/locations/${location.slug}`}
-                  className="group block p-6 rounded-2xl border border-border bg-card hover:border-accent-rose/30 hover:shadow-md transition-all duration-300 h-full"
-                >
-                  <div className="flex items-center gap-2 mb-3">
-                    <MapPin className="w-5 h-5 text-accent-rose" />
-                    <h2 className="font-display text-xl font-medium text-text-primary group-hover:text-accent-rose transition-colors">
-                      {location.name}
-                    </h2>
-                  </div>
-                  <p className="text-sm text-text-muted mb-3 line-clamp-2">
-                    {location.areas.join(", ")}
-                  </p>
-                  <div className="flex items-center justify-between">
-                    {location.travelFee === 0 ? (
-                      <span className="text-xs font-medium text-accent-rose">
-                        No travel fee
+            {locations.map((location) => {
+              const travelFee = getLocationTravelFee(location, zones);
+              return (
+                <Reveal key={location.slug}>
+                  <Link
+                    href={`/locations/${location.slug}`}
+                    className="group block p-6 rounded-2xl border border-border bg-card hover:border-accent-rose/30 hover:shadow-md transition-all duration-300 h-full"
+                  >
+                    <div className="flex items-center gap-2 mb-3">
+                      <MapPin className="w-5 h-5 text-accent-rose" />
+                      <h2 className="font-display text-xl font-medium text-text-primary group-hover:text-accent-rose transition-colors">
+                        {location.name}
+                      </h2>
+                    </div>
+                    <p className="text-sm text-text-muted mb-3 line-clamp-2">
+                      {location.areas.join(", ")}
+                    </p>
+                    <div className="flex items-center justify-between">
+                      {travelFee === 0 ? (
+                        <span className="text-xs font-medium text-accent-rose">
+                          No travel fee
+                        </span>
+                      ) : travelFee !== null ? (
+                        <span className="text-xs text-text-muted">
+                          Travel fee: {formatPrice(travelFee)}
+                        </span>
+                      ) : (
+                        <span className="text-xs text-text-muted">
+                          Quote on request
+                        </span>
+                      )}
+                      <span className="flex items-center gap-1 text-xs text-text-muted group-hover:text-accent-rose transition-colors">
+                        View <ArrowRight className="w-3 h-3" />
                       </span>
-                    ) : location.travelFee !== null ? (
-                      <span className="text-xs text-text-muted">
-                        Travel fee: {formatPrice(location.travelFee)}
-                      </span>
-                    ) : (
-                      <span className="text-xs text-text-muted">
-                        Quote on request
-                      </span>
-                    )}
-                    <span className="flex items-center gap-1 text-xs text-text-muted group-hover:text-accent-rose transition-colors">
-                      View <ArrowRight className="w-3 h-3" />
-                    </span>
-                  </div>
-                </Link>
-              </Reveal>
-            ))}
+                    </div>
+                  </Link>
+                </Reveal>
+              );
+            })}
           </div>
         </Container>
       </SectionWrapper>
