@@ -44,16 +44,18 @@ export async function createNotification(input: NotificationInput): Promise<void
   });
 }
 
-export async function getNotifications(limit = 30): Promise<Notification[]> {
+export async function getNotifications(limit = 30, feedFilter?: Set<NotificationKind>): Promise<Notification[]> {
   const raw = await client.fetch<(Omit<Notification, "metadata"> & { metadata?: string })[]>(
-    `*[_type == "notification"] | order(_createdAt desc)[0...${limit}]{
+    `*[_type == "notification"] | order(_createdAt desc)[0...${limit * 2}]{
       _id, kind, severity, title, body, read, metadata, _createdAt
     }`
   );
-  return raw.map((n) => ({
+  const all = raw.map((n) => ({
     ...n,
     metadata: n.metadata ? JSON.parse(n.metadata) : null,
   }));
+  if (!feedFilter) return all.slice(0, limit);
+  return all.filter((n) => feedFilter.has(n.kind)).slice(0, limit);
 }
 
 export async function getUnreadCount(): Promise<number> {

@@ -1,6 +1,37 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
+type AuthResult = { denied: NextResponse } | { role: "owner" | "staff" } | null;
+
+function checkCommandCenterAuth(request: NextRequest): AuthResult {
+  const ownerPw = process.env.COMMAND_CENTER_PASSWORD;
+  const staffPw = process.env.COMMAND_CENTER_STAFF_PASSWORD;
+  if (!ownerPw && !staffPw) return { role: "owner" };
+
+  const authHeader = request.headers.get("authorization");
+  if (!authHeader) {
+    return {
+      denied: new NextResponse("Authentication required", {
+        status: 401,
+        headers: { "WWW-Authenticate": `Basic realm="Business Command Center"` },
+      }),
+    };
+  }
+
+  const [, encoded] = authHeader.split(" ");
+  const [, suppliedPassword] = atob(encoded ?? "").split(":");
+
+  if (ownerPw && suppliedPassword === ownerPw) return { role: "owner" };
+  if (staffPw && suppliedPassword === staffPw) return { role: "staff" };
+
+  return {
+    denied: new NextResponse("Invalid credentials", {
+      status: 401,
+      headers: { "WWW-Authenticate": `Basic realm="Business Command Center"` },
+    }),
+  };
+}
+
 function requireBasicAuth(
   request: NextRequest,
   password: string | undefined,
@@ -36,13 +67,16 @@ export function middleware(request: NextRequest) {
     if (denied) return denied;
   }
 
-  // Deliberately its own credential — never inherits SANITY_STUDIO_PASSWORD.
-  // The Command Center will show revenue and customer data, so it gets its
-  // own gate rather than being bolted onto the CMS editor's password.
   if (pathname.startsWith("/command-center") || pathname.startsWith("/api/command-center")) {
     if (pathname === "/api/command-center/snapshot" || pathname === "/api/command-center/weekly-review") return NextResponse.next();
-    const denied = requireBasicAuth(request, process.env.COMMAND_CENTER_PASSWORD, "Business Command Center");
-    if (denied) return denied;
+
+    const result = checkCommandCenterAuth(request);
+    if (result && "denied" in result) return result.denied;
+
+    const role = result?.role ?? "owner";
+    const headers = new Headers(request.headers);
+    headers.set("x-cc-role", role);
+    return NextResponse.next({ request: { headers } });
   }
 
   return NextResponse.next();

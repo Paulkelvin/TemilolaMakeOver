@@ -166,6 +166,15 @@ export const deskStructure = (S: StructureBuilder) =>
           S.list()
             .title("System")
             .items([
+              S.listItem()
+                .title("Command Center Settings")
+                .id("ccSettings")
+                .child(
+                  S.document()
+                    .schemaType("ccSettings")
+                    .documentId("ccSettings")
+                    .title("Command Center Settings")
+                ),
               S.documentTypeListItem("metricSnapshot").title("Metric Snapshots"),
               S.documentTypeListItem("weeklyReview").title("Weekly Business Reviews"),
               S.documentTypeListItem("notification").title("Notifications"),

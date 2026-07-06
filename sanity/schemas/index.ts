@@ -25,6 +25,7 @@ import { locationSchema } from "./location";
 import { metricSnapshotSchema } from "./metricSnapshot";
 import { weeklyReviewSchema } from "./weeklyReview";
 import { notificationSchema } from "./notification";
+import { ccSettingsSchema } from "./ccSettings";
 
 export const schemaTypes = [
   serviceSchema,
@@ -54,4 +55,5 @@ export const schemaTypes = [
   metricSnapshotSchema,
   weeklyReviewSchema,
   notificationSchema,
+  ccSettingsSchema,
 ];

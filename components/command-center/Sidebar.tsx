@@ -2,9 +2,16 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { COMMAND_CENTER_MODULES, PHASE_LABEL } from "@/lib/command-center/modules";
+import type { CommandCenterModule } from "@/lib/command-center/modules";
+import { PHASE_LABEL } from "@/lib/command-center/modules";
+import type { CCRole } from "@/lib/command-center/roles";
 
-export function Sidebar() {
+interface SidebarProps {
+  modules: CommandCenterModule[];
+  role: CCRole;
+}
+
+export function Sidebar({ modules, role }: SidebarProps) {
   const pathname = usePathname();
 
   return (
@@ -12,7 +19,7 @@ export function Sidebar() {
       <div className="cc-brand">
         Gleam <span>Command Center</span>
       </div>
-      {COMMAND_CENTER_MODULES.map((mod) => {
+      {modules.map((mod) => {
         const isActive = mod.href === "/command-center" ? pathname === mod.href : pathname?.startsWith(mod.href);
         const phaseLabel = PHASE_LABEL[mod.status];
         return (
@@ -27,6 +34,9 @@ export function Sidebar() {
           </Link>
         );
       })}
+      {role === "staff" && (
+        <div className="cc-nav-role-badge">Staff access</div>
+      )}
     </nav>
   );
 }

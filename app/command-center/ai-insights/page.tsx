@@ -1,6 +1,7 @@
 import { generateOpportunities, type Opportunity, type ImpactBand } from "@/lib/intelligence/opportunities";
 import { getRecentReviews } from "@/lib/intelligence/weekly-review";
 import { MetricBadge } from "@/components/command-center/MetricBadge";
+import { AccessGuard } from "@/components/command-center/AccessGuard";
 
 function impactColor(impact: ImpactBand): string {
   return impact === "high" ? "var(--cc-critical)" : impact === "medium" ? "var(--cc-warn)" : "var(--cc-text-muted)";
@@ -56,6 +57,7 @@ export default async function AiInsightsPage() {
   const remaining = opportunities.slice(1);
 
   return (
+    <AccessGuard moduleKey="ai-insights">
     <div>
       <h1 className="cc-page-title">AI Insights</h1>
       <p className="cc-page-dek">
@@ -127,5 +129,6 @@ export default async function AiInsightsPage() {
         )}
       </div>
     </div>
+    </AccessGuard>
   );
 }

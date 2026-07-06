@@ -1,5 +1,6 @@
-import { getNotifications, getUnreadCount, type Notification } from "@/lib/intelligence/notifications";
+import { getNotifications, getUnreadCount, type Notification, type NotificationKind } from "@/lib/intelligence/notifications";
 import { MetricBadge } from "@/components/command-center/MetricBadge";
+import { getCCSettings } from "@/lib/command-center/settings";
 
 function severityIcon(severity: string): string {
   if (severity === "critical") return "●";
@@ -68,8 +69,12 @@ function NotificationRow({ n }: { n: Notification }) {
 }
 
 export default async function NotificationsPage() {
+  const settings = await getCCSettings();
+  const enabledKinds = settings.notificationPreferences.length > 0
+    ? new Set(settings.notificationPreferences.filter((p) => p.feedEnabled).map((p) => p.kind as NotificationKind))
+    : undefined;
   const [notifications, unread] = await Promise.all([
-    getNotifications(50),
+    getNotifications(50, enabledKinds),
     getUnreadCount(),
   ]);
 
