@@ -21,7 +21,7 @@ export default function PrivacyPolicyPage() {
           <Reveal>
             <div className="prose prose-neutral max-w-none space-y-6 text-text-muted leading-relaxed">
               <p className="text-sm text-text-muted">
-                Last updated: 22 June 2026
+                Last updated: 6 July 2026
               </p>
 
               <section>
@@ -55,6 +55,35 @@ export default function PrivacyPolicyPage() {
                   or Meta Pixel) when configured. WhatsApp is used for direct
                   communication and is subject to WhatsApp&apos;s own privacy
                   policy.
+                </p>
+              </section>
+
+              <section>
+                <h2 className="font-display text-2xl text-text-primary">
+                  Google API Services
+                </h2>
+                <p>
+                  We use Google Search Console and Google Analytics (GA4) APIs, via
+                  read-only access we&apos;ve granted ourselves as the site owner, to
+                  display our own site&apos;s search performance and traffic metrics
+                  (e.g. impressions, clicks, sessions, pageviews) in a private
+                  internal business dashboard. This access is limited to our own
+                  properties &mdash; it is never used to view or collect data from
+                  any other Google account, and no visitor-level personal data is
+                  accessed through these APIs. The aggregate metrics retrieved are
+                  stored securely in our own systems for internal reporting only and
+                  are never sold, shared, or used for any purpose beyond that
+                  reporting. Our use and transfer of information received from
+                  Google APIs adheres to the{" "}
+                  <a
+                    href="https://developers.google.com/terms/api-services-user-data-policy"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-accent-rose hover:underline"
+                  >
+                    Google API Services User Data Policy
+                  </a>
+                  , including the Limited Use requirements.
                 </p>
               </section>
 
