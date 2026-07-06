@@ -14,7 +14,11 @@ export const siteConfig = {
     "Skin-prep focused, camera-ready finish",
     "Calm, punctual service for every event",
   ],
-  url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://temilolomakeup.com",
+  // Stripped of any trailing slash — Vercel's NEXT_PUBLIC_SITE_URL is
+  // sometimes configured with one, which silently double-slashes every
+  // consumer that does `${siteConfig.url}/path` (sitemap, canonical tags,
+  // JSON-LD, robots.txt).
+  url: (process.env.NEXT_PUBLIC_SITE_URL ?? "https://temilolomakeup.com").replace(/\/+$/, ""),
   location: "Lagos, Nigeria",
   serviceArea: "Lagos & nearby areas (Ikeja, Lekki, Victoria Island, Mainland)",
   phone: "+234 705 859 6531",
