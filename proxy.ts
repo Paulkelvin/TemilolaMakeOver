@@ -59,8 +59,14 @@ function requireBasicAuth(
   return null;
 }
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
+
+  if (pathname.toLowerCase() === "/temilolashyllon" && pathname !== "/TemilolaShyllon") {
+    const url = request.nextUrl.clone();
+    url.pathname = "/TemilolaShyllon";
+    return NextResponse.redirect(url, 308);
+  }
 
   if (pathname.startsWith("/studio")) {
     const denied = requireBasicAuth(request, process.env.SANITY_STUDIO_PASSWORD, "Sanity Studio");
@@ -83,5 +89,10 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/studio/:path*", "/command-center/:path*", "/api/command-center/:path*"],
+  matcher: [
+    "/studio/:path*",
+    "/command-center/:path*",
+    "/api/command-center/:path*",
+    "/:page([Tt][Ee][Mm][Ii][Ll][Oo][Ll][Aa][Ss][Hh][Yy][Ll][Ll][Oo][Nn])",
+  ],
 };
