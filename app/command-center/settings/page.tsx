@@ -112,8 +112,9 @@ export default async function SettingsPage() {
                   Powers: {integ.powers}
                 </div>
                 {missing.length > 0 && (
-                  <div style={{ fontSize: "0.75rem", color: "var(--cc-warn)", marginTop: 4, paddingLeft: 2 }}>
-                    Missing: {missing.map((k) => <code key={k} style={{ marginRight: 6 }}>{k}</code>)}
+                  <div style={{ fontSize: "0.75rem", color: "var(--cc-warn)", marginTop: 4, paddingLeft: 2, display: "flex", flexWrap: "wrap", gap: 6 }}>
+                    <span>Missing:</span>
+                    {missing.map((k) => <code key={k}>{k}</code>)}
                   </div>
                 )}
               </div>

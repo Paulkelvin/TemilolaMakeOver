@@ -354,6 +354,95 @@ body.cc-body {
 .cc-setting-controls { display: flex; align-items: center; gap: 16px; flex-shrink: 0; }
 .cc-setting-controls label { display: flex; align-items: center; gap: 6px; font-size: 0.75rem; color: var(--cc-text-muted); }
 
+/* ── Mobile nav (hamburger + slide-in drawer) ──── */
+.cc-mobile-bar { display: none; }
+.cc-brand--mobile { padding: 0; }
+
+.cc-mobile-menu-btn {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 1px solid var(--cc-border);
+  border-radius: 6px;
+  background: var(--cc-surface);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.cc-mobile-menu-btn span {
+  display: block;
+  width: 16px;
+  height: 2px;
+  margin: 0 auto;
+  background: var(--cc-text);
+  border-radius: 1px;
+}
+
+.cc-sidebar-backdrop {
+  display: none;
+}
+
+@media (max-width: 860px) {
+  .cc-shell { display: block; }
+
+  .cc-mobile-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--cc-border);
+    position: sticky;
+    top: 0;
+    background: var(--cc-bg);
+    z-index: 60;
+  }
+
+  .cc-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100dvh;
+    width: min(280px, 82vw);
+    background: var(--cc-surface);
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.3);
+    transform: translateX(-100%);
+    transition: transform 0.22s ease;
+    z-index: 200;
+  }
+  .cc-sidebar--open { transform: translateX(0); }
+  .cc-sidebar .cc-brand { display: none; }
+
+  .cc-sidebar-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(10, 9, 6, 0.45);
+    z-index: 150;
+  }
+
+  .cc-main { padding: 20px 16px 60px; max-width: 100%; }
+  .cc-page-title { font-size: 1.375rem; }
+}
+
+/* ── Score rows wrap on narrow screens ─────────── */
+@media (max-width: 640px) {
+  .cc-score-row { flex-wrap: wrap; row-gap: 6px; }
+  .cc-score-label { order: 1; width: auto; flex: 1 1 auto; }
+  .cc-tier { order: 2; }
+  .cc-score-type { order: 2; flex-shrink: 0; }
+  .cc-score-track { order: 3; flex-basis: 100%; }
+  .cc-score-val { order: 4; }
+}
+
+/* ── Settings rows stack on narrow screens ─────── */
+@media (max-width: 480px) {
+  .cc-setting-row { flex-wrap: wrap; }
+  .cc-setting-controls { width: 100%; justify-content: flex-start; margin-top: 4px; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
 }

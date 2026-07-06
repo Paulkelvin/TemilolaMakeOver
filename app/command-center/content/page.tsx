@@ -58,7 +58,7 @@ export default async function ContentPage() {
               <div className="cc-score-fill" style={{ width: `${completeness.total}%` }} />
             </div>
             <span className="cc-score-val">{completeness.total}</span>
-            <span style={{ fontFamily: "var(--cc-mono)", fontSize: "0.75rem", color: "var(--cc-text-muted)", width: 90 }}>
+            <span className="cc-score-type" style={{ fontFamily: "var(--cc-mono)", fontSize: "0.75rem", color: "var(--cc-text-muted)", width: 90 }}>
               {node.typeLabel}
             </span>
           </Link>
