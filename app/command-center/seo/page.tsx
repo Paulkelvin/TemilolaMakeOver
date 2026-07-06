@@ -12,13 +12,13 @@ function NotConnected() {
       <div className="cc-card">
         <h2 style={{ margin: "0 0 12px", fontSize: "1.0625rem" }}>How to connect</h2>
         <ol style={{ margin: 0, paddingLeft: "1.4em", fontSize: "0.875rem", color: "var(--cc-text-muted)", lineHeight: 1.7 }}>
-          <li>Create a Google Cloud service account with <strong>Search Console API</strong> read access.</li>
-          <li>Add the service account email as an <strong>Owner</strong> on your Search Console property.</li>
+          <li>Run <code>npm run google:auth</code> once (see <code>scripts/get-google-refresh-token.ts</code>) logged in as an account with <strong>Search Console API</strong> access to your property — this produces an OAuth refresh token rather than a service-account key.</li>
           <li>
             Set these environment variables:
             <ul style={{ margin: "4px 0 8px", paddingLeft: "1.2em" }}>
-              <li><code>GOOGLE_SERVICE_ACCOUNT_EMAIL</code></li>
-              <li><code>GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY</code></li>
+              <li><code>GOOGLE_OAUTH_CLIENT_ID</code></li>
+              <li><code>GOOGLE_OAUTH_CLIENT_SECRET</code></li>
+              <li><code>GOOGLE_OAUTH_REFRESH_TOKEN</code></li>
               <li><code>SEARCH_CONSOLE_SITE_URL</code> (e.g. <code>https://temilolomakeup.com</code>)</li>
             </ul>
           </li>
@@ -64,8 +64,9 @@ export default async function SeoPage() {
         <h1 className="cc-page-title">SEO</h1>
         <p className="cc-page-dek">Search Console is configured but the API returned an error. Check your credentials and try again.</p>
         <div className="cc-empty">
-          Verify that <code>GOOGLE_SERVICE_ACCOUNT_EMAIL</code> has read access to the Search Console property
-          and that <code>SEARCH_CONSOLE_SITE_URL</code> matches exactly (including protocol).
+          Verify that the Google account used for <code>npm run google:auth</code> has read access to the
+          Search Console property, that <code>GOOGLE_OAUTH_REFRESH_TOKEN</code> hasn&rsquo;t been revoked, and
+          that <code>SEARCH_CONSOLE_SITE_URL</code> matches exactly (including protocol).
         </div>
       </div>
     );

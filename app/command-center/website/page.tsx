@@ -60,8 +60,8 @@ export default async function WebsitePage() {
           service="Google Analytics (GA4)"
           steps={
             <ol style={{ margin: 0, paddingLeft: "1.4em", fontSize: "0.875rem", color: "var(--cc-text-muted)", lineHeight: 1.7 }}>
-              <li>Use the same Google Cloud service account as Search Console (or create a new one) with <strong>Analytics Data API</strong> access.</li>
-              <li>Add the service account email as a <strong>Viewer</strong> on your GA4 property.</li>
+              <li>Uses the same <code>npm run google:auth</code> OAuth setup as Search Console — the account you authorize needs <strong>Analytics Data API</strong> access too.</li>
+              <li>Add that Google account as a <strong>Viewer</strong> on your GA4 property.</li>
               <li>
                 Set this environment variable:
                 <ul style={{ margin: "4px 0 8px", paddingLeft: "1.2em" }}>
@@ -229,7 +229,7 @@ export default async function WebsitePage() {
       )}
       {analyticsOk && !traffic && (
         <div className="cc-empty" style={{ marginBottom: 16 }}>
-          GA4 is configured but the API returned an error. Check that the service account has Viewer access to GA4 property <code>{process.env.GA4_PROPERTY_ID}</code>.
+          GA4 is configured but the API returned an error. Check that the Google account used for <code>npm run google:auth</code> has Viewer access to GA4 property <code>{process.env.GA4_PROPERTY_ID}</code>, and that <code>GOOGLE_OAUTH_REFRESH_TOKEN</code> hasn&rsquo;t been revoked.
         </div>
       )}
 
@@ -292,7 +292,7 @@ export default async function WebsitePage() {
           service="Google Analytics (GA4)"
           steps={
             <ol style={{ margin: 0, paddingLeft: "1.4em", fontSize: "0.875rem", color: "var(--cc-text-muted)", lineHeight: 1.7 }}>
-              <li>Add your service account as a Viewer on the GA4 property.</li>
+              <li>Add the Google account used for <code>npm run google:auth</code> as a Viewer on the GA4 property.</li>
               <li>Set <code>GA4_PROPERTY_ID</code> (numeric property ID).</li>
             </ol>
           }

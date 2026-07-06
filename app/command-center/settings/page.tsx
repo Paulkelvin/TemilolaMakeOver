@@ -11,8 +11,9 @@ const CHECKS = [
   { key: "SANITY_API_TOKEN", label: "Sanity read access" },
   { key: "SANITY_API_WRITE_TOKEN", label: "Sanity write access (snapshots)" },
   { key: "GMAIL_APP_PASSWORD", label: "Email delivery (notifications)" },
-  { key: "GOOGLE_SERVICE_ACCOUNT_EMAIL", label: "Google service account" },
-  { key: "GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY", label: "Google private key" },
+  { key: "GOOGLE_OAUTH_CLIENT_ID", label: "Google OAuth client ID" },
+  { key: "GOOGLE_OAUTH_CLIENT_SECRET", label: "Google OAuth client secret" },
+  { key: "GOOGLE_OAUTH_REFRESH_TOKEN", label: "Google OAuth refresh token" },
   { key: "SEARCH_CONSOLE_SITE_URL", label: "Search Console property" },
   { key: "GA4_PROPERTY_ID", label: "Google Analytics (GA4)" },
   { key: "VERCEL_API_TOKEN", label: "Vercel API token" },
@@ -26,12 +27,12 @@ const CHECKS = [
 const INTEGRATIONS = [
   {
     name: "Search Console",
-    requires: ["GOOGLE_SERVICE_ACCOUNT_EMAIL", "GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY", "SEARCH_CONSOLE_SITE_URL"],
+    requires: ["GOOGLE_OAUTH_CLIENT_ID", "GOOGLE_OAUTH_CLIENT_SECRET", "GOOGLE_OAUTH_REFRESH_TOKEN", "SEARCH_CONSOLE_SITE_URL"],
     powers: "SEO page, SEO Health sub-score",
   },
   {
     name: "Google Analytics (GA4)",
-    requires: ["GOOGLE_SERVICE_ACCOUNT_EMAIL", "GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY", "GA4_PROPERTY_ID"],
+    requires: ["GOOGLE_OAUTH_CLIENT_ID", "GOOGLE_OAUTH_CLIENT_SECRET", "GOOGLE_OAUTH_REFRESH_TOKEN", "GA4_PROPERTY_ID"],
     powers: "Website page (traffic), sessions tile on Overview",
   },
   {

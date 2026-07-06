@@ -1,6 +1,7 @@
 import { isGoogleConfigured, getAccessToken } from "./google-auth";
 
-const SCOPES = ["https://www.googleapis.com/auth/webmasters.readonly"];
+// Requires the https://www.googleapis.com/auth/webmasters.readonly scope,
+// consented once during refresh-token setup (see scripts/get-google-refresh-token.ts).
 const API_BASE = "https://searchconsole.googleapis.com/webmasters/v3";
 
 export function isSearchConsoleConfigured(): boolean {
@@ -12,7 +13,7 @@ function siteUrl(): string {
 }
 
 async function gscFetch<T>(path: string, init?: RequestInit): Promise<T> {
-  const token = await getAccessToken(SCOPES);
+  const token = await getAccessToken();
   const encoded = encodeURIComponent(siteUrl());
   const res = await fetch(`${API_BASE}/sites/${encoded}${path}`, {
     ...init,

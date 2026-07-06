@@ -9,7 +9,8 @@
     "lint": "eslint",
     "seed": "tsx sanity/seed.ts",
     "seed:dry-run": "tsx sanity/seed.ts --dry-run",
-    "seed:images": "tsx sanity/seed-images.ts"
+    "seed:images": "tsx sanity/seed-images.ts",
+    "google:auth": "tsx scripts/get-google-refresh-token.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.4.0",

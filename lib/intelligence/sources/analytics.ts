@@ -1,6 +1,7 @@
 import { isGoogleConfigured, getAccessToken } from "./google-auth";
 
-const SCOPES = ["https://www.googleapis.com/auth/analytics.readonly"];
+// Requires the https://www.googleapis.com/auth/analytics.readonly scope,
+// consented once during refresh-token setup (see scripts/get-google-refresh-token.ts).
 const API_BASE = "https://analyticsdata.googleapis.com/v1beta";
 
 export function isAnalyticsConfigured(): boolean {
@@ -43,7 +44,7 @@ async function runReport(body: {
   limit?: number;
   orderBys?: { metric?: { metricName: string }; desc?: boolean }[];
 }): Promise<GA4Response> {
-  const token = await getAccessToken(SCOPES);
+  const token = await getAccessToken();
   const res = await fetch(`${API_BASE}/properties/${propertyId()}:runReport`, {
     method: "POST",
     headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },

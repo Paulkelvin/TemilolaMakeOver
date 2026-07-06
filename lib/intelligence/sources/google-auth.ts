@@ -1,58 +1,44 @@
-import crypto from "crypto";
-
 const TOKEN_ENDPOINT = "https://oauth2.googleapis.com/token";
-const TOKEN_LIFETIME_S = 3600;
 
 let cachedToken: { token: string; expiresAt: number } | null = null;
 
+/**
+ * Standard OAuth 2.0 refresh-token exchange — not a service account. This
+ * project's Google Cloud org enforces iam.disableServiceAccountKeyCreation,
+ * so no service-account private key can be issued; a downloadable JSON key
+ * was never required here in the first place, only the earlier
+ * implementation's choice of auth flow. The refresh token is produced once
+ * via scripts/get-google-refresh-token.ts (a loopback OAuth consent flow)
+ * and the scopes it's valid for are fixed at that consent time — they
+ * aren't, and can't be, passed per-call.
+ */
 export function isGoogleConfigured(): boolean {
   return Boolean(
-    process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL &&
-    process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY
+    process.env.GOOGLE_OAUTH_CLIENT_ID &&
+    process.env.GOOGLE_OAUTH_CLIENT_SECRET &&
+    process.env.GOOGLE_OAUTH_REFRESH_TOKEN
   );
 }
 
-function base64url(input: string | Buffer): string {
-  const buf = typeof input === "string" ? Buffer.from(input, "utf8") : input;
-  return buf.toString("base64url");
-}
-
-function buildJwt(scopes: string[]): string {
-  const now = Math.floor(Date.now() / 1000);
-  const header = base64url(JSON.stringify({ alg: "RS256", typ: "JWT" }));
-  const payload = base64url(
-    JSON.stringify({
-      iss: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
-      scope: scopes.join(" "),
-      aud: TOKEN_ENDPOINT,
-      iat: now,
-      exp: now + TOKEN_LIFETIME_S,
-    })
-  );
-  const signable = `${header}.${payload}`;
-  const key = (process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY ?? "").replace(/\\n/g, "\n");
-  const signature = crypto.sign("RSA-SHA256", Buffer.from(signable), key);
-  return `${signable}.${base64url(signature)}`;
-}
-
-export async function getAccessToken(scopes: string[]): Promise<string> {
+export async function getAccessToken(): Promise<string> {
   if (cachedToken && Date.now() < cachedToken.expiresAt) {
     return cachedToken.token;
   }
 
-  const jwt = buildJwt(scopes);
   const res = await fetch(TOKEN_ENDPOINT, {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
     body: new URLSearchParams({
-      grant_type: "urn:ietf:params:oauth:grant-type:jwt-bearer",
-      assertion: jwt,
+      grant_type: "refresh_token",
+      client_id: process.env.GOOGLE_OAUTH_CLIENT_ID ?? "",
+      client_secret: process.env.GOOGLE_OAUTH_CLIENT_SECRET ?? "",
+      refresh_token: process.env.GOOGLE_OAUTH_REFRESH_TOKEN ?? "",
     }),
   });
 
   if (!res.ok) {
     const text = await res.text();
-    throw new Error(`Google token exchange failed (${res.status}): ${text}`);
+    throw new Error(`Google token refresh failed (${res.status}): ${text}`);
   }
 
   const data = (await res.json()) as { access_token: string; expires_in: number };
