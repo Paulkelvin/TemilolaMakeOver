@@ -18,6 +18,9 @@ const CHECKS = [
   { key: "VERCEL_API_TOKEN", label: "Vercel API token" },
   { key: "VERCEL_PROJECT_ID", label: "Vercel project" },
   { key: "CRON_SECRET", label: "Snapshot cron auth" },
+  { key: "SANITY_PLAN_NAME", label: "Sanity plan name (display only)" },
+  { key: "SANITY_DOCUMENT_LIMIT", label: "Sanity document limit (default: 10,000)" },
+  { key: "SANITY_ASSET_LIMIT_GB", label: "Sanity asset storage limit GB (default: 100)" },
 ] as const;
 
 const INTEGRATIONS = [

@@ -11,10 +11,11 @@ import {
 } from "./content";
 import { LEAF_TYPES } from "./registry";
 import { getBookingFunnel, getRevenueSummary, getReviewTrend } from "./sources/sanity";
-import { getLatestSnapshot } from "./sources/snapshots";
+import { getLatestSnapshot, getSnapshotSeries } from "./sources/snapshots";
+import { getSanityUsageSnapshot, getDocumentLimit, computeGrowthProjection } from "./sources/sanity-usage";
 
 export type ImpactBand = "high" | "medium" | "low";
-export type OpportunityCategory = "content" | "booking" | "portfolio" | "customer" | "seo" | "website";
+export type OpportunityCategory = "content" | "booking" | "portfolio" | "customer" | "seo" | "website" | "infrastructure";
 
 export interface Opportunity {
   id: string;
@@ -260,6 +261,32 @@ export async function generateOpportunities(fetchClient: FetchClient = client): 
         "Fix layout shift (CLS)",
         `CLS is ${clsSnap.value.toFixed(3)} (threshold: 0.1). Add explicit width/height to images, avoid injecting content above the fold after load.`,
         `Layout shift degrades user experience and hurts search ranking.`,
+      )
+    );
+  }
+
+  // ─── Infrastructure opportunities (Sanity usage) ────────────────────────
+
+  const usage = await getSanityUsageSnapshot(fetchClient);
+  const docLimit = getDocumentLimit();
+  const usagePct = docLimit > 0 ? (usage.totalDocuments / docLimit) * 100 : 0;
+
+  if (usagePct >= 75) {
+    const series = await getSnapshotSeries("sanity-usage", "documents", 30);
+    const projection = computeGrowthProjection(
+      series.map((s) => ({ date: s.date, value: s.value })),
+      docLimit
+    );
+    const etaText =
+      projection.daysUntilLimit !== null
+        ? ` At the current growth rate, you'll reach the limit in about ${projection.daysUntilLimit} day${projection.daysUntilLimit === 1 ? "" : "s"}.`
+        : "";
+
+    opportunities.push(
+      opp("infrastructure", usagePct >= 90 ? "high" : "medium",
+        `Sanity document usage at ${Math.round(usagePct)}%`,
+        `Using ${usage.totalDocuments.toLocaleString()} of an assumed ${docLimit.toLocaleString()}-document limit.${etaText} Review the Sanity Usage page and plan for a plan upgrade if needed.`,
+        `Exceeding your Sanity plan's document limit can block writes until you upgrade or delete content.`,
       )
     );
   }

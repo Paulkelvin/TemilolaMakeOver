@@ -30,5 +30,6 @@ export const COMMAND_CENTER_MODULES: CommandCenterModule[] = [
   { key: "website", label: "Website", href: "/command-center/website", status: "live" },
   { key: "ai-insights", label: "AI Insights", href: "/command-center/ai-insights", status: "live" },
   { key: "notifications", label: "Notifications", href: "/command-center/notifications", status: "live" },
+  { key: "sanity-usage", label: "Sanity Usage", href: "/command-center/sanity-usage", status: "live" },
   { key: "settings", label: "Settings", href: "/command-center/settings", status: "live" },
 ];

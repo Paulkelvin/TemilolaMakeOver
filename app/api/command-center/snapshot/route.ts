@@ -2,8 +2,10 @@ import { NextResponse } from "next/server";
 import { isSearchConsoleConfigured, getSummary as gscSummary } from "@/lib/intelligence/sources/search-console";
 import { isAnalyticsConfigured, getTrafficSummary } from "@/lib/intelligence/sources/analytics";
 import { isVercelConfigured, getDeploymentSummary, getWebVitals } from "@/lib/intelligence/sources/vercel-api";
+import { getSanityUsageSnapshot, getDocumentLimit } from "@/lib/intelligence/sources/sanity-usage";
 import { upsertSnapshots, getLatestSnapshot } from "@/lib/intelligence/sources/snapshots";
 import { createNotification } from "@/lib/intelligence/notifications";
+import { client } from "@/sanity/client";
 
 export const dynamic = "force-dynamic";
 
@@ -67,6 +69,16 @@ export async function POST(request: Request) {
     }
   }
 
+  try {
+    const usage = await getSanityUsageSnapshot(client);
+    snapshots.push(
+      { source: "sanity-usage", metric: "documents", date: today, value: usage.totalDocuments },
+      { source: "sanity-usage", metric: "asset-bytes", date: today, value: usage.assetBytes },
+    );
+  } catch (err) {
+    errors.push(`sanity-usage: ${err instanceof Error ? err.message : String(err)}`);
+  }
+
   if (snapshots.length > 0) {
     try {
       await upsertSnapshots(snapshots);
@@ -105,6 +117,32 @@ export async function POST(request: Request) {
     }
   } catch (err) {
     errors.push(`notifications: ${err instanceof Error ? err.message : String(err)}`);
+  }
+
+  // ─── Sanity usage threshold notifications ──────────────────────────────
+  try {
+    const usageSnap = snapshots.find((s) => s.source === "sanity-usage" && s.metric === "documents");
+    if (usageSnap) {
+      const limit = getDocumentLimit();
+      const currentPct = (usageSnap.value / limit) * 100;
+      const prior = await getLatestSnapshot("sanity-usage", "documents");
+      const priorPct = prior && prior.date !== today ? (prior.value / limit) * 100 : 0;
+
+      for (const threshold of [95, 90, 75]) {
+        if (priorPct < threshold && currentPct >= threshold) {
+          await createNotification({
+            kind: "metric_alert",
+            severity: threshold >= 90 ? "critical" : "warning",
+            title: `Sanity document usage crossed ${threshold}%`,
+            body: `Using ${usageSnap.value.toLocaleString()} of an assumed ${limit.toLocaleString()}-document limit (${currentPct.toFixed(1)}%). Check the Sanity Usage page and plan ahead if this is your real plan tier.`,
+            metadata: { metric: "documents", value: usageSnap.value, limit, pct: currentPct },
+          });
+          break;
+        }
+      }
+    }
+  } catch (err) {
+    errors.push(`sanity-usage-alerts: ${err instanceof Error ? err.message : String(err)}`);
   }
 
   return NextResponse.json({

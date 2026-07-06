@@ -19,6 +19,7 @@ function categoryLabel(cat: string): string {
     customer: "Customers",
     seo: "SEO",
     website: "Website",
+    infrastructure: "Infrastructure",
   };
   return labels[cat] ?? cat;
 }
