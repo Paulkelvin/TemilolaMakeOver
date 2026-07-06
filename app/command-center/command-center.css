@@ -257,7 +257,7 @@ body.cc-body {
   border: none;
   border-bottom: 1px solid var(--cc-border);
   padding: 14px 16px;
-  font-size: 0.9375rem;
+  font-size: 16px;
   background: transparent;
   color: var(--cc-text);
   font-family: var(--cc-sans);
