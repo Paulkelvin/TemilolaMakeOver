@@ -24,10 +24,10 @@ export const PHASE_LABEL: Record<ModuleStatus, string | null> = {
 export const COMMAND_CENTER_MODULES: CommandCenterModule[] = [
   { key: "overview", label: "Overview", href: "/command-center", status: "live" },
   { key: "content", label: "Content", href: "/command-center/content", status: "live" },
-  { key: "seo", label: "SEO", href: "/command-center/seo", status: "phase-4" },
+  { key: "seo", label: "SEO", href: "/command-center/seo", status: "live" },
   { key: "bookings", label: "Bookings & Revenue", href: "/command-center/bookings", status: "live" },
   { key: "customers", label: "Customers", href: "/command-center/customers", status: "live" },
-  { key: "website", label: "Website", href: "/command-center/website", status: "phase-4" },
+  { key: "website", label: "Website", href: "/command-center/website", status: "live" },
   { key: "ai-insights", label: "AI Insights", href: "/command-center/ai-insights", status: "phase-5" },
   { key: "notifications", label: "Notifications", href: "/command-center/notifications", status: "phase-5" },
   { key: "settings", label: "Settings", href: "/command-center/settings", status: "live" },

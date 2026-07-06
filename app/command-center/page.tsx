@@ -1,14 +1,16 @@
 import { computeBusinessHealthScore, CONFIDENCE_LABELS } from "@/lib/intelligence/health-score";
 import { getBookingFunnel, getRevenueSummary } from "@/lib/intelligence/sources/sanity";
+import { getLatestSnapshot } from "@/lib/intelligence/sources/snapshots";
 import { MetricBadge } from "@/components/command-center/MetricBadge";
 import { client } from "@/sanity/client";
 import { formatPrice } from "@/lib/utils";
 
 export default async function CommandCenterOverviewPage() {
-  const [health, funnel, revenue] = await Promise.all([
+  const [health, funnel, revenue, sessionsSnap] = await Promise.all([
     computeBusinessHealthScore(),
     getBookingFunnel(client),
     getRevenueSummary(client),
+    getLatestSnapshot("ga4", "sessions"),
   ]);
 
   return (
@@ -36,11 +38,15 @@ export default async function CommandCenterOverviewPage() {
           <MetricBadge source="sanity" freshness="live" />
         </div>
         <div className="cc-tile">
-          <div className="cc-tile__label">Organic traffic</div>
-          <div className="cc-tile__value">—</div>
-          <span style={{ fontFamily: "var(--cc-mono)", fontSize: "0.6875rem", color: "var(--cc-text-muted)" }}>
-            GA4 not connected yet — Phase 4
-          </span>
+          <div className="cc-tile__label">Sessions (28d)</div>
+          <div className="cc-tile__value">{sessionsSnap ? sessionsSnap.value.toLocaleString() : "—"}</div>
+          {sessionsSnap ? (
+            <MetricBadge source="ga4" freshness={sessionsSnap.fetchedAt} />
+          ) : (
+            <span style={{ fontFamily: "var(--cc-mono)", fontSize: "0.6875rem", color: "var(--cc-text-muted)" }}>
+              GA4 not connected — see Settings
+            </span>
+          )}
         </div>
       </div>
 

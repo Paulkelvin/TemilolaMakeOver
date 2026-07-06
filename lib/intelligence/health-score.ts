@@ -1,5 +1,6 @@
 import { client } from "@/sanity/client";
 import { fetchAllTaxonomyNodes, computeCoverage, computeCompleteness, type FetchClient } from "./content";
+import { getLatestSnapshot } from "./sources/snapshots";
 
 /**
  * Content, Booking, Portfolio, and (as of Phase 3) Customer Health are
@@ -186,6 +187,107 @@ export async function computeCustomerHealth(fetchClient: FetchClient = client): 
   };
 }
 
+export async function computeSeoHealth(): Promise<SubScore> {
+  const [impressions, clicks, position] = await Promise.all([
+    getLatestSnapshot("search-console", "impressions"),
+    getLatestSnapshot("search-console", "clicks"),
+    getLatestSnapshot("search-console", "avg_position"),
+  ]);
+
+  const hasData = impressions || clicks || position;
+  if (!hasData) {
+    return {
+      key: "seo",
+      label: "SEO Health",
+      score: null,
+      confidence: "insufficient-data",
+      sampleSize: 0,
+      reason: "Search Console not connected yet — connect it in Settings to light up this score.",
+    };
+  }
+
+  const imp = impressions?.value ?? 0;
+  const clk = clicks?.value ?? 0;
+  const pos = position?.value ?? 50;
+
+  const ctrScore = imp > 0 ? Math.min(40, (clk / imp) * 400) : 0;
+  const positionScore = Math.min(30, Math.max(0, (20 - pos) / 20) * 30);
+  const volumeScore = Math.min(30, Math.log10(Math.max(1, imp)) * 10);
+  const score = Math.round(Math.min(100, ctrScore + positionScore + volumeScore));
+
+  return {
+    key: "seo",
+    label: "SEO Health",
+    score,
+    confidence: tierFor(imp, 100, 1000),
+    sampleSize: imp,
+    reason: `${clk} clicks from ${imp} impressions; average position ${pos.toFixed(1)}.`,
+  };
+}
+
+export async function computeWebsiteHealth(): Promise<SubScore> {
+  const [lcp, cls, sessions, deploySuccess] = await Promise.all([
+    getLatestSnapshot("vercel", "lcp"),
+    getLatestSnapshot("vercel", "cls"),
+    getLatestSnapshot("ga4", "sessions"),
+    getLatestSnapshot("vercel", "deploy_success_rate"),
+  ]);
+
+  const hasData = lcp || cls || sessions || deploySuccess;
+  if (!hasData) {
+    return {
+      key: "website",
+      label: "Website Health",
+      score: null,
+      confidence: "insufficient-data",
+      sampleSize: 0,
+      reason: "Vercel and GA4 not connected yet — connect them in Settings to light up this score.",
+    };
+  }
+
+  let parts = 0;
+  let total = 0;
+
+  if (lcp) {
+    const lcpScore = lcp.value <= 2500 ? 30 : lcp.value <= 4000 ? 15 : 5;
+    total += lcpScore;
+    parts++;
+  }
+  if (cls) {
+    const clsScore = cls.value <= 0.1 ? 20 : cls.value <= 0.25 ? 10 : 3;
+    total += clsScore;
+    parts++;
+  }
+  if (deploySuccess) {
+    total += Math.round(deploySuccess.value * 25);
+    parts++;
+  }
+  if (sessions) {
+    const trafficScore = Math.min(25, Math.log10(Math.max(1, sessions.value)) * 8);
+    total += trafficScore;
+    parts++;
+  }
+
+  const maxPossible = parts > 0 ? (parts / 4) * 100 : 0;
+  const score = maxPossible > 0 ? Math.round((total / maxPossible) * 100) : null;
+
+  return {
+    key: "website",
+    label: "Website Health",
+    score,
+    confidence: tierFor(parts, 2, 3),
+    sampleSize: parts,
+    reason: [
+      lcp ? `LCP ${lcp.value}ms` : null,
+      cls ? `CLS ${cls.value}` : null,
+      sessions ? `${sessions.value} sessions (28d)` : null,
+      deploySuccess ? `${Math.round(deploySuccess.value * 100)}% deploy success` : null,
+    ]
+      .filter(Boolean)
+      .join("; ") || "Partial data available.",
+  };
+}
+
 export interface PendingSubScore {
   key: string;
   label: string;
@@ -199,10 +301,14 @@ export interface BusinessHealthScore {
   pending: PendingSubScore[];
 }
 
-// Equal weight across the four sub-scores measurable from Sanity alone —
-// no basis yet to say one matters more than another. Rebalance once
-// SEO/Website Health come online in Phase 4.
-const CURRENT_WEIGHTS: Record<string, number> = { content: 0.25, booking: 0.25, portfolio: 0.25, customer: 0.25 };
+const CURRENT_WEIGHTS: Record<string, number> = {
+  content: 0.20,
+  booking: 0.20,
+  portfolio: 0.15,
+  customer: 0.15,
+  seo: 0.15,
+  website: 0.15,
+};
 
 export async function computeBusinessHealthScore(fetchClient: FetchClient = client): Promise<BusinessHealthScore> {
   const subScores = await Promise.all([
@@ -210,6 +316,8 @@ export async function computeBusinessHealthScore(fetchClient: FetchClient = clie
     computeBookingHealth(fetchClient),
     computePortfolioHealth(fetchClient),
     computeCustomerHealth(fetchClient),
+    computeSeoHealth(),
+    computeWebsiteHealth(),
   ]);
 
   const measurable = subScores.filter((s): s is SubScore & { score: number } => s.score !== null);
@@ -229,9 +337,6 @@ export async function computeBusinessHealthScore(fetchClient: FetchClient = clie
     overall,
     overallConfidence,
     subScores,
-    pending: [
-      { key: "seo", label: "SEO Health", note: "Requires Search Console — arrives Phase 4." },
-      { key: "website", label: "Website Health", note: "Requires Vercel API — arrives Phase 4." },
-    ],
+    pending: [],
   };
 }
