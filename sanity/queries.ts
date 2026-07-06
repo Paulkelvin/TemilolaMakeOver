@@ -228,7 +228,7 @@ export const BIO_LINKS_QUERY = `*[_type == "bioLink"] | order(order asc) {
   "imageUrl": image.asset->url,
   "videoUrl": video.asset->url,
   "thumbnailUrl": thumbnail.asset->url,
-  alt, layout, description, order
+  icon, alt, layout, description, order
 }`;
 
 export const LINKS_PAGE_SETTINGS_QUERY = `*[_type == "linksPageSettings"][0] {

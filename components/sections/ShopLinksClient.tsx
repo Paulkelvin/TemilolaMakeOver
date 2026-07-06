@@ -1,9 +1,27 @@
 "use client";
 
 import Image from "next/image";
-import { ExternalLink, Play } from "lucide-react";
+import { ExternalLink, Play, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { LINK_ICON_MAP } from "@/lib/link-icons";
 import type { LinkCardData } from "@/sanity/fetch";
+
+function IconMedia({
+  icon,
+  className,
+  iconClassName,
+}: {
+  icon?: string;
+  className?: string;
+  iconClassName?: string;
+}) {
+  const Icon = (icon && LINK_ICON_MAP[icon]) || Sparkles;
+  return (
+    <div className={cn("flex items-center justify-center bg-bg-blush", className)}>
+      <Icon className={cn("text-accent-rose", iconClassName)} strokeWidth={1.5} />
+    </div>
+  );
+}
 
 export interface LinkSection {
   name: string;
@@ -69,7 +87,13 @@ function CompactCard({ link }: { link: LinkCardData }) {
       rel="noopener noreferrer"
       className="group flex items-center gap-3 rounded-2xl border border-border bg-card p-2.5 transition-all duration-200 hover:shadow-md hover:scale-[1.01]"
     >
-      {thumbSrc ? (
+      {link.mediaType === "icon" ? (
+        <IconMedia
+          icon={link.icon}
+          className="h-16 w-16 flex-shrink-0 rounded-xl"
+          iconClassName="w-6 h-6"
+        />
+      ) : thumbSrc ? (
         <div className="relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-xl bg-bg-blush">
           <Image
             src={thumbSrc}
@@ -108,7 +132,9 @@ function FeaturedCard({ link }: { link: LinkCardData }) {
       className="group block rounded-2xl border border-border bg-card overflow-hidden transition-all duration-200 hover:shadow-md hover:scale-[1.01]"
     >
       <div className="relative aspect-[4/3] bg-bg-blush">
-        {isVideo ? (
+        {link.mediaType === "icon" ? (
+          <IconMedia icon={link.icon} className="absolute inset-0" iconClassName="w-16 h-16" />
+        ) : isVideo ? (
           <video
             src={link.videoUrl}
             muted
@@ -159,7 +185,9 @@ function WideCard({ link }: { link: LinkCardData }) {
       )}
     >
       <div className="relative sm:w-2/5 aspect-[4/3] sm:aspect-auto sm:min-h-[120px] bg-bg-blush flex-shrink-0">
-        {isVideo ? (
+        {link.mediaType === "icon" ? (
+          <IconMedia icon={link.icon} className="absolute inset-0" iconClassName="w-12 h-12" />
+        ) : isVideo ? (
           <video
             src={link.videoUrl}
             muted

@@ -778,10 +778,11 @@ export interface LinkCardData {
   id: string;
   title: string;
   url: string;
-  mediaType: "image" | "video";
+  mediaType: "image" | "video" | "icon";
   imageUrl?: string;
   videoUrl?: string;
   thumbnailUrl?: string;
+  icon?: string;
   alt?: string;
   layout: "compact" | "featured" | "wide";
   description?: string;
@@ -846,10 +847,11 @@ interface RawBioLink {
   _id: string;
   title: string;
   url: string;
-  mediaType: "image" | "video";
+  mediaType: "image" | "video" | "icon";
   imageUrl?: string;
   videoUrl?: string;
   thumbnailUrl?: string;
+  icon?: string;
   alt?: string;
   layout: "compact" | "featured" | "wide";
   description?: string;
@@ -866,6 +868,7 @@ export const getBioLinks = cache(async (): Promise<BioLink[]> => {
     imageUrl: l.imageUrl,
     videoUrl: l.videoUrl,
     thumbnailUrl: l.thumbnailUrl,
+    icon: l.icon,
     alt: l.alt,
     layout: l.layout ?? "wide",
     description: l.description,

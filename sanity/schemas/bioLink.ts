@@ -1,4 +1,5 @@
 import { defineField, defineType } from "sanity";
+import { LINK_ICON_OPTIONS } from "@/lib/link-icons";
 
 export const bioLinkSchema = defineType({
   name: "bioLink",
@@ -27,6 +28,7 @@ export const bioLinkSchema = defineType({
         list: [
           { title: "Image", value: "image" },
           { title: "Video", value: "video" },
+          { title: "Icon", value: "icon" },
         ],
         layout: "radio",
       },
@@ -37,7 +39,7 @@ export const bioLinkSchema = defineType({
       title: "Image",
       type: "image",
       options: { hotspot: true },
-      hidden: ({ parent }) => parent?.mediaType === "video",
+      hidden: ({ parent }) => parent?.mediaType !== "image",
     }),
     defineField({
       name: "video",
@@ -53,6 +55,17 @@ export const bioLinkSchema = defineType({
       options: { hotspot: true },
       description: "Thumbnail image for video items (used in compact layout)",
       hidden: ({ parent }) => parent?.mediaType !== "video",
+    }),
+    defineField({
+      name: "icon",
+      title: "Icon",
+      type: "string",
+      description: "Shown instead of an image or video",
+      options: {
+        list: LINK_ICON_OPTIONS.map(({ value, title }) => ({ value, title })),
+      },
+      hidden: ({ parent }) => parent?.mediaType !== "icon",
+      initialValue: "sparkles",
     }),
     defineField({
       name: "alt",
