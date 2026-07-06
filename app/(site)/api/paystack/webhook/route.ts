@@ -36,7 +36,12 @@ export async function POST(request: Request) {
       if (sanityBookingId) {
         writeClient
           .patch(sanityBookingId)
-          .set({ status: "paid", paidAt: paid_at ?? new Date().toISOString() })
+          .set({
+            status: "paid",
+            paidAt: paid_at ?? new Date().toISOString(),
+            amountPaid: amount / 100,
+            paystackReference: reference,
+          })
           .commit()
           .catch((err: unknown) => console.error("[Sanity payment update failed]", err));
       }

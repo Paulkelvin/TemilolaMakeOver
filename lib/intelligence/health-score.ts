@@ -2,10 +2,10 @@ import { client } from "@/sanity/client";
 import { fetchAllTaxonomyNodes, computeCoverage, computeCompleteness, type FetchClient } from "./content";
 
 /**
- * Phase 1 scope: only the three sub-scores computable from Sanity alone.
- * SEO Health (Search Console) and Website Health (Vercel) arrive in Phase 4;
- * Customer Health needs booking.amountPaid, arriving in Phase 3. Each is
- * listed as "pending" on the BusinessHealthScore rather than faked as zero.
+ * Content, Booking, Portfolio, and (as of Phase 3) Customer Health are
+ * computable from Sanity alone. SEO Health (Search Console) and Website
+ * Health (Vercel) still require an external integration and are listed as
+ * "pending" on the BusinessHealthScore, arriving Phase 4.
  */
 
 export type ConfidenceTier = "established" | "emerging" | "insufficient-data";
@@ -128,6 +128,64 @@ export async function computePortfolioHealth(fetchClient: FetchClient = client):
   };
 }
 
+export async function computeCustomerHealth(fetchClient: FetchClient = client): Promise<SubScore> {
+  const bookings = await fetchClient.fetch<{ email?: string; phone?: string }[]>(
+    `*[_type == "booking" && status in ["confirmed", "paid"]]{ email, phone }`
+  );
+
+  if (bookings.length === 0) {
+    return {
+      key: "customer",
+      label: "Customer Health",
+      score: null,
+      confidence: "insufficient-data",
+      sampleSize: 0,
+      reason: "No confirmed or paid bookings yet.",
+    };
+  }
+
+  // De-dupe by email (falling back to phone) rather than adding a separate
+  // customer document type — a computed rollup over booking, not new
+  // content to keep in sync.
+  const bookingsPerCustomer = new Map<string, number>();
+  for (const b of bookings) {
+    const identity = b.email?.trim().toLowerCase() || b.phone?.trim();
+    if (!identity) continue;
+    bookingsPerCustomer.set(identity, (bookingsPerCustomer.get(identity) ?? 0) + 1);
+  }
+
+  const uniqueCustomers = bookingsPerCustomer.size;
+  if (uniqueCustomers === 0) {
+    return {
+      key: "customer",
+      label: "Customer Health",
+      score: null,
+      confidence: "insufficient-data",
+      sampleSize: 0,
+      reason: "Confirmed/paid bookings exist but none carry an email or phone to identify a customer by.",
+    };
+  }
+
+  const returningCustomers = [...bookingsPerCustomer.values()].filter((c) => c > 1).length;
+  const repeatRate = returningCustomers / uniqueCustomers;
+
+  const testimonialCount = await fetchClient.fetch<number>(
+    `count(*[_type == "testimonial" && audienceType != "student"])`
+  );
+  const reviewCoverage = Math.min(1, testimonialCount / uniqueCustomers);
+
+  const score = Math.round(Math.min(100, repeatRate * 60 + reviewCoverage * 40));
+
+  return {
+    key: "customer",
+    label: "Customer Health",
+    score,
+    confidence: tierFor(uniqueCustomers, 5, 20),
+    sampleSize: uniqueCustomers,
+    reason: `${returningCustomers} of ${uniqueCustomers} unique customers have booked more than once; ${testimonialCount} testimonials on file.`,
+  };
+}
+
 export interface PendingSubScore {
   key: string;
   label: string;
@@ -141,22 +199,24 @@ export interface BusinessHealthScore {
   pending: PendingSubScore[];
 }
 
-// Phase 1 weights sum to 1 across only the three measurable sub-scores.
-// Rebalanced once SEO/Website/Customer Health come online in Phase 3/4.
-const PHASE_1_WEIGHTS: Record<string, number> = { content: 0.34, booking: 0.33, portfolio: 0.33 };
+// Equal weight across the four sub-scores measurable from Sanity alone —
+// no basis yet to say one matters more than another. Rebalance once
+// SEO/Website Health come online in Phase 4.
+const CURRENT_WEIGHTS: Record<string, number> = { content: 0.25, booking: 0.25, portfolio: 0.25, customer: 0.25 };
 
 export async function computeBusinessHealthScore(fetchClient: FetchClient = client): Promise<BusinessHealthScore> {
   const subScores = await Promise.all([
     computeContentHealth(fetchClient),
     computeBookingHealth(fetchClient),
     computePortfolioHealth(fetchClient),
+    computeCustomerHealth(fetchClient),
   ]);
 
   const measurable = subScores.filter((s): s is SubScore & { score: number } => s.score !== null);
-  const weightTotal = measurable.reduce((sum, s) => sum + (PHASE_1_WEIGHTS[s.key] ?? 0), 0);
+  const weightTotal = measurable.reduce((sum, s) => sum + (CURRENT_WEIGHTS[s.key] ?? 0), 0);
   const overall =
     measurable.length > 0 && weightTotal > 0
-      ? Math.round(measurable.reduce((sum, s) => sum + s.score * (PHASE_1_WEIGHTS[s.key] ?? 0), 0) / weightTotal)
+      ? Math.round(measurable.reduce((sum, s) => sum + s.score * (CURRENT_WEIGHTS[s.key] ?? 0), 0) / weightTotal)
       : null;
 
   const overallConfidence: ConfidenceTier = subScores.some((s) => s.confidence === "insufficient-data")
@@ -172,7 +232,6 @@ export async function computeBusinessHealthScore(fetchClient: FetchClient = clie
     pending: [
       { key: "seo", label: "SEO Health", note: "Requires Search Console — arrives Phase 4." },
       { key: "website", label: "Website Health", note: "Requires Vercel API — arrives Phase 4." },
-      { key: "customer", label: "Customer Health", note: "Requires booking.amountPaid — arrives Phase 3." },
     ],
   };
 }

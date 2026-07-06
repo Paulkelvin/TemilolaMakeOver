@@ -64,6 +64,19 @@ export const bookingSchema = defineType({
       type: "datetime",
       readOnly: true,
     }),
+    defineField({
+      name: "amountPaid",
+      title: "Amount Paid (₦)",
+      type: "number",
+      description: "Set automatically from the Paystack webhook when a deposit is confirmed. This is the number the Command Center's Revenue reads — never inferred from a service's price list.",
+    }),
+    defineField({
+      name: "paystackReference",
+      title: "Paystack Reference",
+      type: "string",
+      description: "Set automatically from the Paystack webhook. Lets a revenue figure be traced back to the exact transaction in the Paystack dashboard.",
+      readOnly: true,
+    }),
   ],
   orderings: [
     { title: "Newest first", name: "submittedDesc", by: [{ field: "submittedAt", direction: "desc" }] },

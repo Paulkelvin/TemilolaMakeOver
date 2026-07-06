@@ -1,16 +1,48 @@
 import { computeBusinessHealthScore, CONFIDENCE_LABELS } from "@/lib/intelligence/health-score";
+import { getBookingFunnel, getRevenueSummary } from "@/lib/intelligence/sources/sanity";
 import { MetricBadge } from "@/components/command-center/MetricBadge";
+import { client } from "@/sanity/client";
+import { formatPrice } from "@/lib/utils";
 
 export default async function CommandCenterOverviewPage() {
-  const health = await computeBusinessHealthScore();
+  const [health, funnel, revenue] = await Promise.all([
+    computeBusinessHealthScore(),
+    getBookingFunnel(client),
+    getRevenueSummary(client),
+  ]);
 
   return (
     <div>
       <h1 className="cc-page-title">Overview</h1>
       <p className="cc-page-dek">
-        Business Health Score, phase 1 — Content, Booking, and Portfolio Health are live from Sanity today.
-        SEO, Website, and Customer Health arrive as their data sources come online.
+        Content, Booking, Portfolio, and Customer Health are live from Sanity today. SEO and Website Health
+        arrive once Search Console and Vercel are connected in Phase 4.
       </p>
+
+      <div className="cc-tiles">
+        <div className="cc-tile">
+          <div className="cc-tile__label">Revenue</div>
+          <div className="cc-tile__value">{formatPrice(revenue.totalRevenue)}</div>
+          <MetricBadge source="paystack" freshness="live" />
+        </div>
+        <div className="cc-tile">
+          <div className="cc-tile__label">Bookings</div>
+          <div className="cc-tile__value">{funnel.total}</div>
+          <MetricBadge source="sanity" freshness="live" />
+        </div>
+        <div className="cc-tile">
+          <div className="cc-tile__label">Conversion rate</div>
+          <div className="cc-tile__value">{Math.round(funnel.conversionRate * 100)}%</div>
+          <MetricBadge source="sanity" freshness="live" />
+        </div>
+        <div className="cc-tile">
+          <div className="cc-tile__label">Organic traffic</div>
+          <div className="cc-tile__value">—</div>
+          <span style={{ fontFamily: "var(--cc-mono)", fontSize: "0.6875rem", color: "var(--cc-text-muted)" }}>
+            GA4 not connected yet — Phase 4
+          </span>
+        </div>
+      </div>
 
       <div className="cc-card">
         <div className="cc-hero">
