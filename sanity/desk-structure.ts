@@ -154,6 +154,7 @@ export const deskStructure = (S: StructureBuilder) =>
                     .title("Shop Page Settings")
                 ),
               S.documentTypeListItem("shopLink").title("Shop Links"),
+              S.documentTypeListItem("bioLink").title("Bio Links (/links page)"),
             ])
         ),
 

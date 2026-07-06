@@ -3,11 +3,15 @@
 import Image from "next/image";
 import { ExternalLink, Play } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { ShopLink } from "@/sanity/fetch";
-import type { ShopSection } from "@/app/TemilolaShyllon/page";
+import type { LinkCardData } from "@/sanity/fetch";
+
+export interface LinkSection {
+  name: string;
+  links: LinkCardData[];
+}
 
 interface ShopLinksClientProps {
-  sections: ShopSection[];
+  sections: LinkSection[];
   showSectionHeaders: boolean;
 }
 
@@ -50,7 +54,7 @@ export function ShopLinksClient({
   );
 }
 
-function CompactCard({ link }: { link: ShopLink }) {
+function CompactCard({ link }: { link: LinkCardData }) {
   const thumbSrc =
     link.mediaType === "video" ? link.thumbnailUrl : link.imageUrl;
 
@@ -89,7 +93,7 @@ function CompactCard({ link }: { link: ShopLink }) {
   );
 }
 
-function FeaturedCard({ link }: { link: ShopLink }) {
+function FeaturedCard({ link }: { link: LinkCardData }) {
   const isVideo = link.mediaType === "video" && link.videoUrl;
 
   return (
@@ -137,7 +141,7 @@ function FeaturedCard({ link }: { link: ShopLink }) {
   );
 }
 
-function WideCard({ link }: { link: ShopLink }) {
+function WideCard({ link }: { link: LinkCardData }) {
   const isVideo = link.mediaType === "video" && link.videoUrl;
 
   return (

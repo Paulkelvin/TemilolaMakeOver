@@ -13,6 +13,7 @@ import { pageCopySchema } from "./pageCopy";
 import { trainingCourseSchema } from "./trainingCourse";
 import { shopLinkSchema } from "./shopLink";
 import { shopPageSettingsSchema } from "./shopPageSettings";
+import { bioLinkSchema } from "./bioLink";
 import { aboutValueSchema } from "./aboutValue";
 import { travelZoneSchema } from "./travelZone";
 import { citySchema } from "./city";
@@ -43,6 +44,7 @@ export const schemaTypes = [
   trainingCourseSchema,
   shopLinkSchema,
   shopPageSettingsSchema,
+  bioLinkSchema,
   aboutValueSchema,
   travelZoneSchema,
   citySchema,

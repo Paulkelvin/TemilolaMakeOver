@@ -223,6 +223,14 @@ export const SHOP_PAGE_SETTINGS_QUERY = `*[_type == "shopPageSettings"][0] {
   pageTitle, pageSubtitle, showSectionHeaders
 }`;
 
+export const BIO_LINKS_QUERY = `*[_type == "bioLink"] | order(order asc) {
+  _id, title, url, mediaType,
+  "imageUrl": image.asset->url,
+  "videoUrl": video.asset->url,
+  "thumbnailUrl": thumbnail.asset->url,
+  alt, layout, description, order
+}`;
+
 export const LOCATIONS_QUERY = `*[_type == "location" && status == "published"] | order(name asc) {
   _id,
   name,

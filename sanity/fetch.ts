@@ -33,6 +33,7 @@ import {
   TRAINING_COURSES_QUERY,
   SHOP_LINKS_QUERY,
   SHOP_PAGE_SETTINGS_QUERY,
+  BIO_LINKS_QUERY,
   LOCATIONS_QUERY,
   LOCATION_BY_SLUG_QUERY,
   ARTISTS_QUERY,
@@ -768,11 +769,14 @@ export const getPageCopy = cache(async (page: string): Promise<PageCopy> => {
 });
 
 // ─── Shop Links ─────────────────────────────────────────────────────────────
-export interface ShopLink {
+
+// Shared shape for anything rendered by ShopLinksClient's card components —
+// both ShopLink (grouped, /TemilolaShyllon) and BioLink (flat, /links)
+// structurally satisfy this, so the same cards render either.
+export interface LinkCardData {
   id: string;
   title: string;
   url: string;
-  section: string;
   mediaType: "image" | "video";
   imageUrl?: string;
   videoUrl?: string;
@@ -781,6 +785,10 @@ export interface ShopLink {
   layout: "compact" | "featured" | "wide";
   description?: string;
   order: number;
+}
+
+export interface ShopLink extends LinkCardData {
+  section: string;
   sectionOrder: number;
 }
 
@@ -828,4 +836,38 @@ export interface ShopPageSettings {
 export const getShopPageSettings = cache(async (): Promise<ShopPageSettings> => {
   const data = await client.fetch(SHOP_PAGE_SETTINGS_QUERY, {}, REVALIDATE);
   return data ?? {};
+});
+
+// ─── Bio Links (/links page) ────────────────────────────────────────────────
+export type BioLink = LinkCardData;
+
+interface RawBioLink {
+  _id: string;
+  title: string;
+  url: string;
+  mediaType: "image" | "video";
+  imageUrl?: string;
+  videoUrl?: string;
+  thumbnailUrl?: string;
+  alt?: string;
+  layout: "compact" | "featured" | "wide";
+  description?: string;
+  order: number;
+}
+
+export const getBioLinks = cache(async (): Promise<BioLink[]> => {
+  const raw: RawBioLink[] = await client.fetch(BIO_LINKS_QUERY, {}, REVALIDATE);
+  return raw.map((l) => ({
+    id: l._id,
+    title: l.title,
+    url: l.url,
+    mediaType: l.mediaType ?? "image",
+    imageUrl: l.imageUrl,
+    videoUrl: l.videoUrl,
+    thumbnailUrl: l.thumbnailUrl,
+    alt: l.alt,
+    layout: l.layout ?? "wide",
+    description: l.description,
+    order: l.order ?? 0,
+  }));
 });
