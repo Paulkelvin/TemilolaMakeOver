@@ -1,17 +1,22 @@
 import Image from "next/image";
 import { siteConfig } from "@/lib/site-config";
-import { getSiteSettings, getBioLinks } from "@/sanity/fetch";
-import { ShopLinksClient, type LinkSection } from "@/components/sections/ShopLinksClient";
+import { getSiteSettings, getBioLinks, getBlockedDates } from "@/sanity/fetch";
+import { LinkCard } from "@/components/sections/ShopLinksClient";
+import { CheckAvailabilityCard } from "@/components/ui/CheckAvailabilityCard";
 import { Sparkles } from "lucide-react";
 
 export default async function LinksPage() {
-  const [settings, bioLinks] = await Promise.all([
+  const [settings, bioLinks, blockedDates] = await Promise.all([
     getSiteSettings(),
     getBioLinks(),
+    getBlockedDates(),
   ]);
   const profileSrc = settings?.aboutImage ?? settings?.heroImageMain;
 
-  const sections: LinkSection[] = [{ name: "", links: bioLinks }];
+  const bookIndex = bioLinks.findIndex((link) => link.id === "bio-link-book");
+  const linksBeforeAvailability =
+    bookIndex === -1 ? bioLinks : bioLinks.slice(0, bookIndex + 1);
+  const linksAfterAvailability = bookIndex === -1 ? [] : bioLinks.slice(bookIndex + 1);
 
   return (
     <div className="mx-auto max-w-md px-4 py-10">
@@ -44,7 +49,15 @@ export default async function LinksPage() {
         </p>
       </div>
 
-      <ShopLinksClient sections={sections} showSectionHeaders={false} />
+      <div className="space-y-3">
+        {linksBeforeAvailability.map((link) => (
+          <LinkCard key={link.id} link={link} />
+        ))}
+        <CheckAvailabilityCard blockedDates={blockedDates} />
+        {linksAfterAvailability.map((link) => (
+          <LinkCard key={link.id} link={link} />
+        ))}
+      </div>
 
       <p className="mt-8 text-center font-display text-xs tracking-widest text-text-muted/70">
         GLEAM

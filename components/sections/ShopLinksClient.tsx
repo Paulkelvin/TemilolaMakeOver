@@ -37,21 +37,25 @@ export function ShopLinksClient({
             </h2>
           )}
           <div className="space-y-3">
-            {section.links.map((link) => {
-              switch (link.layout) {
-                case "featured":
-                  return <FeaturedCard key={link.id} link={link} />;
-                case "wide":
-                  return <WideCard key={link.id} link={link} />;
-                default:
-                  return <CompactCard key={link.id} link={link} />;
-              }
-            })}
+            {section.links.map((link) => (
+              <LinkCard key={link.id} link={link} />
+            ))}
           </div>
         </div>
       ))}
     </div>
   );
+}
+
+export function LinkCard({ link }: { link: LinkCardData }) {
+  switch (link.layout) {
+    case "featured":
+      return <FeaturedCard link={link} />;
+    case "wide":
+      return <WideCard link={link} />;
+    default:
+      return <CompactCard link={link} />;
+  }
 }
 
 function CompactCard({ link }: { link: LinkCardData }) {
