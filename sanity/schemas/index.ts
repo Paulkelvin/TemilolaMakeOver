@@ -14,6 +14,7 @@ import { trainingCourseSchema } from "./trainingCourse";
 import { shopLinkSchema } from "./shopLink";
 import { shopPageSettingsSchema } from "./shopPageSettings";
 import { bioLinkSchema } from "./bioLink";
+import { linksPageSettingsSchema } from "./linksPageSettings";
 import { aboutValueSchema } from "./aboutValue";
 import { travelZoneSchema } from "./travelZone";
 import { citySchema } from "./city";
@@ -45,6 +46,7 @@ export const schemaTypes = [
   shopLinkSchema,
   shopPageSettingsSchema,
   bioLinkSchema,
+  linksPageSettingsSchema,
   aboutValueSchema,
   travelZoneSchema,
   citySchema,

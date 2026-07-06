@@ -34,6 +34,7 @@ import {
   SHOP_LINKS_QUERY,
   SHOP_PAGE_SETTINGS_QUERY,
   BIO_LINKS_QUERY,
+  LINKS_PAGE_SETTINGS_QUERY,
   LOCATIONS_QUERY,
   LOCATION_BY_SLUG_QUERY,
   ARTISTS_QUERY,
@@ -870,4 +871,20 @@ export const getBioLinks = cache(async (): Promise<BioLink[]> => {
     description: l.description,
     order: l.order ?? 0,
   }));
+});
+
+export interface LinksPageSettings {
+  showCheckAvailability: boolean;
+  checkAvailabilityLabel: string;
+  checkAvailabilityDescription: string;
+}
+
+export const getLinksPageSettings = cache(async (): Promise<LinksPageSettings> => {
+  const data = await client.fetch(LINKS_PAGE_SETTINGS_QUERY, {}, REVALIDATE);
+  return {
+    showCheckAvailability: data?.showCheckAvailability ?? true,
+    checkAvailabilityLabel: data?.checkAvailabilityLabel || "Check Availability",
+    checkAvailabilityDescription:
+      data?.checkAvailabilityDescription || "Pick a date & time to get started",
+  };
 });

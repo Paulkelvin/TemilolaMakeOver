@@ -1,15 +1,21 @@
 import Image from "next/image";
 import { siteConfig } from "@/lib/site-config";
-import { getSiteSettings, getBioLinks, getBlockedDates } from "@/sanity/fetch";
+import {
+  getSiteSettings,
+  getBioLinks,
+  getBlockedDates,
+  getLinksPageSettings,
+} from "@/sanity/fetch";
 import { LinkCard } from "@/components/sections/ShopLinksClient";
 import { CheckAvailabilityCard } from "@/components/ui/CheckAvailabilityCard";
 import { Sparkles } from "lucide-react";
 
 export default async function LinksPage() {
-  const [settings, bioLinks, blockedDates] = await Promise.all([
+  const [settings, bioLinks, blockedDates, linksPageSettings] = await Promise.all([
     getSiteSettings(),
     getBioLinks(),
     getBlockedDates(),
+    getLinksPageSettings(),
   ]);
   const profileSrc = settings?.aboutImage ?? settings?.heroImageMain;
 
@@ -53,7 +59,13 @@ export default async function LinksPage() {
         {linksBeforeAvailability.map((link) => (
           <LinkCard key={link.id} link={link} />
         ))}
-        <CheckAvailabilityCard blockedDates={blockedDates} />
+        {linksPageSettings.showCheckAvailability && (
+          <CheckAvailabilityCard
+            blockedDates={blockedDates}
+            label={linksPageSettings.checkAvailabilityLabel}
+            description={linksPageSettings.checkAvailabilityDescription}
+          />
+        )}
         {linksAfterAvailability.map((link) => (
           <LinkCard key={link.id} link={link} />
         ))}

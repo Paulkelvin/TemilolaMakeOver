@@ -155,6 +155,15 @@ export const deskStructure = (S: StructureBuilder) =>
                 ),
               S.documentTypeListItem("shopLink").title("Shop Links"),
               S.documentTypeListItem("bioLink").title("Bio Links (/links page)"),
+              S.listItem()
+                .title("Links Page Settings")
+                .id("linksPageSettings")
+                .child(
+                  S.document()
+                    .schemaType("linksPageSettings")
+                    .documentId("linksPageSettings")
+                    .title("Links Page Settings")
+                ),
             ])
         ),
 

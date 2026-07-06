@@ -231,6 +231,10 @@ export const BIO_LINKS_QUERY = `*[_type == "bioLink"] | order(order asc) {
   alt, layout, description, order
 }`;
 
+export const LINKS_PAGE_SETTINGS_QUERY = `*[_type == "linksPageSettings"][0] {
+  showCheckAvailability, checkAvailabilityLabel, checkAvailabilityDescription
+}`;
+
 export const LOCATIONS_QUERY = `*[_type == "location" && status == "published"] | order(name asc) {
   _id,
   name,

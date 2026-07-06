@@ -9,9 +9,15 @@ import { cn } from "@/lib/utils";
 
 interface CheckAvailabilityCardProps {
   blockedDates: string[];
+  label?: string;
+  description?: string;
 }
 
-export function CheckAvailabilityCard({ blockedDates }: CheckAvailabilityCardProps) {
+export function CheckAvailabilityCard({
+  blockedDates,
+  label = "Check Availability",
+  description = "Pick a date & time to get started",
+}: CheckAvailabilityCardProps) {
   const [open, setOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<string>();
   const [selectedTime, setSelectedTime] = useState("");
@@ -36,10 +42,10 @@ export function CheckAvailabilityCard({ blockedDates }: CheckAvailabilityCardPro
         </div>
         <div className="flex-1">
           <h3 className="text-sm font-semibold text-text-primary group-hover:text-accent-rose transition-colors">
-            Check Availability
+            {label}
           </h3>
           <p className="mt-0.5 text-xs text-text-muted">
-            Pick a date & time to get started
+            {description}
           </p>
         </div>
         <ChevronDown
