@@ -40,7 +40,7 @@ export function middleware(request: NextRequest) {
   // The Command Center will show revenue and customer data, so it gets its
   // own gate rather than being bolted onto the CMS editor's password.
   if (pathname.startsWith("/command-center") || pathname.startsWith("/api/command-center")) {
-    if (pathname === "/api/command-center/snapshot") return NextResponse.next();
+    if (pathname === "/api/command-center/snapshot" || pathname === "/api/command-center/weekly-review") return NextResponse.next();
     const denied = requireBasicAuth(request, process.env.COMMAND_CENTER_PASSWORD, "Business Command Center");
     if (denied) return denied;
   }

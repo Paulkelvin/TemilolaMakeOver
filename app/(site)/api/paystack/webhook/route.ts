@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import crypto from "crypto";
 import { writeClient } from "@/sanity/write-client";
 import { sendPaymentConfirmation } from "@/lib/email";
+import { createNotification } from "@/lib/intelligence/notifications";
 
 export async function POST(request: Request) {
   try {
@@ -63,6 +64,14 @@ export async function POST(request: Request) {
           reference,
         }).catch((err: unknown) => console.error("[Payment email failed]", err));
       }
+
+      createNotification({
+        kind: "payment_confirmed",
+        severity: "info",
+        title: `Payment confirmed: ₦${(amount / 100).toLocaleString()} from ${clientName}`,
+        body: `${service} — ref ${reference}`,
+        metadata: { reference, amount: amount / 100, email: clientEmail, service },
+      }).catch((err: unknown) => console.error("[Payment notification failed]", err));
 
       const webhookUrl = process.env.BOOKING_WEBHOOK_URL;
       if (webhookUrl) {

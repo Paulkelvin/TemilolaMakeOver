@@ -2,7 +2,8 @@ import { NextResponse } from "next/server";
 import { isSearchConsoleConfigured, getSummary as gscSummary } from "@/lib/intelligence/sources/search-console";
 import { isAnalyticsConfigured, getTrafficSummary } from "@/lib/intelligence/sources/analytics";
 import { isVercelConfigured, getDeploymentSummary, getWebVitals } from "@/lib/intelligence/sources/vercel-api";
-import { upsertSnapshots } from "@/lib/intelligence/sources/snapshots";
+import { upsertSnapshots, getLatestSnapshot } from "@/lib/intelligence/sources/snapshots";
+import { createNotification } from "@/lib/intelligence/notifications";
 
 export const dynamic = "force-dynamic";
 
@@ -72,6 +73,38 @@ export async function POST(request: Request) {
     } catch (err) {
       errors.push(`sanity-write: ${err instanceof Error ? err.message : String(err)}`);
     }
+  }
+
+  // ─── Metric-drop notifications ─────────────────────────────────────────
+  try {
+    const alertChecks: { source: string; metric: string; label: string; dropThreshold: number }[] = [
+      { source: "search-console", metric: "impressions", label: "Search impressions", dropThreshold: 0.3 },
+      { source: "search-console", metric: "clicks", label: "Search clicks", dropThreshold: 0.3 },
+      { source: "ga4", metric: "sessions", label: "GA4 sessions", dropThreshold: 0.3 },
+    ];
+
+    for (const check of alertChecks) {
+      const current = snapshots.find((s) => s.source === check.source && s.metric === check.metric);
+      if (!current || current.value === 0) continue;
+
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+      const prior = await getLatestSnapshot(check.source, check.metric);
+      if (!prior || prior.date === today || prior.value === 0) continue;
+
+      const dropPct = (prior.value - current.value) / prior.value;
+      if (dropPct >= check.dropThreshold) {
+        await createNotification({
+          kind: "metric_alert",
+          severity: dropPct >= 0.5 ? "critical" : "warning",
+          title: `${check.label} dropped ${Math.round(dropPct * 100)}%`,
+          body: `${check.label} went from ${prior.value.toLocaleString()} to ${current.value.toLocaleString()} (${prior.date} → ${today}).`,
+          metadata: { source: check.source, metric: check.metric, prior: prior.value, current: current.value },
+        });
+      }
+    }
+  } catch (err) {
+    errors.push(`notifications: ${err instanceof Error ? err.message : String(err)}`);
   }
 
   return NextResponse.json({

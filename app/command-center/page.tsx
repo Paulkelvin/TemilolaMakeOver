@@ -1,24 +1,28 @@
 import { computeBusinessHealthScore, CONFIDENCE_LABELS } from "@/lib/intelligence/health-score";
 import { getBookingFunnel, getRevenueSummary } from "@/lib/intelligence/sources/sanity";
 import { getLatestSnapshot } from "@/lib/intelligence/sources/snapshots";
+import { generateOpportunities } from "@/lib/intelligence/opportunities";
+import { getUnreadCount } from "@/lib/intelligence/notifications";
 import { MetricBadge } from "@/components/command-center/MetricBadge";
 import { client } from "@/sanity/client";
 import { formatPrice } from "@/lib/utils";
 
 export default async function CommandCenterOverviewPage() {
-  const [health, funnel, revenue, sessionsSnap] = await Promise.all([
+  const [health, funnel, revenue, sessionsSnap, opportunities, unreadNotifs] = await Promise.all([
     computeBusinessHealthScore(),
     getBookingFunnel(client),
     getRevenueSummary(client),
     getLatestSnapshot("ga4", "sessions"),
+    generateOpportunities(),
+    getUnreadCount(),
   ]);
 
   return (
     <div>
       <h1 className="cc-page-title">Overview</h1>
       <p className="cc-page-dek">
-        Content, Booking, Portfolio, and Customer Health are live from Sanity today. SEO and Website Health
-        arrive once Search Console and Vercel are connected in Phase 4.
+        Six health sub-scores across content, bookings, portfolio, customers, SEO, and website performance.
+        {unreadNotifs > 0 && <> — <strong style={{ color: "var(--cc-accent)" }}>{unreadNotifs} unread notification{unreadNotifs > 1 ? "s" : ""}</strong>.</>}
       </p>
 
       <div className="cc-tiles">
@@ -113,10 +117,27 @@ export default async function CommandCenterOverviewPage() {
 
       <div className="cc-card">
         <h2 style={{ margin: "0 0 10px", fontSize: "1.0625rem" }}>Today&rsquo;s priorities</h2>
-        <div className="cc-empty">
-          The AI Business Advisor and Opportunity Engine generate this list from ranked recommendations —
-          arriving in Phase 5. For now, use the sub-score reasons above and the Content section to find gaps.
-        </div>
+        {opportunities.length === 0 ? (
+          <div className="cc-empty">No actionable opportunities detected — all metrics look healthy.</div>
+        ) : (
+          opportunities.slice(0, 3).map((opp) => (
+            <div key={opp.id} style={{ marginBottom: 12 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 2 }}>
+                <span
+                  className="cc-tier"
+                  style={{
+                    background: opp.impact === "high" ? "var(--cc-critical-soft)" : opp.impact === "medium" ? "var(--cc-warn-soft)" : "var(--cc-surface-2)",
+                    color: opp.impact === "high" ? "var(--cc-critical)" : opp.impact === "medium" ? "var(--cc-warn)" : "var(--cc-text-muted)",
+                  }}
+                >
+                  {opp.impact}
+                </span>
+                <strong style={{ fontSize: "0.875rem" }}>{opp.title}</strong>
+              </div>
+              <p style={{ margin: 0, fontSize: "0.8125rem", color: "var(--cc-text-muted)" }}>{opp.action}</p>
+            </div>
+          ))
+        )}
       </div>
     </div>
   );

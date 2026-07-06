@@ -167,6 +167,8 @@ export const deskStructure = (S: StructureBuilder) =>
             .title("System")
             .items([
               S.documentTypeListItem("metricSnapshot").title("Metric Snapshots"),
+              S.documentTypeListItem("weeklyReview").title("Weekly Business Reviews"),
+              S.documentTypeListItem("notification").title("Notifications"),
             ])
         ),
     ]);
