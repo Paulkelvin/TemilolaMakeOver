@@ -8,6 +8,7 @@ import { createNotification } from "@/lib/intelligence/notifications";
 import { computeSeoOpportunities, persistSeoOpportunities } from "@/lib/intelligence/seo-opportunities";
 import { computeKeywordDiscoveryTopics, persistKeywordDiscoveryTopics } from "@/lib/intelligence/keyword-discovery";
 import { computeTopicalAuthority, persistTopicalAuthority } from "@/lib/intelligence/topical-authority";
+import { computeCompetitorGaps, persistCompetitorGaps } from "@/lib/intelligence/competitor-gap";
 import { client } from "@/sanity/client";
 
 export const dynamic = "force-dynamic";
@@ -138,6 +139,25 @@ export async function runSnapshot() {
     errors.push(`topical-authority: ${err instanceof Error ? err.message : String(err)}`);
   }
 
+  // ─── Competitor Content Gap Engine (weekly-gated — real crawling of a
+  // real competitor site respecting their crawl-delay; runs unconditionally,
+  // no Search Console dependency) ─────────────────────────────────────────
+  let competitorGapResult: { upserted: number } | undefined;
+  try {
+    const lastComputed = await client.fetch<string | null>(
+      `*[_type == "competitorGapTopic"] | order(lastComputedAt desc)[0].lastComputedAt`
+    );
+    const daysSinceLastRun = lastComputed
+      ? (Date.now() - new Date(lastComputed).getTime()) / 86_400_000
+      : Infinity;
+    if (daysSinceLastRun >= 7) {
+      const gaps = await computeCompetitorGaps(client);
+      competitorGapResult = await persistCompetitorGaps(gaps);
+    }
+  } catch (err) {
+    errors.push(`competitor-gap: ${err instanceof Error ? err.message : String(err)}`);
+  }
+
   // ─── Metric-drop notifications ─────────────────────────────────────────
   try {
     const alertChecks: { source: string; metric: string; label: string; dropThreshold: number }[] = [
@@ -202,6 +222,7 @@ export async function runSnapshot() {
     seoOpportunities: seoOpportunityResult,
     keywordDiscovery: keywordDiscoveryResult,
     topicalAuthority: topicalAuthorityResult,
+    competitorGaps: competitorGapResult,
     errors: errors.length > 0 ? errors : undefined,
   };
 }

@@ -24,6 +24,7 @@ import { makeupStyleSchema } from "./makeupStyle";
 import { occasionSchema } from "./occasion";
 import { weddingTypeSchema } from "./weddingType";
 import { locationSchema } from "./location";
+import { topicNodeSchema } from "./topicNode";
 import { metricSnapshotSchema } from "./metricSnapshot";
 import { weeklyReviewSchema } from "./weeklyReview";
 import { notificationSchema } from "./notification";
@@ -31,6 +32,7 @@ import { ccSettingsSchema } from "./ccSettings";
 import { seoOpportunitySchema } from "./seoOpportunity";
 import { keywordDiscoveryTopicSchema } from "./keywordDiscoveryTopic";
 import { topicalAuthorityNodeSchema } from "./topicalAuthorityNode";
+import { competitorGapTopicSchema } from "./competitorGapTopic";
 
 export const schemaTypes = [
   serviceSchema,
@@ -59,6 +61,7 @@ export const schemaTypes = [
   occasionSchema,
   weddingTypeSchema,
   locationSchema,
+  topicNodeSchema,
   metricSnapshotSchema,
   weeklyReviewSchema,
   notificationSchema,
@@ -66,4 +69,5 @@ export const schemaTypes = [
   seoOpportunitySchema,
   keywordDiscoveryTopicSchema,
   topicalAuthorityNodeSchema,
+  competitorGapTopicSchema,
 ];

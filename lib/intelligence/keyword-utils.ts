@@ -221,6 +221,23 @@ export const CORE_BUSINESS_VOCAB = new Set([
 
 const THIN_THRESHOLD = 60;
 
+// Plain Jaccard penalizes a short real page name (e.g. "Bridal Makeup" ->
+// {makeup, wedding}) against a much longer, keyword-stuffed query/title
+// (e.g. a competitor's SEO-optimized page title with 8-12 tokens) even when
+// every one of the short side's tokens is genuinely present in the long
+// side — the union grows but the overlap doesn't, so Jaccard alone drops
+// well below the match threshold. Full containment in either direction is
+// itself strong evidence of a real match, so it's treated as one.
+function overlapScore(a: string[], b: string[]): number {
+  const jaccardScore = jaccard(a, b);
+  if (a.length >= 2 && b.length >= 2) {
+    const aSubsetOfB = a.every((t) => b.includes(t));
+    const bSubsetOfA = b.every((t) => a.includes(t));
+    if (aSubsetOfB || bSubsetOfA) return Math.max(jaccardScore, 0.75);
+  }
+  return jaccardScore;
+}
+
 export function matchContent(
   clusterTokens: string[],
   index: ContentIndexEntry[]
@@ -228,7 +245,7 @@ export function matchContent(
   let best: ContentIndexEntry | null = null;
   let bestOverlap = 0;
   for (const entry of index) {
-    const overlap = jaccard(clusterTokens, entry.tokens);
+    const overlap = overlapScore(clusterTokens, entry.tokens);
     if (overlap > bestOverlap) {
       bestOverlap = overlap;
       best = entry;

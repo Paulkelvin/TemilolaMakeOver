@@ -67,6 +67,7 @@ export const deskStructure = (S: StructureBuilder) =>
               S.documentTypeListItem("makeupStyle").title("Makeup Styles"),
               S.documentTypeListItem("occasion").title("Occasions"),
               S.documentTypeListItem("weddingType").title("Wedding Types"),
+              S.documentTypeListItem("topicNode").title("Topic Map"),
             ])
         ),
 
@@ -208,6 +209,13 @@ export const deskStructure = (S: StructureBuilder) =>
                   S.documentTypeList("topicalAuthorityNode")
                     .title("Topical Authority")
                     .defaultOrdering([{ field: "authorityScore.totalScore", direction: "desc" }])
+                ),
+              S.documentTypeListItem("competitorGapTopic")
+                .title("Competitor Gaps")
+                .child(
+                  S.documentTypeList("competitorGapTopic")
+                    .title("Competitor Gaps")
+                    .defaultOrdering([{ field: "topicalRelevanceScore", direction: "desc" }])
                 ),
             ])
         ),
