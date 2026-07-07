@@ -26,6 +26,7 @@ export const COMMAND_CENTER_MODULES: CommandCenterModule[] = [
   { key: "content", label: "Content", href: "/command-center/content", status: "live" },
   { key: "seo", label: "SEO", href: "/command-center/seo", status: "live" },
   { key: "keyword-discovery", label: "Keyword Discovery", href: "/command-center/keyword-discovery", status: "live" },
+  { key: "topical-authority", label: "Topical Authority", href: "/command-center/topical-authority", status: "live" },
   { key: "bookings", label: "Bookings & Revenue", href: "/command-center/bookings", status: "live" },
   { key: "customers", label: "Customers", href: "/command-center/customers", status: "live" },
   { key: "website", label: "Website", href: "/command-center/website", status: "live" },

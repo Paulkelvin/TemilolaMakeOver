@@ -62,15 +62,25 @@ export interface TaxonomyTypeConfig {
   hasSeoFields?: boolean;
   /** Public route this type resolves to, for internal-link measurement and SEO checks. `null` = no public page yet. */
   publicPath: ((slug: string) => string) | null;
+  /**
+   * Does this type's public page template already render type-specific
+   * JSON-LD? A static, code-verifiable fact (checked against the actual
+   * page templates), not a live per-page scan — tracks `publicPath !== null`
+   * today, but kept as its own explicit flag since a type could get a page
+   * before its JSON-LD template is built.
+   */
+  structuredDataExpected: boolean;
+  /** Days after which this taxonomy node's own last-edit makes it "stale" for the freshness dimension. */
+  staleAfterDays: number;
 }
 
 export const TAXONOMY_TYPES: TaxonomyTypeConfig[] = [
-  { type: "service", label: "Services", nameField: "name", descriptionField: "description", imageField: "image", publicPath: (slug) => `/services/${slug}` },
-  { type: "makeupStyle", label: "Makeup Styles", nameField: "name", descriptionField: "description", imageField: "image", publicPath: null },
-  { type: "occasion", label: "Occasions", nameField: "name", descriptionField: "description", hasSeoFields: true, publicPath: null },
-  { type: "weddingType", label: "Wedding Types", nameField: "name", descriptionField: "description", imageField: "image", publicPath: null },
-  { type: "location", label: "Locations", nameField: "name", descriptionField: "subtitle", hasSeoFields: true, publicPath: (slug) => `/locations/${slug}` },
-  { type: "artist", label: "Artists", nameField: "name", descriptionField: "bio", imageField: "photo", publicPath: null },
+  { type: "service", label: "Services", nameField: "name", descriptionField: "description", imageField: "image", publicPath: (slug) => `/services/${slug}`, structuredDataExpected: true, staleAfterDays: 180 },
+  { type: "makeupStyle", label: "Makeup Styles", nameField: "name", descriptionField: "description", imageField: "image", publicPath: null, structuredDataExpected: false, staleAfterDays: 365 },
+  { type: "occasion", label: "Occasions", nameField: "name", descriptionField: "description", hasSeoFields: true, publicPath: null, structuredDataExpected: false, staleAfterDays: 365 },
+  { type: "weddingType", label: "Wedding Types", nameField: "name", descriptionField: "description", imageField: "image", publicPath: null, structuredDataExpected: false, staleAfterDays: 365 },
+  { type: "location", label: "Locations", nameField: "name", descriptionField: "subtitle", hasSeoFields: true, publicPath: (slug) => `/locations/${slug}`, structuredDataExpected: true, staleAfterDays: 180 },
+  { type: "artist", label: "Artists", nameField: "name", descriptionField: "bio", imageField: "photo", publicPath: null, structuredDataExpected: false, staleAfterDays: 365 },
 ];
 
 // Known reference field names, used only for the broken-relationship scan
@@ -90,3 +100,11 @@ export const KNOWN_REFERENCE_FIELDS = [
 // Slug/name fragments that bump a taxonomy item's priority in the content
 // roadmap — reflects the bridal-first strategy established for this site.
 export const PRIORITY_KEYWORDS = ["bridal", "wedding", "traditional"];
+
+// Targets for the Topical Authority Engine's evidence-based dimensions
+// (lib/intelligence/topical-authority.ts) — same "count / minimum, capped
+// at 1" pattern as LEAF_TYPES[*].minimumForHealthy, for dimensions that
+// aren't tied to one specific leaf type.
+export const INTERNAL_LINKS_MINIMUM_FOR_HEALTHY = 3;
+export const RELATED_TAXONOMY_MINIMUM_FOR_HEALTHY = 2;
+export const CONTENT_DEPTH_TARGET_LENGTH = 400;

@@ -202,6 +202,13 @@ export const deskStructure = (S: StructureBuilder) =>
                     .title("Keyword Discovery")
                     .defaultOrdering([{ field: "scoreBreakdown.totalScore", direction: "desc" }])
                 ),
+              S.documentTypeListItem("topicalAuthorityNode")
+                .title("Topical Authority")
+                .child(
+                  S.documentTypeList("topicalAuthorityNode")
+                    .title("Topical Authority")
+                    .defaultOrdering([{ field: "authorityScore.totalScore", direction: "desc" }])
+                ),
             ])
         ),
     ]);

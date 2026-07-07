@@ -29,11 +29,11 @@ export async function fetchAllTaxonomyNodes(client: FetchClient): Promise<Taxono
   const results = await Promise.all(
     TAXONOMY_TYPES.map(async (cfg) => {
       const raw = await client.fetch<
-        { _id: string; name: string; slug?: string; description?: string; image?: unknown; seoTitle?: string; seoDescription?: string }[]
+        { _id: string; name: string; slug?: string; description?: string; image?: unknown; seoTitle?: string; seoDescription?: string; _updatedAt: string }[]
       >(
         `*[_type == $type] { _id, "name": ${cfg.nameField}, "slug": slug.current, "description": ${cfg.descriptionField ?? "null"}, ${
           cfg.imageField ? `"image": ${cfg.imageField},` : ""
-        } seoTitle, seoDescription }`,
+        } seoTitle, seoDescription, _updatedAt }`,
         { type: cfg.type }
       );
       return raw.map((r): TaxonomyNode => ({
@@ -46,6 +46,7 @@ export async function fetchAllTaxonomyNodes(client: FetchClient): Promise<Taxono
         descriptionLength: r.description?.trim().length ?? 0,
         hasImage: cfg.imageField ? Boolean(r.image) : null,
         hasSeoFields: cfg.hasSeoFields ? Boolean(r.seoTitle && r.seoDescription) : null,
+        updatedAt: r._updatedAt,
       }));
     })
   );

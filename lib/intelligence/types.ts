@@ -8,6 +8,7 @@ export interface TaxonomyNode {
   descriptionLength: number;
   hasImage: boolean | null; // null = this taxonomy type has no image field at all
   hasSeoFields: boolean | null;
+  updatedAt: string; // ISO string, Sanity's _updatedAt — freshness input for Topical Authority
 }
 
 export interface CoverageCounts {

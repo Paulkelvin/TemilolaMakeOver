@@ -7,6 +7,7 @@ import { upsertSnapshots, getLatestSnapshot } from "@/lib/intelligence/sources/s
 import { createNotification } from "@/lib/intelligence/notifications";
 import { computeSeoOpportunities, persistSeoOpportunities } from "@/lib/intelligence/seo-opportunities";
 import { computeKeywordDiscoveryTopics, persistKeywordDiscoveryTopics } from "@/lib/intelligence/keyword-discovery";
+import { computeTopicalAuthority, persistTopicalAuthority } from "@/lib/intelligence/topical-authority";
 import { client } from "@/sanity/client";
 
 export const dynamic = "force-dynamic";
@@ -119,6 +120,24 @@ export async function runSnapshot() {
     errors.push(`keyword-discovery: ${err instanceof Error ? err.message : String(err)}`);
   }
 
+  // ─── Topical Authority Engine (weekly-gated — real evidence counts per
+  // taxonomy node don't change fast enough to need daily recomputation) ───
+  let topicalAuthorityResult: { upserted: number } | undefined;
+  try {
+    const lastComputed = await client.fetch<string | null>(
+      `*[_type == "topicalAuthorityNode"] | order(lastComputedAt desc)[0].lastComputedAt`
+    );
+    const daysSinceLastRun = lastComputed
+      ? (Date.now() - new Date(lastComputed).getTime()) / 86_400_000
+      : Infinity;
+    if (daysSinceLastRun >= 7) {
+      const nodes = await computeTopicalAuthority(client);
+      topicalAuthorityResult = await persistTopicalAuthority(nodes);
+    }
+  } catch (err) {
+    errors.push(`topical-authority: ${err instanceof Error ? err.message : String(err)}`);
+  }
+
   // ─── Metric-drop notifications ─────────────────────────────────────────
   try {
     const alertChecks: { source: string; metric: string; label: string; dropThreshold: number }[] = [
@@ -182,6 +201,7 @@ export async function runSnapshot() {
     snapshotsWritten: snapshots.length,
     seoOpportunities: seoOpportunityResult,
     keywordDiscovery: keywordDiscoveryResult,
+    topicalAuthority: topicalAuthorityResult,
     errors: errors.length > 0 ? errors : undefined,
   };
 }

@@ -1,5 +1,6 @@
-import { fetchAllTaxonomyNodes, detectThinContent, detectStaleContent, type FetchClient } from "./content";
+import { fetchAllTaxonomyNodes, detectThinContent, detectStaleContent, computeCoverage, type FetchClient } from "./content";
 import { TAXONOMY_TYPES } from "./registry";
+import { computeCoverageScore } from "./topical-authority";
 
 /**
  * Shared "keyword science" used by both the SEO Opportunity Engine (real
@@ -154,8 +155,15 @@ export type ContentCoverage = "none" | "thin" | "existing-strong";
 export interface ContentIndexEntry {
   tokens: string[];
   path: string;
-  isThin: boolean;
-  isStale: boolean;
+  /**
+   * 0-100. For taxonomy pages, the real evidence-based Coverage Score from
+   * topical-authority.ts (portfolio/testimonials/FAQs/blog posts/internal
+   * links/structured data/images — real Sanity counts, not a proxy). For
+   * blog posts (which aren't taxonomy nodes and have no evidence of their
+   * own attached), the existing real thin/stale detection re-expressed on
+   * the same scale so one threshold applies uniformly in matchContent().
+   */
+  coverageScore: number;
 }
 
 export async function buildContentIndex(fetchClient: FetchClient): Promise<ContentIndexEntry[]> {
@@ -173,24 +181,30 @@ export async function buildContentIndex(fetchClient: FetchClient): Promise<Conte
 
   const index: ContentIndexEntry[] = [];
 
-  for (const node of taxonomyNodes) {
-    const cfg = TAXONOMY_TYPES.find((t) => t.type === node.type);
-    if (!cfg?.publicPath || !node.slug) continue;
-    index.push({
-      tokens: normalizeQuery(node.name).tokens,
-      path: cfg.publicPath(node.slug),
-      isThin: !node.hasDescription || node.descriptionLength < 60,
-      isStale: false,
-    });
-  }
+  const taxonomyEntries = await Promise.all(
+    taxonomyNodes.map(async (node): Promise<ContentIndexEntry | null> => {
+      const cfg = TAXONOMY_TYPES.find((t) => t.type === node.type);
+      if (!cfg?.publicPath || !node.slug) return null;
+      const coverage = await computeCoverage(fetchClient, node);
+      const { totalScore } = computeCoverageScore(node, coverage);
+      return {
+        tokens: normalizeQuery(node.name).tokens,
+        path: cfg.publicPath(node.slug),
+        coverageScore: totalScore,
+      };
+    })
+  );
+  for (const entry of taxonomyEntries) if (entry) index.push(entry);
 
   for (const post of blogPosts) {
     if (!post.slug) continue;
+    const isThin = thinIds.has(post._id);
+    const isStale = staleIds.has(post._id);
+    const coverageScore = isThin ? (isStale ? 25 : 45) : isStale ? 65 : 90;
     index.push({
       tokens: normalizeQuery(post.title).tokens,
       path: `/blog/${post.slug}`,
-      isThin: thinIds.has(post._id),
-      isStale: staleIds.has(post._id),
+      coverageScore,
     });
   }
 
@@ -205,10 +219,12 @@ export const CORE_BUSINESS_VOCAB = new Set([
   "gele", "owambe", "event", "party", "trial", "training", "course", "mobile", "home service",
 ]);
 
+const THIN_THRESHOLD = 60;
+
 export function matchContent(
   clusterTokens: string[],
   index: ContentIndexEntry[]
-): { coverage: ContentCoverage; matchedPath?: string; topicalRelevanceScore: number } {
+): { coverage: ContentCoverage; matchedPath?: string; topicalRelevanceScore: number; matchedCoverageScore?: number } {
   let best: ContentIndexEntry | null = null;
   let bestOverlap = 0;
   for (const entry of index) {
@@ -226,8 +242,8 @@ export function matchContent(
   if (!best || bestOverlap < 0.3) {
     return { coverage: "none", topicalRelevanceScore };
   }
-  const coverage: ContentCoverage = best.isThin || best.isStale ? "thin" : "existing-strong";
-  return { coverage, matchedPath: best.path, topicalRelevanceScore };
+  const coverage: ContentCoverage = best.coverageScore >= THIN_THRESHOLD ? "existing-strong" : "thin";
+  return { coverage, matchedPath: best.path, topicalRelevanceScore, matchedCoverageScore: best.coverageScore };
 }
 
 // Stable, URL/id-safe key derived from a cluster's dominant shared tokens —

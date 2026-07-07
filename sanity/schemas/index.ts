@@ -30,6 +30,7 @@ import { notificationSchema } from "./notification";
 import { ccSettingsSchema } from "./ccSettings";
 import { seoOpportunitySchema } from "./seoOpportunity";
 import { keywordDiscoveryTopicSchema } from "./keywordDiscoveryTopic";
+import { topicalAuthorityNodeSchema } from "./topicalAuthorityNode";
 
 export const schemaTypes = [
   serviceSchema,
@@ -64,4 +65,5 @@ export const schemaTypes = [
   ccSettingsSchema,
   seoOpportunitySchema,
   keywordDiscoveryTopicSchema,
+  topicalAuthorityNodeSchema,
 ];
