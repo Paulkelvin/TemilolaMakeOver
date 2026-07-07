@@ -6,12 +6,24 @@
  * fabricated or unreachable entries would silently produce no data, which
  * is worse than an honest short list.
  *
- * Verified live this session: flakkydeemakeova.com.ng is a real, live,
- * Lagos-based (Abule Egba) WordPress makeup-artist business site with a
- * working sitemap and a robots.txt declaring crawl-delay: 10. Two other
- * candidates considered were rejected — "Edith Williams Artistry" is real
- * but London-based (wrong market), and "Jojo's Touch" (jojostouch.com) is a
- * parked/for-sale GoDaddy domain, not a live business.
+ * Verified live:
+ * - flakkydeemakeova.com.ng — real, live, Lagos-based (Abule Egba) WordPress
+ *   makeup-artist business site, working sitemap, robots.txt crawl-delay: 10.
+ * - houseoftara.com — real, live, established Lagos/Nigeria beauty brand
+ *   (24 makeup studios, makeup school), working wp-sitemap.xml declared via
+ *   robots.txt's Sitemap: directive, no crawl-delay declared (uses the
+ *   politeness floor below).
+ *
+ * Considered and rejected (checked live, not assumed):
+ * - "Edith Williams Artistry" — real but London-based (wrong market).
+ * - "Jojo's Touch" (jojostouch.com) — parked/for-sale GoDaddy domain, not a
+ *   live business.
+ * - Ronke Raji (ronkeraji.com) — real, live business, but her robots.txt
+ *   declares `Disallow: /` for all agents (crawling everything refused) —
+ *   honored, not worked around. Excluded on principle, not technical failure.
+ * - Most other well-known individual Lagos MUAs (Glam by Omoye, Layefa
+ *   Beauty, Bibyonce, Kim Beauty Studio) operate Instagram-only, with no
+ *   crawlable website at all.
  */
 export interface CompetitorSite {
   name: string;
@@ -21,6 +33,7 @@ export interface CompetitorSite {
 
 export const COMPETITOR_SITES: CompetitorSite[] = [
   { name: "FlakkyDee MakeOva", domain: "flakkydeemakeova.com.ng", market: "Lagos, Nigeria" },
+  { name: "House of Tara", domain: "houseoftara.com", market: "Lagos, Nigeria" },
 ];
 
 // Floor for politeness when a competitor's robots.txt declares no crawl-delay at all.

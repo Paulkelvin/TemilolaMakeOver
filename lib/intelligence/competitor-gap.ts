@@ -71,7 +71,7 @@ async function crawlCompetitor(
   const robots = await fetchRobotsRules(competitor.domain, DEFAULT_CRAWL_DELAY_MS);
 
   const [sitemapUrls, homepageLinks] = await Promise.all([
-    fetchSitemapUrls(competitor.domain),
+    fetchSitemapUrls(competitor.domain, robots.sitemapUrl),
     fetchHomepageLinks(competitor.domain),
   ]);
   const seen = new Set<string>();

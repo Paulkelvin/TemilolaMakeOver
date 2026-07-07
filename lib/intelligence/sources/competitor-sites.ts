@@ -21,9 +21,11 @@ async function fetchText(url: string): Promise<string> {
 export interface RobotsRules {
   crawlDelayMs: number;
   disallowedPaths: string[];
+  /** From a `Sitemap:` directive, if the site declares one — many WordPress sites (e.g. House of Tara) use /wp-sitemap.xml instead of the /sitemap.xml default. */
+  sitemapUrl?: string;
 }
 
-/** Only the wildcard User-agent: * block is honored — we aren't any of the named crawlers a site might special-case. */
+/** Only the wildcard User-agent: * block is honored for Disallow/Crawl-delay — we aren't any of the named crawlers a site might special-case. `Sitemap:` is a global directive, not scoped to a User-agent block. */
 export async function fetchRobotsRules(domain: string, defaultDelayMs: number): Promise<RobotsRules> {
   try {
     const text = await fetchText(`https://${domain}/robots.txt`);
@@ -31,6 +33,7 @@ export async function fetchRobotsRules(domain: string, defaultDelayMs: number): 
     let applicable = false;
     let crawlDelayMs = defaultDelayMs;
     const disallowedPaths: string[] = [];
+    let sitemapUrl: string | undefined;
 
     for (const rawLine of lines) {
       const line = rawLine.trim();
@@ -40,6 +43,10 @@ export async function fetchRobotsRules(domain: string, defaultDelayMs: number): 
       const key = line.slice(0, colonIndex).trim().toLowerCase();
       const value = line.slice(colonIndex + 1).trim();
 
+      if (key === "sitemap" && value) {
+        sitemapUrl = value; // global, applies regardless of User-agent block
+        continue;
+      }
       if (key === "user-agent") {
         applicable = value === "*";
         continue;
@@ -54,7 +61,7 @@ export async function fetchRobotsRules(domain: string, defaultDelayMs: number): 
       }
     }
 
-    return { crawlDelayMs, disallowedPaths };
+    return { crawlDelayMs, disallowedPaths, sitemapUrl };
   } catch {
     return { crawlDelayMs: defaultDelayMs, disallowedPaths: [] };
   }
@@ -82,9 +89,9 @@ async function extractSitemapUrls(sitemapUrl: string, depth: number): Promise<st
   return [...xml.matchAll(/<url>\s*<loc>([^<]+)<\/loc>/gi)].map((m) => m[1].trim());
 }
 
-export async function fetchSitemapUrls(domain: string): Promise<string[]> {
+export async function fetchSitemapUrls(domain: string, sitemapUrl?: string): Promise<string[]> {
   try {
-    return await extractSitemapUrls(`https://${domain}/sitemap.xml`, 0);
+    return await extractSitemapUrls(sitemapUrl ?? `https://${domain}/sitemap.xml`, 0);
   } catch {
     return [];
   }
