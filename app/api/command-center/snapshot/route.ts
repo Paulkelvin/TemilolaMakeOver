@@ -11,15 +11,7 @@ import { client } from "@/sanity/client";
 
 export const dynamic = "force-dynamic";
 
-export async function POST(request: Request) {
-  const secret = process.env.CRON_SECRET;
-  if (secret) {
-    const auth = request.headers.get("authorization");
-    if (auth !== `Bearer ${secret}`) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-  }
-
+export async function runSnapshot() {
   const today = new Date().toISOString().slice(0, 10);
   const snapshots: { source: string; metric: string; date: string; value: number }[] = [];
   const errors: string[] = [];
@@ -185,11 +177,24 @@ export async function POST(request: Request) {
     errors.push(`sanity-usage-alerts: ${err instanceof Error ? err.message : String(err)}`);
   }
 
-  return NextResponse.json({
+  return {
     date: today,
     snapshotsWritten: snapshots.length,
     seoOpportunities: seoOpportunityResult,
     keywordDiscovery: keywordDiscoveryResult,
     errors: errors.length > 0 ? errors : undefined,
-  });
+  };
+}
+
+export async function POST(request: Request) {
+  const secret = process.env.CRON_SECRET;
+  if (secret) {
+    const auth = request.headers.get("authorization");
+    if (auth !== `Bearer ${secret}`) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+  }
+
+  const result = await runSnapshot();
+  return NextResponse.json(result);
 }

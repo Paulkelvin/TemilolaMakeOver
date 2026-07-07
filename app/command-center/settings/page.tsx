@@ -3,6 +3,7 @@ import { AccessGuard } from "@/components/command-center/AccessGuard";
 import { getCCSettings } from "@/lib/command-center/settings";
 import { COMMAND_CENTER_MODULES } from "@/lib/command-center/modules";
 import { SettingsForm } from "@/components/command-center/SettingsForm";
+import { RunSnapshotButton } from "@/components/command-center/RunSnapshotButton";
 import type { NotificationKind } from "@/lib/intelligence/notifications";
 
 const CHECKS = [
@@ -152,9 +153,14 @@ export default async function SettingsPage() {
             External metrics are stored as daily snapshots via <code>POST /api/command-center/snapshot</code>.
             Set up a cron job (Vercel Cron, GitHub Actions, or any scheduler) to hit this endpoint daily.
           </p>
-          <p style={{ margin: 0, fontSize: "0.875rem", color: "var(--cc-text-muted)" }}>
+          <p style={{ margin: "0 0 16px", fontSize: "0.875rem", color: "var(--cc-text-muted)" }}>
             Protect the endpoint with <code>CRON_SECRET</code> — pass it as <code>Authorization: Bearer &lt;secret&gt;</code>.
           </p>
+          <p style={{ margin: "0 0 8px", fontSize: "0.875rem", color: "var(--cc-text-muted)" }}>
+            Or trigger it manually right now — this recomputes metrics, and also recomputes SEO Opportunities and
+            Keyword Discovery if it&rsquo;s been 7+ days since either last ran.
+          </p>
+          <RunSnapshotButton />
         </div>
 
         {role === "owner" && (
