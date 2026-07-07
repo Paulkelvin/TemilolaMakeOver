@@ -28,6 +28,7 @@ import { metricSnapshotSchema } from "./metricSnapshot";
 import { weeklyReviewSchema } from "./weeklyReview";
 import { notificationSchema } from "./notification";
 import { ccSettingsSchema } from "./ccSettings";
+import { seoOpportunitySchema } from "./seoOpportunity";
 
 export const schemaTypes = [
   serviceSchema,
@@ -60,4 +61,5 @@ export const schemaTypes = [
   weeklyReviewSchema,
   notificationSchema,
   ccSettingsSchema,
+  seoOpportunitySchema,
 ];

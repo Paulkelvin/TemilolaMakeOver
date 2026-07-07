@@ -9,7 +9,8 @@ export type NotificationKind =
   | "content_gap"
   | "new_review"
   | "wbr_ready"
-  | "metric_alert";
+  | "metric_alert"
+  | "seo_opportunity";
 
 export type Severity = "info" | "warning" | "critical";
 

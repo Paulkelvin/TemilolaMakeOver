@@ -5,6 +5,7 @@ import { isVercelConfigured, getDeploymentSummary, getWebVitals } from "@/lib/in
 import { getSanityUsageSnapshot, getDocumentLimit } from "@/lib/intelligence/sources/sanity-usage";
 import { upsertSnapshots, getLatestSnapshot } from "@/lib/intelligence/sources/snapshots";
 import { createNotification } from "@/lib/intelligence/notifications";
+import { computeSeoOpportunities, persistSeoOpportunities } from "@/lib/intelligence/seo-opportunities";
 import { client } from "@/sanity/client";
 
 export const dynamic = "force-dynamic";
@@ -87,6 +88,26 @@ export async function POST(request: Request) {
     }
   }
 
+  // ─── SEO Opportunity Engine (weekly-gated — query-level GSC analysis is
+  // comparatively expensive and doesn't need daily recomputation) ─────────
+  let seoOpportunityResult: { upserted: number; notifications: number } | undefined;
+  if (isSearchConsoleConfigured()) {
+    try {
+      const lastComputed = await client.fetch<string | null>(
+        `*[_type == "seoOpportunity"] | order(lastComputedAt desc)[0].lastComputedAt`
+      );
+      const daysSinceLastRun = lastComputed
+        ? (Date.now() - new Date(lastComputed).getTime()) / 86_400_000
+        : Infinity;
+      if (daysSinceLastRun >= 7) {
+        const topics = await computeSeoOpportunities(client);
+        seoOpportunityResult = await persistSeoOpportunities(topics);
+      }
+    } catch (err) {
+      errors.push(`seo-opportunities: ${err instanceof Error ? err.message : String(err)}`);
+    }
+  }
+
   // ─── Metric-drop notifications ─────────────────────────────────────────
   try {
     const alertChecks: { source: string; metric: string; label: string; dropThreshold: number }[] = [
@@ -148,6 +169,7 @@ export async function POST(request: Request) {
   return NextResponse.json({
     date: today,
     snapshotsWritten: snapshots.length,
+    seoOpportunities: seoOpportunityResult,
     errors: errors.length > 0 ? errors : undefined,
   });
 }

@@ -35,6 +35,7 @@ export const ccSettingsSchema = defineType({
                   { title: "New review", value: "new_review" },
                   { title: "WBR ready", value: "wbr_ready" },
                   { title: "Metric alert", value: "metric_alert" },
+                  { title: "SEO opportunity", value: "seo_opportunity" },
                 ],
               },
               validation: (Rule) => Rule.required(),

@@ -78,6 +78,22 @@ export interface IndexingStatus {
   fetchedAt: string;
 }
 
+export interface QueryPageRow {
+  query: string;
+  page: string;
+  clicks: number;
+  impressions: number;
+  ctr: number;
+  position: number;
+}
+
+export interface QueryPageMatrix {
+  current: QueryPageRow[];
+  prior: QueryPageRow[];
+  currentRange: { startDate: string; endDate: string };
+  priorRange: { startDate: string; endDate: string };
+}
+
 // ─── Fetchers ───────────────────────────────────────────────────────────────
 
 function dateRange(days: number): { startDate: string; endDate: string } {
@@ -150,6 +166,48 @@ export async function getDailyPerformance(days = 28): Promise<DailyPerformance[]
     ctr: r.ctr,
     position: r.position,
   }));
+}
+
+function priorDateRange(days: number): { startDate: string; endDate: string } {
+  const end = new Date();
+  end.setDate(end.getDate() - 3 - days);
+  const start = new Date(end);
+  start.setDate(start.getDate() - days);
+  return {
+    startDate: start.toISOString().slice(0, 10),
+    endDate: end.toISOString().slice(0, 10),
+  };
+}
+
+async function fetchQueryPageRows(range: { startDate: string; endDate: string }): Promise<QueryPageRow[]> {
+  const data = await gscFetch<SearchAnalyticsResponse>("/searchAnalytics/query", {
+    method: "POST",
+    body: JSON.stringify({ ...range, dimensions: ["query", "page"], rowLimit: 25000 }),
+  });
+  return (data.rows ?? []).map((r) => ({
+    query: r.keys[0],
+    page: r.keys[1],
+    clicks: r.clicks,
+    impressions: r.impressions,
+    ctr: r.ctr,
+    position: r.position,
+  }));
+}
+
+/**
+ * Every (query, page) row for a trailing window plus the immediately-prior
+ * window of equal length, for period-over-period deltas. One call each —
+ * GSC's 25,000-row cap comfortably covers a small business site's query
+ * volume, no pagination needed.
+ */
+export async function getQueryPageMatrix(days = 90): Promise<QueryPageMatrix> {
+  const currentRange = dateRange(days);
+  const priorRange = priorDateRange(days);
+  const [current, prior] = await Promise.all([
+    fetchQueryPageRows(currentRange),
+    fetchQueryPageRows(priorRange),
+  ]);
+  return { current, prior, currentRange, priorRange };
 }
 
 export async function getIndexingStatus(): Promise<IndexingStatus> {

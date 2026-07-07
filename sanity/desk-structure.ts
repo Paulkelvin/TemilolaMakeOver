@@ -188,6 +188,13 @@ export const deskStructure = (S: StructureBuilder) =>
               S.documentTypeListItem("metricSnapshot").title("Metric Snapshots"),
               S.documentTypeListItem("weeklyReview").title("Weekly Business Reviews"),
               S.documentTypeListItem("notification").title("Notifications"),
+              S.documentTypeListItem("seoOpportunity")
+                .title("SEO Opportunities")
+                .child(
+                  S.documentTypeList("seoOpportunity")
+                    .title("SEO Opportunities")
+                    .defaultOrdering([{ field: "scoreBreakdown.totalScore", direction: "desc" }])
+                ),
             ])
         ),
     ]);
