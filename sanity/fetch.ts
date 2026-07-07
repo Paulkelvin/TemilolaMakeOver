@@ -49,8 +49,12 @@ import type { PortfolioItem, PortfolioCategory } from "@/data/portfolio";
 import type { Testimonial } from "@/data/testimonials";
 import type { FAQItem } from "@/data/faq";
 
-const REVALIDATE = { next: { revalidate: 60 } };
-const REVALIDATE_FAST = { next: { revalidate: 30 } };
+// Long time-based windows are intentional: on-demand revalidation (see
+// app/(site)/api/revalidate/route.ts) already refreshes affected pages
+// immediately when content is published in Studio. These windows are only
+// the fallback for cases that don't go through that webhook.
+const REVALIDATE = { next: { revalidate: 3600 } }; // 1 hour
+const REVALIDATE_FAST = { next: { revalidate: 300 } }; // 5 minutes
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function imgUrl(image: any, width?: number): string {
