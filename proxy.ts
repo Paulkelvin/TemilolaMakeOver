@@ -1,35 +1,28 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { SESSION_COOKIE, verifySessionToken } from "@/lib/command-center/session";
 
 type AuthResult = { denied: NextResponse } | { role: "owner" | "staff" } | null;
 
+// Basic Auth has no "stay logged in" concept — it's entirely up to the
+// browser to cache the Authorization header, and mobile browsers in
+// particular drop that cache quickly after backgrounding a tab. A signed
+// session cookie (set by /api/cc-login) gives an actual, controllable
+// session length instead.
 function checkCommandCenterAuth(request: NextRequest): AuthResult {
   const ownerPw = process.env.COMMAND_CENTER_PASSWORD;
   const staffPw = process.env.COMMAND_CENTER_STAFF_PASSWORD;
   if (!ownerPw && !staffPw) return { role: "owner" };
 
-  const authHeader = request.headers.get("authorization");
-  if (!authHeader) {
-    return {
-      denied: new NextResponse("Authentication required", {
-        status: 401,
-        headers: { "WWW-Authenticate": `Basic realm="Business Command Center"` },
-      }),
-    };
+  const role = verifySessionToken(request.cookies.get(SESSION_COOKIE)?.value);
+  if (!role) {
+    const loginUrl = request.nextUrl.clone();
+    loginUrl.pathname = "/cc-login";
+    loginUrl.search = `?next=${encodeURIComponent(request.nextUrl.pathname)}`;
+    return { denied: NextResponse.redirect(loginUrl) };
   }
 
-  const [, encoded] = authHeader.split(" ");
-  const [, suppliedPassword] = atob(encoded ?? "").split(":");
-
-  if (ownerPw && suppliedPassword === ownerPw) return { role: "owner" };
-  if (staffPw && suppliedPassword === staffPw) return { role: "staff" };
-
-  return {
-    denied: new NextResponse("Invalid credentials", {
-      status: 401,
-      headers: { "WWW-Authenticate": `Basic realm="Business Command Center"` },
-    }),
-  };
+  return { role };
 }
 
 function requireBasicAuth(

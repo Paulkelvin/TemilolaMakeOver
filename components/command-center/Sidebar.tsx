@@ -20,6 +20,11 @@ export function Sidebar({ modules, role }: SidebarProps) {
     setOpen(false);
   }, [pathname]);
 
+  async function handleLogout() {
+    await fetch("/api/cc-logout", { method: "POST" });
+    window.location.href = "/cc-login";
+  }
+
   return (
     <>
       <div className="cc-mobile-bar">
@@ -66,6 +71,9 @@ export function Sidebar({ modules, role }: SidebarProps) {
         {role === "staff" && (
           <div className="cc-nav-role-badge">Staff access</div>
         )}
+        <button type="button" className="cc-nav-item cc-nav-item--logout" onClick={handleLogout}>
+          <span>Log out</span>
+        </button>
       </nav>
     </>
   );

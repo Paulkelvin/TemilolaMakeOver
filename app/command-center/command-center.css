@@ -93,6 +93,18 @@ body.cc-body {
   color: var(--cc-accent-strong);
   font-weight: 600;
 }
+.cc-nav-item--logout {
+  width: 100%;
+  background: none;
+  border: none;
+  border-top: 1px solid var(--cc-border);
+  margin-top: 12px;
+  padding-top: 14px;
+  font: inherit;
+  cursor: pointer;
+  text-align: left;
+}
+
 .cc-nav-item__phase {
   font-family: var(--cc-mono);
   font-size: 0.625rem;
