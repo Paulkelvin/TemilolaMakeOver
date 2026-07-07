@@ -110,18 +110,53 @@ export function clusterQueries<T extends ClusterableQuery>(queries: T[]): QueryC
 
 export type Intent = "informational" | "commercial" | "transactional" | "navigational";
 
-const INFORMATIONAL_PATTERN = /\b(how|what|why|when|does|is|can|will|guide|tips|difference|meaning)\b/;
-const COMMERCIAL_PATTERN = /\b(price|cost|cheap|affordable|near me|best|top|review|packages?)\b/;
-const TRANSACTIONAL_PATTERN = /\b(book|hire|contact|whatsapp|price list|quote)\b/;
+// Word lists (not one big regex) so classifyIntentDetailed can report
+// exactly which words fired — every detection is deterministic and
+// individually checkable, never a black-box verdict.
 const NAVIGATIONAL_TERMS = ["gleam", "temi", "gleam by temi"];
+const TRANSACTIONAL_WORDS = ["book", "hire", "contact", "whatsapp", "price list", "quote"];
+const COMMERCIAL_WORDS = ["price", "cost", "cheap", "affordable", "near me", "best", "top", "review", "package", "packages"];
+const INFORMATIONAL_WORDS = ["how", "what", "why", "when", "does", "is", "can", "will", "guide", "tips", "difference", "meaning"];
+
+function escapeRegExp(s: string): string {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function findMatches(text: string, words: string[]): string[] {
+  return words.filter((w) => new RegExp(`\\b${escapeRegExp(w)}\\b`).test(text));
+}
+
+export interface IntentClassification {
+  intent: Intent;
+  confidencePct: number;
+  matchedWords: string[];
+  ruleTriggered: string;
+}
+
+export function classifyIntentDetailed(rawQueries: string[]): IntentClassification {
+  const joined = rawQueries.join(" | ").toLowerCase();
+
+  const navMatches = findMatches(joined, NAVIGATIONAL_TERMS);
+  if (navMatches.length > 0) {
+    return { intent: "navigational", confidencePct: 95, matchedWords: navMatches, ruleTriggered: "navigational — contains brand/business name" };
+  }
+  const transactionalMatches = findMatches(joined, TRANSACTIONAL_WORDS);
+  if (transactionalMatches.length > 0) {
+    return { intent: "transactional", confidencePct: 90, matchedWords: transactionalMatches, ruleTriggered: "transactional — booking/contact language" };
+  }
+  const commercialMatches = findMatches(joined, COMMERCIAL_WORDS);
+  if (commercialMatches.length > 0) {
+    return { intent: "commercial", confidencePct: 85, matchedWords: commercialMatches, ruleTriggered: "commercial — price/comparison language" };
+  }
+  const informationalMatches = findMatches(joined, INFORMATIONAL_WORDS);
+  if (informationalMatches.length > 0) {
+    return { intent: "informational", confidencePct: 80, matchedWords: informationalMatches, ruleTriggered: "informational — question/guide language" };
+  }
+  return { intent: "informational", confidencePct: 40, matchedWords: [], ruleTriggered: "default — no specific pattern matched" };
+}
 
 export function classifyIntent(rawQueries: string[]): Intent {
-  const joined = rawQueries.join(" | ");
-  if (NAVIGATIONAL_TERMS.some((t) => joined.includes(t))) return "navigational";
-  if (TRANSACTIONAL_PATTERN.test(joined)) return "transactional";
-  if (COMMERCIAL_PATTERN.test(joined)) return "commercial";
-  if (INFORMATIONAL_PATTERN.test(joined)) return "informational";
-  return "informational";
+  return classifyIntentDetailed(rawQueries).intent;
 }
 
 // Shared regexes for recommendation logic (each engine has its own
@@ -261,6 +296,44 @@ export function matchContent(
   }
   const coverage: ContentCoverage = best.coverageScore >= THIN_THRESHOLD ? "existing-strong" : "thin";
   return { coverage, matchedPath: best.path, topicalRelevanceScore, matchedCoverageScore: best.coverageScore };
+}
+
+// ─── Priority (value ÷ effort, not value alone) ─────────────────────────────
+
+// Ordinal effort scale, shared across all three engines' recommendedAction
+// vocabularies (they overlap in meaning even where the exact string
+// differs) — a 30-minute FAQ addition and a multi-day new pillar page
+// shouldn't be ranked on the same scale as pure "value" alone implies.
+export const EFFORT_WEIGHTS: Record<string, number> = {
+  add_faqs: 1,
+  add_internal_links: 1,
+  strengthen_internal_links: 1,
+  add_portfolio: 2,
+  add_portfolio_examples: 2,
+  improve_existing_page: 3,
+  create_cluster_article: 5,
+  create_new_blog_article: 5,
+  expand_pillar_page: 5,
+  create_new_pillar: 8,
+};
+
+const DEFAULT_EFFORT_WEIGHT = 3;
+
+export function effortWeightFor(action: string): number {
+  return EFFORT_WEIGHTS[action] ?? DEFAULT_EFFORT_WEIGHT;
+}
+
+/**
+ * Value ÷ effort — not a percentage, a relative ranking number. Naturally
+ * bounded roughly 0-100 since totalScore maxes at 100 and the lowest
+ * effort weight is 1 (a 90-value FAQ addition scores 90; a 90-value new
+ * pillar page, effort 8, scores 11.25 — reflecting that the FAQ is the
+ * better use of the next 30 minutes even though the pillar page has
+ * identical raw value).
+ */
+export function computePriorityScore(totalScore: number, action: string): number {
+  const effort = effortWeightFor(action);
+  return Math.round((totalScore / effort) * 10) / 10;
 }
 
 // Stable, URL/id-safe key derived from a cluster's dominant shared tokens —

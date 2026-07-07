@@ -10,14 +10,16 @@ import { createNotification } from "./notifications";
 import {
   normalizeQuery,
   clusterQueries,
-  classifyIntent,
+  classifyIntentDetailed,
   detectSeasonal,
   buildContentIndex,
   matchContent,
   topicKeyFor,
+  computePriorityScore,
   QUESTION_PATTERN,
   VISUAL_PATTERN,
   type Intent,
+  type IntentClassification,
   type ContentCoverage,
 } from "./keyword-utils";
 
@@ -53,6 +55,8 @@ export interface SeoOpportunityTopic {
   confidenceLevel: ConfidenceLevel;
   confidenceReasons: string[];
   intent: Intent;
+  intentClassification: IntentClassification;
+  priorityScore: number;
   isQuickWin: boolean;
   isSeasonal: boolean;
   seasonalPeriod?: string;
@@ -60,6 +64,7 @@ export interface SeoOpportunityTopic {
   matchedContentPath?: string;
   recommendedAction: RecommendedAction;
   recommendedActionDetail: string;
+  decisionTrace: string[];
 }
 
 // ─── Aggregation (per-query, collapsing the query+page dimension) ─────────
@@ -151,36 +156,59 @@ function recommendAction(
   rawQueries: string[],
   coverage: ContentCoverage,
   matchedPath: string | undefined
-): { action: RecommendedAction; detail: string } {
+): { action: RecommendedAction; detail: string; trace: string[] } {
   const joined = rawQueries.join(" | ");
+  const trace: string[] = [];
 
+  trace.push(`1. Coverage === "none"? ${coverage === "none" ? "YES" : "no"} (coverage = "${coverage}")`);
   if (coverage === "none") {
+    trace.push("-> create_new_blog_article (no existing content to build on)");
     return {
       action: "create_new_blog_article",
       detail: `No existing page or post covers this topic. Write a new blog article targeting: ${rawQueries.slice(0, 5).join(", ")}.`,
+      trace,
     };
   }
-  if (QUESTION_PATTERN.test(joined)) {
+
+  const isQuestion = QUESTION_PATTERN.test(joined);
+  trace.push(`2. Question-form query (matches /${QUESTION_PATTERN.source}/)? ${isQuestion ? "YES" : "no"}`);
+  if (isQuestion) {
+    trace.push("-> add_faqs (questions are best answered as FAQs, not a full rewrite)");
     return {
       action: "add_faqs",
       detail: `These are question-form searches. Add FAQ entries answering them directly${matchedPath ? ` on ${matchedPath}` : ""}.`,
+      trace,
     };
   }
-  if (VISUAL_PATTERN.test(joined)) {
+
+  const wantsVisual = VISUAL_PATTERN.test(joined);
+  trace.push(`3. Visual/proof language (matches /${VISUAL_PATTERN.source}/)? ${wantsVisual ? "YES" : "no"}`);
+  if (wantsVisual) {
+    trace.push("-> add_portfolio_examples (searcher wants to see results, not read more text)");
     return {
       action: "add_portfolio_examples",
       detail: `Searchers want visual proof. Add tagged portfolio items that match this topic${matchedPath ? ` and link them from ${matchedPath}` : ""}.`,
+      trace,
     };
   }
+
+  trace.push(`4. Coverage === "thin"? ${coverage === "thin" ? "YES" : "no"}`);
   if (coverage === "thin") {
     const isPillar = matchedPath && !matchedPath.startsWith("/blog/");
-    return isPillar
-      ? { action: "expand_pillar_page", detail: `${matchedPath} is thin for this topic — expand its content depth (more detail, FAQs, proof).` }
-      : { action: "strengthen_internal_links", detail: `Existing content on this topic is thin and scattered. Link related posts to each other and to the relevant service/location page.` };
+    trace.push(`5. Matched path is a pillar page, not a blog post? ${isPillar ? "YES" : "no"} (matchedPath = "${matchedPath ?? "none"}")`);
+    if (isPillar) {
+      trace.push("-> expand_pillar_page (the page itself just needs more depth)");
+      return { action: "expand_pillar_page", detail: `${matchedPath} is thin for this topic — expand its content depth (more detail, FAQs, proof).`, trace };
+    }
+    trace.push("-> strengthen_internal_links (thin content is scattered across posts, not concentrated on one page)");
+    return { action: "strengthen_internal_links", detail: `Existing content on this topic is thin and scattered. Link related posts to each other and to the relevant service/location page.`, trace };
   }
+
+  trace.push('5. Coverage is "existing-strong" and no other rule fired -> improve_existing_page (closest to ranking well already)');
   return {
     action: "improve_existing_page",
     detail: `${matchedPath ?? "The matching page"} already ranks reasonably — improve its title/meta description and on-page depth to close the remaining gap.`,
+    trace,
   };
 }
 
@@ -231,7 +259,8 @@ export async function computeSeoOpportunities(fetchClient: FetchClient = client)
     const { coverage, matchedPath, topicalRelevanceScore } = matchContent(clusterTokens, contentIndex);
     if (topicalRelevanceScore < MIN_TOPICAL_RELEVANCE) continue; // drop noise
 
-    const intent = classifyIntent(rawQueries);
+    const intentClassification = classifyIntentDetailed(rawQueries);
+    const intent = intentClassification.intent;
     const seasonal = detectSeasonal(rawQueries);
 
     const positionScore = scorePosition(position);
@@ -264,7 +293,8 @@ export async function computeSeoOpportunities(fetchClient: FetchClient = client)
     if (impressions >= 50 && cluster.members.length >= 2 && topicalRelevanceScore >= 70) confidenceLevel = "high";
     else if (impressions >= 15 && topicalRelevanceScore >= 70) confidenceLevel = "medium";
 
-    const { action, detail } = recommendAction(rawQueries, coverage, matchedPath);
+    const { action, detail, trace } = recommendAction(rawQueries, coverage, matchedPath);
+    const priorityScore = computePriorityScore(totalScore, action);
     const isQuickWin = position >= 8 && position <= 20;
 
     const topLabel = [...cluster.members].sort((a, b) => b.impressions - a.impressions)[0].query;
@@ -295,6 +325,8 @@ export async function computeSeoOpportunities(fetchClient: FetchClient = client)
       confidenceLevel,
       confidenceReasons,
       intent,
+      intentClassification,
+      priorityScore,
       isQuickWin,
       isSeasonal: seasonal.isSeasonal,
       seasonalPeriod: seasonal.seasonalPeriod,
@@ -302,6 +334,7 @@ export async function computeSeoOpportunities(fetchClient: FetchClient = client)
       matchedContentPath: matchedPath,
       recommendedAction: action,
       recommendedActionDetail: detail,
+      decisionTrace: trace,
     });
   }
 
@@ -369,6 +402,8 @@ export async function persistSeoOpportunities(
       confidenceLevel: topic.confidenceLevel,
       confidenceReasons: topic.confidenceReasons,
       intent: topic.intent,
+      intentClassification: topic.intentClassification,
+      priorityScore: topic.priorityScore,
       isQuickWin: topic.isQuickWin,
       isSeasonal: topic.isSeasonal,
       seasonalPeriod: topic.seasonalPeriod,
@@ -376,6 +411,7 @@ export async function persistSeoOpportunities(
       matchedContentPath: topic.matchedContentPath,
       recommendedAction: topic.recommendedAction,
       recommendedActionDetail: topic.recommendedActionDetail,
+      decisionTrace: topic.decisionTrace,
       status: prior?.status ?? "new",
       actionedAt: prior?.actionedAt,
       history,
@@ -449,8 +485,9 @@ export interface StoredSeoOpportunity extends SeoOpportunityTopic {
 
 const OPPORTUNITY_PROJECTION = `{
   topicKey, topicLabel, queries, currentMetrics, scoreBreakdown, confidenceLevel,
-  confidenceReasons, intent, isQuickWin, isSeasonal, seasonalPeriod, contentCoverage,
-  matchedContentPath, recommendedAction, recommendedActionDetail, status, actionedAt,
+  confidenceReasons, intent, intentClassification, priorityScore, isQuickWin, isSeasonal,
+  seasonalPeriod, contentCoverage, matchedContentPath, recommendedAction,
+  recommendedActionDetail, decisionTrace, status, actionedAt,
   history, firstSeenAt, lastComputedAt
 }`;
 

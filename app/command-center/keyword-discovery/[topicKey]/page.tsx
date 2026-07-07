@@ -85,6 +85,10 @@ export default async function KeywordDiscoveryDetailPage({
           <div className="cc-tile__value">{sb.totalScore.toFixed(0)}</div>
         </div>
         <div className="cc-tile">
+          <div className="cc-tile__label">Priority (value ÷ effort)</div>
+          <div className="cc-tile__value">{topic.priorityScore.toFixed(1)}</div>
+        </div>
+        <div className="cc-tile">
           <div className="cc-tile__label">Breadth</div>
           <div className="cc-tile__value" style={{ textTransform: "capitalize" }}>{topic.queryBreadth}</div>
         </div>
@@ -131,6 +135,26 @@ export default async function KeywordDiscoveryDetailPage({
         <ul style={{ margin: 0, paddingLeft: "1.2em", fontSize: "0.875rem", color: "var(--cc-text-muted)", lineHeight: 1.7 }}>
           {topic.confidenceReasons.map((r, i) => <li key={i}>{r}</li>)}
         </ul>
+      </div>
+
+      <div className="cc-card">
+        <h2 style={{ margin: "0 0 4px", fontSize: "1.0625rem" }}>Search intent detection</h2>
+        <p style={{ margin: "0 0 4px", fontWeight: 600, textTransform: "capitalize" }}>
+          {topic.intentClassification.intent} — {topic.intentClassification.confidencePct}% confidence
+        </p>
+        <p style={{ margin: "0 0 4px", fontSize: "0.875rem", color: "var(--cc-text-muted)" }}>{topic.intentClassification.ruleTriggered}</p>
+        {topic.intentClassification.matchedWords.length > 0 && (
+          <p style={{ margin: 0, fontSize: "0.8125rem", color: "var(--cc-text-muted)" }}>
+            Matched words: {topic.intentClassification.matchedWords.map((w) => <code key={w} style={{ marginRight: 6 }}>{w}</code>)}
+          </p>
+        )}
+      </div>
+
+      <div className="cc-card">
+        <h2 style={{ margin: "0 0 12px", fontSize: "1.0625rem" }}>Why this recommendation (decision trail)</h2>
+        <ol style={{ margin: 0, paddingLeft: "1.2em", fontSize: "0.8125rem", color: "var(--cc-text-muted)", lineHeight: 1.8, fontFamily: "var(--cc-mono)" }}>
+          {topic.decisionTrace.map((step, i) => <li key={i}>{step}</li>)}
+        </ol>
       </div>
 
       <div className="cc-card">

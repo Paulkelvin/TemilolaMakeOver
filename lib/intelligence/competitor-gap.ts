@@ -14,6 +14,7 @@ import {
   buildContentIndex,
   matchContent,
   topicKeyFor,
+  computePriorityScore,
   QUESTION_PATTERN,
   VISUAL_PATTERN,
 } from "./keyword-utils";
@@ -43,25 +44,44 @@ export interface CompetitorGapTopic {
   competitorUrl: string;
   sampleTitle: string;
   topicalRelevanceScore: number;
+  priorityScore: number;
   recommendedAction: RecommendedAction;
   recommendedActionDetail: string;
+  decisionTrace: string[];
 }
 
 const MIN_TOPICAL_RELEVANCE = 30; // same noise floor as the other two engines
 
-function recommendAction(title: string, h1: string, breadth: "head" | "long-tail"): { action: RecommendedAction; detail: string } {
+function recommendAction(title: string, h1: string, breadth: "head" | "long-tail"): { action: RecommendedAction; detail: string; trace: string[] } {
   const joined = `${title} ${h1}`;
   const label = title || h1;
-  if (QUESTION_PATTERN.test(joined)) {
-    return { action: "add_faqs", detail: `A competitor answers this as a question that this site doesn't yet. Add an FAQ entry covering: ${label}.` };
+  const trace: string[] = [];
+
+  // Note: coverage === "none" is always true here (only genuine gaps ever
+  // reach this function — see crawlCompetitor's `if (coverage !== "none" ...) continue`),
+  // so unlike the other two engines' recommendAction, this one only chooses
+  // among the content-creation actions, never "improve"/"add links".
+  const isQuestion = QUESTION_PATTERN.test(joined);
+  trace.push(`1. Question-form title? ${isQuestion ? "YES" : "no"}`);
+  if (isQuestion) {
+    trace.push("-> add_faqs");
+    return { action: "add_faqs", detail: `A competitor answers this as a question that this site doesn't yet. Add an FAQ entry covering: ${label}.`, trace };
   }
-  if (VISUAL_PATTERN.test(joined)) {
-    return { action: "add_portfolio", detail: `A competitor uses this as a visual/proof angle. Add tagged portfolio items covering: ${label}.` };
+
+  const wantsVisual = VISUAL_PATTERN.test(joined);
+  trace.push(`2. Visual/proof language? ${wantsVisual ? "YES" : "no"}`);
+  if (wantsVisual) {
+    trace.push("-> add_portfolio");
+    return { action: "add_portfolio", detail: `A competitor uses this as a visual/proof angle. Add tagged portfolio items covering: ${label}.`, trace };
   }
+
+  trace.push(`3. Query breadth === "head"? ${breadth === "head" ? "YES" : "no"}`);
   if (breadth === "head") {
-    return { action: "create_new_pillar", detail: `A competitor has a dedicated page for this broad topic that this site doesn't have. Consider a pillar page covering: ${label}.` };
+    trace.push("-> create_new_pillar (broad topic worth a dedicated page)");
+    return { action: "create_new_pillar", detail: `A competitor has a dedicated page for this broad topic that this site doesn't have. Consider a pillar page covering: ${label}.`, trace };
   }
-  return { action: "create_cluster_article", detail: `A competitor covers this specific topic that this site doesn't. Consider a cluster article covering: ${label}.` };
+  trace.push("-> create_cluster_article (specific/long-tail topic)");
+  return { action: "create_cluster_article", detail: `A competitor covers this specific topic that this site doesn't. Consider a cluster article covering: ${label}.`, trace };
 }
 
 async function crawlCompetitor(
@@ -108,7 +128,8 @@ async function crawlCompetitor(
     gapKeysSeen.add(topicKey);
 
     const breadth: "head" | "long-tail" = tokens.length <= 3 ? "head" : "long-tail";
-    const { action, detail } = recommendAction(signal.title, signal.h1, breadth);
+    const { action, detail, trace } = recommendAction(signal.title, signal.h1, breadth);
+    const priorityScore = computePriorityScore(topicalRelevanceScore, action);
 
     gaps.push({
       topicKey,
@@ -117,8 +138,10 @@ async function crawlCompetitor(
       competitorUrl: urls[i],
       sampleTitle: label,
       topicalRelevanceScore,
+      priorityScore,
       recommendedAction: action,
       recommendedActionDetail: detail,
+      decisionTrace: trace,
     });
   }
 
@@ -128,7 +151,7 @@ async function crawlCompetitor(
 export async function computeCompetitorGaps(fetchClient: FetchClient = client): Promise<CompetitorGapTopic[]> {
   const ourContentIndex = await buildContentIndex(fetchClient);
   const results = await Promise.all(COMPETITOR_SITES.map((c) => crawlCompetitor(c, ourContentIndex)));
-  return results.flat().sort((a, b) => b.topicalRelevanceScore - a.topicalRelevanceScore);
+  return results.flat().sort((a, b) => b.priorityScore - a.priorityScore);
 }
 
 // ─── Persistence ────────────────────────────────────────────────────────────
@@ -173,8 +196,10 @@ export async function persistCompetitorGaps(gaps: CompetitorGapTopic[]): Promise
       competitorUrl: gap.competitorUrl,
       sampleTitle: gap.sampleTitle,
       topicalRelevanceScore: gap.topicalRelevanceScore,
+      priorityScore: gap.priorityScore,
       recommendedAction: gap.recommendedAction,
       recommendedActionDetail: gap.recommendedActionDetail,
+      decisionTrace: gap.decisionTrace,
       status: prior?.status ?? "new",
       actionedAt: prior?.actionedAt,
       history,
@@ -199,12 +224,13 @@ export interface StoredCompetitorGapTopic extends CompetitorGapTopic {
 
 const GAP_PROJECTION = `{
   topicKey, topicLabel, competitorName, competitorUrl, sampleTitle, topicalRelevanceScore,
-  recommendedAction, recommendedActionDetail, status, actionedAt, history, firstSeenAt, lastComputedAt
+  priorityScore, recommendedAction, recommendedActionDetail, decisionTrace,
+  status, actionedAt, history, firstSeenAt, lastComputedAt
 }`;
 
 export async function getCompetitorGaps(): Promise<StoredCompetitorGapTopic[]> {
   return client.fetch<StoredCompetitorGapTopic[]>(
-    `*[_type == "competitorGapTopic"] | order(topicalRelevanceScore desc) ${GAP_PROJECTION}`
+    `*[_type == "competitorGapTopic"] | order(priorityScore desc) ${GAP_PROJECTION}`
   );
 }
 

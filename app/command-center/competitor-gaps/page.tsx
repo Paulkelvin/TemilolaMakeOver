@@ -20,6 +20,9 @@ function GapRow({ gap }: { gap: StoredCompetitorGapTopic }) {
       <td style={{ padding: "6px 8px", textAlign: "right", fontFamily: "var(--cc-mono)" }}>
         {gap.topicalRelevanceScore}
       </td>
+      <td style={{ padding: "6px 8px", textAlign: "right", fontFamily: "var(--cc-mono)" }}>
+        {gap.priorityScore.toFixed(1)}
+      </td>
       <td style={{ padding: "6px 8px" }}>{gap.competitorName}</td>
       <td style={{ padding: "6px 8px" }}>{ACTION_LABELS[gap.recommendedAction] ?? gap.recommendedAction}</td>
       <td style={{ padding: "6px 8px", textTransform: "capitalize" }}>{gap.status.replace("_", " ")}</td>
@@ -54,7 +57,7 @@ export default async function CompetitorGapsPage() {
           <h2 style={{ margin: "0 0 4px", fontSize: "1.0625rem" }}>All gaps</h2>
           <p style={{ margin: "0 0 12px", fontSize: "0.8125rem", color: "var(--cc-text-muted)" }}>
             {gaps.length} topic{gaps.length === 1 ? "" : "s"} found on competitor sites with no matching content
-            here, sorted by relevance.
+            here, sorted by priority (relevance ÷ effort).
           </p>
           <div style={{ overflowX: "auto" }}>
             <table style={{ width: "100%", fontSize: "0.8125rem", borderCollapse: "collapse" }}>
@@ -62,6 +65,7 @@ export default async function CompetitorGapsPage() {
                 <tr style={{ borderBottom: "1px solid var(--cc-border)", color: "var(--cc-text-muted)" }}>
                   <th style={{ textAlign: "left", padding: "6px 8px", fontWeight: 500 }}>Topic</th>
                   <th style={{ textAlign: "right", padding: "6px 8px", fontWeight: 500 }}>Relevance</th>
+                  <th style={{ textAlign: "right", padding: "6px 8px", fontWeight: 500 }}>Priority</th>
                   <th style={{ textAlign: "left", padding: "6px 8px", fontWeight: 500 }}>Competitor</th>
                   <th style={{ textAlign: "left", padding: "6px 8px", fontWeight: 500 }}>Recommended action</th>
                   <th style={{ textAlign: "left", padding: "6px 8px", fontWeight: 500 }}>Status</th>

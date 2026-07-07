@@ -95,6 +95,23 @@ export const seoOpportunitySchema = defineType({
         ],
       },
     }),
+    defineField({
+      name: "intentClassification",
+      title: "Intent classification detail",
+      type: "object",
+      description: "Exactly which words triggered the intent detection and how confident the (deterministic, regex-based) rule is.",
+      fields: [
+        defineField({ name: "confidencePct", title: "Confidence %", type: "number" }),
+        defineField({ name: "matchedWords", title: "Matched words", type: "array", of: [{ type: "string" }] }),
+        defineField({ name: "ruleTriggered", title: "Rule triggered", type: "string" }),
+      ],
+    }),
+    defineField({
+      name: "priorityScore",
+      title: "Priority score (value ÷ effort)",
+      type: "number",
+      description: "Total score divided by an ordinal effort weight for the recommended action — a quick FAQ addition can outrank a bigger-value pillar page that takes much longer to build.",
+    }),
 
     defineField({ name: "isQuickWin", title: "Quick win (position 8–20)", type: "boolean", initialValue: false }),
     defineField({ name: "isSeasonal", title: "Seasonal", type: "boolean", initialValue: false }),
@@ -141,6 +158,13 @@ export const seoOpportunitySchema = defineType({
       },
     }),
     defineField({ name: "recommendedActionDetail", title: "Recommended action detail", type: "text", rows: 3 }),
+    defineField({
+      name: "decisionTrace",
+      title: "Decision trace",
+      type: "array",
+      of: [{ type: "string" }],
+      description: "Every condition the recommendation decision tree checked, in order, and its result — the full \"why did it recommend THIS\" trail, not just the outcome.",
+    }),
 
     defineField({
       name: "status",

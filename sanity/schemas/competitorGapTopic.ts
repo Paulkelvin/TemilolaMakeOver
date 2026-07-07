@@ -26,6 +26,12 @@ export const competitorGapTopicSchema = defineType({
       type: "number",
       description: "Overlap with this site's real services/locations/vocabulary — same scoring as the other engines.",
     }),
+    defineField({
+      name: "priorityScore",
+      title: "Priority score (value ÷ effort)",
+      type: "number",
+      description: "Topical relevance divided by an ordinal effort weight for the recommended action — drives the list ordering, not raw relevance alone.",
+    }),
 
     defineField({
       name: "recommendedAction",
@@ -46,6 +52,13 @@ export const competitorGapTopicSchema = defineType({
       type: "text",
       rows: 3,
       description: "Names the topic to cover, in this site's own voice — never the competitor's actual wording.",
+    }),
+    defineField({
+      name: "decisionTrace",
+      title: "Decision trace",
+      type: "array",
+      of: [{ type: "string" }],
+      description: "Every condition the recommendation decision tree checked, in order, and its result.",
     }),
 
     defineField({
@@ -86,15 +99,16 @@ export const competitorGapTopicSchema = defineType({
     defineField({ name: "lastComputedAt", title: "Last computed at", type: "datetime", readOnly: true }),
   ],
   orderings: [
+    { title: "Priority, highest first", name: "priorityDesc", by: [{ field: "priorityScore", direction: "desc" }] },
     { title: "Relevance, highest first", name: "relevanceDesc", by: [{ field: "topicalRelevanceScore", direction: "desc" }] },
     { title: "Last computed", name: "lastComputedDesc", by: [{ field: "lastComputedAt", direction: "desc" }] },
   ],
   preview: {
-    select: { title: "topicLabel", competitor: "competitorName", action: "recommendedAction", status: "status" },
-    prepare({ title, competitor, action, status }) {
+    select: { title: "topicLabel", competitor: "competitorName", priority: "priorityScore", action: "recommendedAction", status: "status" },
+    prepare({ title, competitor, priority, action, status }) {
       return {
         title: title ?? "Untitled topic",
-        subtitle: `vs. ${competitor ?? "?"} · ${action ?? "no action"} · ${status ?? "new"}`,
+        subtitle: `vs. ${competitor ?? "?"} · priority ${priority ?? "?"} · ${action ?? "no action"} · ${status ?? "new"}`,
       };
     },
   },

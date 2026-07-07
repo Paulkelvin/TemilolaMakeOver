@@ -70,6 +70,10 @@ export default async function SeoOpportunityDetailPage({
           <div className="cc-tile__value">{sb.totalScore.toFixed(0)}</div>
         </div>
         <div className="cc-tile">
+          <div className="cc-tile__label">Priority (value ÷ effort)</div>
+          <div className="cc-tile__value">{opp.priorityScore.toFixed(1)}</div>
+        </div>
+        <div className="cc-tile">
           <div className="cc-tile__label">Position</div>
           <div className="cc-tile__value">{opp.currentMetrics.position.toFixed(1)}</div>
         </div>
@@ -114,6 +118,26 @@ export default async function SeoOpportunityDetailPage({
         <ul style={{ margin: 0, paddingLeft: "1.2em", fontSize: "0.875rem", color: "var(--cc-text-muted)", lineHeight: 1.7 }}>
           {opp.confidenceReasons.map((r, i) => <li key={i}>{r}</li>)}
         </ul>
+      </div>
+
+      <div className="cc-card">
+        <h2 style={{ margin: "0 0 4px", fontSize: "1.0625rem" }}>Search intent detection</h2>
+        <p style={{ margin: "0 0 4px", fontWeight: 600, textTransform: "capitalize" }}>
+          {opp.intentClassification.intent} — {opp.intentClassification.confidencePct}% confidence
+        </p>
+        <p style={{ margin: "0 0 4px", fontSize: "0.875rem", color: "var(--cc-text-muted)" }}>{opp.intentClassification.ruleTriggered}</p>
+        {opp.intentClassification.matchedWords.length > 0 && (
+          <p style={{ margin: 0, fontSize: "0.8125rem", color: "var(--cc-text-muted)" }}>
+            Matched words: {opp.intentClassification.matchedWords.map((w) => <code key={w} style={{ marginRight: 6 }}>{w}</code>)}
+          </p>
+        )}
+      </div>
+
+      <div className="cc-card">
+        <h2 style={{ margin: "0 0 12px", fontSize: "1.0625rem" }}>Why this recommendation (decision trail)</h2>
+        <ol style={{ margin: 0, paddingLeft: "1.2em", fontSize: "0.8125rem", color: "var(--cc-text-muted)", lineHeight: 1.8, fontFamily: "var(--cc-mono)" }}>
+          {opp.decisionTrace.map((step, i) => <li key={i}>{step}</li>)}
+        </ol>
       </div>
 
       <div className="cc-card">

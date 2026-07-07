@@ -71,6 +71,23 @@ export const keywordDiscoveryTopicSchema = defineType({
         ],
       },
     }),
+    defineField({
+      name: "intentClassification",
+      title: "Intent classification detail",
+      type: "object",
+      description: "Exactly which words triggered the intent detection and how confident the (deterministic, regex-based) rule is.",
+      fields: [
+        defineField({ name: "confidencePct", title: "Confidence %", type: "number" }),
+        defineField({ name: "matchedWords", title: "Matched words", type: "array", of: [{ type: "string" }] }),
+        defineField({ name: "ruleTriggered", title: "Rule triggered", type: "string" }),
+      ],
+    }),
+    defineField({
+      name: "priorityScore",
+      title: "Priority score (value ÷ effort)",
+      type: "number",
+      description: "Total score divided by an ordinal effort weight for the recommended action — this drives the prioritized queue, not raw score alone.",
+    }),
 
     defineField({
       name: "scoreBreakdown",
@@ -152,6 +169,13 @@ export const keywordDiscoveryTopicSchema = defineType({
       },
     }),
     defineField({ name: "recommendedActionDetail", title: "Recommended action detail", type: "text", rows: 3 }),
+    defineField({
+      name: "decisionTrace",
+      title: "Decision trace",
+      type: "array",
+      of: [{ type: "string" }],
+      description: "Every condition the recommendation decision tree checked, in order, and its result — the full \"why did it recommend THIS\" trail, not just the outcome.",
+    }),
 
     defineField({
       name: "linkedSeoOpportunityKey",
@@ -200,6 +224,7 @@ export const keywordDiscoveryTopicSchema = defineType({
     defineField({ name: "lastComputedAt", title: "Last computed at", type: "datetime", readOnly: true }),
   ],
   orderings: [
+    { title: "Priority, highest first", name: "priorityDesc", by: [{ field: "priorityScore", direction: "desc" }] },
     { title: "Score, highest first", name: "scoreDesc", by: [{ field: "scoreBreakdown.totalScore", direction: "desc" }] },
     { title: "Last computed", name: "lastComputedDesc", by: [{ field: "lastComputedAt", direction: "desc" }] },
   ],
@@ -207,14 +232,15 @@ export const keywordDiscoveryTopicSchema = defineType({
     select: {
       title: "topicLabel",
       score: "scoreBreakdown.totalScore",
+      priority: "priorityScore",
       action: "recommendedAction",
       linked: "linkedSeoOpportunityKey",
       status: "status",
     },
-    prepare({ title, score, action, linked, status }) {
+    prepare({ title, score, priority, action, linked, status }) {
       return {
         title: `${linked ? "🔗 " : ""}${title ?? "Untitled topic"}`,
-        subtitle: `score ${score ?? "?"} · ${action ?? "no action"} · ${status ?? "new"}`,
+        subtitle: `priority ${priority ?? "?"} (score ${score ?? "?"}) · ${action ?? "no action"} · ${status ?? "new"}`,
       };
     },
   },

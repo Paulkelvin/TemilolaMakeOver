@@ -7,15 +7,17 @@ import { getGoogleAutocomplete, getYouTubeAutocomplete } from "./sources/keyword
 import {
   normalizeQuery,
   clusterQueries,
-  classifyIntent,
+  classifyIntentDetailed,
   detectSeasonal,
   buildContentIndex,
   matchContent,
   topicKeyFor,
+  computePriorityScore,
   QUESTION_PATTERN,
   VISUAL_PATTERN,
   type ClusterableQuery,
   type Intent,
+  type IntentClassification,
   type ContentCoverage,
 } from "./keyword-utils";
 
@@ -220,6 +222,8 @@ export interface KeywordDiscoveryTopic {
   sampleQueries: SampleQuery[];
   queryBreadth: QueryBreadth;
   intent: Intent;
+  intentClassification: IntentClassification;
+  priorityScore: number;
   scoreBreakdown: KeywordScoreBreakdown;
   confidenceLevel: ConfidenceLevel;
   confidenceReasons: string[];
@@ -229,6 +233,7 @@ export interface KeywordDiscoveryTopic {
   matchedContentPath?: string;
   recommendedAction: RecommendedAction;
   recommendedActionDetail: string;
+  decisionTrace: string[];
   linkedSeoOpportunityKey?: string;
 }
 
@@ -240,42 +245,66 @@ function recommendAction(
   matchedPath: string | undefined,
   breadth: QueryBreadth,
   topicalRelevanceScore: number
-): { action: RecommendedAction; detail: string } {
+): { action: RecommendedAction; detail: string; trace: string[] } {
   const joined = rawQueries.join(" | ");
+  const trace: string[] = [];
 
+  trace.push(`1. Coverage === "none"? ${coverage === "none" ? "YES" : "no"} (coverage = "${coverage}")`);
   if (coverage === "none") {
-    if (breadth === "head" && topicalRelevanceScore >= 70) {
+    const isHeadAndRelevant = breadth === "head" && topicalRelevanceScore >= 70;
+    trace.push(`2. Breadth === "head" AND topical relevance >= 70? ${isHeadAndRelevant ? "YES" : "no"} (breadth = "${breadth}", relevance = ${topicalRelevanceScore})`);
+    if (isHeadAndRelevant) {
+      trace.push("-> create_new_pillar (broad + highly relevant + no content = worth a dedicated page)");
       return {
         action: "create_new_pillar",
         detail: `Broad, highly relevant topic with no existing content. Build a dedicated pillar page targeting: ${rawQueries.slice(0, 5).join(", ")}.`,
+        trace,
       };
     }
+    trace.push("-> create_cluster_article (long-tail or lower relevance = a supporting article, not a pillar)");
     return {
       action: "create_cluster_article",
       detail: `Specific long-tail topic with no existing content. Write a supporting cluster article targeting: ${rawQueries.slice(0, 5).join(", ")}.`,
+      trace,
     };
   }
-  if (QUESTION_PATTERN.test(joined)) {
+
+  const isQuestion = QUESTION_PATTERN.test(joined);
+  trace.push(`2. Question-form query? ${isQuestion ? "YES" : "no"}`);
+  if (isQuestion) {
+    trace.push("-> add_faqs");
     return {
       action: "add_faqs",
       detail: `These are question-form searches. Add FAQ entries answering them directly${matchedPath ? ` on ${matchedPath}` : ""}.`,
+      trace,
     };
   }
-  if (VISUAL_PATTERN.test(joined)) {
+
+  const wantsVisual = VISUAL_PATTERN.test(joined);
+  trace.push(`3. Visual/proof language? ${wantsVisual ? "YES" : "no"}`);
+  if (wantsVisual) {
+    trace.push("-> add_portfolio");
     return {
       action: "add_portfolio",
       detail: `Searchers want visual proof. Add tagged portfolio items for this topic${matchedPath ? ` and link them from ${matchedPath}` : ""}.`,
+      trace,
     };
   }
+
+  trace.push(`4. Coverage === "thin"? ${coverage === "thin" ? "YES" : "no"}`);
   if (coverage === "thin") {
+    trace.push("-> improve_existing_page");
     return {
       action: "improve_existing_page",
       detail: `${matchedPath ?? "The matching page"} is thin or stale for this topic — expand its content depth (more detail, FAQs, proof).`,
+      trace,
     };
   }
+  trace.push('5. Coverage is "existing-strong" and no other rule fired -> add_internal_links (well-covered but isolated)');
   return {
     action: "add_internal_links",
     detail: `${matchedPath ?? "The matching page"} already covers this well but appears isolated — add internal links to and from it.`,
+    trace,
   };
 }
 
@@ -327,7 +356,8 @@ export async function computeKeywordDiscoveryTopics(fetchClient: FetchClient = c
     const { coverage, matchedPath, topicalRelevanceScore } = matchContent(clusterTokens, contentIndex);
     if (topicalRelevanceScore < MIN_TOPICAL_RELEVANCE) continue; // drop noise
 
-    const intent = classifyIntent(rawQueries);
+    const intentClassification = classifyIntentDetailed(rawQueries);
+    const intent = intentClassification.intent;
     const seasonal = detectSeasonal(rawQueries);
 
     const allSources = new Set<DiscoverySource>();
@@ -378,7 +408,8 @@ export async function computeKeywordDiscoveryTopics(fetchClient: FetchClient = c
       confidenceScore * WEIGHTS.confidence +
       seasonalBoostScore * WEIGHTS.seasonalBoost;
 
-    const { action, detail } = recommendAction(rawQueries, coverage, matchedPath, breadth, topicalRelevanceScore);
+    const { action, detail, trace } = recommendAction(rawQueries, coverage, matchedPath, breadth, topicalRelevanceScore);
+    const priorityScore = computePriorityScore(totalScore, action);
 
     const sampleQueries: SampleQuery[] = cluster.members.flatMap((m) =>
       Array.from(m.sources).map((source) => ({ query: m.query, source, depth: m.depth }))
@@ -390,6 +421,8 @@ export async function computeKeywordDiscoveryTopics(fetchClient: FetchClient = c
       sampleQueries,
       queryBreadth: breadth,
       intent,
+      intentClassification,
+      priorityScore,
       scoreBreakdown: {
         topicalRelevanceScore,
         commercialValueScore,
@@ -406,10 +439,13 @@ export async function computeKeywordDiscoveryTopics(fetchClient: FetchClient = c
       matchedContentPath: matchedPath,
       recommendedAction: action,
       recommendedActionDetail: detail,
+      decisionTrace: trace,
     });
   }
 
-  return topics.sort((a, b) => b.scoreBreakdown.totalScore - a.scoreBreakdown.totalScore);
+  // Priority queue = value ÷ effort, not value alone — a 30-minute FAQ
+  // addition can rank above a multi-day pillar page even at a lower raw score.
+  return topics.sort((a, b) => b.priorityScore - a.priorityScore);
 }
 
 // ─── Persistence (merge with live SEO Opportunity data, never replace) ─────
@@ -474,6 +510,8 @@ export async function persistKeywordDiscoveryTopics(
       sampleQueries: topic.sampleQueries,
       queryBreadth: topic.queryBreadth,
       intent: topic.intent,
+      intentClassification: topic.intentClassification,
+      priorityScore: topic.priorityScore,
       scoreBreakdown: topic.scoreBreakdown,
       confidenceLevel,
       confidenceReasons,
@@ -483,6 +521,7 @@ export async function persistKeywordDiscoveryTopics(
       matchedContentPath: topic.matchedContentPath,
       recommendedAction: topic.recommendedAction,
       recommendedActionDetail: topic.recommendedActionDetail,
+      decisionTrace: topic.decisionTrace,
       linkedSeoOpportunityKey: isLinked ? topic.topicKey : undefined,
       status: prior?.status ?? "new",
       actionedAt: prior?.actionedAt,
@@ -507,15 +546,16 @@ export interface StoredKeywordDiscoveryTopic extends KeywordDiscoveryTopic {
 }
 
 const KEYWORD_TOPIC_PROJECTION = `{
-  topicKey, topicLabel, sampleQueries, queryBreadth, intent, scoreBreakdown,
-  confidenceLevel, confidenceReasons, isSeasonal, seasonalPeriod, contentCoverage,
-  matchedContentPath, recommendedAction, recommendedActionDetail,
+  topicKey, topicLabel, sampleQueries, queryBreadth, intent, intentClassification,
+  priorityScore, scoreBreakdown, confidenceLevel, confidenceReasons, isSeasonal,
+  seasonalPeriod, contentCoverage, matchedContentPath, recommendedAction,
+  recommendedActionDetail, decisionTrace,
   linkedSeoOpportunityKey, status, actionedAt, history, firstSeenAt, lastComputedAt
 }`;
 
 export async function getKeywordDiscoveryTopics(): Promise<StoredKeywordDiscoveryTopic[]> {
   return client.fetch<StoredKeywordDiscoveryTopic[]>(
-    `*[_type == "keywordDiscoveryTopic"] | order(scoreBreakdown.totalScore desc) ${KEYWORD_TOPIC_PROJECTION}`
+    `*[_type == "keywordDiscoveryTopic"] | order(priorityScore desc) ${KEYWORD_TOPIC_PROJECTION}`
   );
 }
 

@@ -33,6 +33,9 @@ function OpportunityRow({ opp }: { opp: StoredSeoOpportunity }) {
         {opp.scoreBreakdown.totalScore.toFixed(0)}
       </td>
       <td style={{ padding: "6px 8px", textAlign: "right", fontFamily: "var(--cc-mono)" }}>
+        {opp.priorityScore.toFixed(1)}
+      </td>
+      <td style={{ padding: "6px 8px", textAlign: "right", fontFamily: "var(--cc-mono)" }}>
         {opp.currentMetrics.position.toFixed(1)}
       </td>
       <td style={{ padding: "6px 8px", textAlign: "right", fontFamily: "var(--cc-mono)" }}>
@@ -54,6 +57,7 @@ function OpportunityTable({ opps }: { opps: StoredSeoOpportunity[] }) {
           <tr style={{ borderBottom: "1px solid var(--cc-border)", color: "var(--cc-text-muted)" }}>
             <th style={{ textAlign: "left", padding: "6px 8px", fontWeight: 500 }}>Topic</th>
             <th style={{ textAlign: "right", padding: "6px 8px", fontWeight: 500 }}>Score</th>
+            <th style={{ textAlign: "right", padding: "6px 8px", fontWeight: 500 }}>Priority</th>
             <th style={{ textAlign: "right", padding: "6px 8px", fontWeight: 500 }}>Position</th>
             <th style={{ textAlign: "right", padding: "6px 8px", fontWeight: 500 }}>Impressions</th>
             <th style={{ textAlign: "left", padding: "6px 8px", fontWeight: 500 }}>Intent</th>

@@ -201,7 +201,7 @@ export const deskStructure = (S: StructureBuilder) =>
                 .child(
                   S.documentTypeList("keywordDiscoveryTopic")
                     .title("Keyword Discovery")
-                    .defaultOrdering([{ field: "scoreBreakdown.totalScore", direction: "desc" }])
+                    .defaultOrdering([{ field: "priorityScore", direction: "desc" }])
                 ),
               S.documentTypeListItem("topicalAuthorityNode")
                 .title("Topical Authority")
@@ -215,7 +215,7 @@ export const deskStructure = (S: StructureBuilder) =>
                 .child(
                   S.documentTypeList("competitorGapTopic")
                     .title("Competitor Gaps")
-                    .defaultOrdering([{ field: "topicalRelevanceScore", direction: "desc" }])
+                    .defaultOrdering([{ field: "priorityScore", direction: "desc" }])
                 ),
             ])
         ),

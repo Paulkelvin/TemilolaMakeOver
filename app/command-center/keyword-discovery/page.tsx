@@ -32,6 +32,9 @@ function TopicRow({ topic, rank }: { topic: StoredKeywordDiscoveryTopic; rank?: 
       <td style={{ padding: "6px 8px", textAlign: "right", fontFamily: "var(--cc-mono)" }}>
         {topic.scoreBreakdown.totalScore.toFixed(0)}
       </td>
+      <td style={{ padding: "6px 8px", textAlign: "right", fontFamily: "var(--cc-mono)" }}>
+        {topic.priorityScore.toFixed(1)}
+      </td>
       <td style={{ padding: "6px 8px", textTransform: "capitalize" }}>{topic.queryBreadth}</td>
       <td style={{ padding: "6px 8px" }}>{topic.intent}</td>
       <td style={{ padding: "6px 8px", color: CONFIDENCE_COLOR[topic.confidenceLevel] }}>{topic.confidenceLevel}</td>
@@ -50,6 +53,7 @@ function TopicTable({ topics, ranked }: { topics: StoredKeywordDiscoveryTopic[];
             {ranked && <th style={{ textAlign: "left", padding: "6px 8px", fontWeight: 500 }}>#</th>}
             <th style={{ textAlign: "left", padding: "6px 8px", fontWeight: 500 }}>Topic</th>
             <th style={{ textAlign: "right", padding: "6px 8px", fontWeight: 500 }}>Score</th>
+            <th style={{ textAlign: "right", padding: "6px 8px", fontWeight: 500 }}>Priority</th>
             <th style={{ textAlign: "left", padding: "6px 8px", fontWeight: 500 }}>Breadth</th>
             <th style={{ textAlign: "left", padding: "6px 8px", fontWeight: 500 }}>Intent</th>
             <th style={{ textAlign: "left", padding: "6px 8px", fontWeight: 500 }}>Confidence</th>
@@ -93,7 +97,8 @@ export default async function KeywordDiscoveryPage() {
           <div className="cc-card">
             <h2 style={{ margin: "0 0 4px", fontSize: "1.0625rem" }}>🎯 Next 10 highest-ROI pieces</h2>
             <p style={{ margin: "0 0 12px", fontSize: "0.8125rem", color: "var(--cc-text-muted)" }}>
-              Your prioritized content queue — start at the top.
+              Your prioritized content queue — ranked by priority (value ÷ effort), not raw score alone, so a
+              30-minute FAQ addition can outrank a bigger-value pillar page that takes much longer. Start at the top.
             </p>
             <TopicTable topics={queue} ranked />
           </div>
@@ -102,7 +107,7 @@ export default async function KeywordDiscoveryPage() {
             <h2 style={{ margin: "0 0 4px", fontSize: "1.0625rem" }}>All discovered topics</h2>
             <p style={{ margin: "0 0 12px", fontSize: "0.8125rem", color: "var(--cc-text-muted)" }}>
               {topics.length} topic{topics.length === 1 ? "" : "s"} clustered from autocomplete suggestions, sorted by
-              score.{" "}
+              priority.{" "}
               {linkedCount > 0 &&
                 `${linkedCount} ${linkedCount === 1 ? "is" : "are"} now confirmed by real Search Console data (🔗).`}
             </p>

@@ -39,6 +39,10 @@ export default async function CompetitorGapDetailPage({
           <div className="cc-tile__value">{gap.topicalRelevanceScore}</div>
         </div>
         <div className="cc-tile">
+          <div className="cc-tile__label">Priority (value ÷ effort)</div>
+          <div className="cc-tile__value">{gap.priorityScore.toFixed(1)}</div>
+        </div>
+        <div className="cc-tile">
           <div className="cc-tile__label">Status</div>
           <div className="cc-tile__value" style={{ textTransform: "capitalize", fontSize: "1.25rem" }}>{gap.status.replace("_", " ")}</div>
         </div>
@@ -65,6 +69,13 @@ export default async function CompetitorGapDetailPage({
           context only — the recommendation is to cover the same real-world topic in this site&rsquo;s own words,
           never to copy the competitor&rsquo;s actual page.
         </p>
+      </div>
+
+      <div className="cc-card">
+        <h2 style={{ margin: "0 0 12px", fontSize: "1.0625rem" }}>Why this recommendation (decision trail)</h2>
+        <ol style={{ margin: 0, paddingLeft: "1.2em", fontSize: "0.8125rem", color: "var(--cc-text-muted)", lineHeight: 1.8, fontFamily: "var(--cc-mono)" }}>
+          {gap.decisionTrace.map((step, i) => <li key={i}>{step}</li>)}
+        </ol>
       </div>
 
       <div className="cc-card">
