@@ -29,6 +29,7 @@ import { weeklyReviewSchema } from "./weeklyReview";
 import { notificationSchema } from "./notification";
 import { ccSettingsSchema } from "./ccSettings";
 import { seoOpportunitySchema } from "./seoOpportunity";
+import { keywordDiscoveryTopicSchema } from "./keywordDiscoveryTopic";
 
 export const schemaTypes = [
   serviceSchema,
@@ -62,4 +63,5 @@ export const schemaTypes = [
   notificationSchema,
   ccSettingsSchema,
   seoOpportunitySchema,
+  keywordDiscoveryTopicSchema,
 ];

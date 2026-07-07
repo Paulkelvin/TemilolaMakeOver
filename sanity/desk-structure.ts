@@ -195,6 +195,13 @@ export const deskStructure = (S: StructureBuilder) =>
                     .title("SEO Opportunities")
                     .defaultOrdering([{ field: "scoreBreakdown.totalScore", direction: "desc" }])
                 ),
+              S.documentTypeListItem("keywordDiscoveryTopic")
+                .title("Keyword Discovery")
+                .child(
+                  S.documentTypeList("keywordDiscoveryTopic")
+                    .title("Keyword Discovery")
+                    .defaultOrdering([{ field: "scoreBreakdown.totalScore", direction: "desc" }])
+                ),
             ])
         ),
     ]);

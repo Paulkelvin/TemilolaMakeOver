@@ -6,6 +6,7 @@ import { getSanityUsageSnapshot, getDocumentLimit } from "@/lib/intelligence/sou
 import { upsertSnapshots, getLatestSnapshot } from "@/lib/intelligence/sources/snapshots";
 import { createNotification } from "@/lib/intelligence/notifications";
 import { computeSeoOpportunities, persistSeoOpportunities } from "@/lib/intelligence/seo-opportunities";
+import { computeKeywordDiscoveryTopics, persistKeywordDiscoveryTopics } from "@/lib/intelligence/keyword-discovery";
 import { client } from "@/sanity/client";
 
 export const dynamic = "force-dynamic";
@@ -108,6 +109,24 @@ export async function POST(request: Request) {
     }
   }
 
+  // ─── Keyword Discovery Engine (weekly-gated — external autocomplete calls
+  // add up; runs unconditionally, no Search Console dependency) ───────────
+  let keywordDiscoveryResult: { upserted: number; linked: number } | undefined;
+  try {
+    const lastComputed = await client.fetch<string | null>(
+      `*[_type == "keywordDiscoveryTopic"] | order(lastComputedAt desc)[0].lastComputedAt`
+    );
+    const daysSinceLastRun = lastComputed
+      ? (Date.now() - new Date(lastComputed).getTime()) / 86_400_000
+      : Infinity;
+    if (daysSinceLastRun >= 7) {
+      const topics = await computeKeywordDiscoveryTopics(client);
+      keywordDiscoveryResult = await persistKeywordDiscoveryTopics(topics);
+    }
+  } catch (err) {
+    errors.push(`keyword-discovery: ${err instanceof Error ? err.message : String(err)}`);
+  }
+
   // ─── Metric-drop notifications ─────────────────────────────────────────
   try {
     const alertChecks: { source: string; metric: string; label: string; dropThreshold: number }[] = [
@@ -170,6 +189,7 @@ export async function POST(request: Request) {
     date: today,
     snapshotsWritten: snapshots.length,
     seoOpportunities: seoOpportunityResult,
+    keywordDiscovery: keywordDiscoveryResult,
     errors: errors.length > 0 ? errors : undefined,
   });
 }
