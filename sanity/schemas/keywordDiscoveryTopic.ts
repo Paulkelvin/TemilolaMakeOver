@@ -35,6 +35,7 @@ export const keywordDiscoveryTopicSchema = defineType({
                 list: [
                   { title: "Google Autocomplete", value: "google-autocomplete" },
                   { title: "YouTube Autocomplete", value: "youtube-autocomplete" },
+                  { title: "Bing Autocomplete", value: "bing-autocomplete" },
                   { title: "Seed (generated from taxonomy)", value: "seed" },
                 ],
               },

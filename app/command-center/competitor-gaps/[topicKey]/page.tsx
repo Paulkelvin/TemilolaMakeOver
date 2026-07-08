@@ -1,14 +1,10 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getCompetitorGapByKey } from "@/lib/intelligence/competitor-gap";
-import { computeLifetime, applyLifetimeDecay, TREND_LABELS, type Trend } from "@/lib/intelligence/opportunity-lifetime";
-
-const TREND_COLOR: Record<Trend, string> = {
-  growing: "var(--cc-good)",
-  declining: "var(--cc-critical)",
-  stable: "var(--cc-text-muted)",
-  new: "var(--cc-text-muted)",
-};
+import { computeLifetime, applyLifetimeDecay, TREND_LABELS } from "@/lib/intelligence/opportunity-lifetime";
+import { TREND_COLOR } from "@/components/command-center/shared-labels";
+import { TimeSeriesChart } from "@/components/command-center/TimeSeriesChart";
+import { ScoreBreakdownRadar } from "@/components/command-center/ScoreBreakdownRadar";
 
 const ACTION_LABELS: Record<string, string> = {
   create_new_pillar: "Create new pillar",
@@ -125,6 +121,54 @@ export default async function CompetitorGapDetailPage({
         </ol>
       </div>
 
+      {gap.contentStrength && (
+        <div className="cc-card">
+          <h2 style={{ margin: "0 0 12px", fontSize: "1.0625rem" }}>Competitor content strength</h2>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 16, alignItems: "flex-start" }}>
+            <div style={{ flex: "1 1 250px" }}>
+              <ScoreBreakdownRadar dimensions={[
+                { label: "Depth", value: gap.contentStrength.depthScore },
+                { label: "Structure", value: gap.contentStrength.structureScore },
+                { label: "Rich media", value: gap.contentStrength.richMediaScore },
+                { label: "Link authority", value: gap.contentStrength.linkAuthorityScore },
+              ]} height={220} />
+            </div>
+            <div style={{ flex: "1 1 200px", fontSize: "0.8125rem" }}>
+              <p style={{ margin: "0 0 6px" }}><strong>Total:</strong> {gap.contentStrength.totalScore}/100</p>
+              <p style={{ margin: "0 0 6px" }}><strong>Word count:</strong> {gap.competitorWordCount?.toLocaleString() ?? "—"}</p>
+              <p style={{ margin: "0 0 6px" }}><strong>Headings:</strong> {gap.competitorHeadingCount ?? "—"}</p>
+              {gap.depthDelta != null && (
+                <p style={{ margin: "0 0 6px", color: gap.depthDelta > 0 ? "var(--cc-critical)" : "var(--cc-good)" }}>
+                  <strong>Depth delta:</strong> {gap.depthDelta > 0 ? "+" : ""}{gap.depthDelta} (competitor {gap.depthDelta > 0 ? "leads" : "trails"})
+                </p>
+              )}
+              {gap.contentStrength.breakdownTrace && (
+                <ul style={{ margin: "8px 0 0", paddingLeft: "1.2em", color: "var(--cc-text-muted)", fontSize: "0.75rem" }}>
+                  {gap.contentStrength.breakdownTrace.map((t: string, i: number) => <li key={i}>{t}</li>)}
+                </ul>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {gap.subtopicGaps && gap.subtopicGaps.length > 0 && (
+        <div className="cc-card">
+          <h2 style={{ margin: "0 0 4px", fontSize: "1.0625rem" }}>Subtopic gaps from competitor headings</h2>
+          <p style={{ margin: "0 0 12px", fontSize: "0.8125rem", color: "var(--cc-text-muted)" }}>
+            Competitor h2/h3 headings that are genuine subtopic gaps — each is a potential content brief idea.
+          </p>
+          <ul style={{ margin: 0, paddingLeft: "1.4em", fontSize: "0.8125rem", lineHeight: 1.7 }}>
+            {gap.subtopicGaps.map((sg: { heading: string; headingLevel: number; relevanceScore: number }, i: number) => (
+              <li key={i}>
+                <strong>h{sg.headingLevel}:</strong> {sg.heading}{" "}
+                <span style={{ color: "var(--cc-text-muted)" }}>(relevance {sg.relevanceScore})</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
       <div className="cc-card">
         <h2 style={{ margin: "0 0 12px", fontSize: "1.0625rem" }}>Progress over time</h2>
         {gap.history.length <= 1 ? (
@@ -132,24 +176,30 @@ export default async function CompetitorGapDetailPage({
             Only one computation run so far — history builds up week over week as the engine recomputes.
           </div>
         ) : (
-          <div style={{ overflowX: "auto" }}>
-            <table style={{ width: "100%", fontSize: "0.8125rem", borderCollapse: "collapse" }}>
-              <thead>
-                <tr style={{ borderBottom: "1px solid var(--cc-border)", color: "var(--cc-text-muted)" }}>
-                  <th style={{ textAlign: "left", padding: "6px 8px", fontWeight: 500 }}>Date</th>
-                  <th style={{ textAlign: "right", padding: "6px 8px", fontWeight: 500 }}>Relevance</th>
-                </tr>
-              </thead>
-              <tbody>
-                {[...gap.history].reverse().map((h) => (
-                  <tr key={h.date} style={{ borderBottom: "1px solid var(--cc-border)" }}>
-                    <td style={{ padding: "6px 8px", fontFamily: "var(--cc-mono)" }}>{h.date}</td>
-                    <td style={{ padding: "6px 8px", textAlign: "right", fontFamily: "var(--cc-mono)" }}>{h.topicalRelevanceScore}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <>
+            <TimeSeriesChart data={gap.history.map((h) => ({ date: h.date, score: h.topicalRelevanceScore }))} />
+            <details style={{ marginTop: 12 }}>
+              <summary style={{ fontSize: "0.8125rem", color: "var(--cc-text-muted)", cursor: "pointer" }}>Raw data</summary>
+              <div style={{ overflowX: "auto", marginTop: 8 }}>
+                <table style={{ width: "100%", fontSize: "0.8125rem", borderCollapse: "collapse" }}>
+                  <thead>
+                    <tr style={{ borderBottom: "1px solid var(--cc-border)", color: "var(--cc-text-muted)" }}>
+                      <th style={{ textAlign: "left", padding: "6px 8px", fontWeight: 500 }}>Date</th>
+                      <th style={{ textAlign: "right", padding: "6px 8px", fontWeight: 500 }}>Relevance</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {[...gap.history].reverse().map((h) => (
+                      <tr key={h.date} style={{ borderBottom: "1px solid var(--cc-border)" }}>
+                        <td style={{ padding: "6px 8px", fontFamily: "var(--cc-mono)" }}>{h.date}</td>
+                        <td style={{ padding: "6px 8px", textAlign: "right", fontFamily: "var(--cc-mono)" }}>{h.topicalRelevanceScore}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </details>
+          </>
         )}
         <p style={{ margin: "10px 0 0", fontSize: "0.75rem", color: "var(--cc-text-muted)" }}>
           First seen {new Date(gap.firstSeenAt).toLocaleDateString()} · last computed{" "}

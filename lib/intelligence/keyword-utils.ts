@@ -349,3 +349,50 @@ export function topicKeyFor(sharedTokens: string[], fallbackLabel: string): stri
   const fromLabel = fallbackLabel.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
   return fromLabel || `topic-${Buffer.from(fallbackLabel).toString("hex").slice(0, 12)}`;
 }
+
+// ─── Cross-engine convergence (C2) ────────────────────────────────────────
+
+export interface ConvergenceResult {
+  topicKey: string;
+  engines: string[];
+  convergenceMultiplier: number;
+  evidence: string[];
+}
+
+const ENGINE_TYPE_MAP: Record<string, string> = {
+  seoOpportunity: "seo-opportunities",
+  keywordDiscoveryTopic: "keyword-discovery",
+  competitorGapTopic: "competitor-gaps",
+};
+
+const ENGINE_LABEL: Record<string, string> = {
+  "seo-opportunities": "SEO Opportunities (real GSC data)",
+  "keyword-discovery": "Keyword Discovery (autocomplete signals)",
+  "competitor-gaps": "Competitor Gaps (competitor crawl)",
+};
+
+export async function computeConvergence(fetchClient: FetchClient): Promise<ConvergenceResult[]> {
+  const rows = await fetchClient.fetch<{ topicKey: string; _type: string }[]>(
+    `*[_type in ["seoOpportunity", "keywordDiscoveryTopic", "competitorGapTopic"]]{ topicKey, _type }`
+  );
+
+  const byKey = new Map<string, Set<string>>();
+  for (const row of rows) {
+    if (!row.topicKey) continue;
+    const engine = ENGINE_TYPE_MAP[row._type];
+    if (!engine) continue;
+    if (!byKey.has(row.topicKey)) byKey.set(row.topicKey, new Set());
+    byKey.get(row.topicKey)!.add(engine);
+  }
+
+  const results: ConvergenceResult[] = [];
+  for (const [topicKey, engines] of byKey) {
+    if (engines.size < 2) continue;
+    const engineList = [...engines].sort();
+    const multiplier = engines.size >= 3 ? 1.6 : 1.3;
+    const evidence = engineList.map((e) => ENGINE_LABEL[e] ?? e);
+    results.push({ topicKey, engines: engineList, convergenceMultiplier: multiplier, evidence });
+  }
+
+  return results.sort((a, b) => b.engines.length - a.engines.length || a.topicKey.localeCompare(b.topicKey));
+}

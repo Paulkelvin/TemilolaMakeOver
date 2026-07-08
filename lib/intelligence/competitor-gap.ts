@@ -8,6 +8,7 @@ import {
   fetchHomepageLinks,
   fetchPageSignal,
   isDisallowed,
+  type PageSignal,
 } from "./sources/competitor-sites";
 import {
   normalizeQuery,
@@ -17,6 +18,7 @@ import {
   computePriorityScore,
   QUESTION_PATTERN,
   VISUAL_PATTERN,
+  type ContentIndexEntry,
 } from "./keyword-utils";
 
 /**
@@ -35,6 +37,73 @@ function delay(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+// ─── Content strength scoring (A2) ─────────────────────────────────────────
+
+export interface ContentStrength {
+  depthScore: number;
+  structureScore: number;
+  richMediaScore: number;
+  linkAuthorityScore: number;
+  totalScore: number;
+  breakdownTrace: string[];
+}
+
+const CS_WEIGHTS = { depth: 0.35, structure: 0.25, richMedia: 0.20, linkAuthority: 0.20 };
+
+function computeContentStrength(signal: PageSignal): ContentStrength {
+  const trace: string[] = [];
+
+  const wc = signal.approximateWordCount;
+  const depthScore = wc < 300 ? 20 : wc < 800 ? 50 : wc < 1500 ? 75 : 100;
+  trace.push(`Depth: ${wc} words → ${depthScore}/100`);
+
+  const hc = signal.headings.length;
+  const structureScore = hc === 0 ? 10 : hc <= 3 ? 50 : hc <= 7 ? 75 : 100;
+  trace.push(`Structure: ${hc} headings → ${structureScore}/100`);
+
+  const ic = signal.imageCount;
+  const schemaBonus = signal.hasSchemaJsonLd ? 20 : 0;
+  const richMediaScore = Math.min(100, (ic === 0 ? 10 : ic <= 3 ? 40 : ic <= 8 ? 65 : 85) + schemaBonus);
+  trace.push(`Rich media: ${ic} images${signal.hasSchemaJsonLd ? " + JSON-LD" : ""} → ${richMediaScore}/100`);
+
+  const lc = signal.internalLinkCount + signal.externalLinkCount;
+  const linkAuthorityScore = lc === 0 ? 10 : lc <= 5 ? 40 : lc <= 15 ? 65 : lc <= 30 ? 80 : 100;
+  trace.push(`Link authority: ${signal.internalLinkCount} internal + ${signal.externalLinkCount} external → ${linkAuthorityScore}/100`);
+
+  const totalScore = Math.round(
+    depthScore * CS_WEIGHTS.depth +
+    structureScore * CS_WEIGHTS.structure +
+    richMediaScore * CS_WEIGHTS.richMedia +
+    linkAuthorityScore * CS_WEIGHTS.linkAuthority
+  );
+  trace.push(`Total: ${totalScore}/100`);
+
+  return { depthScore, structureScore, richMediaScore, linkAuthorityScore, totalScore, breakdownTrace: trace };
+}
+
+// ─── Subtopic gap extraction (A4) ──────────────────────────────────────────
+
+export interface SubtopicGap {
+  heading: string;
+  headingLevel: number;
+  relevanceScore: number;
+}
+
+const MIN_SUBTOPIC_RELEVANCE = 30;
+
+function extractSubtopicGaps(signal: PageSignal, contentIndex: ContentIndexEntry[]): SubtopicGap[] {
+  const gaps: SubtopicGap[] = [];
+  for (const h of signal.headings) {
+    const { tokens } = normalizeQuery(h.text);
+    if (tokens.length === 0) continue;
+    const { coverage, topicalRelevanceScore } = matchContent(tokens, contentIndex);
+    if (coverage === "none" && topicalRelevanceScore >= MIN_SUBTOPIC_RELEVANCE) {
+      gaps.push({ heading: h.text, headingLevel: h.level, relevanceScore: topicalRelevanceScore });
+    }
+  }
+  return gaps;
+}
+
 export type RecommendedAction = "create_new_pillar" | "create_cluster_article" | "add_faqs" | "add_portfolio";
 
 export interface CompetitorGapTopic {
@@ -48,6 +117,11 @@ export interface CompetitorGapTopic {
   recommendedAction: RecommendedAction;
   recommendedActionDetail: string;
   decisionTrace: string[];
+  contentStrength: ContentStrength;
+  subtopicGaps: SubtopicGap[];
+  competitorWordCount: number;
+  competitorHeadingCount: number;
+  depthDelta: number | null;
 }
 
 const MIN_TOPICAL_RELEVANCE = 30; // same noise floor as the other two engines
@@ -126,16 +200,21 @@ async function crawlCompetitor(
     const { tokens } = normalizeQuery(`${signal.title} ${signal.h1}`);
     if (tokens.length === 0) continue;
 
-    const { coverage, topicalRelevanceScore } = matchContent(tokens, ourContentIndex);
+    const { coverage, topicalRelevanceScore, matchedCoverageScore } = matchContent(tokens, ourContentIndex);
     if (coverage !== "none" || topicalRelevanceScore < MIN_TOPICAL_RELEVANCE) continue; // not a gap, or not genuinely on-topic
 
     const topicKey = topicKeyFor(tokens, label);
     if (gapKeysSeen.has(topicKey)) continue; // same topic already recorded from another competitor page
     gapKeysSeen.add(topicKey);
 
+    const contentStrength = computeContentStrength(signal);
+    const subtopicGaps = extractSubtopicGaps(signal, ourContentIndex);
+    const depthDelta = matchedCoverageScore != null ? contentStrength.totalScore - matchedCoverageScore : null;
+
+    const adjustedRelevance = topicalRelevanceScore * (0.6 + 0.4 * contentStrength.totalScore / 100);
     const breadth: "head" | "long-tail" = tokens.length <= 3 ? "head" : "long-tail";
     const { action, detail, trace } = recommendAction(signal.title, signal.h1, breadth);
-    const priorityScore = computePriorityScore(topicalRelevanceScore, action);
+    const priorityScore = computePriorityScore(adjustedRelevance, action);
 
     gaps.push({
       topicKey,
@@ -148,6 +227,11 @@ async function crawlCompetitor(
       recommendedAction: action,
       recommendedActionDetail: detail,
       decisionTrace: trace,
+      contentStrength,
+      subtopicGaps,
+      competitorWordCount: signal.approximateWordCount,
+      competitorHeadingCount: signal.headings.length,
+      depthDelta,
     });
   }
 
@@ -172,7 +256,7 @@ interface StoredGapDoc {
   topicKey: string;
   status?: string;
   actionedAt?: string;
-  history?: { date: string; topicalRelevanceScore: number }[];
+  history?: { date: string; topicalRelevanceScore: number; contentStrengthScore?: number }[];
   firstSeenAt?: string;
 }
 
@@ -195,7 +279,7 @@ export async function persistCompetitorGaps(gaps: CompetitorGapTopic[]): Promise
     const prior = existingByKey.get(gap.topicKey);
     const history = [...(prior?.history ?? [])];
     if (history[history.length - 1]?.date !== today) {
-      history.push({ date: today, topicalRelevanceScore: gap.topicalRelevanceScore });
+      history.push({ date: today, topicalRelevanceScore: gap.topicalRelevanceScore, contentStrengthScore: gap.contentStrength.totalScore });
     }
 
     tx = tx.createOrReplace({
@@ -211,6 +295,11 @@ export async function persistCompetitorGaps(gaps: CompetitorGapTopic[]): Promise
       recommendedAction: gap.recommendedAction,
       recommendedActionDetail: gap.recommendedActionDetail,
       decisionTrace: gap.decisionTrace,
+      contentStrength: gap.contentStrength,
+      subtopicGaps: gap.subtopicGaps,
+      competitorWordCount: gap.competitorWordCount,
+      competitorHeadingCount: gap.competitorHeadingCount,
+      depthDelta: gap.depthDelta,
       status: prior?.status ?? "new",
       actionedAt: prior?.actionedAt,
       history,
@@ -228,7 +317,7 @@ export async function persistCompetitorGaps(gaps: CompetitorGapTopic[]): Promise
 export interface StoredCompetitorGapTopic extends CompetitorGapTopic {
   status: "new" | "acknowledged" | "in_progress" | "done" | "dismissed";
   actionedAt?: string;
-  history: { date: string; topicalRelevanceScore: number }[];
+  history: { date: string; topicalRelevanceScore: number; contentStrengthScore?: number }[];
   firstSeenAt: string;
   lastComputedAt: string;
 }
@@ -236,6 +325,7 @@ export interface StoredCompetitorGapTopic extends CompetitorGapTopic {
 const GAP_PROJECTION = `{
   topicKey, topicLabel, competitorName, competitorUrl, sampleTitle, topicalRelevanceScore,
   priorityScore, recommendedAction, recommendedActionDetail, decisionTrace,
+  contentStrength, subtopicGaps, competitorWordCount, competitorHeadingCount, depthDelta,
   status, actionedAt, history, firstSeenAt, lastComputedAt
 }`;
 

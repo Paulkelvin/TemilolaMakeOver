@@ -129,18 +129,103 @@ export async function fetchHomepageLinks(domain: string): Promise<string[]> {
   }
 }
 
-// ─── Per-page signal (title/h1/description only — headline-level, not full content) ─
+// ─── Per-page signal (enriched deep extraction via regex — no external parser) ─
+
+export interface PageHeading {
+  level: number;
+  text: string;
+}
 
 export interface PageSignal {
   url: string;
   title: string;
   h1: string;
   metaDescription: string;
+  headings: PageHeading[];
+  approximateWordCount: number;
+  imageCount: number;
+  internalLinkCount: number;
+  externalLinkCount: number;
+  hasSchemaJsonLd: boolean;
+  schemaTypes: string[];
+  canonicalUrl: string;
+  ogTitle: string;
+  ogDescription: string;
 }
 
 function extractTagText(html: string, pattern: RegExp): string {
   const match = html.match(pattern);
   return match ? match[1].replace(/<[^>]+>/g, "").trim() : "";
+}
+
+function extractMetaContent(html: string, property: string): string {
+  const p1 = new RegExp(`<meta\\s+(?:property|name)=["']${property}["']\\s+content=["']([^"']*)["']`, "i");
+  const p2 = new RegExp(`<meta\\s+content=["']([^"']*)["']\\s+(?:property|name)=["']${property}["']`, "i");
+  return (html.match(p1)?.[1] ?? html.match(p2)?.[1] ?? "").trim();
+}
+
+function countWords(html: string): number {
+  let text = html.replace(/<script[\s\S]*?<\/script>/gi, "");
+  text = text.replace(/<style[\s\S]*?<\/style>/gi, "");
+  text = text.replace(/<[^>]+>/g, " ");
+  text = text.replace(/&\w+;/g, " ");
+  return text.split(/\s+/).filter((w) => w.length > 0).length;
+}
+
+function extractHeadings(html: string): PageHeading[] {
+  const results: PageHeading[] = [];
+  const re = /<h([2-4])[^>]*>([\s\S]*?)<\/h\1>/gi;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(html)) !== null) {
+    const text = m[2].replace(/<[^>]+>/g, "").trim();
+    if (text) results.push({ level: Number(m[1]), text });
+  }
+  return results;
+}
+
+function classifyLinks(html: string, pageUrl: string): { internal: number; external: number } {
+  let pageDomain: string;
+  try {
+    pageDomain = new URL(pageUrl).hostname.replace(/^www\./, "");
+  } catch {
+    return { internal: 0, external: 0 };
+  }
+  const hrefs = [...html.matchAll(/<a\s+[^>]*href=["']([^"']+)["']/gi)].map((m) => m[1]);
+  let internal = 0;
+  let external = 0;
+  for (const href of hrefs) {
+    try {
+      const resolved = new URL(href, pageUrl);
+      if (resolved.protocol !== "http:" && resolved.protocol !== "https:") continue;
+      const hDomain = resolved.hostname.replace(/^www\./, "");
+      if (hDomain === pageDomain) internal++;
+      else external++;
+    } catch {
+      if (href.startsWith("/") || href.startsWith("#")) internal++;
+    }
+  }
+  return { internal, external };
+}
+
+function extractSchemaTypes(html: string): string[] {
+  const types: string[] = [];
+  const re = /<script[^>]+type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(html)) !== null) {
+    try {
+      const parsed = JSON.parse(m[1]);
+      const items = Array.isArray(parsed) ? parsed : [parsed];
+      for (const item of items) {
+        if (item["@type"]) {
+          const t = Array.isArray(item["@type"]) ? item["@type"] : [item["@type"]];
+          types.push(...t.map(String));
+        }
+      }
+    } catch {
+      // malformed JSON-LD — skip
+    }
+  }
+  return [...new Set(types)];
 }
 
 export async function fetchPageSignal(url: string): Promise<PageSignal> {
@@ -150,5 +235,29 @@ export async function fetchPageSignal(url: string): Promise<PageSignal> {
   const metaMatch =
     html.match(/<meta\s+name=["']description["']\s+content=["']([^"']*)["']/i) ??
     html.match(/<meta\s+content=["']([^"']*)["']\s+name=["']description["']/i);
-  return { url, title, h1, metaDescription: metaMatch?.[1]?.trim() ?? "" };
+
+  const headings = extractHeadings(html);
+  const approximateWordCount = countWords(html);
+  const imageCount = (html.match(/<img\s/gi) ?? []).length;
+  const links = classifyLinks(html, url);
+  const schemaTypes = extractSchemaTypes(html);
+
+  const canonicalMatch = html.match(/<link[^>]+rel=["']canonical["'][^>]+href=["']([^"']+)["']/i);
+
+  return {
+    url,
+    title,
+    h1,
+    metaDescription: metaMatch?.[1]?.trim() ?? "",
+    headings,
+    approximateWordCount,
+    imageCount,
+    internalLinkCount: links.internal,
+    externalLinkCount: links.external,
+    hasSchemaJsonLd: schemaTypes.length > 0,
+    schemaTypes,
+    canonicalUrl: canonicalMatch?.[1]?.trim() ?? "",
+    ogTitle: extractMetaContent(html, "og:title"),
+    ogDescription: extractMetaContent(html, "og:description"),
+  };
 }

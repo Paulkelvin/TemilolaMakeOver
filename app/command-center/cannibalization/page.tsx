@@ -1,13 +1,8 @@
 import Link from "next/link";
 import { getCannibalizationIssues, type StoredCannibalizationIssue } from "@/lib/intelligence/cannibalization";
-import { computeLifetime, applyLifetimeDecay, TREND_LABELS, type Trend } from "@/lib/intelligence/opportunity-lifetime";
-
-const TREND_COLOR: Record<Trend, string> = {
-  growing: "var(--cc-good)",
-  declining: "var(--cc-critical)",
-  stable: "var(--cc-text-muted)",
-  new: "var(--cc-text-muted)",
-};
+import { computeLifetime, applyLifetimeDecay, TREND_LABELS } from "@/lib/intelligence/opportunity-lifetime";
+import { TREND_COLOR } from "@/components/command-center/shared-labels";
+import { SparklineChart } from "@/components/command-center/SparklineChart";
 
 const ACTION_LABELS: Record<string, string> = {
   consolidate_into_primary: "Consolidate into primary",
@@ -41,7 +36,12 @@ function IssueRow({ issue }: { issue: StoredCannibalizationIssue }) {
       <td style={{ padding: "6px 8px" }}>{ACTION_LABELS[issue.recommendedAction] ?? issue.recommendedAction}</td>
       <td style={{ padding: "6px 8px", textTransform: "capitalize" }}>{issue.status.replace("_", " ")}</td>
       <td style={{ padding: "6px 8px", textAlign: "right", fontFamily: "var(--cc-mono)" }}>{lifetime.ageDays}d</td>
-      <td style={{ padding: "6px 8px", color: TREND_COLOR[lifetime.trend] }}>{TREND_LABELS[lifetime.trend]}</td>
+      <td style={{ padding: "6px 8px" }}>
+        <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
+          <SparklineChart data={issue.history.map((h) => h.severityScore)} />
+          <span style={{ color: TREND_COLOR[lifetime.trend], fontSize: "0.75rem" }}>{TREND_LABELS[lifetime.trend]}</span>
+        </span>
+      </td>
     </tr>
   );
 }
@@ -62,6 +62,20 @@ export default async function CannibalizationPage() {
         evidence-only, no guessed content similarity. A pair only appears here once at least one query has real
         impressions split across both pages above the noise floor.
       </p>
+
+      {issues.length > 0 && (() => {
+        const consolidate = issues.filter((i) => i.recommendedAction === "consolidate_into_primary").length;
+        const differentiate = issues.filter((i) => i.recommendedAction === "differentiate_secondary").length;
+        const strengthen = issues.filter((i) => i.recommendedAction === "strengthen_primary_links").length;
+        return (
+          <div className="cc-stat-strip">
+            <div className="cc-stat-tile"><div className="cc-stat-value">{issues.length}</div><div className="cc-stat-label">Total</div></div>
+            <div className="cc-stat-tile"><div className="cc-stat-value">{consolidate}</div><div className="cc-stat-label">Consolidate</div></div>
+            <div className="cc-stat-tile"><div className="cc-stat-value">{differentiate}</div><div className="cc-stat-label">Differentiate</div></div>
+            <div className="cc-stat-tile"><div className="cc-stat-value">{strengthen}</div><div className="cc-stat-label">Strengthen</div></div>
+          </div>
+        );
+      })()}
 
       {issues.length === 0 ? (
         <div className="cc-card">

@@ -1,32 +1,17 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getCannibalizationIssueByKey } from "@/lib/intelligence/cannibalization";
-import { computeLifetime, applyLifetimeDecay, TREND_LABELS, type Trend } from "@/lib/intelligence/opportunity-lifetime";
-
-const TREND_COLOR: Record<Trend, string> = {
-  growing: "var(--cc-good)",
-  declining: "var(--cc-critical)",
-  stable: "var(--cc-text-muted)",
-  new: "var(--cc-text-muted)",
-};
+import { computeLifetime, applyLifetimeDecay, TREND_LABELS } from "@/lib/intelligence/opportunity-lifetime";
+import { TREND_COLOR } from "@/components/command-center/shared-labels";
+import { ScoreRow } from "@/components/command-center/ScoreRow";
+import { TimeSeriesChart } from "@/components/command-center/TimeSeriesChart";
+import { ScoreBreakdownRadar } from "@/components/command-center/ScoreBreakdownRadar";
 
 const ACTION_LABELS: Record<string, string> = {
   consolidate_into_primary: "Consolidate into primary",
   differentiate_secondary: "Differentiate secondary",
   strengthen_primary_links: "Strengthen primary links",
 };
-
-function ScoreRow({ label, value, description }: { label: string; value: number; description?: string }) {
-  return (
-    <div className="cc-score-row" title={description}>
-      <span className="cc-score-label">{label}</span>
-      <div className="cc-score-track">
-        <div className="cc-score-fill" style={{ width: `${Math.max(0, Math.min(100, value))}%` }} />
-      </div>
-      <span className="cc-score-val">{value.toFixed(0)}</span>
-    </div>
-  );
-}
 
 export default async function CannibalizationDetailPage({
   params,

@@ -36,7 +36,6 @@ export async function getYouTubeAutocomplete(query: string): Promise<string[]> {
   const url = `${SUGGEST_BASE}?client=youtube&ds=yt&q=${encodeURIComponent(query)}`;
   const text = await fetchText(url);
   try {
-    // JSONP: window.google.ac.h([...]) — strip the wrapper before parsing.
     const jsonStart = text.indexOf("(");
     const jsonEnd = text.lastIndexOf(")");
     if (jsonStart === -1 || jsonEnd === -1) return [];
@@ -45,4 +44,21 @@ export async function getYouTubeAutocomplete(query: string): Promise<string[]> {
   } catch {
     return [];
   }
+}
+
+/** Bing autocomplete — same OpenSearch JSON format as Google, different demand signal. Graceful degradation on failure. */
+export async function getBingAutocomplete(query: string): Promise<string[]> {
+  try {
+    const url = `https://api.bing.com/osjson.aspx?query=${encodeURIComponent(query)}`;
+    const text = await fetchText(url);
+    const parsed = JSON.parse(text) as [string, string[]];
+    return parsed[1] ?? [];
+  } catch {
+    return [];
+  }
+}
+
+/** Generate "query a", "query b", ... "query z" for deeper long-tail expansion. */
+export function generateAlphabetVariants(query: string): string[] {
+  return Array.from("abcdefghijklmnopqrstuvwxyz").map((c) => `${query} ${c}`);
 }

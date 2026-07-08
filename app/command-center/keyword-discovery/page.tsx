@@ -1,13 +1,8 @@
 import Link from "next/link";
 import { getKeywordDiscoveryTopics, type StoredKeywordDiscoveryTopic } from "@/lib/intelligence/keyword-discovery";
-import { computeLifetime, applyLifetimeDecay, TREND_LABELS, type Trend } from "@/lib/intelligence/opportunity-lifetime";
-
-const TREND_COLOR: Record<Trend, string> = {
-  growing: "var(--cc-good)",
-  declining: "var(--cc-critical)",
-  stable: "var(--cc-text-muted)",
-  new: "var(--cc-text-muted)",
-};
+import { computeLifetime, applyLifetimeDecay, TREND_LABELS } from "@/lib/intelligence/opportunity-lifetime";
+import { TREND_COLOR, CONFIDENCE_COLOR } from "@/components/command-center/shared-labels";
+import { SparklineChart } from "@/components/command-center/SparklineChart";
 
 const ACTION_LABELS: Record<string, string> = {
   create_new_pillar: "Create new pillar",
@@ -16,12 +11,6 @@ const ACTION_LABELS: Record<string, string> = {
   add_faqs: "Add FAQs",
   add_portfolio: "Add portfolio",
   add_internal_links: "Add internal links",
-};
-
-const CONFIDENCE_COLOR: Record<string, string> = {
-  high: "var(--cc-good)",
-  medium: "var(--cc-warn)",
-  low: "var(--cc-text-muted)",
 };
 
 function TopicRow({ topic, rank }: { topic: StoredKeywordDiscoveryTopic; rank?: number }) {
@@ -51,7 +40,12 @@ function TopicRow({ topic, rank }: { topic: StoredKeywordDiscoveryTopic; rank?: 
       <td style={{ padding: "6px 8px" }}>{ACTION_LABELS[topic.recommendedAction] ?? topic.recommendedAction}</td>
       <td style={{ padding: "6px 8px", textTransform: "capitalize" }}>{topic.status.replace("_", " ")}</td>
       <td style={{ padding: "6px 8px", textAlign: "right", fontFamily: "var(--cc-mono)" }}>{lifetime.ageDays}d</td>
-      <td style={{ padding: "6px 8px", color: TREND_COLOR[lifetime.trend] }}>{TREND_LABELS[lifetime.trend]}</td>
+      <td style={{ padding: "6px 8px" }}>
+        <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
+          <SparklineChart data={topic.history.map((h) => h.score)} />
+          <span style={{ color: TREND_COLOR[lifetime.trend], fontSize: "0.75rem" }}>{TREND_LABELS[lifetime.trend]}</span>
+        </span>
+      </td>
     </tr>
   );
 }
@@ -107,11 +101,32 @@ export default async function KeywordDiscoveryPage() {
     <div>
       <h1 className="cc-page-title">Keyword Discovery</h1>
       <p className="cc-page-dek">
-        Content opportunities discovered from free external autocomplete sources (Google + YouTube) — works
+        Content opportunities discovered from free external autocomplete sources (Google, YouTube, Bing) — works
         independent of Search Console, so it surfaces ideas from day one. No search volume or keyword-difficulty
         number is ever fabricated: &ldquo;query breadth&rdquo; (head vs. long-tail) is used as an honest, observable
         stand-in, and confidence reflects real cross-source corroboration.
       </p>
+
+      {topics.length > 0 && (() => {
+        const highConf = topics.filter((t) => t.confidenceLevel === "high").length;
+        const staleCount = topics.filter((t) => {
+          const lt = computeLifetime(t.firstSeenAt, t.history.map((h) => ({ date: h.date, score: h.score })), t.status);
+          return lt.isStale;
+        }).length;
+        const growingCount = topics.filter((t) => {
+          const lt = computeLifetime(t.firstSeenAt, t.history.map((h) => ({ date: h.date, score: h.score })), t.status);
+          return lt.trend === "growing";
+        }).length;
+        return (
+          <div className="cc-stat-strip">
+            <div className="cc-stat-tile"><div className="cc-stat-value">{topics.length}</div><div className="cc-stat-label">Total</div></div>
+            <div className="cc-stat-tile"><div className="cc-stat-value">{highConf}</div><div className="cc-stat-label">High confidence</div></div>
+            <div className="cc-stat-tile"><div className="cc-stat-value">{linkedCount}</div><div className="cc-stat-label">GSC-linked</div></div>
+            <div className="cc-stat-tile"><div className="cc-stat-value" style={{ color: "var(--cc-good)" }}>{growingCount}</div><div className="cc-stat-label">Growing</div></div>
+            <div className="cc-stat-tile"><div className="cc-stat-value" style={{ color: "var(--cc-text-muted)" }}>{staleCount}</div><div className="cc-stat-label">Stale</div></div>
+          </div>
+        );
+      })()}
 
       {topics.length === 0 ? (
         <div className="cc-card">
