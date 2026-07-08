@@ -11,6 +11,7 @@ import { computeTopicalAuthority, persistTopicalAuthority } from "@/lib/intellig
 import { computeCompetitorGaps, persistCompetitorGaps } from "@/lib/intelligence/competitor-gap";
 import { computeCannibalization, persistCannibalization } from "@/lib/intelligence/cannibalization";
 import { computeInternalLinkGaps, persistInternalLinkGaps } from "@/lib/intelligence/internal-links";
+import { computeKnowledgeGraphGaps, persistKnowledgeGraphGaps } from "@/lib/intelligence/knowledge-graph";
 import { client } from "@/sanity/client";
 
 export const dynamic = "force-dynamic";
@@ -200,6 +201,24 @@ export async function runSnapshot() {
     errors.push(`internal-links: ${err instanceof Error ? err.message : String(err)}`);
   }
 
+  // ─── Knowledge Graph Utilization Engine (weekly-gated — Sanity-only, pure
+  // reference counting over the site's own existing taxonomy relationships) ─
+  let knowledgeGraphResult: { upserted: number; notifications: number } | undefined;
+  try {
+    const lastComputed = await client.fetch<string | null>(
+      `*[_type == "knowledgeGraphGap"] | order(lastComputedAt desc)[0].lastComputedAt`
+    );
+    const daysSinceLastRun = lastComputed
+      ? (Date.now() - new Date(lastComputed).getTime()) / 86_400_000
+      : Infinity;
+    if (daysSinceLastRun >= 7) {
+      const gaps = await computeKnowledgeGraphGaps(client);
+      knowledgeGraphResult = await persistKnowledgeGraphGaps(gaps);
+    }
+  } catch (err) {
+    errors.push(`knowledge-graph: ${err instanceof Error ? err.message : String(err)}`);
+  }
+
   // ─── Metric-drop notifications ─────────────────────────────────────────
   try {
     const alertChecks: { source: string; metric: string; label: string; dropThreshold: number }[] = [
@@ -267,6 +286,7 @@ export async function runSnapshot() {
     competitorGaps: competitorGapResult,
     cannibalization: cannibalizationResult,
     internalLinks: internalLinkResult,
+    knowledgeGraph: knowledgeGraphResult,
     errors: errors.length > 0 ? errors : undefined,
   };
 }

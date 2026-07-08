@@ -231,6 +231,13 @@ export const deskStructure = (S: StructureBuilder) =>
                     .title("Internal Link Gaps")
                     .defaultOrdering([{ field: "priorityScore", direction: "desc" }])
                 ),
+              S.documentTypeListItem("knowledgeGraphGap")
+                .title("Knowledge Graph Gaps")
+                .child(
+                  S.documentTypeList("knowledgeGraphGap")
+                    .title("Knowledge Graph Gaps")
+                    .defaultOrdering([{ field: "priorityScore", direction: "desc" }])
+                ),
             ])
         ),
     ]);
