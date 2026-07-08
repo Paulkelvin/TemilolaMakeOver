@@ -86,7 +86,14 @@ function recommendAction(title: string, h1: string, breadth: "head" | "long-tail
 
 async function crawlCompetitor(
   competitor: (typeof COMPETITOR_SITES)[number],
-  ourContentIndex: Awaited<ReturnType<typeof buildContentIndex>>
+  ourContentIndex: Awaited<ReturnType<typeof buildContentIndex>>,
+  // Shared across every competitor in the same run, not just this one — two
+  // different competitor sites can easily cover the same generic topic (e.g.
+  // both are Lagos bridal makeup businesses), and topicKeyFor() is a pure
+  // function of the page's tokens with no competitor identity baked in. A
+  // per-competitor set would let a second competitor's page silently
+  // overwrite the first's document at persist time (same _id, no error).
+  gapKeysSeen: Set<string>
 ): Promise<CompetitorGapTopic[]> {
   const robots = await fetchRobotsRules(competitor.domain, DEFAULT_CRAWL_DELAY_MS);
 
@@ -103,7 +110,6 @@ async function crawlCompetitor(
   const urls = candidateUrls.slice(0, MAX_PAGES_PER_COMPETITOR);
 
   const gaps: CompetitorGapTopic[] = [];
-  const gapKeysSeen = new Set<string>();
 
   for (let i = 0; i < urls.length; i++) {
     if (i > 0) await delay(robots.crawlDelayMs);
@@ -150,7 +156,12 @@ async function crawlCompetitor(
 
 export async function computeCompetitorGaps(fetchClient: FetchClient = client): Promise<CompetitorGapTopic[]> {
   const ourContentIndex = await buildContentIndex(fetchClient);
-  const results = await Promise.all(COMPETITOR_SITES.map((c) => crawlCompetitor(c, ourContentIndex)));
+  // One shared set across every competitor — see crawlCompetitor's
+  // gapKeysSeen parameter comment for why a per-competitor set isn't enough.
+  const gapKeysSeen = new Set<string>();
+  const results = await Promise.all(
+    COMPETITOR_SITES.map((c) => crawlCompetitor(c, ourContentIndex, gapKeysSeen))
+  );
   return results.flat().sort((a, b) => b.priorityScore - a.priorityScore);
 }
 
