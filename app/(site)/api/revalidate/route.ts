@@ -5,13 +5,24 @@ import { type NextRequest, NextResponse } from "next/server";
 // page, so a publish/patch to one of these has nothing to revalidate.
 // Bookings and notifications in particular fire constantly (every customer
 // submission, every daily snapshot cron run); without this skip, each one
-// was triggering a full-site revalidation for zero visible benefit.
+// was triggering a full-site revalidation for zero visible benefit. The
+// Topical Authority Engine's document types belong here too: each weekly
+// snapshot cron run upserts a whole batch of these in one go, and every
+// one of them is Command-Center-only.
 const INTERNAL_ONLY_TYPES = new Set([
   "booking",
   "metricSnapshot",
   "weeklyReview",
   "notification",
   "ccSettings",
+  "seoOpportunity",
+  "keywordDiscoveryTopic",
+  "topicalAuthorityNode",
+  "topicNode",
+  "competitorGapTopic",
+  "cannibalizationIssue",
+  "internalLinkGap",
+  "knowledgeGraphGap",
 ]);
 
 export async function POST(req: NextRequest) {
