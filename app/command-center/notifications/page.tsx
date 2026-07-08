@@ -25,6 +25,7 @@ function kindLabel(kind: string): string {
     wbr_ready: "WBR",
     metric_alert: "Metric",
     seo_opportunity: "SEO",
+    keyword_cannibalization: "Cannibalization",
   };
   return labels[kind] ?? kind;
 }

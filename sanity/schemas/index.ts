@@ -33,6 +33,7 @@ import { seoOpportunitySchema } from "./seoOpportunity";
 import { keywordDiscoveryTopicSchema } from "./keywordDiscoveryTopic";
 import { topicalAuthorityNodeSchema } from "./topicalAuthorityNode";
 import { competitorGapTopicSchema } from "./competitorGapTopic";
+import { cannibalizationIssueSchema } from "./cannibalizationIssue";
 
 export const schemaTypes = [
   serviceSchema,
@@ -70,4 +71,5 @@ export const schemaTypes = [
   keywordDiscoveryTopicSchema,
   topicalAuthorityNodeSchema,
   competitorGapTopicSchema,
+  cannibalizationIssueSchema,
 ];

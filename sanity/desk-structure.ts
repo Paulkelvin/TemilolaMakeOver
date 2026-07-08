@@ -217,6 +217,13 @@ export const deskStructure = (S: StructureBuilder) =>
                     .title("Competitor Gaps")
                     .defaultOrdering([{ field: "priorityScore", direction: "desc" }])
                 ),
+              S.documentTypeListItem("cannibalizationIssue")
+                .title("Cannibalization Issues")
+                .child(
+                  S.documentTypeList("cannibalizationIssue")
+                    .title("Cannibalization Issues")
+                    .defaultOrdering([{ field: "priorityScore", direction: "desc" }])
+                ),
             ])
         ),
     ]);

@@ -21,6 +21,7 @@ export const notificationSchema = defineType({
           { title: "WBR ready", value: "wbr_ready" },
           { title: "Metric alert", value: "metric_alert" },
           { title: "SEO opportunity", value: "seo_opportunity" },
+          { title: "Keyword cannibalization", value: "keyword_cannibalization" },
         ],
       },
       validation: (Rule) => Rule.required(),

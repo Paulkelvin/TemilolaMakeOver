@@ -10,7 +10,8 @@ export type NotificationKind =
   | "new_review"
   | "wbr_ready"
   | "metric_alert"
-  | "seo_opportunity";
+  | "seo_opportunity"
+  | "keyword_cannibalization";
 
 export type Severity = "info" | "warning" | "critical";
 

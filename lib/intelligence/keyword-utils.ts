@@ -308,13 +308,16 @@ export const EFFORT_WEIGHTS: Record<string, number> = {
   add_faqs: 1,
   add_internal_links: 1,
   strengthen_internal_links: 1,
+  strengthen_primary_links: 1,
   add_portfolio: 2,
   add_portfolio_examples: 2,
   improve_existing_page: 3,
+  differentiate_secondary: 5,
   create_cluster_article: 5,
   create_new_blog_article: 5,
   expand_pillar_page: 5,
   create_new_pillar: 8,
+  consolidate_into_primary: 8,
 };
 
 const DEFAULT_EFFORT_WEIGHT = 3;

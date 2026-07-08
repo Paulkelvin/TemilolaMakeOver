@@ -53,6 +53,7 @@ const NOTIF_KIND_LABELS: Record<NotificationKind, string> = {
   wbr_ready: "Weekly Business Review ready",
   metric_alert: "Metric alert",
   seo_opportunity: "SEO opportunity",
+  keyword_cannibalization: "Keyword cannibalization",
 };
 
 const ALL_NOTIF_KINDS: NotificationKind[] = [
@@ -65,6 +66,7 @@ const ALL_NOTIF_KINDS: NotificationKind[] = [
   "wbr_ready",
   "metric_alert",
   "seo_opportunity",
+  "keyword_cannibalization",
 ];
 
 const LOCKED_MODULES = new Set(["overview", "settings"]);

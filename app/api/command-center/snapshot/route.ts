@@ -9,6 +9,7 @@ import { computeSeoOpportunities, persistSeoOpportunities } from "@/lib/intellig
 import { computeKeywordDiscoveryTopics, persistKeywordDiscoveryTopics } from "@/lib/intelligence/keyword-discovery";
 import { computeTopicalAuthority, persistTopicalAuthority } from "@/lib/intelligence/topical-authority";
 import { computeCompetitorGaps, persistCompetitorGaps } from "@/lib/intelligence/competitor-gap";
+import { computeCannibalization, persistCannibalization } from "@/lib/intelligence/cannibalization";
 import { client } from "@/sanity/client";
 
 export const dynamic = "force-dynamic";
@@ -158,6 +159,27 @@ export async function runSnapshot() {
     errors.push(`competitor-gap: ${err instanceof Error ? err.message : String(err)}`);
   }
 
+  // ─── Cannibalization Detection Engine (weekly-gated — query-level GSC
+  // analysis is comparatively expensive; needs Search Console, same as SEO
+  // Opportunities) ─────────────────────────────────────────────────────────
+  let cannibalizationResult: { upserted: number; notifications: number } | undefined;
+  if (isSearchConsoleConfigured()) {
+    try {
+      const lastComputed = await client.fetch<string | null>(
+        `*[_type == "cannibalizationIssue"] | order(lastComputedAt desc)[0].lastComputedAt`
+      );
+      const daysSinceLastRun = lastComputed
+        ? (Date.now() - new Date(lastComputed).getTime()) / 86_400_000
+        : Infinity;
+      if (daysSinceLastRun >= 7) {
+        const issues = await computeCannibalization();
+        cannibalizationResult = await persistCannibalization(issues);
+      }
+    } catch (err) {
+      errors.push(`cannibalization: ${err instanceof Error ? err.message : String(err)}`);
+    }
+  }
+
   // ─── Metric-drop notifications ─────────────────────────────────────────
   try {
     const alertChecks: { source: string; metric: string; label: string; dropThreshold: number }[] = [
@@ -223,6 +245,7 @@ export async function runSnapshot() {
     keywordDiscovery: keywordDiscoveryResult,
     topicalAuthority: topicalAuthorityResult,
     competitorGaps: competitorGapResult,
+    cannibalization: cannibalizationResult,
     errors: errors.length > 0 ? errors : undefined,
   };
 }
