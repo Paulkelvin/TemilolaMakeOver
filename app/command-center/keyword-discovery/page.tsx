@@ -90,7 +90,17 @@ function TopicTable({ topics, ranked }: { topics: StoredKeywordDiscoveryTopic[];
 
 export default async function KeywordDiscoveryPage() {
   const topics = await getKeywordDiscoveryTopics();
-  const queue = topics.slice(0, 10);
+  // Sort by lifetime-decayed priority before slicing the queue — otherwise a
+  // fresh, growing topic just outside the raw top 10 could never make the
+  // "next 10" cut, while a stale topic inside the raw top 10 would occupy a
+  // slot it no longer deserves (TopicTable re-sorts for display, but a slice
+  // taken before that resort locks in the wrong 10 topics).
+  const sortedByDecayedPriority = [...topics].sort((a, b) => {
+    const la = computeLifetime(a.firstSeenAt, a.history.map((h) => ({ date: h.date, score: h.score })), a.status);
+    const lb = computeLifetime(b.firstSeenAt, b.history.map((h) => ({ date: h.date, score: h.score })), b.status);
+    return applyLifetimeDecay(b.priorityScore, lb) - applyLifetimeDecay(a.priorityScore, la);
+  });
+  const queue = sortedByDecayedPriority.slice(0, 10);
   const linkedCount = topics.filter((t) => t.linkedSeoOpportunityKey).length;
 
   return (

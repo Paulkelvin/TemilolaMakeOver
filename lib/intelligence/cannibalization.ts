@@ -86,19 +86,28 @@ function findContestedQueries(rows: QueryPageRow[]): ContestedQuery[] {
   for (const [query, group] of byQuery) {
     // Collapse to distinct real pages (a query/page pair is already unique
     // per GSC's own dimensions, but paths can coincide after normalization).
-    const byPage = new Map<string, { path: string; impressions: number; clicks: number; position: number }>();
+    const byPage = new Map<string, { path: string; impressions: number; clicks: number; posWeighted: number }>();
     for (const row of group) {
       const path = pathOf(row.page);
       const existing = byPage.get(path);
       if (existing) {
         existing.impressions += row.impressions;
         existing.clicks += row.clicks;
+        existing.posWeighted += row.position * row.impressions;
       } else {
-        byPage.set(path, { path, impressions: row.impressions, clicks: row.clicks, position: row.position });
+        byPage.set(path, { path, impressions: row.impressions, clicks: row.clicks, posWeighted: row.position * row.impressions });
       }
     }
     if (byPage.size < 2) continue;
-    out.push({ query, pages: [...byPage.values()] });
+    out.push({
+      query,
+      pages: [...byPage.values()].map((p) => ({
+        path: p.path,
+        impressions: p.impressions,
+        clicks: p.clicks,
+        position: p.impressions > 0 ? p.posWeighted / p.impressions : 0,
+      })),
+    });
   }
   return out;
 }
@@ -206,7 +215,10 @@ export async function computeCannibalization(): Promise<CannibalizationIssue[]> 
 
     let aImpressions = 0, aClicks = 0, aPosWeighted = 0;
     let bImpressions = 0, bClicks = 0, bPosWeighted = 0;
-    const sharedQueries: SharedQuery[] = [];
+    // Keyed by pathA/pathB, not primary/secondary — which of the two is
+    // "primary" isn't known until all queries are aggregated below, so
+    // relabeling to primary/secondary happens after that determination.
+    const perQueryStats: { query: string; aImpressions: number; aPosition: number; bImpressions: number; bPosition: number }[] = [];
 
     for (const cq of pair.queries) {
       const a = cq.pages.find((p) => p.path === pathA);
@@ -218,12 +230,12 @@ export async function computeCannibalization(): Promise<CannibalizationIssue[]> 
       bImpressions += b.impressions;
       bClicks += b.clicks;
       bPosWeighted += b.position * b.impressions;
-      sharedQueries.push({
+      perQueryStats.push({
         query: cq.query,
-        primaryImpressions: a.impressions,
-        primaryPosition: a.position,
-        secondaryImpressions: b.impressions,
-        secondaryPosition: b.position,
+        aImpressions: a.impressions,
+        aPosition: a.position,
+        bImpressions: b.impressions,
+        bPosition: b.position,
       });
     }
 
@@ -250,6 +262,14 @@ export async function computeCannibalization(): Promise<CannibalizationIssue[]> 
 
     const secondaryShare = (secondary.impressions / combined) * 100;
     const positionGap = Math.abs(primary.position - secondary.position);
+
+    const sharedQueries: SharedQuery[] = perQueryStats.map((s) => ({
+      query: s.query,
+      primaryImpressions: aIsPrimary ? s.aImpressions : s.bImpressions,
+      primaryPosition: aIsPrimary ? s.aPosition : s.bPosition,
+      secondaryImpressions: aIsPrimary ? s.bImpressions : s.aImpressions,
+      secondaryPosition: aIsPrimary ? s.bPosition : s.aPosition,
+    }));
 
     const impressionVolumeScore = scoreImpressionVolume(combined);
     const shareSplitScore = scoreShareSplit(secondaryShare);
