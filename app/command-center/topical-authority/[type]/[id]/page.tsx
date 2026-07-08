@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getTopicalAuthorityNode, type ScoredDimension } from "@/lib/intelligence/topical-authority";
+import { getEntityCoverageForNode } from "@/lib/intelligence/entity-coverage";
 
 function editUrl(type: string, id: string) {
   return `/studio/intent/edit/id=${id};type=${type}`;
@@ -43,6 +44,7 @@ export default async function TopicalAuthorityDetailPage({
   const coverageDims = new Map(node.coverageScore.dimensions.map((d) => [d.key, d]));
   const authorityDims = new Map(node.authorityScore.dimensions.map((d) => [d.key, d]));
   const allKeys = node.authorityScore.dimensions.map((d) => d.key);
+  const entityCoverage = await getEntityCoverageForNode(node.taxonomyType, node.taxonomyId, node.taxonomyName);
 
   return (
     <div>
@@ -92,6 +94,51 @@ export default async function TopicalAuthorityDetailPage({
         {allKeys.map((key) => (
           <DimensionRow key={key} coverageDim={coverageDims.get(key)} authorityDim={authorityDims.get(key)} />
         ))}
+      </div>
+
+      <div className="cc-card">
+        <h2 style={{ margin: "0 0 4px", fontSize: "1.0625rem" }}>Entity coverage</h2>
+        {entityCoverage ? (
+          <>
+            <p style={{ margin: "0 0 12px", fontSize: "0.8125rem", color: "var(--cc-text-muted)" }}>
+              {entityCoverage.coveragePct}% of expected industry terms found in this topic&rsquo;s real text ({entityCoverage.wordCount.toLocaleString()} words scanned) — a curated checklist, not a guess.
+            </p>
+            {entityCoverage.missingEntities.length > 0 && (
+              <div style={{ marginBottom: 12 }}>
+                <p style={{ margin: "0 0 4px", fontSize: "0.8125rem", fontWeight: 600 }}>Missing entities — unused opportunities</p>
+                <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                  {entityCoverage.missingEntities.map((e) => (
+                    <span key={e} className="cc-tier" data-tier="emerging">{e}</span>
+                  ))}
+                </div>
+              </div>
+            )}
+            {entityCoverage.coveredEntities.length > 0 && (
+              <div style={{ marginBottom: 12 }}>
+                <p style={{ margin: "0 0 4px", fontSize: "0.8125rem", fontWeight: 600 }}>Covered entities</p>
+                <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                  {entityCoverage.coveredEntities.map((e) => (
+                    <span key={e.entity} className="cc-tier" data-tier="established" title={`${e.occurrences} mention${e.occurrences === 1 ? "" : "s"}`}>
+                      {e.entity} ({e.occurrences})
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+            {entityCoverage.overusedEntities.length > 0 && (
+              <div>
+                <p style={{ margin: "0 0 4px", fontSize: "0.8125rem", fontWeight: 600, color: "var(--cc-warn)" }}>Possibly overused</p>
+                <p style={{ margin: 0, fontSize: "0.8125rem", color: "var(--cc-text-muted)" }}>
+                  {entityCoverage.overusedEntities.map((e) => `${e.entity} (${e.occurrences}×)`).join(", ")} — more mentions than natural usage typically has, relative to the amount of real content. Worth checking for keyword stuffing.
+                </p>
+              </div>
+            )}
+          </>
+        ) : (
+          <div className="cc-empty">
+            No curated entity list for this topic yet — add one in <code>lib/intelligence/entity-registry.ts</code>.
+          </div>
+        )}
       </div>
 
       <div className="cc-card">
