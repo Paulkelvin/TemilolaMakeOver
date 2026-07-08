@@ -16,7 +16,8 @@ import { client } from "@/sanity/client";
 
 export const dynamic = "force-dynamic";
 
-export async function runSnapshot() {
+export async function runSnapshot(options?: { force?: boolean }) {
+  const force = options?.force ?? false;
   const today = new Date().toISOString().slice(0, 10);
   const snapshots: { source: string; metric: string; date: string; value: number }[] = [];
   const errors: string[] = [];
@@ -97,7 +98,7 @@ export async function runSnapshot() {
       const daysSinceLastRun = lastComputed
         ? (Date.now() - new Date(lastComputed).getTime()) / 86_400_000
         : Infinity;
-      if (daysSinceLastRun >= 7) {
+      if (force || daysSinceLastRun >= 7) {
         const topics = await computeSeoOpportunities(client);
         seoOpportunityResult = await persistSeoOpportunities(topics);
       }
@@ -116,7 +117,7 @@ export async function runSnapshot() {
     const daysSinceLastRun = lastComputed
       ? (Date.now() - new Date(lastComputed).getTime()) / 86_400_000
       : Infinity;
-    if (daysSinceLastRun >= 7) {
+    if (force || daysSinceLastRun >= 7) {
       const topics = await computeKeywordDiscoveryTopics(client);
       keywordDiscoveryResult = await persistKeywordDiscoveryTopics(topics);
     }
@@ -134,7 +135,7 @@ export async function runSnapshot() {
     const daysSinceLastRun = lastComputed
       ? (Date.now() - new Date(lastComputed).getTime()) / 86_400_000
       : Infinity;
-    if (daysSinceLastRun >= 7) {
+    if (force || daysSinceLastRun >= 7) {
       const nodes = await computeTopicalAuthority(client);
       topicalAuthorityResult = await persistTopicalAuthority(nodes);
     }
@@ -153,7 +154,7 @@ export async function runSnapshot() {
     const daysSinceLastRun = lastComputed
       ? (Date.now() - new Date(lastComputed).getTime()) / 86_400_000
       : Infinity;
-    if (daysSinceLastRun >= 7) {
+    if (force || daysSinceLastRun >= 7) {
       const gaps = await computeCompetitorGaps(client);
       competitorGapResult = await persistCompetitorGaps(gaps);
     }
@@ -173,7 +174,7 @@ export async function runSnapshot() {
       const daysSinceLastRun = lastComputed
         ? (Date.now() - new Date(lastComputed).getTime()) / 86_400_000
         : Infinity;
-      if (daysSinceLastRun >= 7) {
+      if (force || daysSinceLastRun >= 7) {
         const issues = await computeCannibalization();
         cannibalizationResult = await persistCannibalization(issues);
       }
@@ -193,7 +194,7 @@ export async function runSnapshot() {
     const daysSinceLastRun = lastComputed
       ? (Date.now() - new Date(lastComputed).getTime()) / 86_400_000
       : Infinity;
-    if (daysSinceLastRun >= 7) {
+    if (force || daysSinceLastRun >= 7) {
       const gaps = await computeInternalLinkGaps(client);
       internalLinkResult = await persistInternalLinkGaps(gaps);
     }
@@ -211,7 +212,7 @@ export async function runSnapshot() {
     const daysSinceLastRun = lastComputed
       ? (Date.now() - new Date(lastComputed).getTime()) / 86_400_000
       : Infinity;
-    if (daysSinceLastRun >= 7) {
+    if (force || daysSinceLastRun >= 7) {
       const gaps = await computeKnowledgeGraphGaps(client);
       knowledgeGraphResult = await persistKnowledgeGraphGaps(gaps);
     }
@@ -300,6 +301,9 @@ export async function POST(request: Request) {
     }
   }
 
-  const result = await runSnapshot();
+  const url = new URL(request.url);
+  const force = url.searchParams.get("force") === "true";
+
+  const result = await runSnapshot({ force });
   return NextResponse.json(result);
 }

@@ -161,8 +161,9 @@ export default async function SettingsPage() {
             Protect the endpoint with <code>CRON_SECRET</code> — pass it as <code>Authorization: Bearer &lt;secret&gt;</code>.
           </p>
           <p style={{ margin: "0 0 8px", fontSize: "0.875rem", color: "var(--cc-text-muted)" }}>
-            Or trigger it manually right now — this recomputes metrics, and also recomputes SEO Opportunities and
-            Keyword Discovery if it&rsquo;s been 7+ days since either last ran.
+            Or trigger it manually right now — this recomputes metrics and force-runs all intelligence engines
+            (SEO Opportunities, Keyword Discovery, Topical Authority, Competitor Gaps, Cannibalization, Internal Links,
+            Knowledge Graph) regardless of when they last ran.
           </p>
           <RunSnapshotButton />
         </div>

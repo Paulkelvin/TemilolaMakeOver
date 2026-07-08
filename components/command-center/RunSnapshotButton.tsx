@@ -8,6 +8,11 @@ interface SnapshotResult {
   snapshotsWritten: number;
   seoOpportunities?: { upserted: number; notifications: number };
   keywordDiscovery?: { upserted: number; linked: number };
+  topicalAuthority?: { upserted: number };
+  competitorGaps?: { upserted: number };
+  cannibalization?: { upserted: number; notifications: number };
+  internalLinks?: { upserted: number; notifications: number };
+  knowledgeGraph?: { upserted: number; notifications: number };
   errors?: string[];
 }
 
@@ -55,19 +60,28 @@ export function RunSnapshotButton() {
       </button>
 
       {state === "done" && result && (
-        <p style={{ margin: "10px 0 0", fontSize: "0.8125rem", color: "var(--cc-text-muted)" }}>
-          Done — {result.snapshotsWritten} metric snapshot{result.snapshotsWritten === 1 ? "" : "s"} written
-          {result.seoOpportunities && `, ${result.seoOpportunities.upserted} SEO opportunities recomputed`}
-          {result.keywordDiscovery && `, ${result.keywordDiscovery.upserted} keyword discovery topics recomputed`}
-          {!result.seoOpportunities && !result.keywordDiscovery &&
-            " (weekly-gated jobs skipped — they only recompute once 7 days have passed since the last run)."}
-          {result.errors && result.errors.length > 0 && (
-            <>
-              {" "}
-              <span style={{ color: "var(--cc-warn)" }}>Some sources had errors: {result.errors.join("; ")}</span>
-            </>
+        <div style={{ margin: "10px 0 0", fontSize: "0.8125rem", color: "var(--cc-text-muted)" }}>
+          <p style={{ margin: "0 0 4px" }}>
+            Done — {result.snapshotsWritten} metric snapshot{result.snapshotsWritten === 1 ? "" : "s"} written.
+          </p>
+          {(result.seoOpportunities || result.keywordDiscovery || result.topicalAuthority ||
+            result.competitorGaps || result.cannibalization || result.internalLinks || result.knowledgeGraph) && (
+            <ul style={{ margin: "4px 0 0", paddingLeft: 20 }}>
+              {result.seoOpportunities && <li>{result.seoOpportunities.upserted} SEO opportunities recomputed</li>}
+              {result.keywordDiscovery && <li>{result.keywordDiscovery.upserted} keyword discovery topics recomputed</li>}
+              {result.topicalAuthority && <li>{result.topicalAuthority.upserted} topical authority nodes recomputed</li>}
+              {result.competitorGaps && <li>{result.competitorGaps.upserted} competitor gap topics recomputed</li>}
+              {result.cannibalization && <li>{result.cannibalization.upserted} cannibalization issues recomputed</li>}
+              {result.internalLinks && <li>{result.internalLinks.upserted} internal link gaps recomputed</li>}
+              {result.knowledgeGraph && <li>{result.knowledgeGraph.upserted} knowledge graph gaps recomputed</li>}
+            </ul>
           )}
-        </p>
+          {result.errors && result.errors.length > 0 && (
+            <p style={{ margin: "4px 0 0", color: "var(--cc-warn)" }}>
+              Some sources had errors: {result.errors.join("; ")}
+            </p>
+          )}
+        </div>
       )}
 
       {state === "error" && (
