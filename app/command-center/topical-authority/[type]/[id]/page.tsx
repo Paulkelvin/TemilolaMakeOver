@@ -2,6 +2,14 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getTopicalAuthorityNode, type ScoredDimension } from "@/lib/intelligence/topical-authority";
 import { getEntityCoverageForNode } from "@/lib/intelligence/entity-coverage";
+import { computeLifetime, TREND_LABELS, type Trend } from "@/lib/intelligence/opportunity-lifetime";
+
+const TREND_COLOR: Record<Trend, string> = {
+  growing: "var(--cc-good)",
+  declining: "var(--cc-critical)",
+  stable: "var(--cc-text-muted)",
+  new: "var(--cc-text-muted)",
+};
 
 function editUrl(type: string, id: string) {
   return `/studio/intent/edit/id=${id};type=${type}`;
@@ -45,6 +53,11 @@ export default async function TopicalAuthorityDetailPage({
   const authorityDims = new Map(node.authorityScore.dimensions.map((d) => [d.key, d]));
   const allKeys = node.authorityScore.dimensions.map((d) => d.key);
   const entityCoverage = await getEntityCoverageForNode(node.taxonomyType, node.taxonomyId, node.taxonomyName);
+  const lifetime = computeLifetime(
+    node.firstSeenAt,
+    node.history.map((h) => ({ date: h.date, score: h.authorityScore })),
+    node.status
+  );
 
   return (
     <div>
@@ -80,6 +93,16 @@ export default async function TopicalAuthorityDetailPage({
         <div className="cc-tile">
           <div className="cc-tile__label">Status</div>
           <div className="cc-tile__value" style={{ textTransform: "capitalize", fontSize: "1.25rem" }}>{node.status.replace("_", " ")}</div>
+        </div>
+        <div className="cc-tile">
+          <div className="cc-tile__label">Age</div>
+          <div className="cc-tile__value">{lifetime.ageDays}d</div>
+        </div>
+        <div className="cc-tile">
+          <div className="cc-tile__label">Authority trend</div>
+          <div className="cc-tile__value" style={{ color: TREND_COLOR[lifetime.trend], fontSize: "1.25rem" }}>
+            {TREND_LABELS[lifetime.trend]}
+          </div>
         </div>
       </div>
 

@@ -1,6 +1,14 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getSeoOpportunityByKey } from "@/lib/intelligence/seo-opportunities";
+import { computeLifetime, applyLifetimeDecay, TREND_LABELS, type Trend } from "@/lib/intelligence/opportunity-lifetime";
+
+const TREND_COLOR: Record<Trend, string> = {
+  growing: "var(--cc-good)",
+  declining: "var(--cc-critical)",
+  stable: "var(--cc-text-muted)",
+  new: "var(--cc-text-muted)",
+};
 
 const ACTION_LABELS: Record<string, string> = {
   improve_existing_page: "Improve existing page",
@@ -39,6 +47,8 @@ export default async function SeoOpportunityDetailPage({
   if (!opp) notFound();
 
   const sb = opp.scoreBreakdown;
+  const lifetime = computeLifetime(opp.firstSeenAt, opp.history.map((h) => ({ date: h.date, score: h.score })), opp.status);
+  const decayedPriority = applyLifetimeDecay(opp.priorityScore, lifetime);
 
   return (
     <div>
@@ -50,6 +60,7 @@ export default async function SeoOpportunityDetailPage({
       <h1 className="cc-page-title">
         {opp.isQuickWin && "⚡ "}
         {opp.isSeasonal && "🗓 "}
+        {lifetime.isStale && "💤 "}
         {opp.topicLabel}
       </h1>
       <p className="cc-page-dek">
@@ -71,7 +82,12 @@ export default async function SeoOpportunityDetailPage({
         </div>
         <div className="cc-tile">
           <div className="cc-tile__label">Priority (value ÷ effort)</div>
-          <div className="cc-tile__value">{opp.priorityScore.toFixed(1)}</div>
+          <div className="cc-tile__value">
+            {decayedPriority.toFixed(1)}
+            {lifetime.isStale && (
+              <span style={{ fontSize: "0.75rem", color: "var(--cc-text-muted)", fontWeight: 400 }}> (was {(opp.priorityScore ?? 0).toFixed(1)})</span>
+            )}
+          </div>
         </div>
         <div className="cc-tile">
           <div className="cc-tile__label">Position</div>
@@ -85,7 +101,29 @@ export default async function SeoOpportunityDetailPage({
           <div className="cc-tile__label">CTR</div>
           <div className="cc-tile__value">{(opp.currentMetrics.ctr * 100).toFixed(1)}%</div>
         </div>
+        <div className="cc-tile">
+          <div className="cc-tile__label">Age</div>
+          <div className="cc-tile__value">{lifetime.ageDays}d</div>
+        </div>
+        <div className="cc-tile">
+          <div className="cc-tile__label">Trend</div>
+          <div className="cc-tile__value" style={{ color: TREND_COLOR[lifetime.trend], fontSize: "1.25rem" }}>
+            {TREND_LABELS[lifetime.trend]}
+          </div>
+        </div>
       </div>
+
+      {lifetime.isStale && (
+        <div className="cc-card" style={{ borderColor: "var(--cc-text-muted)" }}>
+          <h2 style={{ margin: "0 0 4px", fontSize: "1.0625rem" }}>💤 Lifetime — going stale</h2>
+          <p style={{ margin: 0, fontSize: "0.875rem", color: "var(--cc-text-muted)" }}>
+            First seen {lifetime.ageDays} days ago, still <strong style={{ textTransform: "capitalize" }}>{opp.status.replace("_", " ")}</strong>, and
+            the score has been {lifetime.trend} across the last several computation runs. Its priority is halved in the queue
+            ordering above so it stops crowding out newer, growing opportunities — it isn&rsquo;t hidden or deleted, just
+            deprioritized. Actioning it (or if it starts growing again) will lift the penalty automatically.
+          </p>
+        </div>
+      )}
 
       <div className="cc-card">
         <h2 style={{ margin: "0 0 4px", fontSize: "1.0625rem" }}>Recommended action</h2>
@@ -122,21 +160,29 @@ export default async function SeoOpportunityDetailPage({
 
       <div className="cc-card">
         <h2 style={{ margin: "0 0 4px", fontSize: "1.0625rem" }}>Search intent detection</h2>
-        <p style={{ margin: "0 0 4px", fontWeight: 600, textTransform: "capitalize" }}>
-          {opp.intentClassification.intent} — {opp.intentClassification.confidencePct}% confidence
-        </p>
-        <p style={{ margin: "0 0 4px", fontSize: "0.875rem", color: "var(--cc-text-muted)" }}>{opp.intentClassification.ruleTriggered}</p>
-        {opp.intentClassification.matchedWords.length > 0 && (
-          <p style={{ margin: 0, fontSize: "0.8125rem", color: "var(--cc-text-muted)" }}>
-            Matched words: {opp.intentClassification.matchedWords.map((w) => <code key={w} style={{ marginRight: 6 }}>{w}</code>)}
-          </p>
+        {opp.intentClassification ? (
+          <>
+            <p style={{ margin: "0 0 4px", fontWeight: 600, textTransform: "capitalize" }}>
+              {opp.intentClassification.intent} — {opp.intentClassification.confidencePct}% confidence
+            </p>
+            <p style={{ margin: "0 0 4px", fontSize: "0.875rem", color: "var(--cc-text-muted)" }}>{opp.intentClassification.ruleTriggered}</p>
+            {opp.intentClassification.matchedWords.length > 0 && (
+              <p style={{ margin: 0, fontSize: "0.8125rem", color: "var(--cc-text-muted)" }}>
+                Matched words: {opp.intentClassification.matchedWords.map((w) => <code key={w} style={{ marginRight: 6 }}>{w}</code>)}
+              </p>
+            )}
+          </>
+        ) : (
+          <div className="cc-empty">Not yet computed for this topic — populates on the next weekly recompute.</div>
         )}
       </div>
 
       <div className="cc-card">
         <h2 style={{ margin: "0 0 12px", fontSize: "1.0625rem" }}>Why this recommendation (decision trail)</h2>
         <ol style={{ margin: 0, paddingLeft: "1.2em", fontSize: "0.8125rem", color: "var(--cc-text-muted)", lineHeight: 1.8, fontFamily: "var(--cc-mono)" }}>
-          {opp.decisionTrace.map((step, i) => <li key={i}>{step}</li>)}
+          {opp.decisionTrace?.length
+            ? opp.decisionTrace.map((step, i) => <li key={i}>{step}</li>)
+            : <li>Not yet computed for this topic — populates on the next weekly recompute.</li>}
         </ol>
       </div>
 

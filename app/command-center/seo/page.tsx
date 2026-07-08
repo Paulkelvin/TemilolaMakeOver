@@ -2,7 +2,15 @@ import Link from "next/link";
 import { isSearchConsoleConfigured, getSummary, getTopPages, getTopQueries } from "@/lib/intelligence/sources/search-console";
 import { getLatestSnapshot, getSnapshotSeries } from "@/lib/intelligence/sources/snapshots";
 import { getSeoOpportunities, type StoredSeoOpportunity } from "@/lib/intelligence/seo-opportunities";
+import { computeLifetime, applyLifetimeDecay, TREND_LABELS, type Trend } from "@/lib/intelligence/opportunity-lifetime";
 import { MetricBadge } from "@/components/command-center/MetricBadge";
+
+const TREND_COLOR: Record<Trend, string> = {
+  growing: "var(--cc-good)",
+  declining: "var(--cc-critical)",
+  stable: "var(--cc-text-muted)",
+  new: "var(--cc-text-muted)",
+};
 
 const ACTION_LABELS: Record<string, string> = {
   improve_existing_page: "Improve existing page",
@@ -20,12 +28,14 @@ const CONFIDENCE_COLOR: Record<string, string> = {
 };
 
 function OpportunityRow({ opp }: { opp: StoredSeoOpportunity }) {
+  const lifetime = computeLifetime(opp.firstSeenAt, opp.history.map((h) => ({ date: h.date, score: h.score })), opp.status);
   return (
     <tr key={opp.topicKey} style={{ borderBottom: "1px solid var(--cc-border)" }}>
       <td style={{ padding: "6px 8px" }}>
         <Link href={`/command-center/seo/opportunities/${opp.topicKey}`} style={{ color: "inherit" }}>
           {opp.isQuickWin && "⚡ "}
           {opp.isSeasonal && "🗓 "}
+          {lifetime.isStale && "💤 "}
           {opp.topicLabel}
         </Link>
       </td>
@@ -33,7 +43,7 @@ function OpportunityRow({ opp }: { opp: StoredSeoOpportunity }) {
         {opp.scoreBreakdown.totalScore.toFixed(0)}
       </td>
       <td style={{ padding: "6px 8px", textAlign: "right", fontFamily: "var(--cc-mono)" }}>
-        {opp.priorityScore.toFixed(1)}
+        {applyLifetimeDecay(opp.priorityScore, lifetime).toFixed(1)}
       </td>
       <td style={{ padding: "6px 8px", textAlign: "right", fontFamily: "var(--cc-mono)" }}>
         {opp.currentMetrics.position.toFixed(1)}
@@ -45,11 +55,18 @@ function OpportunityRow({ opp }: { opp: StoredSeoOpportunity }) {
       <td style={{ padding: "6px 8px", color: CONFIDENCE_COLOR[opp.confidenceLevel] }}>{opp.confidenceLevel}</td>
       <td style={{ padding: "6px 8px" }}>{ACTION_LABELS[opp.recommendedAction] ?? opp.recommendedAction}</td>
       <td style={{ padding: "6px 8px", textTransform: "capitalize" }}>{opp.status.replace("_", " ")}</td>
+      <td style={{ padding: "6px 8px", textAlign: "right", fontFamily: "var(--cc-mono)" }}>{lifetime.ageDays}d</td>
+      <td style={{ padding: "6px 8px", color: TREND_COLOR[lifetime.trend] }}>{TREND_LABELS[lifetime.trend]}</td>
     </tr>
   );
 }
 
 function OpportunityTable({ opps }: { opps: StoredSeoOpportunity[] }) {
+  const sorted = [...opps].sort((a, b) => {
+    const la = computeLifetime(a.firstSeenAt, a.history.map((h) => ({ date: h.date, score: h.score })), a.status);
+    const lb = computeLifetime(b.firstSeenAt, b.history.map((h) => ({ date: h.date, score: h.score })), b.status);
+    return applyLifetimeDecay(b.priorityScore, lb) - applyLifetimeDecay(a.priorityScore, la);
+  });
   return (
     <div style={{ overflowX: "auto" }}>
       <table style={{ width: "100%", fontSize: "0.8125rem", borderCollapse: "collapse" }}>
@@ -64,10 +81,12 @@ function OpportunityTable({ opps }: { opps: StoredSeoOpportunity[] }) {
             <th style={{ textAlign: "left", padding: "6px 8px", fontWeight: 500 }}>Confidence</th>
             <th style={{ textAlign: "left", padding: "6px 8px", fontWeight: 500 }}>Recommended action</th>
             <th style={{ textAlign: "left", padding: "6px 8px", fontWeight: 500 }}>Status</th>
+            <th style={{ textAlign: "right", padding: "6px 8px", fontWeight: 500 }}>Age</th>
+            <th style={{ textAlign: "left", padding: "6px 8px", fontWeight: 500 }}>Trend</th>
           </tr>
         </thead>
         <tbody>
-          {opps.map((opp) => <OpportunityRow key={opp.topicKey} opp={opp} />)}
+          {sorted.map((opp) => <OpportunityRow key={opp.topicKey} opp={opp} />)}
         </tbody>
       </table>
     </div>

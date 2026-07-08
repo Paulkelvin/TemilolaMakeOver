@@ -1,5 +1,13 @@
 import Link from "next/link";
 import { getKeywordDiscoveryTopics, type StoredKeywordDiscoveryTopic } from "@/lib/intelligence/keyword-discovery";
+import { computeLifetime, applyLifetimeDecay, TREND_LABELS, type Trend } from "@/lib/intelligence/opportunity-lifetime";
+
+const TREND_COLOR: Record<Trend, string> = {
+  growing: "var(--cc-good)",
+  declining: "var(--cc-critical)",
+  stable: "var(--cc-text-muted)",
+  new: "var(--cc-text-muted)",
+};
 
 const ACTION_LABELS: Record<string, string> = {
   create_new_pillar: "Create new pillar",
@@ -17,6 +25,7 @@ const CONFIDENCE_COLOR: Record<string, string> = {
 };
 
 function TopicRow({ topic, rank }: { topic: StoredKeywordDiscoveryTopic; rank?: number }) {
+  const lifetime = computeLifetime(topic.firstSeenAt, topic.history.map((h) => ({ date: h.date, score: h.score })), topic.status);
   return (
     <tr style={{ borderBottom: "1px solid var(--cc-border)" }}>
       {rank !== undefined && (
@@ -26,6 +35,7 @@ function TopicRow({ topic, rank }: { topic: StoredKeywordDiscoveryTopic; rank?: 
         <Link href={`/command-center/keyword-discovery/${topic.topicKey}`} style={{ color: "inherit" }}>
           {topic.linkedSeoOpportunityKey && "🔗 "}
           {topic.isSeasonal && "🗓 "}
+          {lifetime.isStale && "💤 "}
           {topic.topicLabel}
         </Link>
       </td>
@@ -33,18 +43,25 @@ function TopicRow({ topic, rank }: { topic: StoredKeywordDiscoveryTopic; rank?: 
         {topic.scoreBreakdown.totalScore.toFixed(0)}
       </td>
       <td style={{ padding: "6px 8px", textAlign: "right", fontFamily: "var(--cc-mono)" }}>
-        {topic.priorityScore.toFixed(1)}
+        {applyLifetimeDecay(topic.priorityScore, lifetime).toFixed(1)}
       </td>
       <td style={{ padding: "6px 8px", textTransform: "capitalize" }}>{topic.queryBreadth}</td>
       <td style={{ padding: "6px 8px" }}>{topic.intent}</td>
       <td style={{ padding: "6px 8px", color: CONFIDENCE_COLOR[topic.confidenceLevel] }}>{topic.confidenceLevel}</td>
       <td style={{ padding: "6px 8px" }}>{ACTION_LABELS[topic.recommendedAction] ?? topic.recommendedAction}</td>
       <td style={{ padding: "6px 8px", textTransform: "capitalize" }}>{topic.status.replace("_", " ")}</td>
+      <td style={{ padding: "6px 8px", textAlign: "right", fontFamily: "var(--cc-mono)" }}>{lifetime.ageDays}d</td>
+      <td style={{ padding: "6px 8px", color: TREND_COLOR[lifetime.trend] }}>{TREND_LABELS[lifetime.trend]}</td>
     </tr>
   );
 }
 
 function TopicTable({ topics, ranked }: { topics: StoredKeywordDiscoveryTopic[]; ranked?: boolean }) {
+  const sorted = [...topics].sort((a, b) => {
+    const la = computeLifetime(a.firstSeenAt, a.history.map((h) => ({ date: h.date, score: h.score })), a.status);
+    const lb = computeLifetime(b.firstSeenAt, b.history.map((h) => ({ date: h.date, score: h.score })), b.status);
+    return applyLifetimeDecay(b.priorityScore, lb) - applyLifetimeDecay(a.priorityScore, la);
+  });
   return (
     <div style={{ overflowX: "auto" }}>
       <table style={{ width: "100%", fontSize: "0.8125rem", borderCollapse: "collapse" }}>
@@ -59,10 +76,12 @@ function TopicTable({ topics, ranked }: { topics: StoredKeywordDiscoveryTopic[];
             <th style={{ textAlign: "left", padding: "6px 8px", fontWeight: 500 }}>Confidence</th>
             <th style={{ textAlign: "left", padding: "6px 8px", fontWeight: 500 }}>Recommended action</th>
             <th style={{ textAlign: "left", padding: "6px 8px", fontWeight: 500 }}>Status</th>
+            <th style={{ textAlign: "right", padding: "6px 8px", fontWeight: 500 }}>Age</th>
+            <th style={{ textAlign: "left", padding: "6px 8px", fontWeight: 500 }}>Trend</th>
           </tr>
         </thead>
         <tbody>
-          {topics.map((t, i) => <TopicRow key={t.topicKey} topic={t} rank={ranked ? i + 1 : undefined} />)}
+          {sorted.map((t, i) => <TopicRow key={t.topicKey} topic={t} rank={ranked ? i + 1 : undefined} />)}
         </tbody>
       </table>
     </div>

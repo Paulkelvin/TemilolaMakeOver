@@ -1,6 +1,14 @@
 import Link from "next/link";
 import { getCompetitorGaps, type StoredCompetitorGapTopic } from "@/lib/intelligence/competitor-gap";
 import { COMPETITOR_SITES } from "@/lib/intelligence/competitor-registry";
+import { computeLifetime, applyLifetimeDecay, TREND_LABELS, type Trend } from "@/lib/intelligence/opportunity-lifetime";
+
+const TREND_COLOR: Record<Trend, string> = {
+  growing: "var(--cc-good)",
+  declining: "var(--cc-critical)",
+  stable: "var(--cc-text-muted)",
+  new: "var(--cc-text-muted)",
+};
 
 const ACTION_LABELS: Record<string, string> = {
   create_new_pillar: "Create new pillar",
@@ -10,10 +18,16 @@ const ACTION_LABELS: Record<string, string> = {
 };
 
 function GapRow({ gap }: { gap: StoredCompetitorGapTopic }) {
+  const lifetime = computeLifetime(
+    gap.firstSeenAt,
+    gap.history.map((h) => ({ date: h.date, score: h.topicalRelevanceScore })),
+    gap.status
+  );
   return (
     <tr style={{ borderBottom: "1px solid var(--cc-border)" }}>
       <td style={{ padding: "6px 8px" }}>
         <Link href={`/command-center/competitor-gaps/${gap.topicKey}`} style={{ color: "inherit" }}>
+          {lifetime.isStale && "💤 "}
           {gap.topicLabel}
         </Link>
       </td>
@@ -21,17 +35,24 @@ function GapRow({ gap }: { gap: StoredCompetitorGapTopic }) {
         {gap.topicalRelevanceScore}
       </td>
       <td style={{ padding: "6px 8px", textAlign: "right", fontFamily: "var(--cc-mono)" }}>
-        {gap.priorityScore.toFixed(1)}
+        {applyLifetimeDecay(gap.priorityScore, lifetime).toFixed(1)}
       </td>
       <td style={{ padding: "6px 8px" }}>{gap.competitorName}</td>
       <td style={{ padding: "6px 8px" }}>{ACTION_LABELS[gap.recommendedAction] ?? gap.recommendedAction}</td>
       <td style={{ padding: "6px 8px", textTransform: "capitalize" }}>{gap.status.replace("_", " ")}</td>
+      <td style={{ padding: "6px 8px", textAlign: "right", fontFamily: "var(--cc-mono)" }}>{lifetime.ageDays}d</td>
+      <td style={{ padding: "6px 8px", color: TREND_COLOR[lifetime.trend] }}>{TREND_LABELS[lifetime.trend]}</td>
     </tr>
   );
 }
 
 export default async function CompetitorGapsPage() {
-  const gaps = await getCompetitorGaps();
+  const gapsRaw = await getCompetitorGaps();
+  const gaps = [...gapsRaw].sort((a, b) => {
+    const la = computeLifetime(a.firstSeenAt, a.history.map((h) => ({ date: h.date, score: h.topicalRelevanceScore })), a.status);
+    const lb = computeLifetime(b.firstSeenAt, b.history.map((h) => ({ date: h.date, score: h.topicalRelevanceScore })), b.status);
+    return applyLifetimeDecay(b.priorityScore, lb) - applyLifetimeDecay(a.priorityScore, la);
+  });
 
   return (
     <div>
@@ -69,6 +90,8 @@ export default async function CompetitorGapsPage() {
                   <th style={{ textAlign: "left", padding: "6px 8px", fontWeight: 500 }}>Competitor</th>
                   <th style={{ textAlign: "left", padding: "6px 8px", fontWeight: 500 }}>Recommended action</th>
                   <th style={{ textAlign: "left", padding: "6px 8px", fontWeight: 500 }}>Status</th>
+                  <th style={{ textAlign: "right", padding: "6px 8px", fontWeight: 500 }}>Age</th>
+                  <th style={{ textAlign: "left", padding: "6px 8px", fontWeight: 500 }}>Trend</th>
                 </tr>
               </thead>
               <tbody>
