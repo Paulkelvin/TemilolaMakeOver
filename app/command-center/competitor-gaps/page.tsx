@@ -1,14 +1,9 @@
 import Link from "next/link";
 import { getCompetitorGaps, type StoredCompetitorGapTopic } from "@/lib/intelligence/competitor-gap";
 import { COMPETITOR_SITES } from "@/lib/intelligence/competitor-registry";
-import { computeLifetime, applyLifetimeDecay, TREND_LABELS, type Trend } from "@/lib/intelligence/opportunity-lifetime";
-
-const TREND_COLOR: Record<Trend, string> = {
-  growing: "var(--cc-good)",
-  declining: "var(--cc-critical)",
-  stable: "var(--cc-text-muted)",
-  new: "var(--cc-text-muted)",
-};
+import { computeLifetime, applyLifetimeDecay, TREND_LABELS } from "@/lib/intelligence/opportunity-lifetime";
+import { TREND_COLOR } from "@/components/command-center/shared-labels";
+import { SparklineChart } from "@/components/command-center/SparklineChart";
 
 const ACTION_LABELS: Record<string, string> = {
   create_new_pillar: "Create new pillar",
@@ -41,7 +36,15 @@ function GapRow({ gap }: { gap: StoredCompetitorGapTopic }) {
       <td style={{ padding: "6px 8px" }}>{ACTION_LABELS[gap.recommendedAction] ?? gap.recommendedAction}</td>
       <td style={{ padding: "6px 8px", textTransform: "capitalize" }}>{gap.status.replace("_", " ")}</td>
       <td style={{ padding: "6px 8px", textAlign: "right", fontFamily: "var(--cc-mono)" }}>{lifetime.ageDays}d</td>
-      <td style={{ padding: "6px 8px", color: TREND_COLOR[lifetime.trend] }}>{TREND_LABELS[lifetime.trend]}</td>
+      <td style={{ padding: "6px 8px", textAlign: "right", fontFamily: "var(--cc-mono)" }}>
+        {gap.contentStrength?.totalScore ?? "—"}
+      </td>
+      <td style={{ padding: "6px 8px" }}>
+        <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
+          <SparklineChart data={gap.history.map((h) => h.topicalRelevanceScore)} />
+          <span style={{ color: TREND_COLOR[lifetime.trend], fontSize: "0.75rem" }}>{TREND_LABELS[lifetime.trend]}</span>
+        </span>
+      </td>
     </tr>
   );
 }
@@ -63,6 +66,28 @@ export default async function CompetitorGapsPage() {
         suggestion to copy their wording — only to cover the same genuine topic in this site&rsquo;s own voice.
         Currently tracking: {COMPETITOR_SITES.map((c) => `${c.name} (${c.market})`).join(", ")}.
       </p>
+
+      {gaps.length > 0 && (() => {
+        const byCompetitor = new Map<string, number>();
+        for (const g of gaps) byCompetitor.set(g.competitorName, (byCompetitor.get(g.competitorName) ?? 0) + 1);
+        const growingCount = gaps.filter((g) => {
+          const lt = computeLifetime(g.firstSeenAt, g.history.map((h) => ({ date: h.date, score: h.topicalRelevanceScore })), g.status);
+          return lt.trend === "growing";
+        }).length;
+        const avgStrength = gaps.filter((g) => g.contentStrength).length > 0
+          ? Math.round(gaps.reduce((s, g) => s + (g.contentStrength?.totalScore ?? 0), 0) / gaps.filter((g) => g.contentStrength).length)
+          : 0;
+        return (
+          <div className="cc-stat-strip">
+            <div className="cc-stat-tile"><div className="cc-stat-value">{gaps.length}</div><div className="cc-stat-label">Total gaps</div></div>
+            {[...byCompetitor.entries()].map(([name, count]) => (
+              <div key={name} className="cc-stat-tile"><div className="cc-stat-value">{count}</div><div className="cc-stat-label">{name}</div></div>
+            ))}
+            <div className="cc-stat-tile"><div className="cc-stat-value" style={{ color: "var(--cc-good)" }}>{growingCount}</div><div className="cc-stat-label">Growing</div></div>
+            <div className="cc-stat-tile"><div className="cc-stat-value">{avgStrength}</div><div className="cc-stat-label">Avg strength</div></div>
+          </div>
+        );
+      })()}
 
       {gaps.length === 0 ? (
         <div className="cc-card">
@@ -91,6 +116,7 @@ export default async function CompetitorGapsPage() {
                   <th style={{ textAlign: "left", padding: "6px 8px", fontWeight: 500 }}>Recommended action</th>
                   <th style={{ textAlign: "left", padding: "6px 8px", fontWeight: 500 }}>Status</th>
                   <th style={{ textAlign: "right", padding: "6px 8px", fontWeight: 500 }}>Age</th>
+                  <th style={{ textAlign: "right", padding: "6px 8px", fontWeight: 500 }}>Strength</th>
                   <th style={{ textAlign: "left", padding: "6px 8px", fontWeight: 500 }}>Trend</th>
                 </tr>
               </thead>

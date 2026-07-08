@@ -2,16 +2,11 @@ import Link from "next/link";
 import { isSearchConsoleConfigured, getSummary, getTopPages, getTopQueries } from "@/lib/intelligence/sources/search-console";
 import { getLatestSnapshot, getSnapshotSeries } from "@/lib/intelligence/sources/snapshots";
 import { getSeoOpportunities, type StoredSeoOpportunity } from "@/lib/intelligence/seo-opportunities";
-import { computeLifetime, applyLifetimeDecay, TREND_LABELS, type Trend } from "@/lib/intelligence/opportunity-lifetime";
+import { computeLifetime, applyLifetimeDecay, TREND_LABELS } from "@/lib/intelligence/opportunity-lifetime";
 import { computeRankingProbability, BAND_COLOR } from "@/lib/intelligence/ranking-probability";
 import { MetricBadge } from "@/components/command-center/MetricBadge";
-
-const TREND_COLOR: Record<Trend, string> = {
-  growing: "var(--cc-good)",
-  declining: "var(--cc-critical)",
-  stable: "var(--cc-text-muted)",
-  new: "var(--cc-text-muted)",
-};
+import { TREND_COLOR, CONFIDENCE_COLOR } from "@/components/command-center/shared-labels";
+import { SparklineChart } from "@/components/command-center/SparklineChart";
 
 const ACTION_LABELS: Record<string, string> = {
   improve_existing_page: "Improve existing page",
@@ -20,12 +15,6 @@ const ACTION_LABELS: Record<string, string> = {
   add_portfolio_examples: "Add portfolio examples",
   strengthen_internal_links: "Strengthen internal links",
   expand_pillar_page: "Expand pillar page",
-};
-
-const CONFIDENCE_COLOR: Record<string, string> = {
-  high: "var(--cc-good)",
-  medium: "var(--cc-warn)",
-  low: "var(--cc-text-muted)",
 };
 
 function OpportunityRow({ opp }: { opp: StoredSeoOpportunity }) {
@@ -63,7 +52,12 @@ function OpportunityRow({ opp }: { opp: StoredSeoOpportunity }) {
       <td style={{ padding: "6px 8px" }}>{ACTION_LABELS[opp.recommendedAction] ?? opp.recommendedAction}</td>
       <td style={{ padding: "6px 8px", textTransform: "capitalize" }}>{opp.status.replace("_", " ")}</td>
       <td style={{ padding: "6px 8px", textAlign: "right", fontFamily: "var(--cc-mono)" }}>{lifetime.ageDays}d</td>
-      <td style={{ padding: "6px 8px", color: TREND_COLOR[lifetime.trend] }}>{TREND_LABELS[lifetime.trend]}</td>
+      <td style={{ padding: "6px 8px" }}>
+        <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
+          <SparklineChart data={opp.history.map((h) => h.score)} />
+          <span style={{ color: TREND_COLOR[lifetime.trend], fontSize: "0.75rem" }}>{TREND_LABELS[lifetime.trend]}</span>
+        </span>
+      </td>
       <td style={{ padding: "6px 8px", color: BAND_COLOR[probability.band] }}>{probability.label}</td>
     </tr>
   );
@@ -204,6 +198,26 @@ export default async function SeoPage() {
           <MetricBadge source="search-console" freshness={summary.fetchedAt} />
         </div>
       </div>
+
+      {opportunities.length > 0 && (() => {
+        const growing = opportunities.filter((o) => {
+          const lt = computeLifetime(o.firstSeenAt, o.history.map((h) => ({ date: h.date, score: h.score })), o.status);
+          return lt.trend === "growing";
+        }).length;
+        const declining = opportunities.filter((o) => {
+          const lt = computeLifetime(o.firstSeenAt, o.history.map((h) => ({ date: h.date, score: h.score })), o.status);
+          return lt.trend === "declining";
+        }).length;
+        return (
+          <div className="cc-stat-strip">
+            <div className="cc-stat-tile"><div className="cc-stat-value">{opportunities.length}</div><div className="cc-stat-label">Total</div></div>
+            <div className="cc-stat-tile"><div className="cc-stat-value">{quickWins.length}</div><div className="cc-stat-label">Quick wins</div></div>
+            <div className="cc-stat-tile"><div className="cc-stat-value">{seasonal.length}</div><div className="cc-stat-label">Seasonal</div></div>
+            <div className="cc-stat-tile"><div className="cc-stat-value" style={{ color: "var(--cc-good)" }}>{growing}</div><div className="cc-stat-label">Growing</div></div>
+            <div className="cc-stat-tile"><div className="cc-stat-value" style={{ color: "var(--cc-critical)" }}>{declining}</div><div className="cc-stat-label">Declining</div></div>
+          </div>
+        );
+      })()}
 
       {opportunities.length === 0 ? (
         <div className="cc-card">

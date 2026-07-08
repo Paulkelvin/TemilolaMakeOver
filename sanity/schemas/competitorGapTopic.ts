@@ -62,6 +62,45 @@ export const competitorGapTopicSchema = defineType({
     }),
 
     defineField({
+      name: "contentStrength",
+      title: "Content strength",
+      type: "object",
+      description: "4-dimension scoring of how much the competitor invested in this page — depth, structure, rich media, link authority.",
+      fields: [
+        defineField({ name: "depthScore", title: "Depth score", type: "number" }),
+        defineField({ name: "structureScore", title: "Structure score", type: "number" }),
+        defineField({ name: "richMediaScore", title: "Rich media score", type: "number" }),
+        defineField({ name: "linkAuthorityScore", title: "Link authority score", type: "number" }),
+        defineField({ name: "totalScore", title: "Total score", type: "number" }),
+        defineField({ name: "breakdownTrace", title: "Breakdown trace", type: "array", of: [{ type: "string" }] }),
+      ],
+    }),
+    defineField({
+      name: "subtopicGaps",
+      title: "Subtopic gaps",
+      type: "array",
+      description: "Competitor h2/h3 headings that are genuine subtopic gaps — each is a potential content brief idea.",
+      of: [
+        {
+          type: "object",
+          fields: [
+            defineField({ name: "heading", title: "Heading", type: "string" }),
+            defineField({ name: "headingLevel", title: "Heading level", type: "number" }),
+            defineField({ name: "relevanceScore", title: "Relevance score", type: "number" }),
+          ],
+        },
+      ],
+    }),
+    defineField({ name: "competitorWordCount", title: "Competitor word count", type: "number" }),
+    defineField({ name: "competitorHeadingCount", title: "Competitor heading count", type: "number" }),
+    defineField({
+      name: "depthDelta",
+      title: "Depth delta",
+      type: "number",
+      description: "contentStrength.totalScore minus our matched coverage score. Positive = competitor has more depth on a shared topic.",
+    }),
+
+    defineField({
       name: "status",
       title: "Status",
       type: "string",
@@ -90,6 +129,7 @@ export const competitorGapTopicSchema = defineType({
           fields: [
             defineField({ name: "date", title: "Date", type: "date" }),
             defineField({ name: "topicalRelevanceScore", title: "Topical relevance score", type: "number" }),
+            defineField({ name: "contentStrengthScore", title: "Content strength score", type: "number" }),
           ],
         },
       ],

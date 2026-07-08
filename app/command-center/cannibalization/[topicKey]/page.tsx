@@ -1,32 +1,17 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getCannibalizationIssueByKey } from "@/lib/intelligence/cannibalization";
-import { computeLifetime, applyLifetimeDecay, TREND_LABELS, type Trend } from "@/lib/intelligence/opportunity-lifetime";
-
-const TREND_COLOR: Record<Trend, string> = {
-  growing: "var(--cc-good)",
-  declining: "var(--cc-critical)",
-  stable: "var(--cc-text-muted)",
-  new: "var(--cc-text-muted)",
-};
+import { computeLifetime, applyLifetimeDecay, TREND_LABELS } from "@/lib/intelligence/opportunity-lifetime";
+import { TREND_COLOR } from "@/components/command-center/shared-labels";
+import { ScoreRow } from "@/components/command-center/ScoreRow";
+import { TimeSeriesChart } from "@/components/command-center/TimeSeriesChart";
+import { ScoreBreakdownRadar } from "@/components/command-center/ScoreBreakdownRadar";
 
 const ACTION_LABELS: Record<string, string> = {
   consolidate_into_primary: "Consolidate into primary",
   differentiate_secondary: "Differentiate secondary",
   strengthen_primary_links: "Strengthen primary links",
 };
-
-function ScoreRow({ label, value, description }: { label: string; value: number; description?: string }) {
-  return (
-    <div className="cc-score-row" title={description}>
-      <span className="cc-score-label">{label}</span>
-      <div className="cc-score-track">
-        <div className="cc-score-fill" style={{ width: `${Math.max(0, Math.min(100, value))}%` }} />
-      </div>
-      <span className="cc-score-val">{value.toFixed(0)}</span>
-    </div>
-  );
-}
 
 export default async function CannibalizationDetailPage({
   params,
@@ -200,30 +185,45 @@ export default async function CannibalizationDetailPage({
       </div>
 
       <div className="cc-card">
+        <h2 style={{ margin: "0 0 12px", fontSize: "1.0625rem" }}>Score shape</h2>
+        <ScoreBreakdownRadar dimensions={[
+          { label: "Impression volume", value: sb.impressionVolumeScore },
+          { label: "Share split", value: sb.shareSplitScore },
+          { label: "Position proximity", value: sb.positionProximityScore },
+        ]} />
+      </div>
+
+      <div className="cc-card">
         <h2 style={{ margin: "0 0 12px", fontSize: "1.0625rem" }}>Progress over time</h2>
         {issue.history.length <= 1 ? (
           <div className="cc-empty">
             Only one computation run so far — history builds up week over week as the engine recomputes.
           </div>
         ) : (
-          <div style={{ overflowX: "auto" }}>
-            <table style={{ width: "100%", fontSize: "0.8125rem", borderCollapse: "collapse" }}>
-              <thead>
-                <tr style={{ borderBottom: "1px solid var(--cc-border)", color: "var(--cc-text-muted)" }}>
-                  <th style={{ textAlign: "left", padding: "6px 8px", fontWeight: 500 }}>Date</th>
-                  <th style={{ textAlign: "right", padding: "6px 8px", fontWeight: 500 }}>Severity</th>
-                </tr>
-              </thead>
-              <tbody>
-                {[...issue.history].reverse().map((h) => (
-                  <tr key={h.date} style={{ borderBottom: "1px solid var(--cc-border)" }}>
-                    <td style={{ padding: "6px 8px", fontFamily: "var(--cc-mono)" }}>{h.date}</td>
-                    <td style={{ padding: "6px 8px", textAlign: "right", fontFamily: "var(--cc-mono)" }}>{h.severityScore.toFixed(0)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <>
+            <TimeSeriesChart data={issue.history.map((h) => ({ date: h.date, score: h.severityScore }))} />
+            <details style={{ marginTop: 12 }}>
+              <summary style={{ fontSize: "0.8125rem", color: "var(--cc-text-muted)", cursor: "pointer" }}>Raw data</summary>
+              <div style={{ overflowX: "auto", marginTop: 8 }}>
+                <table style={{ width: "100%", fontSize: "0.8125rem", borderCollapse: "collapse" }}>
+                  <thead>
+                    <tr style={{ borderBottom: "1px solid var(--cc-border)", color: "var(--cc-text-muted)" }}>
+                      <th style={{ textAlign: "left", padding: "6px 8px", fontWeight: 500 }}>Date</th>
+                      <th style={{ textAlign: "right", padding: "6px 8px", fontWeight: 500 }}>Severity</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {[...issue.history].reverse().map((h) => (
+                      <tr key={h.date} style={{ borderBottom: "1px solid var(--cc-border)" }}>
+                        <td style={{ padding: "6px 8px", fontFamily: "var(--cc-mono)" }}>{h.date}</td>
+                        <td style={{ padding: "6px 8px", textAlign: "right", fontFamily: "var(--cc-mono)" }}>{h.severityScore.toFixed(0)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </details>
+          </>
         )}
         <p style={{ margin: "10px 0 0", fontSize: "0.75rem", color: "var(--cc-text-muted)" }}>
           First seen {new Date(issue.firstSeenAt).toLocaleDateString()} · last computed{" "}

@@ -1,21 +1,65 @@
+import Link from "next/link";
 import { computeBusinessHealthScore, CONFIDENCE_LABELS } from "@/lib/intelligence/health-score";
 import { getBookingFunnel, getRevenueSummary } from "@/lib/intelligence/sources/sanity";
 import { getLatestSnapshot } from "@/lib/intelligence/sources/snapshots";
 import { generateOpportunities } from "@/lib/intelligence/opportunities";
 import { getUnreadCount } from "@/lib/intelligence/notifications";
+import { computeConvergence } from "@/lib/intelligence/keyword-utils";
 import { MetricBadge } from "@/components/command-center/MetricBadge";
+import { SparklineChart } from "@/components/command-center/SparklineChart";
 import { client } from "@/sanity/client";
 import { formatPrice } from "@/lib/utils";
 
+interface EngineCount {
+  label: string;
+  href: string;
+  total: number;
+  growing: number;
+  history: number[];
+}
+
+const ENGINE_LABEL_MAP: Record<string, string> = {
+  "seo-opportunities": "SEO Opportunities",
+  "keyword-discovery": "Keyword Discovery",
+  "competitor-gaps": "Competitor Gaps",
+  "cannibalization": "Cannibalization",
+  "internal-links": "Internal Links",
+  "knowledge-graph": "Knowledge Graph",
+};
+
 export default async function CommandCenterOverviewPage() {
-  const [health, funnel, revenue, sessionsSnap, opportunities, unreadNotifs] = await Promise.all([
+  const [health, funnel, revenue, sessionsSnap, opportunities, unreadNotifs, convergence, engineRows] = await Promise.all([
     computeBusinessHealthScore(),
     getBookingFunnel(client),
     getRevenueSummary(client),
     getLatestSnapshot("ga4", "sessions"),
     generateOpportunities(),
     getUnreadCount(),
+    computeConvergence(client),
+    client.fetch<{ _type: string; history?: { date: string }[] }[]>(
+      `*[_type in ["seoOpportunity","keywordDiscoveryTopic","competitorGapTopic","cannibalizationIssue","internalLinkGap","knowledgeGraphGap"]]{ _type, "history": history[]{date} }`
+    ),
   ]);
+
+  const engineCounts: EngineCount[] = [
+    { label: "SEO Opportunities", href: "/command-center/seo", total: 0, growing: 0, history: [] },
+    { label: "Keyword Discovery", href: "/command-center/keyword-discovery", total: 0, growing: 0, history: [] },
+    { label: "Competitor Gaps", href: "/command-center/competitor-gaps", total: 0, growing: 0, history: [] },
+    { label: "Cannibalization", href: "/command-center/cannibalization", total: 0, growing: 0, history: [] },
+    { label: "Internal Links", href: "/command-center/internal-links", total: 0, growing: 0, history: [] },
+    { label: "Knowledge Graph", href: "/command-center/knowledge-graph", total: 0, growing: 0, history: [] },
+  ];
+  const typeToIndex: Record<string, number> = {
+    seoOpportunity: 0, keywordDiscoveryTopic: 1, competitorGapTopic: 2,
+    cannibalizationIssue: 3, internalLinkGap: 4, knowledgeGraphGap: 5,
+  };
+  for (const row of engineRows) {
+    const idx = typeToIndex[row._type];
+    if (idx !== undefined) {
+      engineCounts[idx].total++;
+      if (row.history && row.history.length >= 2) engineCounts[idx].growing++;
+    }
+  }
 
   return (
     <div>
@@ -139,6 +183,53 @@ export default async function CommandCenterOverviewPage() {
           ))
         )}
       </div>
+
+      <div className="cc-card">
+        <h2 style={{ margin: "0 0 12px", fontSize: "1.0625rem" }}>Intelligence engines</h2>
+        <div className="cc-stat-strip">
+          {engineCounts.map((ec) => (
+            <Link key={ec.label} href={ec.href} style={{ textDecoration: "none", color: "inherit", flex: "1 1 140px", minWidth: 120 }}>
+              <div className="cc-stat-tile" style={{ cursor: "pointer" }}>
+                <div className="cc-stat-value">{ec.total}</div>
+                <div className="cc-stat-label">{ec.label}</div>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </div>
+
+      {convergence.length > 0 && (
+        <div className="cc-card">
+          <h2 style={{ margin: "0 0 4px", fontSize: "1.0625rem" }}>Cross-engine convergence</h2>
+          <p style={{ margin: "0 0 12px", fontSize: "0.8125rem", color: "var(--cc-text-muted)" }}>
+            Topics independently found by multiple engines — the strongest evidence of real opportunity.
+          </p>
+          <div style={{ overflowX: "auto" }}>
+            <table style={{ width: "100%", fontSize: "0.8125rem", borderCollapse: "collapse" }}>
+              <thead>
+                <tr style={{ borderBottom: "1px solid var(--cc-border)", color: "var(--cc-text-muted)" }}>
+                  <th style={{ textAlign: "left", padding: "6px 8px", fontWeight: 500 }}>Topic</th>
+                  <th style={{ textAlign: "left", padding: "6px 8px", fontWeight: 500 }}>Found by</th>
+                  <th style={{ textAlign: "right", padding: "6px 8px", fontWeight: 500 }}>Multiplier</th>
+                </tr>
+              </thead>
+              <tbody>
+                {convergence.slice(0, 15).map((c) => (
+                  <tr key={c.topicKey} style={{ borderBottom: "1px solid var(--cc-border)" }}>
+                    <td style={{ padding: "6px 8px" }}>{c.topicKey}</td>
+                    <td style={{ padding: "6px 8px" }}>
+                      {c.engines.map((e) => ENGINE_LABEL_MAP[e] ?? e).join(", ")}
+                    </td>
+                    <td style={{ padding: "6px 8px", textAlign: "right", fontFamily: "var(--cc-mono)", color: "var(--cc-good)" }}>
+                      {c.convergenceMultiplier}x
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

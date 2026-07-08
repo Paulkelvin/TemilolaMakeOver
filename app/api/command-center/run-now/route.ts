@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic";
 // session cookie check in proxy.ts, so no separate secret is needed here.
 export async function POST() {
   try {
-    const result = await runSnapshot();
+    const result = await runSnapshot({ force: true });
     return NextResponse.json(result);
   } catch (err) {
     return NextResponse.json(

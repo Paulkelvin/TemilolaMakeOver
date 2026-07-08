@@ -1,15 +1,12 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getSeoOpportunityByKey } from "@/lib/intelligence/seo-opportunities";
-import { computeLifetime, applyLifetimeDecay, TREND_LABELS, type Trend } from "@/lib/intelligence/opportunity-lifetime";
+import { computeLifetime, applyLifetimeDecay, TREND_LABELS } from "@/lib/intelligence/opportunity-lifetime";
 import { computeRankingProbability, BAND_COLOR } from "@/lib/intelligence/ranking-probability";
-
-const TREND_COLOR: Record<Trend, string> = {
-  growing: "var(--cc-good)",
-  declining: "var(--cc-critical)",
-  stable: "var(--cc-text-muted)",
-  new: "var(--cc-text-muted)",
-};
+import { TREND_COLOR } from "@/components/command-center/shared-labels";
+import { ScoreRow } from "@/components/command-center/ScoreRow";
+import { TimeSeriesChart } from "@/components/command-center/TimeSeriesChart";
+import { ScoreBreakdownRadar } from "@/components/command-center/ScoreBreakdownRadar";
 
 const ACTION_LABELS: Record<string, string> = {
   improve_existing_page: "Improve existing page",
@@ -26,17 +23,6 @@ const COVERAGE_LABELS: Record<string, string> = {
   "existing-strong": "Strong existing content",
 };
 
-function ScoreRow({ label, value, description }: { label: string; value: number; description?: string }) {
-  return (
-    <div className="cc-score-row" title={description}>
-      <span className="cc-score-label">{label}</span>
-      <div className="cc-score-track">
-        <div className="cc-score-fill" style={{ width: `${Math.max(0, Math.min(100, value))}%` }} />
-      </div>
-      <span className="cc-score-val">{value.toFixed(0)}</span>
-    </div>
-  );
-}
 
 export default async function SeoOpportunityDetailPage({
   params,
@@ -250,38 +236,58 @@ export default async function SeoOpportunityDetailPage({
       </div>
 
       <div className="cc-card">
+        <h2 style={{ margin: "0 0 12px", fontSize: "1.0625rem" }}>Score shape</h2>
+        <ScoreBreakdownRadar dimensions={[
+          { label: "Position", value: sb.positionScore },
+          { label: "Impressions", value: sb.impressionsScore },
+          { label: "CTR gap", value: sb.ctrGapScore },
+          { label: "Intent", value: sb.intentScore },
+          { label: "Commercial value", value: sb.commercialValueScore },
+          { label: "Topical relevance", value: sb.topicalRelevanceScore },
+          { label: "Competition", value: sb.competitionProxyScore },
+          { label: "Content coverage", value: sb.contentCoverageScore },
+        ]} />
+      </div>
+
+      <div className="cc-card">
         <h2 style={{ margin: "0 0 12px", fontSize: "1.0625rem" }}>Progress over time</h2>
         {opp.history.length <= 1 ? (
           <div className="cc-empty">
             Only one computation run so far — history builds up week over week as the engine recomputes.
           </div>
         ) : (
-          <div style={{ overflowX: "auto" }}>
-            <table style={{ width: "100%", fontSize: "0.8125rem", borderCollapse: "collapse" }}>
-              <thead>
-                <tr style={{ borderBottom: "1px solid var(--cc-border)", color: "var(--cc-text-muted)" }}>
-                  <th style={{ textAlign: "left", padding: "6px 8px", fontWeight: 500 }}>Date</th>
-                  <th style={{ textAlign: "right", padding: "6px 8px", fontWeight: 500 }}>Position</th>
-                  <th style={{ textAlign: "right", padding: "6px 8px", fontWeight: 500 }}>Impressions</th>
-                  <th style={{ textAlign: "right", padding: "6px 8px", fontWeight: 500 }}>Clicks</th>
-                  <th style={{ textAlign: "right", padding: "6px 8px", fontWeight: 500 }}>CTR</th>
-                  <th style={{ textAlign: "right", padding: "6px 8px", fontWeight: 500 }}>Score</th>
-                </tr>
-              </thead>
-              <tbody>
-                {[...opp.history].reverse().map((h) => (
-                  <tr key={h.date} style={{ borderBottom: "1px solid var(--cc-border)" }}>
-                    <td style={{ padding: "6px 8px", fontFamily: "var(--cc-mono)" }}>{h.date}</td>
-                    <td style={{ padding: "6px 8px", textAlign: "right", fontFamily: "var(--cc-mono)" }}>{h.position.toFixed(1)}</td>
-                    <td style={{ padding: "6px 8px", textAlign: "right", fontFamily: "var(--cc-mono)" }}>{h.impressions.toLocaleString()}</td>
-                    <td style={{ padding: "6px 8px", textAlign: "right", fontFamily: "var(--cc-mono)" }}>{h.clicks}</td>
-                    <td style={{ padding: "6px 8px", textAlign: "right", fontFamily: "var(--cc-mono)" }}>{(h.ctr * 100).toFixed(1)}%</td>
-                    <td style={{ padding: "6px 8px", textAlign: "right", fontFamily: "var(--cc-mono)" }}>{h.score.toFixed(0)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <>
+            <TimeSeriesChart data={opp.history.map((h) => ({ date: h.date, score: h.score }))} />
+            <details style={{ marginTop: 12 }}>
+              <summary style={{ fontSize: "0.8125rem", color: "var(--cc-text-muted)", cursor: "pointer" }}>Raw data</summary>
+              <div style={{ overflowX: "auto", marginTop: 8 }}>
+                <table style={{ width: "100%", fontSize: "0.8125rem", borderCollapse: "collapse" }}>
+                  <thead>
+                    <tr style={{ borderBottom: "1px solid var(--cc-border)", color: "var(--cc-text-muted)" }}>
+                      <th style={{ textAlign: "left", padding: "6px 8px", fontWeight: 500 }}>Date</th>
+                      <th style={{ textAlign: "right", padding: "6px 8px", fontWeight: 500 }}>Position</th>
+                      <th style={{ textAlign: "right", padding: "6px 8px", fontWeight: 500 }}>Impressions</th>
+                      <th style={{ textAlign: "right", padding: "6px 8px", fontWeight: 500 }}>Clicks</th>
+                      <th style={{ textAlign: "right", padding: "6px 8px", fontWeight: 500 }}>CTR</th>
+                      <th style={{ textAlign: "right", padding: "6px 8px", fontWeight: 500 }}>Score</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {[...opp.history].reverse().map((h) => (
+                      <tr key={h.date} style={{ borderBottom: "1px solid var(--cc-border)" }}>
+                        <td style={{ padding: "6px 8px", fontFamily: "var(--cc-mono)" }}>{h.date}</td>
+                        <td style={{ padding: "6px 8px", textAlign: "right", fontFamily: "var(--cc-mono)" }}>{h.position.toFixed(1)}</td>
+                        <td style={{ padding: "6px 8px", textAlign: "right", fontFamily: "var(--cc-mono)" }}>{h.impressions.toLocaleString()}</td>
+                        <td style={{ padding: "6px 8px", textAlign: "right", fontFamily: "var(--cc-mono)" }}>{h.clicks}</td>
+                        <td style={{ padding: "6px 8px", textAlign: "right", fontFamily: "var(--cc-mono)" }}>{(h.ctr * 100).toFixed(1)}%</td>
+                        <td style={{ padding: "6px 8px", textAlign: "right", fontFamily: "var(--cc-mono)" }}>{h.score.toFixed(0)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </details>
+          </>
         )}
         <p style={{ margin: "10px 0 0", fontSize: "0.75rem", color: "var(--cc-text-muted)" }}>
           First seen {new Date(opp.firstSeenAt).toLocaleDateString()} · last computed {new Date(opp.lastComputedAt).toLocaleDateString()}

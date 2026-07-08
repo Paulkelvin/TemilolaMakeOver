@@ -1,13 +1,8 @@
 import Link from "next/link";
 import { getInternalLinkGaps, type StoredInternalLinkGap } from "@/lib/intelligence/internal-links";
-import { computeLifetime, applyLifetimeDecay, TREND_LABELS, type Trend } from "@/lib/intelligence/opportunity-lifetime";
-
-const TREND_COLOR: Record<Trend, string> = {
-  growing: "var(--cc-good)",
-  declining: "var(--cc-critical)",
-  stable: "var(--cc-text-muted)",
-  new: "var(--cc-text-muted)",
-};
+import { computeLifetime, applyLifetimeDecay, TREND_LABELS } from "@/lib/intelligence/opportunity-lifetime";
+import { TREND_COLOR } from "@/components/command-center/shared-labels";
+import { SparklineChart } from "@/components/command-center/SparklineChart";
 
 const ACTION_LABELS: Record<string, string> = {
   add_internal_links: "Add internal links",
@@ -40,7 +35,12 @@ function GapRow({ gap }: { gap: StoredInternalLinkGap }) {
       <td style={{ padding: "6px 8px" }}>{ACTION_LABELS[gap.recommendedAction] ?? gap.recommendedAction}</td>
       <td style={{ padding: "6px 8px", textTransform: "capitalize" }}>{gap.status.replace("_", " ")}</td>
       <td style={{ padding: "6px 8px", textAlign: "right", fontFamily: "var(--cc-mono)" }}>{lifetime.ageDays}d</td>
-      <td style={{ padding: "6px 8px", color: TREND_COLOR[lifetime.trend] }}>{TREND_LABELS[lifetime.trend]}</td>
+      <td style={{ padding: "6px 8px" }}>
+        <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
+          <SparklineChart data={gap.history.map((h) => h.severityScore)} />
+          <span style={{ color: TREND_COLOR[lifetime.trend], fontSize: "0.75rem" }}>{TREND_LABELS[lifetime.trend]}</span>
+        </span>
+      </td>
     </tr>
   );
 }
@@ -63,6 +63,14 @@ export default async function InternalLinksPage() {
         matched by real topical overlap; when no real candidate exists, the honest recommendation is to write new
         content instead of forcing an unrelated link.
       </p>
+
+      {gaps.length > 0 && (
+        <div className="cc-stat-strip">
+          <div className="cc-stat-tile"><div className="cc-stat-value">{gaps.length}</div><div className="cc-stat-label">Total</div></div>
+          <div className="cc-stat-tile"><div className="cc-stat-value" style={{ color: "var(--cc-critical)" }}>{orphanCount}</div><div className="cc-stat-label">Orphaned</div></div>
+          <div className="cc-stat-tile"><div className="cc-stat-value">{gaps.length - orphanCount}</div><div className="cc-stat-label">Under-linked</div></div>
+        </div>
+      )}
 
       {gaps.length === 0 ? (
         <div className="cc-card">

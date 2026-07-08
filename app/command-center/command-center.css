@@ -455,6 +455,44 @@ body.cc-body {
   .cc-setting-controls { width: 100%; justify-content: flex-start; margin-top: 4px; }
 }
 
+/* ── Chart containers ────────────────────────── */
+.cc-chart-container {
+  width: 100%;
+  min-height: 200px;
+  margin: 8px 0;
+}
+.cc-chart-container .recharts-wrapper {
+  font-family: var(--cc-sans);
+}
+
+/* ── Summary stat strips ─────────────────────── */
+.cc-stat-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.cc-stat-tile {
+  flex: 1 1 120px;
+  min-width: 100px;
+  padding: 12px 14px;
+  background: var(--cc-surface-2);
+  border-radius: 8px;
+  text-align: center;
+}
+.cc-stat-value {
+  font-size: 1.5rem;
+  font-weight: 600;
+  font-family: var(--cc-mono);
+  color: var(--cc-text);
+  line-height: 1.2;
+}
+.cc-stat-label {
+  font-size: 0.75rem;
+  color: var(--cc-text-muted);
+  margin-top: 2px;
+}
+
 @media (prefers-reduced-motion: reduce) {
   * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
 }

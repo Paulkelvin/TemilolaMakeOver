@@ -1,13 +1,8 @@
 import Link from "next/link";
 import { getKnowledgeGraphGaps, type StoredKnowledgeGraphGap } from "@/lib/intelligence/knowledge-graph";
-import { computeLifetime, applyLifetimeDecay, TREND_LABELS, type Trend } from "@/lib/intelligence/opportunity-lifetime";
-
-const TREND_COLOR: Record<Trend, string> = {
-  growing: "var(--cc-good)",
-  declining: "var(--cc-critical)",
-  stable: "var(--cc-text-muted)",
-  new: "var(--cc-text-muted)",
-};
+import { computeLifetime, applyLifetimeDecay, TREND_LABELS } from "@/lib/intelligence/opportunity-lifetime";
+import { TREND_COLOR } from "@/components/command-center/shared-labels";
+import { SparklineChart } from "@/components/command-center/SparklineChart";
 
 const ACTION_LABELS: Record<string, string> = {
   create_new_blog_article: "Create new blog article",
@@ -39,7 +34,12 @@ function GapRow({ gap }: { gap: StoredKnowledgeGraphGap }) {
       <td style={{ padding: "6px 8px" }}>{ACTION_LABELS[gap.recommendedAction] ?? gap.recommendedAction}</td>
       <td style={{ padding: "6px 8px", textTransform: "capitalize" }}>{gap.status.replace("_", " ")}</td>
       <td style={{ padding: "6px 8px", textAlign: "right", fontFamily: "var(--cc-mono)" }}>{lifetime.ageDays}d</td>
-      <td style={{ padding: "6px 8px", color: TREND_COLOR[lifetime.trend] }}>{TREND_LABELS[lifetime.trend]}</td>
+      <td style={{ padding: "6px 8px" }}>
+        <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
+          <SparklineChart data={gap.history.map((h) => h.importanceScore)} />
+          <span style={{ color: TREND_COLOR[lifetime.trend], fontSize: "0.75rem" }}>{TREND_LABELS[lifetime.trend]}</span>
+        </span>
+      </td>
     </tr>
   );
 }
@@ -60,6 +60,19 @@ export default async function KnowledgeGraphPage() {
         FAQ/blog content elsewhere) but the site&rsquo;s own reference graph has no real content connecting them yet
         — pure reference counting over data already in Sanity, no guessed demand.
       </p>
+
+      {gaps.length > 0 && (() => {
+        const byAction = new Map<string, number>();
+        for (const g of gaps) byAction.set(g.recommendedAction, (byAction.get(g.recommendedAction) ?? 0) + 1);
+        return (
+          <div className="cc-stat-strip">
+            <div className="cc-stat-tile"><div className="cc-stat-value">{gaps.length}</div><div className="cc-stat-label">Total pairs</div></div>
+            {[...byAction.entries()].map(([action, count]) => (
+              <div key={action} className="cc-stat-tile"><div className="cc-stat-value">{count}</div><div className="cc-stat-label">{ACTION_LABELS[action] ?? action}</div></div>
+            ))}
+          </div>
+        );
+      })()}
 
       {gaps.length === 0 ? (
         <div className="cc-card">
