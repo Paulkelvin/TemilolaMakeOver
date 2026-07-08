@@ -25,6 +25,20 @@ const INTERNAL_ONLY_TYPES = new Set([
   "knowledgeGraphGap",
 ]);
 
+// Document types whose real fetch call sites are verified to be confined to a
+// small, specific set of pages (not the root layout/header/footer), so a full
+// site-wide revalidation is unnecessary blast radius. Everything NOT listed
+// here (services, FAQ, locations, site settings, taxonomy, etc.) keeps the
+// full-site fallback below — those either render in the global nav/footer on
+// every page or haven't been verified as page-scoped.
+const NARROW_REVALIDATE_PATHS: Record<string, string[]> = {
+  blogPost: ["/blog"],
+  portfolioItem: ["/", "/about", "/portfolio"],
+  testimonial: ["/"],
+  transformation: ["/transformations"],
+  trainingCourse: ["/training"],
+};
+
 export async function POST(req: NextRequest) {
   const secret = req.nextUrl.searchParams.get("secret");
 
@@ -39,7 +53,19 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ revalidated: false, skipped: type, now: Date.now() });
   }
 
+  const narrowPaths = type ? NARROW_REVALIDATE_PATHS[type] : undefined;
+
+  if (narrowPaths) {
+    for (const path of narrowPaths) {
+      revalidatePath(path);
+    }
+    if (type === "blogPost") {
+      revalidatePath("/blog/[slug]", "page");
+    }
+    return NextResponse.json({ revalidated: true, scope: "narrow", paths: narrowPaths, now: Date.now() });
+  }
+
   revalidatePath("/", "layout");
 
-  return NextResponse.json({ revalidated: true, now: Date.now() });
+  return NextResponse.json({ revalidated: true, scope: "full", now: Date.now() });
 }
