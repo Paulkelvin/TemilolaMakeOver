@@ -11,7 +11,8 @@ export type NotificationKind =
   | "wbr_ready"
   | "metric_alert"
   | "seo_opportunity"
-  | "keyword_cannibalization";
+  | "keyword_cannibalization"
+  | "internal_link_gap";
 
 export type Severity = "info" | "warning" | "critical";
 

@@ -10,6 +10,7 @@ import { computeKeywordDiscoveryTopics, persistKeywordDiscoveryTopics } from "@/
 import { computeTopicalAuthority, persistTopicalAuthority } from "@/lib/intelligence/topical-authority";
 import { computeCompetitorGaps, persistCompetitorGaps } from "@/lib/intelligence/competitor-gap";
 import { computeCannibalization, persistCannibalization } from "@/lib/intelligence/cannibalization";
+import { computeInternalLinkGaps, persistInternalLinkGaps } from "@/lib/intelligence/internal-links";
 import { client } from "@/sanity/client";
 
 export const dynamic = "force-dynamic";
@@ -180,6 +181,25 @@ export async function runSnapshot() {
     }
   }
 
+  // ─── Internal Link Intelligence Engine (weekly-gated — Sanity-only, no
+  // external API dependency, but content doesn't change fast enough to need
+  // daily recomputation) ───────────────────────────────────────────────────
+  let internalLinkResult: { upserted: number; notifications: number } | undefined;
+  try {
+    const lastComputed = await client.fetch<string | null>(
+      `*[_type == "internalLinkGap"] | order(lastComputedAt desc)[0].lastComputedAt`
+    );
+    const daysSinceLastRun = lastComputed
+      ? (Date.now() - new Date(lastComputed).getTime()) / 86_400_000
+      : Infinity;
+    if (daysSinceLastRun >= 7) {
+      const gaps = await computeInternalLinkGaps(client);
+      internalLinkResult = await persistInternalLinkGaps(gaps);
+    }
+  } catch (err) {
+    errors.push(`internal-links: ${err instanceof Error ? err.message : String(err)}`);
+  }
+
   // ─── Metric-drop notifications ─────────────────────────────────────────
   try {
     const alertChecks: { source: string; metric: string; label: string; dropThreshold: number }[] = [
@@ -246,6 +266,7 @@ export async function runSnapshot() {
     topicalAuthority: topicalAuthorityResult,
     competitorGaps: competitorGapResult,
     cannibalization: cannibalizationResult,
+    internalLinks: internalLinkResult,
     errors: errors.length > 0 ? errors : undefined,
   };
 }

@@ -263,7 +263,7 @@ const THIN_THRESHOLD = 60;
 // side — the union grows but the overlap doesn't, so Jaccard alone drops
 // well below the match threshold. Full containment in either direction is
 // itself strong evidence of a real match, so it's treated as one.
-function overlapScore(a: string[], b: string[]): number {
+export function overlapScore(a: string[], b: string[]): number {
   const jaccardScore = jaccard(a, b);
   if (a.length >= 2 && b.length >= 2) {
     const aSubsetOfB = a.every((t) => b.includes(t));

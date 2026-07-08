@@ -3,6 +3,7 @@ import { isSearchConsoleConfigured, getSummary, getTopPages, getTopQueries } fro
 import { getLatestSnapshot, getSnapshotSeries } from "@/lib/intelligence/sources/snapshots";
 import { getSeoOpportunities, type StoredSeoOpportunity } from "@/lib/intelligence/seo-opportunities";
 import { computeLifetime, applyLifetimeDecay, TREND_LABELS, type Trend } from "@/lib/intelligence/opportunity-lifetime";
+import { computeRankingProbability, BAND_COLOR } from "@/lib/intelligence/ranking-probability";
 import { MetricBadge } from "@/components/command-center/MetricBadge";
 
 const TREND_COLOR: Record<Trend, string> = {
@@ -29,6 +30,12 @@ const CONFIDENCE_COLOR: Record<string, string> = {
 
 function OpportunityRow({ opp }: { opp: StoredSeoOpportunity }) {
   const lifetime = computeLifetime(opp.firstSeenAt, opp.history.map((h) => ({ date: h.date, score: h.score })), opp.status);
+  const probability = computeRankingProbability({
+    currentPosition: opp.currentMetrics.position,
+    contentCoverage: opp.contentCoverage,
+    topicalRelevanceScore: opp.scoreBreakdown.topicalRelevanceScore,
+    history: opp.history.map((h) => ({ date: h.date, position: h.position })),
+  });
   return (
     <tr key={opp.topicKey} style={{ borderBottom: "1px solid var(--cc-border)" }}>
       <td style={{ padding: "6px 8px" }}>
@@ -57,6 +64,7 @@ function OpportunityRow({ opp }: { opp: StoredSeoOpportunity }) {
       <td style={{ padding: "6px 8px", textTransform: "capitalize" }}>{opp.status.replace("_", " ")}</td>
       <td style={{ padding: "6px 8px", textAlign: "right", fontFamily: "var(--cc-mono)" }}>{lifetime.ageDays}d</td>
       <td style={{ padding: "6px 8px", color: TREND_COLOR[lifetime.trend] }}>{TREND_LABELS[lifetime.trend]}</td>
+      <td style={{ padding: "6px 8px", color: BAND_COLOR[probability.band] }}>{probability.label}</td>
     </tr>
   );
 }
@@ -83,6 +91,7 @@ function OpportunityTable({ opps }: { opps: StoredSeoOpportunity[] }) {
             <th style={{ textAlign: "left", padding: "6px 8px", fontWeight: 500 }}>Status</th>
             <th style={{ textAlign: "right", padding: "6px 8px", fontWeight: 500 }}>Age</th>
             <th style={{ textAlign: "left", padding: "6px 8px", fontWeight: 500 }}>Trend</th>
+            <th style={{ textAlign: "left", padding: "6px 8px", fontWeight: 500 }}>Page-1 probability</th>
           </tr>
         </thead>
         <tbody>

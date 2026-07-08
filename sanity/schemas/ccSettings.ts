@@ -37,6 +37,7 @@ export const ccSettingsSchema = defineType({
                   { title: "Metric alert", value: "metric_alert" },
                   { title: "SEO opportunity", value: "seo_opportunity" },
                   { title: "Keyword cannibalization", value: "keyword_cannibalization" },
+                  { title: "Internal link gap", value: "internal_link_gap" },
                 ],
               },
               validation: (Rule) => Rule.required(),

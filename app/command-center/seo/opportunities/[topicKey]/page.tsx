@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getSeoOpportunityByKey } from "@/lib/intelligence/seo-opportunities";
 import { computeLifetime, applyLifetimeDecay, TREND_LABELS, type Trend } from "@/lib/intelligence/opportunity-lifetime";
+import { computeRankingProbability, BAND_COLOR } from "@/lib/intelligence/ranking-probability";
 
 const TREND_COLOR: Record<Trend, string> = {
   growing: "var(--cc-good)",
@@ -49,6 +50,12 @@ export default async function SeoOpportunityDetailPage({
   const sb = opp.scoreBreakdown;
   const lifetime = computeLifetime(opp.firstSeenAt, opp.history.map((h) => ({ date: h.date, score: h.score })), opp.status);
   const decayedPriority = applyLifetimeDecay(opp.priorityScore, lifetime);
+  const probability = computeRankingProbability({
+    currentPosition: opp.currentMetrics.position,
+    contentCoverage: opp.contentCoverage,
+    topicalRelevanceScore: opp.scoreBreakdown.topicalRelevanceScore,
+    history: opp.history.map((h) => ({ date: h.date, position: h.position })),
+  });
 
   return (
     <div>
@@ -109,6 +116,12 @@ export default async function SeoOpportunityDetailPage({
           <div className="cc-tile__label">Trend</div>
           <div className="cc-tile__value" style={{ color: TREND_COLOR[lifetime.trend], fontSize: "1.25rem" }}>
             {TREND_LABELS[lifetime.trend]}
+          </div>
+        </div>
+        <div className="cc-tile">
+          <div className="cc-tile__label">Page-1 probability</div>
+          <div className="cc-tile__value" style={{ color: BAND_COLOR[probability.band], fontSize: "1.25rem" }}>
+            {probability.label}
           </div>
         </div>
       </div>
@@ -175,6 +188,18 @@ export default async function SeoOpportunityDetailPage({
         ) : (
           <div className="cc-empty">Not yet computed for this topic — populates on the next weekly recompute.</div>
         )}
+      </div>
+
+      <div className="cc-card">
+        <h2 style={{ margin: "0 0 4px", fontSize: "1.0625rem" }}>Page-1 probability</h2>
+        <p style={{ margin: "0 0 4px", fontWeight: 600 }}>{probability.label}</p>
+        <p style={{ margin: "0 0 12px", fontSize: "0.8125rem", color: "var(--cc-text-muted)" }}>
+          A deterministic rule-based band, not a statistical or ML prediction — every input is real data this engine
+          already computed (position history, content coverage, topical relevance).
+        </p>
+        <ol style={{ margin: 0, paddingLeft: "1.2em", fontSize: "0.8125rem", color: "var(--cc-text-muted)", lineHeight: 1.8, fontFamily: "var(--cc-mono)" }}>
+          {probability.trace.map((step, i) => <li key={i}>{step}</li>)}
+        </ol>
       </div>
 
       <div className="cc-card">

@@ -34,6 +34,7 @@ import { keywordDiscoveryTopicSchema } from "./keywordDiscoveryTopic";
 import { topicalAuthorityNodeSchema } from "./topicalAuthorityNode";
 import { competitorGapTopicSchema } from "./competitorGapTopic";
 import { cannibalizationIssueSchema } from "./cannibalizationIssue";
+import { internalLinkGapSchema } from "./internalLinkGap";
 
 export const schemaTypes = [
   serviceSchema,
@@ -72,4 +73,5 @@ export const schemaTypes = [
   topicalAuthorityNodeSchema,
   competitorGapTopicSchema,
   cannibalizationIssueSchema,
+  internalLinkGapSchema,
 ];
