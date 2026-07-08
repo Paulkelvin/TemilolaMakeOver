@@ -37,6 +37,14 @@ const NARROW_REVALIDATE_PATHS: Record<string, string[]> = {
   testimonial: ["/"],
   transformation: ["/transformations"],
   trainingCourse: ["/training"],
+  bioLink: ["/links"],
+  linksPageSettings: ["/links"],
+  aboutValue: ["/about"],
+  whyChooseUs: ["/TemilolaShyllon"],
+  shopLink: ["/TemilolaShyllon"],
+  shopPageSettings: ["/TemilolaShyllon"],
+  bookingStep: ["/book"],
+  travelZone: ["/book"],
 };
 
 export async function POST(req: NextRequest) {
