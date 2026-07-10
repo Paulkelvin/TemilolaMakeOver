@@ -26,6 +26,7 @@ const SOURCE_LABELS: Record<string, string> = {
   "google-autocomplete": "Google Autocomplete",
   "youtube-autocomplete": "YouTube Autocomplete",
   "bing-autocomplete": "Bing Autocomplete",
+  "duckduckgo-autocomplete": "DuckDuckGo Autocomplete",
   seed: "Seed (from taxonomy)",
 };
 
