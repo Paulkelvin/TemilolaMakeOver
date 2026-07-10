@@ -15,6 +15,9 @@ import { computeKnowledgeGraphGaps, persistKnowledgeGraphGaps } from "@/lib/inte
 import { client } from "@/sanity/client";
 
 export const dynamic = "force-dynamic";
+// See run-now/route.ts for why this is raised — same underlying computation,
+// triggered here by the scheduled cron instead of a manual dashboard click.
+export const maxDuration = 300;
 
 export async function runSnapshot(options?: { force?: boolean }) {
   const force = options?.force ?? false;

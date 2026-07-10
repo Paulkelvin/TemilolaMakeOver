@@ -132,16 +132,20 @@ function delay(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+// The 4 sources are independent HTTP calls to 4 different providers, so they
+// run concurrently (Promise.all) rather than sequentially — sequential-with-
+// delay-after-each quadrupled wall-clock time for no politeness benefit,
+// since each source only ever sees one request per query regardless. A
+// single delay after the batch is what actually paces our own request rate.
 async function fetchAllAutocomplete(
   query: string
 ): Promise<{ google: string[]; youtube: string[]; bing: string[]; duckduckgo: string[] }> {
-  const google = await getGoogleAutocomplete(query).catch(() => []);
-  await delay(REQUEST_DELAY_MS);
-  const youtube = await getYouTubeAutocomplete(query).catch(() => []);
-  await delay(REQUEST_DELAY_MS);
-  const bing = await getBingAutocomplete(query).catch(() => []);
-  await delay(REQUEST_DELAY_MS);
-  const duckduckgo = await getDuckDuckGoAutocomplete(query).catch(() => []);
+  const [google, youtube, bing, duckduckgo] = await Promise.all([
+    getGoogleAutocomplete(query).catch(() => []),
+    getYouTubeAutocomplete(query).catch(() => []),
+    getBingAutocomplete(query).catch(() => []),
+    getDuckDuckGoAutocomplete(query).catch(() => []),
+  ]);
   await delay(REQUEST_DELAY_MS);
   return { google, youtube, bing, duckduckgo };
 }
@@ -211,19 +215,23 @@ async function discoverQueries(
   }
 
   // Alphabet expansion on the top 15 highest-priority seeds for deeper
-  // long-tail discovery (15 × 26 = 390 Google-only requests at 150ms ≈ 58s).
+  // long-tail discovery (15 × 26 = 390 Google-only requests, processed in
+  // concurrent batches rather than one-at-a-time — one request per unique
+  // variant either way, just paced by batch instead of by request).
   const ALPHABET_EXPANSION_SEEDS = 15;
+  const ALPHABET_BATCH_SIZE = 8;
   const prioritySeeds = seeds.slice(0, ALPHABET_EXPANSION_SEEDS);
-  for (const seed of prioritySeeds) {
-    const variants = generateAlphabetVariants(seed);
-    for (const variant of variants) {
-      const results = await getGoogleAutocomplete(variant).catch(() => []);
-      await delay(REQUEST_DELAY_MS);
+  const allVariants = prioritySeeds.flatMap((seed) => generateAlphabetVariants(seed));
+  for (let i = 0; i < allVariants.length; i += ALPHABET_BATCH_SIZE) {
+    const batch = allVariants.slice(i, i + ALPHABET_BATCH_SIZE);
+    const batchResults = await Promise.all(batch.map((variant) => getGoogleAutocomplete(variant).catch(() => [])));
+    for (const results of batchResults) {
       for (const q of results) {
         addDiscovered(q, "google-autocomplete", 0);
         expansionCandidates.push(q);
       }
     }
+    await delay(REQUEST_DELAY_MS);
   }
 
   // Bounded recursive expansion: one more round on the most topically
