@@ -2,6 +2,12 @@ import { NextResponse } from "next/server";
 import { runSnapshot } from "@/app/api/command-center/snapshot/route";
 
 export const dynamic = "force-dynamic";
+// Force-recomputing all 6 intelligence engines can take a few minutes —
+// well past Vercel's default function timeout, which was silently killing
+// this request mid-flight (client saw it as a dropped-connection network
+// error, not a clean response). Raise it as high as the plan allows; on
+// plans with a lower hard cap this is simply clamped down, never an error.
+export const maxDuration = 300;
 
 // Manual trigger for the logged-in Command Center dashboard — reuses the
 // exact same computation as the scheduled cron. Unlike /snapshot (which
