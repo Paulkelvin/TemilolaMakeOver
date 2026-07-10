@@ -98,6 +98,15 @@ export const FAQ_BY_CATEGORY_QUERY = `*[_type == "faq" && $category in category]
   "location": location->name
 }`;
 
+export const FAQ_BY_SERVICE_QUERY = `*[_type == "faq" && service->slug.current == $slug] | order(order asc) {
+  _id,
+  question,
+  answer,
+  "service": service->name,
+  "occasion": occasion->name,
+  "location": location->name
+}`;
+
 export const BOOKING_STEPS_QUERY = `*[_type == "bookingStep"] | order(step asc) {
   _id,
   step,

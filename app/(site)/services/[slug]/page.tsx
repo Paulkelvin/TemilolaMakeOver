@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { notFound } from "next/navigation";
-import { getServiceBySlug, getServices } from "@/sanity/fetch";
+import { getServiceBySlug, getServices, getFaqItemsByService } from "@/sanity/fetch";
+import { FAQAccordion } from "@/components/sections/FAQAccordion";
 import { buildWhatsAppUrl } from "@/lib/whatsapp";
 import { createPageMetadata } from "@/lib/metadata";
 import { ServiceJsonLd, BreadcrumbJsonLd } from "@/lib/seo/structured-data";
@@ -44,6 +45,7 @@ export default async function ServiceDetailPage({
   const service = await getServiceBySlug(slug);
   if (!service) notFound();
 
+  const faqItems = await getFaqItemsByService(slug);
   const imageUrl = service.imageUrl;
   const bookUrl = `/book?service=${encodeURIComponent(service.slug)}#booking-form`;
 
@@ -183,6 +185,19 @@ export default async function ServiceDetailPage({
           </Reveal>
         </Container>
       </SectionWrapper>
+
+      {faqItems.length > 0 && (
+        <SectionWrapper>
+          <Container size="narrow">
+            <Reveal className="text-center mb-8">
+              <h2 className="font-display text-2xl md:text-3xl font-medium text-text-primary">
+                {service.name} FAQs
+              </h2>
+            </Reveal>
+            <FAQAccordion items={faqItems} />
+          </Container>
+        </SectionWrapper>
+      )}
 
       <CTASection
         title="Ready to Book?"
