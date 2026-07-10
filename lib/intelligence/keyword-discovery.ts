@@ -3,7 +3,7 @@ import { writeClient } from "@/sanity/write-client";
 import { fetchAllTaxonomyNodes, type FetchClient } from "./content";
 import { PRIORITY_KEYWORDS } from "./registry";
 import type { TaxonomyNode } from "./types";
-import { getGoogleAutocomplete, getYouTubeAutocomplete, getBingAutocomplete, generateAlphabetVariants } from "./sources/keyword-discovery-sources";
+import { getGoogleAutocomplete, getYouTubeAutocomplete, getBingAutocomplete, getDuckDuckGoAutocomplete, generateAlphabetVariants } from "./sources/keyword-discovery-sources";
 import {
   normalizeQuery,
   clusterQueries,
@@ -31,7 +31,7 @@ import {
 
 // ─── Seed generation ────────────────────────────────────────────────────────
 
-const MAX_SEEDS = 35;
+const MAX_SEEDS = 60;
 
 function isPriorityName(name: string): boolean {
   return PRIORITY_KEYWORDS.some((k) => name.includes(k));
@@ -75,6 +75,7 @@ function buildSeeds(taxonomyNodes: TaxonomyNode[]): string[] {
   for (const name of locationNames) {
     seeds.add(`makeup artist ${name}`);
     seeds.add(`bridal makeup ${name}`);
+    seeds.add(`makeup artist near ${name}`);
   }
 
   const makeupQualifiedBase = [
@@ -85,39 +86,69 @@ function buildSeeds(taxonomyNodes: TaxonomyNode[]): string[] {
     .sort((a, b) => Number(isPriorityName(b)) - Number(isPriorityName(a)))
     .slice(0, 10);
 
+  // Commercial-intent modifiers — trust, price, and booking signals real
+  // clients type into search, applied to whatever services/events actually
+  // exist in the taxonomy right now (never a hardcoded service name), so a
+  // discontinued offering never gets re-seeded just because it's in this list.
   for (const name of priorityNames) {
     seeds.add(`${name} near me`);
     seeds.add(`how much does ${name} cost`);
+    seeds.add(`${name} price`);
+    seeds.add(`best ${name}`);
+    seeds.add(`affordable ${name}`);
+    seeds.add(`professional ${name}`);
+    seeds.add(`${name} reviews`);
+    seeds.add(`book ${name}`);
   }
-  for (const name of priorityNames.slice(0, 5)) seeds.add(`${name} tutorial`);
+  for (const name of priorityNames.slice(0, 5)) {
+    seeds.add(`${name} tutorial`);
+    seeds.add(`${name} before and after`);
+  }
+
+  // Nigerian bridal/event market anchors — real, observed local search culture
+  // (owambe, aso-ebi, traditional vs. white wedding) rather than generic
+  // Western bridal phrasing, since that's this business's actual market.
   seeds.add("makeup artist lagos");
   seeds.add("bridal makeup cost lagos");
+  seeds.add("owambe makeup");
+  seeds.add("owambe makeup artist");
+  seeds.add("aso ebi makeup");
+  seeds.add("traditional wedding makeup");
+  seeds.add("white wedding makeup");
+  seeds.add("engagement makeup");
+  seeds.add("bridal party makeup");
+  seeds.add("makeup for dark skin");
+  seeds.add("makeup that lasts all day");
 
   return Array.from(seeds).slice(0, MAX_SEEDS);
 }
 
 // ─── Autocomplete fetching (bounded budget, polite delay) ──────────────────
 
-const MAX_EXPANSION = 15;
+const MAX_EXPANSION = 20;
 const REQUEST_DELAY_MS = 150;
 
 function delay(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-async function fetchAllAutocomplete(query: string): Promise<{ google: string[]; youtube: string[]; bing: string[] }> {
+async function fetchAllAutocomplete(
+  query: string
+): Promise<{ google: string[]; youtube: string[]; bing: string[]; duckduckgo: string[] }> {
   const google = await getGoogleAutocomplete(query).catch(() => []);
   await delay(REQUEST_DELAY_MS);
   const youtube = await getYouTubeAutocomplete(query).catch(() => []);
   await delay(REQUEST_DELAY_MS);
   const bing = await getBingAutocomplete(query).catch(() => []);
   await delay(REQUEST_DELAY_MS);
-  return { google, youtube, bing };
+  const duckduckgo = await getDuckDuckGoAutocomplete(query).catch(() => []);
+  await delay(REQUEST_DELAY_MS);
+  return { google, youtube, bing, duckduckgo };
 }
 
 // ─── Discovered-query accumulation ──────────────────────────────────────────
 
-export type DiscoverySource = "google-autocomplete" | "youtube-autocomplete" | "bing-autocomplete" | "seed";
+export type DiscoverySource = "google-autocomplete" | "youtube-autocomplete" | "bing-autocomplete" | "duckduckgo-autocomplete" | "seed";
 
 interface DiscoveredQuery extends ClusterableQuery {
   sources: Set<DiscoverySource>;
@@ -156,8 +187,8 @@ async function discoverQueries(
   const seedSet = new Set(seeds.map((s) => normalizeQuery(s).raw));
 
   for (const seed of seeds) {
-    const { google, youtube, bing } = await fetchAllAutocomplete(seed);
-    if (google.length === 0 && youtube.length === 0 && bing.length === 0) {
+    const { google, youtube, bing, duckduckgo } = await fetchAllAutocomplete(seed);
+    if (google.length === 0 && youtube.length === 0 && bing.length === 0 && duckduckgo.length === 0) {
       addDiscovered(seed, "seed", 0);
       continue;
     }
@@ -173,11 +204,15 @@ async function discoverQueries(
       addDiscovered(q, "bing-autocomplete", 0);
       expansionCandidates.push(q);
     }
+    for (const q of duckduckgo) {
+      addDiscovered(q, "duckduckgo-autocomplete", 0);
+      expansionCandidates.push(q);
+    }
   }
 
-  // Alphabet expansion on the top 10 highest-priority seeds for deeper
-  // long-tail discovery (10 × 26 = 260 Google-only requests at 150ms ≈ 39s).
-  const ALPHABET_EXPANSION_SEEDS = 10;
+  // Alphabet expansion on the top 15 highest-priority seeds for deeper
+  // long-tail discovery (15 × 26 = 390 Google-only requests at 150ms ≈ 58s).
+  const ALPHABET_EXPANSION_SEEDS = 15;
   const prioritySeeds = seeds.slice(0, ALPHABET_EXPANSION_SEEDS);
   for (const seed of prioritySeeds) {
     const variants = generateAlphabetVariants(seed);
@@ -203,10 +238,11 @@ async function discoverQueries(
     .slice(0, MAX_EXPANSION);
 
   for (const candidate of rankedExpansion) {
-    const { google, youtube, bing } = await fetchAllAutocomplete(candidate.raw);
+    const { google, youtube, bing, duckduckgo } = await fetchAllAutocomplete(candidate.raw);
     for (const q of google) addDiscovered(q, "google-autocomplete", 1);
     for (const q of youtube) addDiscovered(q, "youtube-autocomplete", 1);
     for (const q of bing) addDiscovered(q, "bing-autocomplete", 1);
+    for (const q of duckduckgo) addDiscovered(q, "duckduckgo-autocomplete", 1);
   }
 
   return Array.from(discovered.values());
@@ -392,7 +428,14 @@ export async function computeKeywordDiscoveryTopics(fetchClient: FetchClient = c
     const confirmedByGoogle = allSources.has("google-autocomplete");
     const confirmedByYoutube = allSources.has("youtube-autocomplete");
     const confirmedByBing = allSources.has("bing-autocomplete");
-    const sourceCount = [confirmedByGoogle, confirmedByYoutube, confirmedByBing].filter(Boolean).length;
+    const confirmedByDuckDuckGo = allSources.has("duckduckgo-autocomplete");
+    const sourceCount = [confirmedByGoogle, confirmedByYoutube, confirmedByBing, confirmedByDuckDuckGo].filter(Boolean).length;
+    const sourceNames = [
+      confirmedByGoogle && "Google",
+      confirmedByYoutube && "YouTube",
+      confirmedByBing && "Bing",
+      confirmedByDuckDuckGo && "DuckDuckGo",
+    ].filter(Boolean) as string[];
 
     let confidenceLevel: ConfidenceLevel;
     if (sourceCount >= 2) confidenceLevel = "high";
@@ -400,14 +443,12 @@ export async function computeKeywordDiscoveryTopics(fetchClient: FetchClient = c
     else confidenceLevel = "low";
 
     const confidenceReasons: string[] = [];
-    if (sourceCount >= 3) {
-      confidenceReasons.push("Confirmed independently by all three autocomplete sources (Google, YouTube, Bing).");
-    } else if (sourceCount === 2) {
-      const names = [confirmedByGoogle && "Google", confirmedByYoutube && "YouTube", confirmedByBing && "Bing"].filter(Boolean);
-      confidenceReasons.push(`Confirmed independently by ${names.join(" and ")} autocomplete.`);
+    if (sourceCount >= 4) {
+      confidenceReasons.push("Confirmed independently by all four autocomplete sources (Google, YouTube, Bing, DuckDuckGo).");
+    } else if (sourceCount >= 2) {
+      confidenceReasons.push(`Confirmed independently by ${sourceNames.join(" and ")} autocomplete.`);
     } else if (sourceCount === 1) {
-      const name = confirmedByGoogle ? "Google" : confirmedByYoutube ? "YouTube" : "Bing";
-      confidenceReasons.push(`Confirmed by ${name} autocomplete only.`);
+      confidenceReasons.push(`Confirmed by ${sourceNames[0]} autocomplete only.`);
     } else {
       confidenceReasons.push("Seed topic generated from site taxonomy — not yet confirmed by any autocomplete source.");
     }

@@ -101,7 +101,7 @@ export default async function KeywordDiscoveryPage() {
     <div>
       <h1 className="cc-page-title">Keyword Discovery</h1>
       <p className="cc-page-dek">
-        Content opportunities discovered from free external autocomplete sources (Google, YouTube, Bing) — works
+        Content opportunities discovered from free external autocomplete sources (Google, YouTube, Bing, DuckDuckGo) — works
         independent of Search Console, so it surfaces ideas from day one. No search volume or keyword-difficulty
         number is ever fabricated: &ldquo;query breadth&rdquo; (head vs. long-tail) is used as an honest, observable
         stand-in, and confidence reflects real cross-source corroboration.

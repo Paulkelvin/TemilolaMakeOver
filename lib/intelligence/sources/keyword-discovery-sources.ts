@@ -58,6 +58,18 @@ export async function getBingAutocomplete(query: string): Promise<string[]> {
   }
 }
 
+/** DuckDuckGo autocomplete — same list-JSON shape as Google, a fourth independent demand signal. Graceful degradation on failure. */
+export async function getDuckDuckGoAutocomplete(query: string): Promise<string[]> {
+  try {
+    const url = `https://duckduckgo.com/ac/?q=${encodeURIComponent(query)}&type=list`;
+    const text = await fetchText(url);
+    const parsed = JSON.parse(text) as [string, string[]];
+    return parsed[1] ?? [];
+  } catch {
+    return [];
+  }
+}
+
 /** Generate "query a", "query b", ... "query z" for deeper long-tail expansion. */
 export function generateAlphabetVariants(query: string): string[] {
   return Array.from("abcdefghijklmnopqrstuvwxyz").map((c) => `${query} ${c}`);
