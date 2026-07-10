@@ -41,7 +41,7 @@ function GapRow({ gap }: { gap: StoredCompetitorGapTopic }) {
       </td>
       <td style={{ padding: "6px 8px" }}>
         <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
-          <SparklineChart data={gap.history.map((h) => h.topicalRelevanceScore)} />
+          <SparklineChart data={gap.history.map((h) => h.topicalRelevanceScore)} trend={lifetime.trend} />
           <span style={{ color: TREND_COLOR[lifetime.trend], fontSize: "0.75rem" }}>{TREND_LABELS[lifetime.trend]}</span>
         </span>
       </td>
