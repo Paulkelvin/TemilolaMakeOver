@@ -36,7 +36,7 @@ function GapRow({ gap }: { gap: StoredKnowledgeGraphGap }) {
       <td style={{ padding: "6px 8px", textAlign: "right", fontFamily: "var(--cc-mono)" }}>{lifetime.ageDays}d</td>
       <td style={{ padding: "6px 8px" }}>
         <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
-          <SparklineChart data={gap.history.map((h) => h.importanceScore)} />
+          <SparklineChart data={gap.history.map((h) => h.importanceScore)} trend={lifetime.trend} />
           <span style={{ color: TREND_COLOR[lifetime.trend], fontSize: "0.75rem" }}>{TREND_LABELS[lifetime.trend]}</span>
         </span>
       </td>
