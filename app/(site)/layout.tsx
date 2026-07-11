@@ -10,7 +10,7 @@ import { JsonLd } from "@/components/seo/JsonLd";
 import { FAQPageJsonLd, WebSiteJsonLd } from "@/lib/seo/structured-data";
 import { seoCopy } from "@/data/copy";
 import { siteConfig } from "@/lib/site-config";
-import { getBlockedDates, getServices, getFaqItems } from "@/sanity/fetch";
+import { getBlockedDates, getServices, getGeneralFaqItems } from "@/sanity/fetch";
 
 const cormorant = Cormorant_Garamond({
   variable: "--font-cormorant",
@@ -94,7 +94,7 @@ export default async function RootLayout({
   const [blockedDates, rawServices, faqItems] = await Promise.all([
     getBlockedDates(),
     getServices(),
-    getFaqItems(),
+    getGeneralFaqItems(),
   ]);
   const services = rawServices.map(({ name, slug }) => ({ name, slug }));
 

@@ -4,7 +4,7 @@ import { getServiceBySlug, getServices, getFaqItemsByService } from "@/sanity/fe
 import { FAQAccordion } from "@/components/sections/FAQAccordion";
 import { buildWhatsAppUrl } from "@/lib/whatsapp";
 import { createPageMetadata } from "@/lib/metadata";
-import { ServiceJsonLd, BreadcrumbJsonLd } from "@/lib/seo/structured-data";
+import { ServiceJsonLd, BreadcrumbJsonLd, FAQPageJsonLd } from "@/lib/seo/structured-data";
 import { formatPrice } from "@/lib/utils";
 import { PageHero } from "@/components/sections/PageHero";
 import { SectionWrapper } from "@/components/ui/BackgroundDecor";
@@ -64,6 +64,7 @@ export default async function ServiceDetailPage({
           { name: service.name, href: `/services/${service.slug}` },
         ]}
       />
+      {faqItems.length > 0 && <FAQPageJsonLd items={faqItems} />}
       <PageHero
         label={service.bestFor}
         title={service.name}
