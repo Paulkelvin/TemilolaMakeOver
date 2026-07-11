@@ -66,6 +66,17 @@ function imgUrl(image: any, width?: number): string {
   return b.url();
 }
 
+// Requesting both width and height makes Sanity bake in the image's stored
+// crop/hotspot (set via the crop tool in Studio) instead of shipping the
+// full original frame — needed for before/after pairs, where each photo's
+// natural framing differs and the site can't otherwise make two unrelated
+// photos line up on its own.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function imgUrlCropped(image: any, width: number, aspectRatio: number): string {
+  if (!image?.asset) return "";
+  return urlFor(image).auto("format").width(width).height(Math.round(width / aspectRatio)).url();
+}
+
 const iconMap: Record<string, LucideIcon> = {
   crown: Crown,
   sparkles: Sparkles,
@@ -333,11 +344,9 @@ interface RawTransformation {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   beforeImage?: any;
   beforeAlt: string;
-  beforeFocusY?: number;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   afterImage?: any;
   afterAlt: string;
-  afterFocusY?: number;
   service?: string;
   style?: string;
   occasion?: string;
@@ -351,13 +360,8 @@ export interface Transformation {
   title: string;
   beforeUrl: string;
   beforeAlt: string;
-  // CSS object-position value ("50% Y%") — lets a writer nudge the vertical
-  // focus in Studio so the head lines up with the After image mid-drag,
-  // instead of every pair defaulting to a dead-center crop.
-  beforePosition: string;
   afterUrl: string;
   afterAlt: string;
-  afterPosition: string;
   service?: string;
   style?: string;
   occasion?: string;
@@ -366,17 +370,20 @@ export interface Transformation {
   artist?: string;
 }
 
+// Matches BeforeAfterSlider's aspect-[4/5] container — baking the same
+// ratio in at fetch time means the stored Studio crop/hotspot is what
+// determines framing, not a browser-side center-crop guess.
+const TRANSFORMATION_ASPECT_RATIO = 4 / 5;
+
 export const getTransformations = cache(async (): Promise<Transformation[]> => {
   const raw: RawTransformation[] = await client.fetch(TRANSFORMATIONS_QUERY, {}, REVALIDATE_FAST);
   return raw.map((t) => ({
     id: t._id,
     title: t.title,
-    beforeUrl: imgUrl(t.beforeImage, 800),
+    beforeUrl: imgUrlCropped(t.beforeImage, 800, TRANSFORMATION_ASPECT_RATIO),
     beforeAlt: t.beforeAlt,
-    beforePosition: `50% ${t.beforeFocusY ?? 50}%`,
-    afterUrl: imgUrl(t.afterImage, 800),
+    afterUrl: imgUrlCropped(t.afterImage, 800, TRANSFORMATION_ASPECT_RATIO),
     afterAlt: t.afterAlt,
-    afterPosition: `50% ${t.afterFocusY ?? 50}%`,
     service: t.service,
     style: t.style,
     occasion: t.occasion,
