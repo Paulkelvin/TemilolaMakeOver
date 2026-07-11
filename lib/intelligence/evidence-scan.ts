@@ -118,6 +118,59 @@ export function buildPlaceholderBlock(gap: EvidenceGap, keySuffix: string) {
   };
 }
 
+export interface ParsedDraft {
+  headings: string[];
+  blocks: PortableTextBlockLite[];
+  // Heading marker lines stripped out, paragraphs rejoined — the plain text
+  // other checks (readability, stuffing, coverage, originality) expect.
+  plainBodyText: string;
+}
+
+const HEADING_LINE = /^#{1,3}\s+(.+)$/;
+
+/**
+ * Parses a writer's pasted draft (plain paragraphs, with "## Heading" lines
+ * marking section breaks) into an ordered block sequence. This is the only
+ * way scanBlogBodyForEvidenceGaps's sequential nearestHeading tracking can
+ * be correct — headings and paragraphs must be interleaved in the order the
+ * writer actually wrote them, not collected into two separate lists.
+ */
+export function parseDraftBody(rawText: string): ParsedDraft {
+  const headings: string[] = [];
+  const blocks: PortableTextBlockLite[] = [];
+  const plainParagraphs: string[] = [];
+  let paragraphBuffer: string[] = [];
+  let blockIndex = 0;
+
+  function flushParagraph() {
+    const text = paragraphBuffer.join(" ").trim();
+    paragraphBuffer = [];
+    if (!text) return;
+    blocks.push({ _key: `p${blockIndex++}`, _type: "block", style: "normal", children: [{ text }] });
+    plainParagraphs.push(text);
+  }
+
+  for (const rawLine of rawText.split(/\r?\n/)) {
+    const line = rawLine.trim();
+    const headingMatch = line.match(HEADING_LINE);
+    if (headingMatch) {
+      flushParagraph();
+      const headingText = headingMatch[1].trim();
+      blocks.push({ _key: `h${blockIndex++}`, _type: "block", style: "h2", children: [{ text: headingText }] });
+      headings.push(headingText);
+      continue;
+    }
+    if (!line) {
+      flushParagraph();
+      continue;
+    }
+    paragraphBuffer.push(line);
+  }
+  flushParagraph();
+
+  return { headings, blocks, plainBodyText: plainParagraphs.join("\n\n") };
+}
+
 export interface EvidenceSummary {
   totalGaps: number;
   byTrigger: Record<EvidenceTriggerType, number>;

@@ -139,6 +139,7 @@ export const blogPostSchema = defineType({
                 defineField({ name: "category", title: "Category", type: "string" }),
                 defineField({ name: "score", title: "Score", type: "number" }),
                 defineField({ name: "weight", title: "Weight", type: "number" }),
+                defineField({ name: "floor", title: "Floor", type: "number" }),
                 defineField({ name: "passesFloor", title: "Passes floor", type: "boolean" }),
               ],
             },

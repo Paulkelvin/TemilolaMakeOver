@@ -2,6 +2,7 @@ import { client } from "@/sanity/client";
 import { writeClient } from "@/sanity/write-client";
 import { getKeywordDiscoveryTopicByKey } from "./keyword-discovery";
 import { normalizeQuery, overlapScore } from "./keyword-utils";
+import { MIN_OVERLAP_FOR_SUGGESTION } from "./internal-links";
 import { isSearchConsoleConfigured, getQueryPageMatrix } from "./sources/search-console";
 
 /**
@@ -85,7 +86,7 @@ function detectAudienceLevel(queries: string[]): AudienceLevel {
   return "general";
 }
 
-const MIN_OVERLAP = 0.2; // same floor internal-links.ts uses for "real candidate, not a stretch"
+const MIN_OVERLAP = MIN_OVERLAP_FOR_SUGGESTION; // same floor internal-links.ts uses for "real candidate, not a stretch" — imported so the two can't drift
 const MAX_COMPETITOR_GAPS = 5;
 const MAX_KG_CONNECTIONS = 5;
 const MAX_INTERNAL_LINKS = 6;
@@ -226,12 +227,21 @@ function docIdForBrief(topicKey: string): string {
   return `content-brief-${topicKey}`;
 }
 
+interface PreservedOnRecompute {
+  firstSeenAt?: string;
+  status?: string;
+  sourceMaterial?: string;
+  linkedBlogPost?: { _type: "reference"; _ref: string };
+}
+
 export async function persistArticleBrief(brief: ArticleBrief): Promise<{ id: string }> {
   const id = docIdForBrief(brief.topicKey);
-  // sourceMaterial is hand-pasted by the writer after compiling the brief —
-  // a recompute must never wipe it out, same as status/firstSeenAt.
-  const existing = await client.fetch<{ firstSeenAt?: string; status?: string; sourceMaterial?: string } | null>(
-    `*[_id == $id][0]{ firstSeenAt, status, sourceMaterial }`,
+  // sourceMaterial and linkedBlogPost are hand-set by the writer after the
+  // brief is compiled — a recompute must never wipe either out, same as
+  // status/firstSeenAt. createOrReplace overwrites the whole document, so
+  // every hand-edited field must be explicitly re-fetched and reapplied here.
+  const existing = await client.fetch<PreservedOnRecompute | null>(
+    `*[_id == $id][0]{ firstSeenAt, status, sourceMaterial, linkedBlogPost }`,
     { id }
   );
   const nowIso = new Date().toISOString();
@@ -241,6 +251,7 @@ export async function persistArticleBrief(brief: ArticleBrief): Promise<{ id: st
     _type: "contentBrief",
     ...brief,
     sourceMaterial: existing?.sourceMaterial,
+    linkedBlogPost: existing?.linkedBlogPost,
     status: existing?.status ?? "new",
     firstSeenAt: existing?.firstSeenAt ?? nowIso,
     lastComputedAt: nowIso,
@@ -252,6 +263,7 @@ export async function persistArticleBrief(brief: ArticleBrief): Promise<{ id: st
 export interface StoredArticleBrief extends ArticleBrief {
   _id: string;
   sourceMaterial?: string;
+  linkedBlogPost?: { _type: "reference"; _ref: string };
   status: "new" | "drafting" | "verified" | "published";
   firstSeenAt: string;
   lastComputedAt: string;
