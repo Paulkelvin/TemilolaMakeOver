@@ -15,6 +15,14 @@ export const transformationSchema = defineType({
     }),
     defineField({ name: "beforeAlt", title: "Before Alt Text", type: "string" }),
     defineField({
+      name: "beforeFocusY",
+      title: "Before — vertical focus (%)",
+      type: "number",
+      validation: (rule) => rule.min(0).max(100),
+      description:
+        "0 = top of image, 100 = bottom. Adjust so the head lines up with the After image when the slider is dragged across — compare the two on the /transformations page and nudge until eyes/hairline match. Defaults to 50 (centered) if left blank.",
+    }),
+    defineField({
       name: "afterImage",
       title: "After Image",
       type: "image",
@@ -22,6 +30,13 @@ export const transformationSchema = defineType({
       validation: (rule) => rule.required(),
     }),
     defineField({ name: "afterAlt", title: "After Alt Text", type: "string" }),
+    defineField({
+      name: "afterFocusY",
+      title: "After — vertical focus (%)",
+      type: "number",
+      validation: (rule) => rule.min(0).max(100),
+      description: "Same as Before's vertical focus, for the After image. Defaults to 50 (centered) if left blank.",
+    }),
     defineField({ name: "order", title: "Display Order", type: "number" }),
     defineField({ name: "service", title: "Service", type: "reference", to: [{ type: "service" }] }),
     defineField({ name: "style", title: "Makeup Style", type: "reference", to: [{ type: "makeupStyle" }] }),
