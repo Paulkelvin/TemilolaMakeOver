@@ -10,6 +10,7 @@ import { CTASection } from "@/components/sections/CTASection";
 import { Reveal, StaggerGrid, StaggerItem } from "@/components/ui/Reveal";
 import { Container } from "@/components/ui/Container";
 import { Check } from "lucide-react";
+import Link from "next/link";
 
 export const metadata = createPageMetadata({
   title: seoCopy.training.title,
@@ -52,6 +53,16 @@ export default async function TrainingPage() {
               </h2>
               <p className="text-text-muted leading-relaxed">
                 {copy.intro.body}
+              </p>
+              <p className="text-text-muted leading-relaxed mt-4">
+                New to makeup? Try our free{" "}
+                <Link
+                  href="/blog/soft-glam-makeup-tutorial-step-by-step"
+                  className="text-accent-rose font-medium hover:underline"
+                >
+                  step-by-step soft glam tutorial
+                </Link>{" "}
+                first to get a feel for the techniques before you enroll.
               </p>
             </div>
           </Reveal>
