@@ -43,6 +43,7 @@ async function runReport(body: {
   metrics: GA4Metric[];
   limit?: number;
   orderBys?: { metric?: { metricName: string }; desc?: boolean }[];
+  dimensionFilter?: Record<string, unknown>;
 }): Promise<GA4Response> {
   const token = await getAccessToken();
   const res = await fetch(`${API_BASE}/properties/${propertyId()}:runReport`, {
@@ -166,4 +167,65 @@ export async function getDailyTraffic(days = 28): Promise<DailyTraffic[]> {
     users: num(r, 1),
     pageviews: num(r, 2),
   }));
+}
+
+// ─── Booking funnel (top-of-funnel, pre-submission) ────────────────────────
+//
+// Complements the Sanity-backed "booking funnel" on the Bookings page, which
+// only sees visitors who actually submitted a booking document. This reads
+// GA4 events fired by BookingForm (see lib/analytics.ts) to show the traffic
+// that never got that far: how many people viewed /book, started filling
+// the form, reached step 2, and either submitted or sent it via WhatsApp.
+
+export interface BookingFunnelEvents {
+  pageViews: number;
+  formStarts: number;
+  step2Reached: number;
+  submitted: number;
+  whatsappSent: number;
+  fetchedAt: string;
+}
+
+const BOOKING_FUNNEL_EVENT_NAMES = [
+  "booking_form_start",
+  "booking_step_2",
+  "booking_form_submit",
+  "booking_whatsapp_submit",
+] as const;
+
+export async function getBookingFunnelEvents(days = 28): Promise<BookingFunnelEvents> {
+  const [pageData, eventData] = await Promise.all([
+    runReport({
+      dateRanges: [dateRange(days)],
+      dimensions: [{ name: "pagePath" }],
+      metrics: [{ name: "screenPageViews" }],
+      dimensionFilter: {
+        filter: { fieldName: "pagePath", stringFilter: { matchType: "EXACT", value: "/book" } },
+      },
+    }),
+    runReport({
+      dateRanges: [dateRange(days)],
+      dimensions: [{ name: "eventName" }],
+      metrics: [{ name: "eventCount" }],
+      dimensionFilter: {
+        filter: { fieldName: "eventName", inListFilter: { values: [...BOOKING_FUNNEL_EVENT_NAMES] } },
+      },
+      limit: BOOKING_FUNNEL_EVENT_NAMES.length,
+    }),
+  ]);
+
+  const pageViews = pageData.rows?.[0] ? num(pageData.rows[0], 0) : 0;
+  const eventCounts = new Map<string, number>();
+  for (const row of eventData.rows ?? []) {
+    eventCounts.set(dim(row, 0), num(row, 0));
+  }
+
+  return {
+    pageViews,
+    formStarts: eventCounts.get("booking_form_start") ?? 0,
+    step2Reached: eventCounts.get("booking_step_2") ?? 0,
+    submitted: eventCounts.get("booking_form_submit") ?? 0,
+    whatsappSent: eventCounts.get("booking_whatsapp_submit") ?? 0,
+    fetchedAt: new Date().toISOString(),
+  };
 }

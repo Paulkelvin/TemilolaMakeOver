@@ -7,17 +7,30 @@ import {
   getAverageLeadTime,
   getUpcomingBookings,
 } from "@/lib/intelligence/sources/sanity";
+import { isAnalyticsConfigured, getBookingFunnelEvents } from "@/lib/intelligence/sources/analytics";
 import { MetricBadge } from "@/components/command-center/MetricBadge";
 import { formatPrice } from "@/lib/utils";
 
+function dropOffRow(label: string, count: number, priorCount: number | null) {
+  const pct = priorCount && priorCount > 0 ? Math.round((count / priorCount) * 100) : null;
+  return (
+    <div className="cc-pending-row">
+      <span style={{ color: "var(--cc-text)" }}>{label}</span>
+      <span>{count}{pct !== null ? ` (${pct}% of previous step)` : ""}</span>
+    </div>
+  );
+}
+
 export default async function BookingsPage() {
-  const [funnel, revenue, topServices, topLocations, leadTime, upcoming] = await Promise.all([
+  const analyticsOk = isAnalyticsConfigured();
+  const [funnel, revenue, topServices, topLocations, leadTime, upcoming, trafficFunnel] = await Promise.all([
     getBookingFunnel(client),
     getRevenueSummary(client),
     getMostBookedServices(client),
     getMostBookedLocations(client),
     getAverageLeadTime(client),
     getUpcomingBookings(client),
+    analyticsOk ? getBookingFunnelEvents() : Promise.resolve(null),
   ]);
 
   return (
@@ -49,6 +62,27 @@ export default async function BookingsPage() {
           <div className="cc-tile__value">{Math.round(funnel.cancellationRate * 100)}%</div>
           <MetricBadge source="sanity" freshness="live" />
         </div>
+      </div>
+
+      <div className="cc-card">
+        <h2 style={{ margin: "0 0 12px", fontSize: "1.0625rem" }}>Traffic funnel</h2>
+        <p style={{ margin: "0 0 12px", fontSize: "0.8125rem", color: "var(--cc-text-muted)" }}>
+          Visitors who never became a booking — the drop-off the funnel below can&rsquo;t see.
+        </p>
+        {trafficFunnel ? (
+          <>
+            {dropOffRow("Viewed /book", trafficFunnel.pageViews, null)}
+            {dropOffRow("Started the form", trafficFunnel.formStarts, trafficFunnel.pageViews)}
+            {dropOffRow("Reached step 2", trafficFunnel.step2Reached, trafficFunnel.formStarts)}
+            {dropOffRow("Submitted", trafficFunnel.submitted, trafficFunnel.step2Reached)}
+            {dropOffRow("Sent via WhatsApp instead", trafficFunnel.whatsappSent, trafficFunnel.step2Reached)}
+            <div style={{ marginTop: 8 }}>
+              <MetricBadge source="ga4" freshness={trafficFunnel.fetchedAt} />
+            </div>
+          </>
+        ) : (
+          <div className="cc-empty">Connect Google Analytics (GA4) on the Website page to see this.</div>
+        )}
       </div>
 
       <div className="cc-card">
