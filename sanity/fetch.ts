@@ -333,9 +333,11 @@ interface RawTransformation {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   beforeImage?: any;
   beforeAlt: string;
+  beforeFocusY?: number;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   afterImage?: any;
   afterAlt: string;
+  afterFocusY?: number;
   service?: string;
   style?: string;
   occasion?: string;
@@ -349,8 +351,13 @@ export interface Transformation {
   title: string;
   beforeUrl: string;
   beforeAlt: string;
+  // CSS object-position value ("50% Y%") — lets a writer nudge the vertical
+  // focus in Studio so the head lines up with the After image mid-drag,
+  // instead of every pair defaulting to a dead-center crop.
+  beforePosition: string;
   afterUrl: string;
   afterAlt: string;
+  afterPosition: string;
   service?: string;
   style?: string;
   occasion?: string;
@@ -366,8 +373,10 @@ export const getTransformations = cache(async (): Promise<Transformation[]> => {
     title: t.title,
     beforeUrl: imgUrl(t.beforeImage, 800),
     beforeAlt: t.beforeAlt,
+    beforePosition: `50% ${t.beforeFocusY ?? 50}%`,
     afterUrl: imgUrl(t.afterImage, 800),
     afterAlt: t.afterAlt,
+    afterPosition: `50% ${t.afterFocusY ?? 50}%`,
     service: t.service,
     style: t.style,
     occasion: t.occasion,

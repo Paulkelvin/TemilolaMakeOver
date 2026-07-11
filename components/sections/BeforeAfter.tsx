@@ -28,8 +28,8 @@ export async function BeforeAfter() {
           {pairs.map((pair, i) => (
             <Reveal key={pair.id}>
               <BeforeAfterSlider
-                before={{ src: pair.beforeUrl, alt: pair.beforeAlt }}
-                after={{ src: pair.afterUrl, alt: pair.afterAlt }}
+                before={{ src: pair.beforeUrl, alt: pair.beforeAlt, position: pair.beforePosition }}
+                after={{ src: pair.afterUrl, alt: pair.afterAlt, position: pair.afterPosition }}
               />
             </Reveal>
           ))}
