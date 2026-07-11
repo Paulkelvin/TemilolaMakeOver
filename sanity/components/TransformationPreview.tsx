@@ -2,7 +2,7 @@ import { useCallback, useMemo, useRef, useState } from "react";
 import { useClient, PatchEvent, set } from "sanity";
 import { useDocumentPane } from "sanity/structure";
 import imageUrlBuilder from "@sanity/image-url";
-import { Box, Card, Flex, Stack, Text } from "@sanity/ui";
+import { Badge, Box, Card, Flex, Stack, Text } from "@sanity/ui";
 
 const API_VERSION = "2024-01-01";
 // Matches BeforeAfterSlider's aspect-[4/5] container and getTransformations'
@@ -10,8 +10,12 @@ const API_VERSION = "2024-01-01";
 // lockstep with those or "what you see here" stops being "what ships".
 const ASPECT_RATIO = 4 / 5;
 const PREVIEW_WIDTH = 800;
-const BOX_WIDTH = 340;
-const BOX_HEIGHT = BOX_WIDTH / ASPECT_RATIO;
+// Small enough that two of these plus the gap between them always fit
+// side by side inside a mobile Studio pane without pushing the page into
+// horizontal scroll — the previous 280px version bled off the right edge
+// on phone-width screens.
+const EDITOR_BOX_CSS_WIDTH = 150;
+const EDITOR_BOX_CSS_HEIGHT = EDITOR_BOX_CSS_WIDTH / ASPECT_RATIO;
 const MAX_ZOOM = 3;
 
 interface CropRect {
@@ -20,8 +24,6 @@ interface CropRect {
   right: number;
   bottom: number;
 }
-
-type FieldName = "beforeImage" | "afterImage";
 
 function croppedUrl(builder: ReturnType<typeof imageUrlBuilder>, image: unknown): string | null {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -68,14 +70,22 @@ function cropRectToFractions(rect: { left: number; top: number; width: number; h
   return { crop, hotspot };
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function useImageCropState(image: any) {
+interface PanZoomCropEditorProps {
+  label: string;
+  fieldName: "beforeImage" | "afterImage";
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  image: any;
+  builder: ReturnType<typeof imageUrlBuilder>;
+  onCommit: (fieldName: "beforeImage" | "afterImage", crop: CropRect, hotspot: { x: number; y: number; width: number; height: number }) => void;
+}
+
+function PanZoomCropEditor({ label, fieldName, image, builder, onCommit }: PanZoomCropEditorProps) {
   const dims = useMemo(() => parseAssetDimensions(image?.asset?._ref), [image?.asset?._ref]);
   const base = useMemo(() => (dims ? baseCropSize(dims.width, dims.height) : null), [dims]);
 
-  // Initialize from whatever crop is already stored (so re-opening this tab
-  // continues from the current framing instead of resetting it), else start
-  // at zoom 1 / centered — same default the site itself falls back to.
+  // Initialize from whatever crop is already stored (so re-opening this
+  // tab continues from the current framing instead of resetting it), else
+  // start at zoom 1 / centered — same default the site itself falls back to.
   const initial = useMemo(() => {
     if (!dims || !base) return { cropWidth: 0, cropLeft: 0, cropTop: 0 };
     const crop = image?.crop as CropRect | undefined;
@@ -85,242 +95,147 @@ function useImageCropState(image: any) {
       const width = dims.width - left - crop.right * dims.width;
       return { cropWidth: width, cropLeft: left, cropTop: top };
     }
-    return { cropWidth: base.width, cropLeft: (dims.width - base.width) / 2, cropTop: (dims.height - base.height) / 2 };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dims, base]);
+    const cropWidth = base.width;
+    const cropHeight = base.height;
+    return { cropWidth, cropLeft: (dims.width - cropWidth) / 2, cropTop: (dims.height - cropHeight) / 2 };
+  }, [dims, base, image?.crop]);
 
   const [cropWidth, setCropWidth] = useState(initial.cropWidth);
   const [cropLeft, setCropLeft] = useState(initial.cropLeft);
   const [cropTop, setCropTop] = useState(initial.cropTop);
-
-  return { dims, base, cropWidth, cropLeft, cropTop, setCropWidth, setCropLeft, setCropTop };
-}
-
-type CropState = ReturnType<typeof useImageCropState>;
-
-function ImageLayer({ image, builder, crop, clipRight }: { image: unknown; builder: ReturnType<typeof imageUrlBuilder>; crop: CropState; clipRight?: number }) {
-  const previewUrl = useMemo(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    () => ((image as any)?.asset ? builder.image(image as never).auto("format").width(1000).url() : null),
-    [builder, image]
-  );
-  if (!previewUrl || !crop.dims) return null;
-  const displayScale = BOX_WIDTH / crop.cropWidth;
-  const img = (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img
-      src={previewUrl}
-      alt=""
-      draggable={false}
-      style={{
-        position: "absolute",
-        left: -crop.cropLeft * displayScale,
-        top: -crop.cropTop * displayScale,
-        width: crop.dims.width * displayScale,
-        height: crop.dims.height * displayScale,
-        maxWidth: "none",
-        pointerEvents: "none",
-      }}
-    />
-  );
-  if (clipRight === undefined) return img;
-  return (
-    <div style={{ position: "absolute", inset: 0, clipPath: `inset(0 ${clipRight}% 0 0)` }}>{img}</div>
-  );
-}
-
-export function TransformationPreview() {
-  const client = useClient({ apiVersion: API_VERSION });
-  const { displayed, onChange } = useDocumentPane();
-  const builder = useMemo(() => imageUrlBuilder(client), [client]);
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const beforeImage = (displayed as any)?.beforeImage;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const afterImage = (displayed as any)?.afterImage;
-
-  const beforeCrop = useImageCropState(beforeImage);
-  const afterCrop = useImageCropState(afterImage);
-
-  const [activeField, setActiveField] = useState<FieldName>("beforeImage");
-  const active = activeField === "beforeImage" ? beforeCrop : afterCrop;
-
   const dragState = useRef<{ startX: number; startY: number; cropLeft: number; cropTop: number } | null>(null);
 
+  const previewUrl = useMemo(() => (image?.asset ? builder.image(image).auto("format").width(1000).url() : null), [builder, image]);
+
+  if (!dims || !base || !previewUrl) {
+    return (
+      <Stack space={2} flex={1}>
+        <Text size={1} weight="semibold">{label}</Text>
+        <Card padding={3} radius={2} tone="transparent" border style={{ height: EDITOR_BOX_CSS_HEIGHT, display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <Text size={1} muted>No image yet</Text>
+        </Card>
+      </Stack>
+    );
+  }
+
+  const cropHeight = cropWidth / ASPECT_RATIO;
+  const maxLeft = Math.max(0, dims.width - cropWidth);
+  const maxTop = Math.max(0, dims.height - cropHeight);
+  const displayScale = EDITOR_BOX_CSS_WIDTH / cropWidth;
+  const zoom = base.width / cropWidth;
+
   const commit = useCallback(
-    (field: FieldName, dims: { width: number; height: number }, left: number, top: number, width: number) => {
-      const height = width / ASPECT_RATIO;
-      const { crop, hotspot } = cropRectToFractions({ left, top, width, height }, dims.width, dims.height);
-      onChange(
-        PatchEvent.from([
-          set({ _type: "sanity.imageCrop", ...crop }, [field, "crop"]),
-          set({ _type: "sanity.imageHotspot", ...hotspot }, [field, "hotspot"]),
-        ])
-      );
+    (finalLeft: number, finalTop: number, finalWidth: number) => {
+      const finalHeight = finalWidth / ASPECT_RATIO;
+      const { crop, hotspot } = cropRectToFractions({ left: finalLeft, top: finalTop, width: finalWidth, height: finalHeight }, dims.width, dims.height);
+      onCommit(fieldName, crop, hotspot);
     },
-    [onChange]
+    [dims, fieldName, onCommit]
   );
 
   const onPointerDown = useCallback(
     (e: React.PointerEvent) => {
-      if (!active.dims) return;
       (e.target as HTMLElement).setPointerCapture(e.pointerId);
-      dragState.current = { startX: e.clientX, startY: e.clientY, cropLeft: active.cropLeft, cropTop: active.cropTop };
+      dragState.current = { startX: e.clientX, startY: e.clientY, cropLeft, cropTop };
     },
-    [active.dims, active.cropLeft, active.cropTop]
+    [cropLeft, cropTop]
   );
 
   const onPointerMove = useCallback(
     (e: React.PointerEvent) => {
-      if (!dragState.current || !active.dims) return;
-      const displayScale = BOX_WIDTH / active.cropWidth;
-      const dxNative = (e.clientX - dragState.current.startX) / displayScale;
-      const dyNative = (e.clientY - dragState.current.startY) / displayScale;
-      const maxLeft = Math.max(0, active.dims.width - active.cropWidth);
-      const maxTop = Math.max(0, active.dims.height - active.cropWidth / ASPECT_RATIO);
-      active.setCropLeft(Math.min(Math.max(dragState.current.cropLeft - dxNative, 0), maxLeft));
-      active.setCropTop(Math.min(Math.max(dragState.current.cropTop - dyNative, 0), maxTop));
+      if (!dragState.current) return;
+      const dxScreen = e.clientX - dragState.current.startX;
+      const dyScreen = e.clientY - dragState.current.startY;
+      const dxNative = dxScreen / displayScale;
+      const dyNative = dyScreen / displayScale;
+      const newLeft = Math.min(Math.max(dragState.current.cropLeft - dxNative, 0), maxLeft);
+      const newTop = Math.min(Math.max(dragState.current.cropTop - dyNative, 0), maxTop);
+      setCropLeft(newLeft);
+      setCropTop(newTop);
     },
-    [active]
+    [displayScale, maxLeft, maxTop]
   );
 
   const onPointerUp = useCallback(() => {
-    if (!dragState.current || !active.dims) return;
+    if (!dragState.current) return;
     dragState.current = null;
-    commit(activeField, active.dims, active.cropLeft, active.cropTop, active.cropWidth);
-  }, [active, activeField, commit]);
+    commit(cropLeft, cropTop, cropWidth);
+  }, [commit, cropLeft, cropTop, cropWidth]);
 
   const onZoomChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      if (!active.dims || !active.base) return;
       const newZoom = parseFloat(e.target.value);
-      const newWidth = active.base.width / newZoom;
+      const newWidth = base.width / newZoom;
       const newHeight = newWidth / ASPECT_RATIO;
-      const centerX = active.cropLeft + active.cropWidth / 2;
-      const centerY = active.cropTop + active.cropWidth / ASPECT_RATIO / 2;
-      const newMaxLeft = Math.max(0, active.dims.width - newWidth);
-      const newMaxTop = Math.max(0, active.dims.height - newHeight);
+      const centerX = cropLeft + cropWidth / 2;
+      const centerY = cropTop + cropHeight / 2;
+      const newMaxLeft = Math.max(0, dims.width - newWidth);
+      const newMaxTop = Math.max(0, dims.height - newHeight);
       const newLeft = Math.min(Math.max(centerX - newWidth / 2, 0), newMaxLeft);
       const newTop = Math.min(Math.max(centerY - newHeight / 2, 0), newMaxTop);
-      active.setCropWidth(newWidth);
-      active.setCropLeft(newLeft);
-      active.setCropTop(newTop);
-      commit(activeField, active.dims, newLeft, newTop, newWidth);
+      setCropWidth(newWidth);
+      setCropLeft(newLeft);
+      setCropTop(newTop);
+      commit(newLeft, newTop, newWidth);
     },
-    [active, activeField, commit]
+    [base, cropLeft, cropTop, cropWidth, cropHeight, dims, commit]
   );
 
-  const beforeUrl = useMemo(() => croppedUrl(builder, beforeImage), [builder, beforeImage]);
-  const afterUrl = useMemo(() => croppedUrl(builder, afterImage), [builder, afterImage]);
-
-  if (!beforeImage?.asset || !afterImage?.asset) {
-    return (
-      <Box padding={4}>
-        <Card padding={4} radius={2} tone="caution" border>
-          <Text size={1}>Add both a Before and After image on the Form tab first — this preview needs both to show anything.</Text>
-        </Card>
-      </Box>
-    );
-  }
-
-  const zoom = active.base ? active.base.width / active.cropWidth : 1;
-
   return (
-    <Box padding={4}>
-      <Stack space={4}>
-        <Card padding={3} radius={2} tone="primary" border>
-          <Text size={1}>
-            Split down the middle, just like the website slider — pick which side you&rsquo;re adjusting below, then drag
-            directly on the photo to reposition it, or use the zoom bar to crop in or out. Changes save to that image&rsquo;s
-            crop as you go.
-          </Text>
-        </Card>
-
-        <Stack space={3}>
-          <Flex gap={2}>
-            {(["beforeImage", "afterImage"] as FieldName[]).map((field) => {
-              const isActive = activeField === field;
-              return (
-                <button
-                  key={field}
-                  type="button"
-                  onClick={() => setActiveField(field)}
-                  style={{
-                    flex: 1,
-                    padding: "8px 12px",
-                    borderRadius: 6,
-                    border: isActive ? "2px solid #c0446a" : "1px solid var(--card-border-color, #d8d8d8)",
-                    background: isActive ? "rgba(192,68,106,0.08)" : "transparent",
-                    fontWeight: isActive ? 600 : 400,
-                    cursor: "pointer",
-                  }}
-                >
-                  {field === "beforeImage" ? "Adjust Before" : "Adjust After"}
-                </button>
-              );
-            })}
-          </Flex>
-
-          <div
-            onPointerDown={onPointerDown}
-            onPointerMove={onPointerMove}
-            onPointerUp={onPointerUp}
-            onPointerCancel={onPointerUp}
-            style={{
-              position: "relative",
-              width: BOX_WIDTH,
-              maxWidth: "100%",
-              height: BOX_HEIGHT,
-              overflow: "hidden",
-              borderRadius: 12,
-              border: "1px solid var(--card-border-color, #d8d8d8)",
-              cursor: "grab",
-              touchAction: "none",
-              userSelect: "none",
-              background: "#e5e5e5",
-            }}
-          >
-            <ImageLayer image={beforeImage} builder={builder} crop={beforeCrop} />
-            <ImageLayer image={afterImage} builder={builder} crop={afterCrop} clipRight={50} />
-            <div
-              style={{
-                position: "absolute",
-                top: 0,
-                bottom: 0,
-                left: "50%",
-                width: 2,
-                background: "white",
-                transform: "translateX(-50%)",
-                boxShadow: "0 0 0 1px rgba(0,0,0,0.3)",
-                pointerEvents: "none",
-              }}
-            />
-            <span style={{ position: "absolute", left: 10, top: 10, background: "#c0446a", color: "#fff", fontSize: 11, padding: "2px 10px", borderRadius: 999, pointerEvents: "none" }}>
-              After
-            </span>
-            <span style={{ position: "absolute", right: 10, top: 10, background: "rgba(20,15,14,0.8)", color: "#fff", fontSize: 11, padding: "2px 10px", borderRadius: 999, pointerEvents: "none" }}>
-              Before
-            </span>
-          </div>
-
-          <label style={{ display: "block" }}>
-            <Flex justify="space-between">
-              <Text size={0} muted>Zoom ({activeField === "beforeImage" ? "Before" : "After"})</Text>
-              <Text size={0} muted>{zoom.toFixed(1)}×</Text>
-            </Flex>
-            <input type="range" min={1} max={MAX_ZOOM} step={0.05} value={zoom} onChange={onZoomChange} style={{ width: "100%" }} />
-          </label>
-          <Text size={0} muted>Drag the photo above to reposition · slide to zoom · switch sides with the buttons above</Text>
-        </Stack>
-
-        <Stack space={2}>
-          <Text size={1} weight="semibold">
-            Live slider (drag to compare, same as the website)
-          </Text>
-          {beforeUrl && afterUrl && <LiveSlider beforeUrl={beforeUrl} afterUrl={afterUrl} />}
-        </Stack>
-      </Stack>
-    </Box>
+    <Stack space={2} flex={1}>
+      <Flex align="center" justify="space-between">
+        <Text size={1} weight="semibold">{label}</Text>
+        <Badge tone="default" fontSize={0}>{zoom.toFixed(1)}×</Badge>
+      </Flex>
+      <div
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={onPointerUp}
+        onPointerCancel={onPointerUp}
+        style={{
+          position: "relative",
+          width: EDITOR_BOX_CSS_WIDTH,
+          maxWidth: "100%",
+          height: EDITOR_BOX_CSS_HEIGHT,
+          overflow: "hidden",
+          borderRadius: 10,
+          border: "1px solid var(--card-border-color, #d8d8d8)",
+          cursor: "grab",
+          touchAction: "none",
+          userSelect: "none",
+          background: "#e5e5e5",
+        }}
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={previewUrl}
+          alt={label}
+          draggable={false}
+          style={{
+            position: "absolute",
+            left: -cropLeft * displayScale,
+            top: -cropTop * displayScale,
+            width: dims.width * displayScale,
+            height: dims.height * displayScale,
+            maxWidth: "none",
+            pointerEvents: "none",
+          }}
+        />
+      </div>
+      <label style={{ display: "block" }}>
+        <Text size={0} muted style={{ marginBottom: 2, display: "block" }}>Zoom</Text>
+        <input
+          type="range"
+          min={1}
+          max={MAX_ZOOM}
+          step={0.05}
+          value={zoom}
+          onChange={onZoomChange}
+          style={{ width: "100%" }}
+        />
+      </label>
+      <Text size={0} muted>Drag the photo to reposition · slide to zoom</Text>
+    </Stack>
   );
 }
 
@@ -393,5 +308,67 @@ function LiveSlider({ beforeUrl, afterUrl }: { beforeUrl: string; afterUrl: stri
         Before
       </span>
     </div>
+  );
+}
+
+export function TransformationPreview() {
+  const client = useClient({ apiVersion: API_VERSION });
+  const { displayed, onChange } = useDocumentPane();
+  const builder = useMemo(() => imageUrlBuilder(client), [client]);
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const beforeImage = (displayed as any)?.beforeImage;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const afterImage = (displayed as any)?.afterImage;
+
+  const beforeUrl = useMemo(() => croppedUrl(builder, beforeImage), [builder, beforeImage]);
+  const afterUrl = useMemo(() => croppedUrl(builder, afterImage), [builder, afterImage]);
+
+  const handleCommit = useCallback(
+    (fieldName: "beforeImage" | "afterImage", crop: CropRect, hotspot: { x: number; y: number; width: number; height: number }) => {
+      onChange(
+        PatchEvent.from([
+          set({ _type: "sanity.imageCrop", ...crop }, [fieldName, "crop"]),
+          set({ _type: "sanity.imageHotspot", ...hotspot }, [fieldName, "hotspot"]),
+        ])
+      );
+    },
+    [onChange]
+  );
+
+  if (!beforeImage?.asset || !afterImage?.asset) {
+    return (
+      <Box padding={4}>
+        <Card padding={4} radius={2} tone="caution" border>
+          <Text size={1}>Add both a Before and After image on the Form tab first — this preview needs both to show anything.</Text>
+        </Card>
+      </Box>
+    );
+  }
+
+  return (
+    <Box padding={4}>
+      <Stack space={4}>
+        <Card padding={3} radius={2} tone="primary" border>
+          <Text size={1}>
+            Drag either photo to reposition it, slide to zoom in or out — this writes directly to that image&rsquo;s crop, the
+            same field the crop tool on the Form tab edits. The slider below always shows the current result, exactly as it
+            will appear on the website.
+          </Text>
+        </Card>
+
+        <Flex gap={4} wrap="wrap" style={{ width: "100%" }}>
+          <PanZoomCropEditor label="Before" fieldName="beforeImage" image={beforeImage} builder={builder} onCommit={handleCommit} />
+          <PanZoomCropEditor label="After" fieldName="afterImage" image={afterImage} builder={builder} onCommit={handleCommit} />
+        </Flex>
+
+        <Stack space={2}>
+          <Text size={1} weight="semibold">
+            Live slider (drag to compare, same as the website)
+          </Text>
+          {beforeUrl && afterUrl && <LiveSlider beforeUrl={beforeUrl} afterUrl={afterUrl} />}
+        </Stack>
+      </Stack>
+    </Box>
   );
 }
