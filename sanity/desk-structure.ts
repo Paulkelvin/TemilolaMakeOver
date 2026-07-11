@@ -1,4 +1,5 @@
 import type { StructureBuilder } from "sanity/structure";
+import { TransformationPreview } from "./components/TransformationPreview";
 
 export const deskStructure = (S: StructureBuilder) =>
   S.list()
@@ -93,7 +94,21 @@ export const deskStructure = (S: StructureBuilder) =>
             .title("Portfolio & Looks")
             .items([
               S.documentTypeListItem("portfolioItem").title("Portfolio Gallery"),
-              S.documentTypeListItem("transformation").title("Before & After"),
+              S.documentTypeListItem("transformation")
+                .title("Before & After")
+                .child(
+                  S.documentTypeList("transformation")
+                    .title("Before & After")
+                    .child((documentId) =>
+                      S.document()
+                        .documentId(documentId)
+                        .schemaType("transformation")
+                        .views([
+                          S.view.form(),
+                          S.view.component(TransformationPreview).title("Live Preview"),
+                        ])
+                    )
+                ),
             ])
         ),
 
