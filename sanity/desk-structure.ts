@@ -260,6 +260,13 @@ export const deskStructure = (S: StructureBuilder) =>
                     .title("Content Briefs")
                     .defaultOrdering([{ field: "lastComputedAt", direction: "desc" }])
                 ),
+              S.documentTypeListItem("clusterAuthority")
+                .title("Cluster Authority")
+                .child(
+                  S.documentTypeList("clusterAuthority")
+                    .title("Cluster Authority")
+                    .defaultOrdering([{ field: "avgAuthorityScore", direction: "asc" }])
+                ),
             ])
         ),
     ]);

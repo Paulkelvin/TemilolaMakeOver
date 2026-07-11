@@ -3,6 +3,7 @@ import { writeClient } from "@/sanity/write-client";
 import { getKeywordDiscoveryTopicByKey } from "./keyword-discovery";
 import { normalizeQuery, overlapScore } from "./keyword-utils";
 import { MIN_OVERLAP_FOR_SUGGESTION } from "./internal-links";
+import { matchTopicToCluster } from "./cluster-authority";
 import { isSearchConsoleConfigured, getQueryPageMatrix } from "./sources/search-console";
 
 /**
@@ -69,6 +70,11 @@ export interface ArticleBrief {
   knowledgeGraphConnections: KnowledgeGraphRef[];
   requiredInternalLinks: RequiredInternalLink[];
   searchConsoleSnapshot: SearchConsoleSnapshot | null;
+  // Which Topic Map cluster this brief belongs to, if any — undefined means
+  // no existing cluster's vocabulary overlaps this topic closely enough to
+  // call it a real match, an honest gap rather than a forced guess.
+  clusterId?: string;
+  clusterLabel?: string;
 }
 
 // Deliberately narrow, literal phrases rather than a broad heuristic — a
@@ -211,6 +217,8 @@ export async function computeArticleBrief(topicKey: string): Promise<ArticleBrie
     }
   }
 
+  const clusterMatch = await matchTopicToCluster(topicTokens);
+
   return {
     topicKey: topic.topicKey,
     topicLabel: topic.topicLabel,
@@ -224,6 +232,8 @@ export async function computeArticleBrief(topicKey: string): Promise<ArticleBrie
     knowledgeGraphConnections,
     requiredInternalLinks,
     searchConsoleSnapshot,
+    clusterId: clusterMatch?.clusterNodeId,
+    clusterLabel: clusterMatch?.clusterLabel,
   };
 }
 

@@ -6,6 +6,7 @@ import { parseDraftBody, scanBlogBodyForEvidenceGaps, summarizeEvidenceGaps } fr
 import { recheckCoverage } from "@/lib/intelligence/coverage-recheck";
 import { checkKeywordStuffing, scoreReadability, detectOpportunities } from "@/lib/intelligence/seo-mechanics";
 import { computeQualityScore } from "@/lib/intelligence/quality-score";
+import { computeStrategicFit } from "@/lib/intelligence/strategic-fit";
 
 interface VerifyRequestBody {
   topicKey: string;
@@ -55,6 +56,15 @@ export async function POST(req: NextRequest) {
 
     const coverage = recheckCoverage(brief, draftHeadings, plainBodyText, body.draftLinkedPaths);
 
+    const strategicFit = await computeStrategicFit({
+      clusterId: brief.clusterId,
+      clusterLabel: brief.clusterLabel,
+      topicLabel: brief.topicLabel,
+      draftHeadings,
+      draftBodyText: plainBodyText,
+      draftLinkedPaths: body.draftLinkedPaths,
+    });
+
     const readability = scoreReadability(plainBodyText);
     const stuffing = checkKeywordStuffing(plainBodyText);
     const opportunities = detectOpportunities(
@@ -77,6 +87,7 @@ export async function POST(req: NextRequest) {
       draftHeadings,
       bodyText: plainBodyText,
       hasFaqSection: body.hasFaqSection,
+      strategicFit,
     });
 
     return NextResponse.json({
@@ -87,6 +98,7 @@ export async function POST(req: NextRequest) {
       readability,
       stuffing,
       opportunities,
+      strategicFit,
       qualityScore,
     });
   } catch (err) {

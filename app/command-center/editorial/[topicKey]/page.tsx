@@ -71,6 +71,25 @@ export default async function ContentBriefPage({
         </div>
       </div>
 
+      <div className="cc-card">
+        <h2 style={{ margin: "0 0 8px", fontSize: "1.0625rem" }}>Topic Map cluster</h2>
+        {brief.clusterId ? (
+          <p style={{ margin: 0, fontSize: "0.875rem" }}>
+            This brief belongs to{" "}
+            <Link href={`/command-center/topic-map/${brief.clusterId}`} style={{ fontWeight: 600, color: "var(--cc-accent)" }}>
+              {brief.clusterLabel}
+            </Link>{" "}
+            — check its open gaps before writing so this article closes one instead of overlapping existing coverage.
+          </p>
+        ) : (
+          <p style={{ margin: 0, fontSize: "0.875rem", color: "var(--cc-text-muted)" }}>
+            No Topic Map cluster matched this topic&rsquo;s vocabulary closely enough — this is a real gap, not a
+            forced guess. Add a topicNode in Studio to plan where this topic fits before writing, or proceed without
+            one; the Verification Suite will simply skip Strategic Fit scoring for this brief.
+          </p>
+        )}
+      </div>
+
       {brief.matchedContentPath && (
         <div className="cc-card">
           <h2 style={{ margin: "0 0 8px", fontSize: "1.0625rem" }}>Existing matched page</h2>

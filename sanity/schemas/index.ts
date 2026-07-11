@@ -37,6 +37,7 @@ import { cannibalizationIssueSchema } from "./cannibalizationIssue";
 import { internalLinkGapSchema } from "./internalLinkGap";
 import { knowledgeGraphGapSchema } from "./knowledgeGraphGap";
 import { contentBriefSchema } from "./contentBrief";
+import { clusterAuthoritySchema } from "./clusterAuthority";
 
 export const schemaTypes = [
   serviceSchema,
@@ -78,4 +79,5 @@ export const schemaTypes = [
   internalLinkGapSchema,
   knowledgeGraphGapSchema,
   contentBriefSchema,
+  clusterAuthoritySchema,
 ];
