@@ -17,6 +17,15 @@ export const contentBriefSchema = defineType({
     defineField({ name: "topicLabel", title: "Topic label", type: "string", validation: (Rule) => Rule.required() }),
 
     defineField({
+      name: "sourceMaterial",
+      title: "Source material",
+      type: "text",
+      rows: 12,
+      description:
+        "Paste the raw source here after compiling the brief — a YouTube transcript, video script, notes, an existing article, whatever you're researching from. The AI must never simply rewrite this; it's one research input, and it's what the Verification Suite's Originality Scorer checks the finished draft against.",
+    }),
+
+    defineField({
       name: "targetQueries",
       title: "Target queries",
       type: "array",

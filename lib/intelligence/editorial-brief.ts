@@ -228,8 +228,10 @@ function docIdForBrief(topicKey: string): string {
 
 export async function persistArticleBrief(brief: ArticleBrief): Promise<{ id: string }> {
   const id = docIdForBrief(brief.topicKey);
-  const existing = await client.fetch<{ firstSeenAt?: string; status?: string } | null>(
-    `*[_id == $id][0]{ firstSeenAt, status }`,
+  // sourceMaterial is hand-pasted by the writer after compiling the brief —
+  // a recompute must never wipe it out, same as status/firstSeenAt.
+  const existing = await client.fetch<{ firstSeenAt?: string; status?: string; sourceMaterial?: string } | null>(
+    `*[_id == $id][0]{ firstSeenAt, status, sourceMaterial }`,
     { id }
   );
   const nowIso = new Date().toISOString();
@@ -238,6 +240,7 @@ export async function persistArticleBrief(brief: ArticleBrief): Promise<{ id: st
     _id: id,
     _type: "contentBrief",
     ...brief,
+    sourceMaterial: existing?.sourceMaterial,
     status: existing?.status ?? "new",
     firstSeenAt: existing?.firstSeenAt ?? nowIso,
     lastComputedAt: nowIso,
@@ -248,6 +251,7 @@ export async function persistArticleBrief(brief: ArticleBrief): Promise<{ id: st
 
 export interface StoredArticleBrief extends ArticleBrief {
   _id: string;
+  sourceMaterial?: string;
   status: "new" | "drafting" | "verified" | "published";
   firstSeenAt: string;
   lastComputedAt: string;
