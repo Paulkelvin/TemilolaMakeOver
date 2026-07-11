@@ -241,7 +241,7 @@ async function discoverQueries(
   const rankedExpansion = expansionCandidates
     .map((q) => normalizeQuery(q))
     .filter((q) => !seedSet.has(q.raw) && !seenExpansion.has(q.raw) && seenExpansion.add(q.raw))
-    .map((q) => ({ ...q, relevance: matchContent(q.tokens, contentIndex).topicalRelevanceScore }))
+    .map((q) => ({ ...q, relevance: matchContent([q.tokens], contentIndex).topicalRelevanceScore }))
     .sort((a, b) => b.relevance - a.relevance)
     .slice(0, MAX_EXPANSION);
 
@@ -420,7 +420,22 @@ export async function computeKeywordDiscoveryTopics(fetchClient: FetchClient = c
   for (const cluster of clusters) {
     const rawQueries = cluster.members.map((m) => m.query);
     const clusterTokens = cluster.sharedTokens.length > 0 ? cluster.sharedTokens : cluster.members[0].tokens;
-    const { coverage, matchedPath, topicalRelevanceScore } = matchContent(clusterTokens, contentIndex);
+
+    // The cluster's shared tokens can be much narrower than the topic's own
+    // display label once a cluster spans many differently-worded queries
+    // (e.g. shared tokens might just be {"soft", "glam"} while the topic is
+    // labeled "Soft Glam Makeup Tutorial For Beginners") — checking content
+    // coverage against both catches an existing page that matches the
+    // specific topic even when it doesn't match the broad shared vocabulary.
+    const topLabelMember = [...cluster.members].sort((a, b) => {
+      const aOverlap = a.tokens.filter((t) => clusterTokens.includes(t)).length;
+      const bOverlap = b.tokens.filter((t) => clusterTokens.includes(t)).length;
+      if (aOverlap !== bOverlap) return bOverlap - aOverlap;
+      return a.query.length - b.query.length;
+    })[0];
+    const topLabel = topLabelMember.query;
+
+    const { coverage, matchedPath, topicalRelevanceScore } = matchContent([clusterTokens, topLabelMember.tokens], contentIndex);
     if (topicalRelevanceScore < MIN_TOPICAL_RELEVANCE) continue; // drop noise
 
     const intentClassification = classifyIntentDetailed(rawQueries);
@@ -465,13 +480,6 @@ export async function computeKeywordDiscoveryTopics(fetchClient: FetchClient = c
     if (matchedPath) confidenceReasons.push(`Matched to existing content at ${matchedPath}.`);
     else confidenceReasons.push("No matching content found on the site — flagged as a content gap.");
 
-    const topLabelMember = [...cluster.members].sort((a, b) => {
-      const aOverlap = a.tokens.filter((t) => clusterTokens.includes(t)).length;
-      const bOverlap = b.tokens.filter((t) => clusterTokens.includes(t)).length;
-      if (aOverlap !== bOverlap) return bOverlap - aOverlap;
-      return a.query.length - b.query.length;
-    })[0];
-    const topLabel = topLabelMember.query;
     const breadth: QueryBreadth = topLabelMember.tokens.length <= 3 ? "head" : "long-tail";
 
     const commercialValueScore = INTENT_VALUE[intent];
