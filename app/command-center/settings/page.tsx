@@ -55,6 +55,7 @@ const NOTIF_KIND_LABELS: Record<NotificationKind, string> = {
   seo_opportunity: "SEO opportunity",
   keyword_cannibalization: "Keyword cannibalization",
   internal_link_gap: "Internal link gap",
+  topic_suggestion: "Topic Map suggestion",
 };
 
 const ALL_NOTIF_KINDS: NotificationKind[] = [
@@ -69,6 +70,7 @@ const ALL_NOTIF_KINDS: NotificationKind[] = [
   "seo_opportunity",
   "keyword_cannibalization",
   "internal_link_gap",
+  "topic_suggestion",
 ];
 
 const LOCKED_MODULES = new Set(["overview", "settings"]);

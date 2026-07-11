@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getTopicMap, type TopicMapNode } from "@/lib/intelligence/topic-map";
 import { getClusterAuthorities, type StoredClusterAuthority } from "@/lib/intelligence/cluster-authority";
+import { getPendingTopicSuggestionCount } from "@/lib/intelligence/topic-suggestions";
 
 function TopicRow({
   node,
@@ -66,7 +67,11 @@ function TopicRow({
 }
 
 export default async function TopicMapPage() {
-  const [tree, clusters] = await Promise.all([getTopicMap(), getClusterAuthorities()]);
+  const [tree, clusters, pendingSuggestionCount] = await Promise.all([
+    getTopicMap(),
+    getClusterAuthorities(),
+    getPendingTopicSuggestionCount(),
+  ]);
   const clustersById = new Map(clusters.map((c) => [c.clusterNodeId, c]));
 
   return (
@@ -79,6 +84,18 @@ export default async function TopicMapPage() {
         their live Authority/Coverage scores; purely conceptual sub-topics don&rsquo;t have a page yet. Edit the
         hierarchy in Sanity Studio (Taxonomy → Topic Map).
       </p>
+
+      {pendingSuggestionCount > 0 && (
+        <Link href="/command-center/topic-map/suggestions" className="cc-card" style={{ display: "block", marginBottom: 16 }}>
+          <strong style={{ color: "var(--cc-accent)" }}>
+            {pendingSuggestionCount} pending topic suggestion{pendingSuggestionCount === 1 ? "" : "s"} to review →
+          </strong>
+          <p style={{ margin: "4px 0 0", fontSize: "0.8125rem", color: "var(--cc-text-muted)" }}>
+            Mined from Competitor Gaps, Search Console, Keyword Discovery, Google Autocomplete, and recurring entities
+            in verified articles — each needs your approval before it becomes a real Topic Map node.
+          </p>
+        </Link>
+      )}
 
       <div className="cc-card">
         {tree.length === 0 ? (

@@ -267,6 +267,13 @@ export const deskStructure = (S: StructureBuilder) =>
                     .title("Cluster Authority")
                     .defaultOrdering([{ field: "avgAuthorityScore", direction: "asc" }])
                 ),
+              S.documentTypeListItem("topicNodeSuggestion")
+                .title("Topic Suggestions")
+                .child(
+                  S.documentTypeList("topicNodeSuggestion")
+                    .title("Topic Suggestions")
+                    .defaultOrdering([{ field: "priorityScore", direction: "desc" }])
+                ),
             ])
         ),
     ]);

@@ -12,7 +12,8 @@ export type NotificationKind =
   | "metric_alert"
   | "seo_opportunity"
   | "keyword_cannibalization"
-  | "internal_link_gap";
+  | "internal_link_gap"
+  | "topic_suggestion";
 
 export type Severity = "info" | "warning" | "critical";
 

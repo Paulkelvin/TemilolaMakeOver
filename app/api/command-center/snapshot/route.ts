@@ -13,6 +13,7 @@ import { computeCannibalization, persistCannibalization } from "@/lib/intelligen
 import { computeInternalLinkGaps, persistInternalLinkGaps } from "@/lib/intelligence/internal-links";
 import { computeKnowledgeGraphGaps, persistKnowledgeGraphGaps } from "@/lib/intelligence/knowledge-graph";
 import { computeClusterAuthority, persistClusterAuthority } from "@/lib/intelligence/cluster-authority";
+import { computeTopicSuggestions, persistTopicSuggestions } from "@/lib/intelligence/topic-suggestions";
 import { client } from "@/sanity/client";
 
 export const dynamic = "force-dynamic";
@@ -244,6 +245,34 @@ export async function runSnapshot(options?: { force?: boolean }) {
     errors.push(`cluster-authority: ${err instanceof Error ? err.message : String(err)}`);
   }
 
+  // ─── Topic Node Suggestions (weekly-gated) — mines Competitor Gaps,
+  // Search Console, Keyword Discovery, Google Autocomplete, and recurring
+  // entities in verified articles for Topic Map candidates. Never writes a
+  // topicNode itself; only ever produces pending suggestions for a human to
+  // approve or reject in the Command Center. ─────────────────────────────
+  let topicSuggestionsResult: { upserted: number; newCount: number } | undefined;
+  try {
+    const lastComputed = await client.fetch<string | null>(
+      `*[_type == "topicNodeSuggestion"] | order(lastComputedAt desc)[0].lastComputedAt`
+    );
+    const daysSinceLastRun = lastComputed
+      ? (Date.now() - new Date(lastComputed).getTime()) / 86_400_000
+      : Infinity;
+    if (force || daysSinceLastRun >= 7) {
+      const suggestions = await computeTopicSuggestions();
+      topicSuggestionsResult = await persistTopicSuggestions(suggestions);
+      if (topicSuggestionsResult.newCount > 0) {
+        await createNotification({
+          kind: "topic_suggestion",
+          title: `${topicSuggestionsResult.newCount} new Topic Map suggestion${topicSuggestionsResult.newCount === 1 ? "" : "s"} ready for review`,
+          body: "Mined from Competitor Gaps, Search Console, Keyword Discovery, Google Autocomplete, and recurring entities in verified articles — each needs your approval before it becomes a real Topic Map node.",
+        });
+      }
+    }
+  } catch (err) {
+    errors.push(`topic-suggestions: ${err instanceof Error ? err.message : String(err)}`);
+  }
+
   // ─── Metric-drop notifications ─────────────────────────────────────────
   try {
     const alertChecks: { source: string; metric: string; label: string; dropThreshold: number }[] = [
@@ -313,6 +342,7 @@ export async function runSnapshot(options?: { force?: boolean }) {
     internalLinks: internalLinkResult,
     knowledgeGraph: knowledgeGraphResult,
     clusterAuthority: clusterAuthorityResult,
+    topicSuggestions: topicSuggestionsResult,
     errors: errors.length > 0 ? errors : undefined,
   };
 }
