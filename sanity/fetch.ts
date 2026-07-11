@@ -21,6 +21,7 @@ import {
   FAQ_QUERY,
   FAQ_BY_CATEGORY_QUERY,
   FAQ_BY_SERVICE_QUERY,
+  FAQ_GENERAL_QUERY,
   BOOKING_STEPS_QUERY,
   WHY_CHOOSE_US_QUERY,
   ABOUT_VALUES_QUERY,
@@ -281,6 +282,11 @@ export const getFaqItemsByCategory = cache(async (category: "general" | "pricing
 
 export const getFaqItemsByService = cache(async (serviceSlug: string): Promise<FAQItem[]> => {
   const raw: RawFAQ[] = await client.fetch(FAQ_BY_SERVICE_QUERY, { slug: serviceSlug }, REVALIDATE);
+  return raw.map(mapFaq);
+});
+
+export const getGeneralFaqItems = cache(async (): Promise<FAQItem[]> => {
+  const raw: RawFAQ[] = await client.fetch(FAQ_GENERAL_QUERY, {}, REVALIDATE);
   return raw.map(mapFaq);
 });
 

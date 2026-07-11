@@ -107,6 +107,20 @@ export const FAQ_BY_SERVICE_QUERY = `*[_type == "faq" && service->slug.current =
   "location": location->name
 }`;
 
+// FAQs shown site-wide (root layout's FAQPage JSON-LD): only ones with no
+// service/occasion/location reference — a FAQ tied to one service shouldn't
+// be presented as sitewide structured data on every unrelated page. Ones
+// that do carry a service reference get their own JSON-LD directly on that
+// service's page instead (see services/[slug]/page.tsx).
+export const FAQ_GENERAL_QUERY = `*[_type == "faq" && !defined(service) && !defined(occasion) && !defined(location)] | order(order asc) {
+  _id,
+  question,
+  answer,
+  "service": service->name,
+  "occasion": occasion->name,
+  "location": location->name
+}`;
+
 export const BOOKING_STEPS_QUERY = `*[_type == "bookingStep"] | order(step asc) {
   _id,
   step,
