@@ -2,13 +2,20 @@ import { QUESTION_PATTERN } from "./keyword-utils";
 import type { OriginalityResult } from "./originality";
 import type { EvidenceSummary } from "./evidence-scan";
 import type { ReadabilityResult, KeywordStuffingResult } from "./seo-mechanics";
+import type { StrategicFitResult } from "./strategic-fit";
 
 /**
- * Quality Score Aggregator — the consolidated 7-category score from the
+ * Quality Score Aggregator — the consolidated 8-category score from the
  * Editorial System architecture review, replacing the originally-proposed
  * 10 categories (Research Quality had no signal independent of Topical
  * Coverage; "SEO" alone was too vague to score directly — both folded into
  * more specific, already-computed dimensions below).
+ *
+ * Strategic Fit was added later, per the explicit instruction that a draft
+ * should be approved not only because it's well written, but because it
+ * strategically strengthens the site's overall topical authority — the
+ * other seven categories all judge the draft in isolation; this one judges
+ * it against the Topic Map cluster it belongs to (see strategic-fit.ts).
  *
  * Per the confirmed rollout decision: this 85-point minimum gates new
  * content only. It is not applied retroactively to already-published
@@ -20,6 +27,7 @@ export type QualityCategory =
   | "Originality"
   | "Evidence / E-E-A-T"
   | "User Value"
+  | "Strategic Fit"
   | "Search Intent Match"
   | "Internal Linking"
   | "SEO Mechanics";
@@ -29,20 +37,24 @@ const WEIGHTS: Record<QualityCategory, number> = {
   Originality: 20,
   "Evidence / E-E-A-T": 15,
   "User Value": 15,
-  "Search Intent Match": 10,
-  "Internal Linking": 10,
-  "SEO Mechanics": 10,
+  "Strategic Fit": 15,
+  "Search Intent Match": 5,
+  "Internal Linking": 5,
+  "SEO Mechanics": 5,
 };
 
-// Only these four are floor-protected, per your explicit instruction that a
+// Only these five are floor-protected, per your explicit instruction that a
 // strong overall score must never hide a critical weakness in one of them.
-// Search Intent Match / Internal Linking / SEO Mechanics are real signals
-// but not load-bearing enough to block publication on their own.
+// A well-written article that duplicates existing content or does nothing
+// for the site's topical authority shouldn't pass just because it reads
+// well — Search Intent Match / Internal Linking / SEO Mechanics are real
+// signals but not load-bearing enough to block publication on their own.
 const FLOORS: Partial<Record<QualityCategory, number>> = {
   "Topical Coverage": 60,
   Originality: 50,
   "Evidence / E-E-A-T": 50,
   "User Value": 50,
+  "Strategic Fit": 50,
 };
 
 export const MIN_PUBLISHABLE_SCORE = 85;
@@ -116,6 +128,7 @@ export interface QualityScoreInput {
   draftHeadings: string[];
   bodyText: string;
   hasFaqSection: boolean;
+  strategicFit: StrategicFitResult;
 }
 
 export function computeQualityScore(input: QualityScoreInput): QualityScoreResult {
@@ -128,6 +141,7 @@ export function computeQualityScore(input: QualityScoreInput): QualityScoreResul
     Originality: input.originality.paraphraseScore,
     "Evidence / E-E-A-T": input.evidenceSummary.eeatSupportScore,
     "User Value": userValueScore,
+    "Strategic Fit": input.strategicFit.score,
     "Search Intent Match": intentScore,
     "Internal Linking": input.internalLinkingScore,
     "SEO Mechanics": seoMechanicsScore,

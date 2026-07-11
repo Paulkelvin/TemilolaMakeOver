@@ -80,6 +80,19 @@ export const contentBriefSchema = defineType({
     }),
 
     defineField({
+      name: "clusterId",
+      title: "Topic Map cluster ID",
+      type: "string",
+      description: "The Topic Map cluster (topicNode with children) this brief's vocabulary best matches, if any.",
+    }),
+    defineField({
+      name: "clusterLabel",
+      title: "Topic Map cluster label",
+      type: "string",
+      description: "Human-readable label for the matched cluster — see the Cluster Authority page for its current gaps.",
+    }),
+
+    defineField({
       name: "requiredSubtopics",
       title: "Required subtopics",
       type: "array",

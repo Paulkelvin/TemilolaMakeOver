@@ -1,7 +1,19 @@
 import Link from "next/link";
 import { getTopicMap, type TopicMapNode } from "@/lib/intelligence/topic-map";
+import { getClusterAuthorities, type StoredClusterAuthority } from "@/lib/intelligence/cluster-authority";
 
-function TopicRow({ node, depth }: { node: TopicMapNode; depth: number }) {
+function TopicRow({
+  node,
+  depth,
+  clustersById,
+}: {
+  node: TopicMapNode;
+  depth: number;
+  clustersById: Map<string, StoredClusterAuthority>;
+}) {
+  const isCluster = node.children.length > 0;
+  const cluster = clustersById.get(node.id);
+
   return (
     <div>
       <div
@@ -15,13 +27,22 @@ function TopicRow({ node, depth }: { node: TopicMapNode; depth: number }) {
         }}
       >
         <div>
-          <span style={{ color: "var(--cc-text)" }}>{node.label}</span>
+          <span style={{ color: "var(--cc-text)", fontWeight: isCluster ? 600 : 400 }}>{node.label}</span>
           {node.notes && (
             <span style={{ marginLeft: 8, fontSize: "0.75rem", color: "var(--cc-text-muted)" }}>{node.notes}</span>
           )}
         </div>
         <div style={{ fontSize: "0.8125rem", textAlign: "right", whiteSpace: "nowrap" }}>
-          {node.linkedTaxonomy ? (
+          {isCluster ? (
+            cluster ? (
+              <Link href={`/command-center/topic-map/${node.id}`} style={{ color: "var(--cc-accent)", fontWeight: 600 }}>
+                Cluster authority {cluster.avgAuthorityScore}% · {cluster.openGapCount} open gap
+                {cluster.openGapCount === 1 ? "" : "s"} →
+              </Link>
+            ) : (
+              <span style={{ color: "var(--cc-text-muted)" }}>Cluster — not yet computed (run the weekly cron)</span>
+            )
+          ) : node.linkedTaxonomy ? (
             node.authority ? (
               <Link
                 href={`/command-center/topical-authority/${node.linkedTaxonomy.type}/${node.linkedTaxonomy.refId}`}
@@ -38,22 +59,25 @@ function TopicRow({ node, depth }: { node: TopicMapNode; depth: number }) {
         </div>
       </div>
       {node.children.map((child) => (
-        <TopicRow key={child.id} node={child} depth={depth + 1} />
+        <TopicRow key={child.id} node={child} depth={depth + 1} clustersById={clustersById} />
       ))}
     </div>
   );
 }
 
 export default async function TopicMapPage() {
-  const tree = await getTopicMap();
+  const [tree, clusters] = await Promise.all([getTopicMap(), getClusterAuthorities()]);
+  const clustersById = new Map(clusters.map((c) => [c.clusterNodeId, c]));
 
   return (
     <div>
       <h1 className="cc-page-title">Topic Map</h1>
       <p className="cc-page-dek">
-        Hand-edited content-planning hierarchy — parent/child topics for building topical authority over time. Mixes
-        real, already-built pages (linked to their live Authority/Coverage scores) with purely conceptual sub-topics
-        that don&rsquo;t have a page yet. Edit the hierarchy in Sanity Studio (Taxonomy → Topic Map).
+        Hand-edited content-planning hierarchy — parent/child topics for building topical authority over time. Any
+        topic with children is a <strong>cluster</strong>: click through for its rolled-up coverage, missing
+        subtopics, internal linking, competitor gaps, and recommended next content. Real, already-built pages link to
+        their live Authority/Coverage scores; purely conceptual sub-topics don&rsquo;t have a page yet. Edit the
+        hierarchy in Sanity Studio (Taxonomy → Topic Map).
       </p>
 
       <div className="cc-card">
@@ -63,7 +87,7 @@ export default async function TopicMapPage() {
             the hierarchy — each topic can either link to a real page or stand alone as a planning idea.
           </div>
         ) : (
-          tree.map((node) => <TopicRow key={node.id} node={node} depth={0} />)
+          tree.map((node) => <TopicRow key={node.id} node={node} depth={0} clustersById={clustersById} />)
         )}
       </div>
     </div>

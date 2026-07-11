@@ -12,6 +12,7 @@ import { computeCompetitorGaps, persistCompetitorGaps } from "@/lib/intelligence
 import { computeCannibalization, persistCannibalization } from "@/lib/intelligence/cannibalization";
 import { computeInternalLinkGaps, persistInternalLinkGaps } from "@/lib/intelligence/internal-links";
 import { computeKnowledgeGraphGaps, persistKnowledgeGraphGaps } from "@/lib/intelligence/knowledge-graph";
+import { computeClusterAuthority, persistClusterAuthority } from "@/lib/intelligence/cluster-authority";
 import { client } from "@/sanity/client";
 
 export const dynamic = "force-dynamic";
@@ -223,6 +224,26 @@ export async function runSnapshot(options?: { force?: boolean }) {
     errors.push(`knowledge-graph: ${err instanceof Error ? err.message : String(err)}`);
   }
 
+  // ─── Cluster Authority Engine (weekly-gated, runs last — it only rolls up
+  // what Topical Authority / Keyword Discovery / Competitor Gaps / Knowledge
+  // Graph / Internal Links already computed above in this same run, so it
+  // needs those to have already persisted) ───────────────────────────────
+  let clusterAuthorityResult: { upserted: number } | undefined;
+  try {
+    const lastComputed = await client.fetch<string | null>(
+      `*[_type == "clusterAuthority"] | order(lastComputedAt desc)[0].lastComputedAt`
+    );
+    const daysSinceLastRun = lastComputed
+      ? (Date.now() - new Date(lastComputed).getTime()) / 86_400_000
+      : Infinity;
+    if (force || daysSinceLastRun >= 7) {
+      const clusters = await computeClusterAuthority();
+      clusterAuthorityResult = await persistClusterAuthority(clusters);
+    }
+  } catch (err) {
+    errors.push(`cluster-authority: ${err instanceof Error ? err.message : String(err)}`);
+  }
+
   // ─── Metric-drop notifications ─────────────────────────────────────────
   try {
     const alertChecks: { source: string; metric: string; label: string; dropThreshold: number }[] = [
@@ -291,6 +312,7 @@ export async function runSnapshot(options?: { force?: boolean }) {
     cannibalization: cannibalizationResult,
     internalLinks: internalLinkResult,
     knowledgeGraph: knowledgeGraphResult,
+    clusterAuthority: clusterAuthorityResult,
     errors: errors.length > 0 ? errors : undefined,
   };
 }

@@ -6,6 +6,7 @@ import type { OriginalityResult } from "@/lib/intelligence/originality";
 import type { EvidenceGap, EvidenceSummary } from "@/lib/intelligence/evidence-scan";
 import type { CoverageRecheckResult } from "@/lib/intelligence/coverage-recheck";
 import type { ReadabilityResult, KeywordStuffingResult, OpportunityFlags } from "@/lib/intelligence/seo-mechanics";
+import type { StrategicFitResult } from "@/lib/intelligence/strategic-fit";
 
 interface VerifyReport {
   originality: OriginalityResult;
@@ -15,6 +16,7 @@ interface VerifyReport {
   readability: ReadabilityResult;
   stuffing: KeywordStuffingResult;
   opportunities: OpportunityFlags;
+  strategicFit: StrategicFitResult;
   qualityScore: QualityScoreResult;
 }
 
@@ -219,6 +221,39 @@ export function VerifyDraftForm({
                 published to be able to save this score to it.
               </p>
             )}
+          </div>
+
+          <div className="cc-card">
+            <h2 style={{ margin: "0 0 4px", fontSize: "1.0625rem" }}>Strategic Fit</h2>
+            {report.strategicFit.clusterLabel ? (
+              <p style={{ margin: "0 0 10px", fontSize: "0.875rem" }}>
+                Cluster: <strong>{report.strategicFit.clusterLabel}</strong>
+              </p>
+            ) : (
+              <p style={{ margin: "0 0 10px", fontSize: "0.8125rem", color: "var(--cc-text-muted)" }}>
+                This topic isn&rsquo;t matched to a Topic Map cluster, so this scored neutral rather than measuring
+                against a cluster that doesn&rsquo;t exist yet.
+              </p>
+            )}
+            <div className="cc-pending-row">
+              <span style={{ color: "var(--cc-text)" }}>{report.strategicFit.closesGap ? "✅" : "❌"} Closes a known gap</span>
+              <span style={{ fontSize: "0.8125rem", color: "var(--cc-text-muted)" }}>{report.strategicFit.closedGapLabel ?? "—"}</span>
+            </div>
+            <div className="cc-pending-row">
+              <span style={{ color: "var(--cc-text)" }}>{report.strategicFit.linksIntoCluster ? "✅" : "❌"} Links into the cluster</span>
+            </div>
+            <div className="cc-pending-row">
+              <span style={{ color: report.strategicFit.cannibalizationRisk ? "var(--cc-critical)" : "var(--cc-text)" }}>
+                {report.strategicFit.cannibalizationRisk ? "⚠️" : "✅"} Cannibalization risk
+              </span>
+              <span style={{ fontSize: "0.8125rem", color: "var(--cc-text-muted)" }}>{report.strategicFit.cannibalizationPath ?? "—"}</span>
+            </div>
+            <details style={{ marginTop: 10 }}>
+              <summary style={{ fontSize: "0.8125rem", color: "var(--cc-text-muted)", cursor: "pointer" }}>Why this score (decision trail)</summary>
+              <ol style={{ margin: "8px 0 0", paddingLeft: "1.2em", fontSize: "0.8125rem", color: "var(--cc-text-muted)", lineHeight: 1.8, fontFamily: "var(--cc-mono)" }}>
+                {report.strategicFit.decisionTrace.map((step, i) => <li key={i}>{step}</li>)}
+              </ol>
+            </details>
           </div>
 
           <div className="cc-card">
