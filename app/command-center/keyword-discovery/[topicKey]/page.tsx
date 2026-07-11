@@ -6,6 +6,8 @@ import { TREND_COLOR } from "@/components/command-center/shared-labels";
 import { ScoreRow } from "@/components/command-center/ScoreRow";
 import { TimeSeriesChart } from "@/components/command-center/TimeSeriesChart";
 import { ScoreBreakdownRadar } from "@/components/command-center/ScoreBreakdownRadar";
+import { CompileBriefButton } from "@/components/command-center/CompileBriefButton";
+import { getArticleBriefByTopicKey } from "@/lib/intelligence/editorial-brief";
 
 const ACTION_LABELS: Record<string, string> = {
   create_new_pillar: "Create new pillar",
@@ -37,7 +39,10 @@ export default async function KeywordDiscoveryDetailPage({
   params: Promise<{ topicKey: string }>;
 }) {
   const { topicKey } = await params;
-  const topic = await getKeywordDiscoveryTopicByKey(topicKey);
+  const [topic, brief] = await Promise.all([
+    getKeywordDiscoveryTopicByKey(topicKey),
+    getArticleBriefByTopicKey(topicKey),
+  ]);
   if (!topic) notFound();
 
   const sb = topic.scoreBreakdown;
@@ -138,6 +143,18 @@ export default async function KeywordDiscoveryDetailPage({
           {" · "}
           <span>edit status/actioned-at for this topic in Sanity Studio (Keyword Discovery)</span>
         </p>
+        <div style={{ marginTop: 14 }}>
+          {brief ? (
+            <Link
+              href={`/command-center/editorial/${topicKey}`}
+              style={{ fontSize: "0.875rem", fontWeight: 600, color: "var(--cc-accent)" }}
+            >
+              View Content Brief →
+            </Link>
+          ) : (
+            <CompileBriefButton topicKey={topicKey} />
+          )}
+        </div>
       </div>
 
       <div className="cc-card">
