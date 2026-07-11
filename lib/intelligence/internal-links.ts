@@ -52,7 +52,7 @@ export interface InternalLinkGap {
 }
 
 const MIN_HEALTHY_LINKS = 2; // below this, a page is under-linked (0 = orphan)
-const MIN_OVERLAP_FOR_SUGGESTION = 0.25; // overlapScore floor for a post to be a real candidate
+export const MIN_OVERLAP_FOR_SUGGESTION = 0.25; // overlapScore floor for a post to be a real candidate — the site-wide standard for "real candidate, not a stretch"
 const MAX_SUGGESTIONS = 3;
 
 // Deterministic editorial tiering, not fabricated data: service pages are

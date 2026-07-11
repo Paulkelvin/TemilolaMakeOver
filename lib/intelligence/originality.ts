@@ -17,9 +17,9 @@ export interface OriginalityInput {
 }
 
 export interface OriginalityResult {
-  structuralOriginality: number; // 0-100 — higher = less heading overlap with source
+  structuralOriginality: number | null; // 0-100 — higher = less heading overlap with source; null when no source heading data exists to compare against
   lexicalOriginality: number; // 0-100 — higher = less verbatim/near-verbatim phrasing
-  paraphraseScore: number; // 0-100 composite of the two above
+  paraphraseScore: number; // 0-100 — equal blend of structural+lexical when structural data exists, else lexical alone
   matchedShingleCount: number;
   totalShingleCount: number;
   headingOverlapRatio: number; // 0-1, raw Jaccard
@@ -71,8 +71,13 @@ export function scoreOriginality(input: OriginalityInput): OriginalityResult {
 
   const draftHeadingSet = new Set(draftHeadings.map(normalizeHeading));
   const sourceHeadingSet = new Set(sourceHeadings.map(normalizeHeading));
-  const headingOverlapRatio = jaccardSet(draftHeadingSet, sourceHeadingSet);
-  const structuralOriginality = Math.round(100 * (1 - headingOverlapRatio));
+  // An empty source-heading set means "no structure to compare against", not
+  // "no overlap" — treating it as 0 overlap would silently report a perfect
+  // structuralOriginality of 100 even for a verbatim-copied draft. Only score
+  // this dimension when there's real source structure to diff against.
+  const hasSourceStructure = sourceHeadingSet.size > 0;
+  const headingOverlapRatio = hasSourceStructure ? jaccardSet(draftHeadingSet, sourceHeadingSet) : 0;
+  const structuralOriginality = hasSourceStructure ? Math.round(100 * (1 - headingOverlapRatio)) : null;
 
   const sourceShingleSet = new Set(
     sourceTexts.flatMap((t) => shingles(tokenizeWords(t), SHINGLE_SIZE))
@@ -87,7 +92,8 @@ export function scoreOriginality(input: OriginalityInput): OriginalityResult {
   const rewriteRatio = totalShingleCount === 0 ? 0 : matchedShingleCount / totalShingleCount;
   const lexicalOriginality = Math.round(100 * (1 - rewriteRatio));
 
-  const paraphraseScore = Math.round(0.5 * structuralOriginality + 0.5 * lexicalOriginality);
+  const paraphraseScore =
+    structuralOriginality === null ? lexicalOriginality : Math.round(0.5 * structuralOriginality + 0.5 * lexicalOriginality);
 
   const flaggedSentences = splitSentences(draftText)
     .map((sentence) => {
@@ -116,3 +122,30 @@ export function scoreOriginality(input: OriginalityInput): OriginalityResult {
 // a baseline exists; see the architecture review's §2 for the reasoning.
 export const ORIGINALITY_REVIEW_THRESHOLD = 70;
 export const ORIGINALITY_BLOCK_THRESHOLD = 50;
+
+const MAX_HEADING_WORDS = 12;
+const MAX_HEADING_CHARS = 80;
+
+/**
+ * Deterministic, no-LLM heading extraction for hand-pasted source material —
+ * matches explicit markdown headings ("## ...") or short standalone lines
+ * with no sentence-ending punctuation, the same signal a human skims for
+ * when scanning a pasted article's structure.
+ */
+export function extractLikelyHeadings(text: string): string[] {
+  const headings: string[] = [];
+  for (const rawLine of text.split(/\r?\n/)) {
+    const line = rawLine.trim();
+    if (!line) continue;
+    const markdownMatch = line.match(/^#{1,6}\s+(.+)$/);
+    const candidate = markdownMatch ? markdownMatch[1].trim() : line;
+    const isMarkdownHeading = Boolean(markdownMatch);
+    const looksLikeStandaloneTitle =
+      candidate.length > 0 &&
+      candidate.length <= MAX_HEADING_CHARS &&
+      candidate.split(/\s+/).length <= MAX_HEADING_WORDS &&
+      !/[.!?,;:]$/.test(candidate);
+    if (isMarkdownHeading || looksLikeStandaloneTitle) headings.push(candidate);
+  }
+  return headings;
+}

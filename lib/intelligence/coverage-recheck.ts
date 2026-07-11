@@ -27,9 +27,22 @@ export interface CoverageRecheckResult {
   internalLinks: InternalLinkCoverageResult[];
   topicalCoverageScore: number; // 0-100, % of required subtopics covered
   internalLinkingScore: number; // 0-100, % of required links present
+  // A vacuous 100 (nothing was required) reads identically to "everything
+  // required was actually covered" unless callers check these — an empty
+  // brief must not be mistaken for a fully-covered one.
+  subtopicsRequired: boolean;
+  linksRequired: boolean;
 }
 
 const SUBTOPIC_COVERED_THRESHOLD = 0.25; // same floor internal-links.ts/editorial-brief.ts use for "real match"
+
+function splitSections(draftHeadings: string[], draftBodyText: string): string[] {
+  const paragraphs = draftBodyText
+    .split(/\n{2,}/)
+    .map((p) => p.trim())
+    .filter(Boolean);
+  return [...draftHeadings, ...paragraphs];
+}
 
 export function recheckCoverage(
   brief: Pick<ArticleBrief, "requiredSubtopics" | "requiredInternalLinks">,
@@ -37,12 +50,20 @@ export function recheckCoverage(
   draftBodyText: string,
   draftLinkedPaths: string[]
 ): CoverageRecheckResult {
-  const draftTokens = normalizeQuery(`${draftHeadings.join(" ")} ${draftBodyText}`).tokens;
+  // Comparing a short subtopic label against each individual section
+  // (heading or paragraph) rather than the whole flattened article keeps
+  // overlapScore's subset-containment shortcut meaningful: it only fires
+  // when the subtopic's words are concentrated together in one real section,
+  // not merely scattered anywhere across a long draft.
+  const sectionTokenSets = splitSections(draftHeadings, draftBodyText).map((s) => normalizeQuery(s).tokens);
 
   const subtopics: SubtopicCoverageResult[] = brief.requiredSubtopics.map((s) => {
     const subtopicTokens = normalizeQuery(s.label).tokens;
-    const overlap = overlapScore(subtopicTokens, draftTokens);
-    return { label: s.label, covered: overlap >= SUBTOPIC_COVERED_THRESHOLD, bestOverlap: Math.round(overlap * 100) / 100 };
+    const bestOverlap = sectionTokenSets.reduce(
+      (max, sectionTokens) => Math.max(max, overlapScore(subtopicTokens, sectionTokens)),
+      0
+    );
+    return { label: s.label, covered: bestOverlap >= SUBTOPIC_COVERED_THRESHOLD, bestOverlap: Math.round(bestOverlap * 100) / 100 };
   });
 
   const linkedPathSet = new Set(draftLinkedPaths.map((p) => p.replace(/\/$/, "")));
@@ -52,10 +73,14 @@ export function recheckCoverage(
     linked: linkedPathSet.has(l.targetPath.replace(/\/$/, "")),
   }));
 
-  const topicalCoverageScore =
-    subtopics.length === 0 ? 100 : Math.round((subtopics.filter((s) => s.covered).length / subtopics.length) * 100);
-  const internalLinkingScore =
-    internalLinks.length === 0 ? 100 : Math.round((internalLinks.filter((l) => l.linked).length / internalLinks.length) * 100);
+  const subtopicsRequired = subtopics.length > 0;
+  const linksRequired = internalLinks.length > 0;
+  const topicalCoverageScore = subtopicsRequired
+    ? Math.round((subtopics.filter((s) => s.covered).length / subtopics.length) * 100)
+    : 100;
+  const internalLinkingScore = linksRequired
+    ? Math.round((internalLinks.filter((l) => l.linked).length / internalLinks.length) * 100)
+    : 100;
 
-  return { subtopics, internalLinks, topicalCoverageScore, internalLinkingScore };
+  return { subtopics, internalLinks, topicalCoverageScore, internalLinkingScore, subtopicsRequired, linksRequired };
 }

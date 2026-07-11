@@ -41,36 +41,47 @@ function ScoreBar({ label, value, floor }: { label: string; value: number; floor
   );
 }
 
-export function VerifyDraftForm({ topicKey, defaultSourceMaterial }: { topicKey: string; defaultSourceMaterial: string }) {
-  const [draftHeadings, setDraftHeadings] = useState("");
+export function VerifyDraftForm({
+  topicKey,
+  defaultSourceMaterial,
+  hasLinkedBlogPost,
+}: {
+  topicKey: string;
+  defaultSourceMaterial: string;
+  hasLinkedBlogPost: boolean;
+}) {
   const [draftBodyText, setDraftBodyText] = useState("");
   const [draftLinkedPaths, setDraftLinkedPaths] = useState("");
   const [hasFaqSection, setHasFaqSection] = useState(false);
   const [imageCount, setImageCount] = useState(0);
   const [videoEmbedCount, setVideoEmbedCount] = useState(0);
+  // Initialized from the saved brief but tracked as a distinct field from
+  // then on — the raw value (including an intentionally-cleared "") is
+  // always sent as-is, never silently swapped back for the saved material.
   const [sourceTextOverride, setSourceTextOverride] = useState(defaultSourceMaterial);
 
   const [state, setState] = useState<"idle" | "running" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [report, setReport] = useState<VerifyReport | null>(null);
+  const [saveState, setSaveState] = useState<"idle" | "saving" | "saved" | "error">("idle");
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setState("running");
     setErrorMessage(null);
+    setSaveState("idle");
     try {
       const res = await fetch("/api/command-center/verify-draft", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           topicKey,
-          draftHeadings: draftHeadings.split("\n").map((h) => h.trim()).filter(Boolean),
           draftBodyText,
           draftLinkedPaths: draftLinkedPaths.split("\n").map((p) => p.trim()).filter(Boolean),
           hasFaqSection,
           imageCount,
           videoEmbedCount,
-          sourceTextOverride: sourceTextOverride || undefined,
+          sourceTextOverride,
         }),
       });
       const data = await res.json();
@@ -80,6 +91,23 @@ export function VerifyDraftForm({ topicKey, defaultSourceMaterial }: { topicKey:
     } catch (err) {
       setErrorMessage(err instanceof Error ? err.message : String(err));
       setState("error");
+    }
+  }
+
+  async function handleSaveScore() {
+    if (!report) return;
+    setSaveState("saving");
+    try {
+      const res = await fetch("/api/command-center/save-quality-score", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ topicKey, qualityScore: report.qualityScore }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? `Request failed (${res.status})`);
+      setSaveState("saved");
+    } catch {
+      setSaveState("error");
     }
   }
 
@@ -100,14 +128,10 @@ export function VerifyDraftForm({ topicKey, defaultSourceMaterial }: { topicKey:
       <form onSubmit={handleSubmit} className="cc-card">
         <h2 style={{ margin: "0 0 12px", fontSize: "1.0625rem" }}>Draft</h2>
         <label style={{ display: "block", fontSize: "0.8125rem", marginBottom: 4, color: "var(--cc-text-muted)" }}>
-          Headings (one per line)
+          Body text — mark section headings with a line starting with &ldquo;## &rdquo;, e.g. &ldquo;## Choosing the Right Foundation&rdquo;.
+          This keeps headings attached to the paragraphs that actually follow them.
         </label>
-        <textarea rows={4} value={draftHeadings} onChange={(e) => setDraftHeadings(e.target.value)} style={{ ...textareaStyle, marginBottom: 12 }} />
-
-        <label style={{ display: "block", fontSize: "0.8125rem", marginBottom: 4, color: "var(--cc-text-muted)" }}>
-          Body text
-        </label>
-        <textarea rows={10} value={draftBodyText} onChange={(e) => setDraftBodyText(e.target.value)} style={{ ...textareaStyle, marginBottom: 12 }} />
+        <textarea rows={16} value={draftBodyText} onChange={(e) => setDraftBodyText(e.target.value)} style={{ ...textareaStyle, marginBottom: 12 }} />
 
         <label style={{ display: "block", fontSize: "0.8125rem", marginBottom: 4, color: "var(--cc-text-muted)" }}>
           Internal links used (one path per line, e.g. /services/bridal-makeup)
@@ -166,13 +190,47 @@ export function VerifyDraftForm({ topicKey, defaultSourceMaterial }: { topicKey:
             {report.qualityScore.categories.map((c) => (
               <ScoreBar key={c.category} label={`${c.category} (${c.weight}%)`} value={c.score} floor={c.floor} />
             ))}
+            {hasLinkedBlogPost ? (
+              <div style={{ marginTop: 12 }}>
+                <button
+                  type="button"
+                  onClick={handleSaveScore}
+                  disabled={saveState === "saving"}
+                  style={{
+                    background: "transparent",
+                    color: "var(--cc-accent)",
+                    border: "1px solid var(--cc-accent)",
+                    padding: "6px 14px",
+                    borderRadius: 6,
+                    cursor: saveState === "saving" ? "wait" : "pointer",
+                    fontSize: "0.8125rem",
+                    fontWeight: 500,
+                  }}
+                >
+                  {saveState === "saving" ? "Saving…" : saveState === "saved" ? "✅ Saved to linked post" : "Save score to linked post"}
+                </button>
+                {saveState === "error" && (
+                  <p style={{ margin: "6px 0 0", fontSize: "0.8125rem", color: "var(--cc-critical)" }}>Failed to save.</p>
+                )}
+              </div>
+            ) : (
+              <p style={{ margin: "12px 0 0", fontSize: "0.8125rem", color: "var(--cc-text-muted)" }}>
+                No blog post linked to this brief yet — set <strong>Linked blog post</strong> in Studio once the article is
+                published to be able to save this score to it.
+              </p>
+            )}
           </div>
 
           <div className="cc-card">
             <h2 style={{ margin: "0 0 12px", fontSize: "1.0625rem" }}>Originality</h2>
             <p style={{ margin: "0 0 8px", fontSize: "0.875rem" }}>
-              Structural: {report.originality.structuralOriginality} · Lexical: {report.originality.lexicalOriginality} · Composite: {report.originality.paraphraseScore}
+              Structural: {report.originality.structuralOriginality ?? "—"} · Lexical: {report.originality.lexicalOriginality} · Composite: {report.originality.paraphraseScore}
             </p>
+            {report.originality.structuralOriginality === null && (
+              <p style={{ margin: "0 0 8px", fontSize: "0.8125rem", color: "var(--cc-text-muted)" }}>
+                No heading-like lines detected in the source material, so structural comparison was skipped — the composite score is lexical originality alone.
+              </p>
+            )}
             {report.originality.flaggedSentences.length > 0 ? (
               <>
                 <p style={{ margin: "0 0 6px", fontSize: "0.8125rem", color: "var(--cc-text-muted)" }}>
@@ -201,7 +259,14 @@ export function VerifyDraftForm({ topicKey, defaultSourceMaterial }: { topicKey:
           <div className="cc-card">
             <h2 style={{ margin: "0 0 12px", fontSize: "1.0625rem" }}>Coverage vs. Brief</h2>
             <p style={{ margin: "0 0 10px", fontSize: "0.875rem" }}>
-              Topical coverage: {report.coverage.topicalCoverageScore}% · Internal linking: {report.coverage.internalLinkingScore}%
+              Topical coverage: {report.coverage.topicalCoverageScore}%
+              {!report.coverage.subtopicsRequired && (
+                <span style={{ color: "var(--cc-text-muted)", fontSize: "0.75rem" }}> (no required subtopics — score is vacuous, not a real signal)</span>
+              )}
+              {" · "}Internal linking: {report.coverage.internalLinkingScore}%
+              {!report.coverage.linksRequired && (
+                <span style={{ color: "var(--cc-text-muted)", fontSize: "0.75rem" }}> (no required links — score is vacuous, not a real signal)</span>
+              )}
             </p>
             {report.coverage.subtopics.map((s, i) => (
               <div key={i} className="cc-pending-row">

@@ -25,7 +25,11 @@ export default async function VerifyDraftPage({
         is auto-rewritten and no evidence is invented; unsubstantiated claims are flagged for you to fill in with
         something real.
       </p>
-      <VerifyDraftForm topicKey={topicKey} defaultSourceMaterial={brief.sourceMaterial ?? ""} />
+      <VerifyDraftForm
+        topicKey={topicKey}
+        defaultSourceMaterial={brief.sourceMaterial ?? ""}
+        hasLinkedBlogPost={Boolean(brief.linkedBlogPost?._ref)}
+      />
     </div>
   );
 }
