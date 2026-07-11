@@ -27,6 +27,7 @@ function kindLabel(kind: string): string {
     seo_opportunity: "SEO",
     keyword_cannibalization: "Cannibalization",
     internal_link_gap: "Links",
+    topic_suggestion: "Topic Map",
   };
   return labels[kind] ?? kind;
 }

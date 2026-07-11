@@ -61,7 +61,7 @@ export interface PortableTextBlockLite {
   children?: PortableTextSpanLite[];
 }
 
-function blockText(block: PortableTextBlockLite): string {
+export function blockText(block: PortableTextBlockLite): string {
   if (block._type !== "block") return "";
   return (block.children ?? []).map((c) => c.text ?? "").join("");
 }
