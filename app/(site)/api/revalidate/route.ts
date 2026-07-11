@@ -1,5 +1,6 @@
 import { revalidatePath } from "next/cache";
 import { type NextRequest, NextResponse } from "next/server";
+import { client } from "@/sanity/client";
 
 // Business Command Center document types — never rendered on any public
 // page, so a publish/patch to one of these has nothing to revalidate.
@@ -68,7 +69,17 @@ export async function POST(req: NextRequest) {
       revalidatePath(path);
     }
     if (type === "blogPost") {
-      revalidatePath("/blog/[slug]", "page");
+      // Route Handlers only mark a dynamic-segment pattern ("/blog/[slug]") for
+      // revalidation on next visit to that exact pattern match — it does not
+      // reliably invalidate already-cached concrete slugs at the Vercel edge.
+      // Revalidating each real literal path guarantees every existing post
+      // picks up the change immediately, not just the one that changed.
+      const slugs = await client.fetch<string[]>(
+        `*[_type == "blogPost" && defined(slug.current)].slug.current`
+      );
+      for (const slug of slugs) {
+        revalidatePath(`/blog/${slug}`);
+      }
     }
     return NextResponse.json({ revalidated: true, scope: "narrow", paths: narrowPaths, now: Date.now() });
   }
