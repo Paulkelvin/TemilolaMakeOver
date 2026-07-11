@@ -275,3 +275,9 @@ export async function getArticleBriefByTopicKey(topicKey: string): Promise<Store
     { topicKey }
   );
 }
+
+export async function getAllArticleBriefs(): Promise<StoredArticleBrief[]> {
+  return client.fetch<StoredArticleBrief[]>(
+    `*[_type == "contentBrief"] | order(lastComputedAt desc)`
+  );
+}
