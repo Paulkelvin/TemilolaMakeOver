@@ -36,7 +36,21 @@ export default async function ContentBriefPage({
         Everything a writer needs before drafting — compiled from real Keyword Discovery, Competitor Gap, Knowledge
         Graph, Internal Link, and Search Console data. Nothing here is guessed; the coverage score comes later, once
         a draft exists to check against this checklist.
+        {" · "}
+        <Link href={`/command-center/editorial/${topicKey}/verify`} style={{ fontWeight: 600, color: "var(--cc-accent)" }}>
+          Verify a draft →
+        </Link>
       </p>
+
+      {!brief.sourceMaterial && (
+        <div className="cc-card" style={{ borderColor: "var(--cc-warn, #b8631a)" }}>
+          <p style={{ margin: 0, fontSize: "0.875rem" }}>
+            ⚠️ No source material saved yet. Paste the transcript, notes, or article you&rsquo;re researching from
+            into this brief&rsquo;s <strong>Source Material</strong> field in Sanity Studio before verifying a draft
+            — the Originality Scorer needs it to check the draft against.
+          </p>
+        </div>
+      )}
 
       <div className="cc-tiles">
         <div className="cc-tile">

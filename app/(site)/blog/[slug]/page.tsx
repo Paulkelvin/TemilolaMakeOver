@@ -138,6 +138,9 @@ export default async function BlogPostPage({
                       videoEmbed: ({ value }) => (
                         <VideoEmbed url={value.url} caption={value.caption} />
                       ),
+                      // Editor-only marker from the Evidence Scanner (lib/intelligence/evidence-scan.ts) —
+                      // must never reach a real visitor, however it was resolved in Studio.
+                      experiencePlaceholder: () => null,
                     },
                     block: {
                       h1: ({ children }) => <h2>{children}</h2>,
