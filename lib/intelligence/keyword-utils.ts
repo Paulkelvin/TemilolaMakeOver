@@ -274,21 +274,50 @@ export function overlapScore(a: string[], b: string[]): number {
 }
 
 export function matchContent(
-  clusterTokens: string[],
+  tokenSets: string[][],
   index: ContentIndexEntry[]
 ): { coverage: ContentCoverage; matchedPath?: string; topicalRelevanceScore: number; matchedCoverageScore?: number } {
+  // Multiple token sets (e.g. a topic's broad shared vocabulary AND its own
+  // specific representative query) are checked against every indexed page —
+  // a narrow shared-vocabulary set alone can under-match: two words shared
+  // across a huge, diverse query cluster will lose to a short exact page
+  // name even when a longer, more specific existing page is the real match.
+  // overlapScore floors every containment match (one side's tokens fully
+  // inside the other's) to the same 0.75, so a short exact page name and a
+  // longer, more specific page can tie exactly on overlap — and even their
+  // raw Jaccard can tie too (a 2-token page inside a 4-token cluster scores
+  // identically to a 4-token cluster inside an 8-token page: 2/4 = 4/8).
+  // Without a further tiebreaker, whichever happened to be pushed into the
+  // index first always wins, regardless of which is the more relevant page.
+  // The final tiebreaker is the matched page's own specificity — a longer,
+  // more detailed title is stronger evidence of a genuine dedicated match
+  // than a short, broad one.
   let best: ContentIndexEntry | null = null;
   let bestOverlap = 0;
+  let bestJaccard = 0;
+  let bestSpecificity = 0;
   for (const entry of index) {
-    const overlap = overlapScore(clusterTokens, entry.tokens);
-    if (overlap > bestOverlap) {
-      bestOverlap = overlap;
-      best = entry;
+    for (const tokens of tokenSets) {
+      const overlap = overlapScore(tokens, entry.tokens);
+      if (overlap < bestOverlap) continue;
+      const rawJaccard = jaccard(tokens, entry.tokens);
+      if (overlap === bestOverlap && rawJaccard < bestJaccard) continue;
+      const specificity = entry.tokens.length;
+      const isBetter =
+        overlap > bestOverlap ||
+        rawJaccard > bestJaccard ||
+        (rawJaccard === bestJaccard && specificity > bestSpecificity);
+      if (!best || isBetter) {
+        bestOverlap = overlap;
+        bestJaccard = rawJaccard;
+        bestSpecificity = specificity;
+        best = entry;
+      }
     }
   }
 
   const matchesTaxonomyVocab = bestOverlap >= 0.3;
-  const matchesCoreVocab = clusterTokens.some((t) => CORE_BUSINESS_VOCAB.has(t));
+  const matchesCoreVocab = tokenSets.some((tokens) => tokens.some((t) => CORE_BUSINESS_VOCAB.has(t)));
   const topicalRelevanceScore = matchesTaxonomyVocab ? 100 : matchesCoreVocab ? 70 : 15;
 
   if (!best || bestOverlap < 0.3) {

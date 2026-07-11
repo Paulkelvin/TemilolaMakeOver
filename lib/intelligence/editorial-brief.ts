@@ -100,7 +100,11 @@ export async function computeArticleBrief(topicKey: string): Promise<ArticleBrie
     );
   }
 
-  const targetQueries = topic.sampleQueries.map((q) => q.query);
+  // topic.sampleQueries has one entry per (query, confirming source) pair —
+  // real and intentional for the Keyword Discovery detail page's per-source
+  // table, but a brief needs the distinct queries themselves, not one copy
+  // per search engine that happened to suggest the same phrase.
+  const targetQueries = Array.from(new Set(topic.sampleQueries.map((q) => q.query)));
   const topicTokens = normalizeQuery(topic.topicLabel).tokens;
 
   const [competitorGapDocs, knowledgeGraphDocs, services, locations, blogPosts] = await Promise.all([

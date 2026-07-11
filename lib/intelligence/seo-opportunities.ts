@@ -256,7 +256,7 @@ export async function computeSeoOpportunities(fetchClient: FetchClient = client)
     const ctr = impressions > 0 ? clicks / impressions : 0;
 
     const clusterTokens = cluster.sharedTokens.length > 0 ? cluster.sharedTokens : cluster.members[0].tokens;
-    const { coverage, matchedPath, topicalRelevanceScore } = matchContent(clusterTokens, contentIndex);
+    const { coverage, matchedPath, topicalRelevanceScore } = matchContent([clusterTokens], contentIndex);
     if (topicalRelevanceScore < MIN_TOPICAL_RELEVANCE) continue; // drop noise
 
     const intentClassification = classifyIntentDetailed(rawQueries);

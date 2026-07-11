@@ -96,7 +96,7 @@ function extractSubtopicGaps(signal: PageSignal, contentIndex: ContentIndexEntry
   for (const h of signal.headings) {
     const { tokens } = normalizeQuery(h.text);
     if (tokens.length === 0) continue;
-    const { coverage, topicalRelevanceScore } = matchContent(tokens, contentIndex);
+    const { coverage, topicalRelevanceScore } = matchContent([tokens], contentIndex);
     if (coverage === "none" && topicalRelevanceScore >= MIN_SUBTOPIC_RELEVANCE) {
       gaps.push({ heading: h.text, headingLevel: h.level, relevanceScore: topicalRelevanceScore });
     }
@@ -200,7 +200,7 @@ async function crawlCompetitor(
     const { tokens } = normalizeQuery(`${signal.title} ${signal.h1}`);
     if (tokens.length === 0) continue;
 
-    const { coverage, topicalRelevanceScore, matchedCoverageScore } = matchContent(tokens, ourContentIndex);
+    const { coverage, topicalRelevanceScore, matchedCoverageScore } = matchContent([tokens], ourContentIndex);
     if (coverage !== "none" || topicalRelevanceScore < MIN_TOPICAL_RELEVANCE) continue; // not a gap, or not genuinely on-topic
 
     const topicKey = topicKeyFor(tokens, label);
