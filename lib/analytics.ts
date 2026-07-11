@@ -30,6 +30,12 @@ export const analyticsEvents = {
   packageCta: "package_cta",
   availabilityCta: "check_availability",
   faqQuestionSubmit: "faq_question_submit",
+  // Booking-form-specific funnel stages — distinct names from the generic
+  // whatsappClick above so the Command Center can query them without needing
+  // a GA4 custom dimension on event params just to isolate "booking page only".
+  bookingFormStart: "booking_form_start",
+  bookingStep2: "booking_step_2",
+  bookingWhatsappSubmit: "booking_whatsapp_submit",
 } as const;
 
 /** Track with optional page location for conversion analysis */

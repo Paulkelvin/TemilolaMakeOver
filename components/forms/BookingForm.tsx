@@ -55,6 +55,13 @@ export function BookingForm({ className, preselectedService, preselectedDate, pr
   const submittedData = useRef<BookingFormValues | null>(null);
   const sanityBookingId = useRef<string | null>(null);
   const formRef = useRef<HTMLFormElement>(null);
+  const hasStartedRef = useRef(false);
+
+  function markFormStarted() {
+    if (hasStartedRef.current) return;
+    hasStartedRef.current = true;
+    trackEvent(analyticsEvents.bookingFormStart, { location: "booking_page" });
+  }
 
   const matchedService = preselectedService
     ? services.find((s) => s.slug === preselectedService)
@@ -124,6 +131,8 @@ export function BookingForm({ className, preselectedService, preselectedDate, pr
   async function goToStep2() {
     const valid = await trigger(step1Fields as unknown as (keyof BookingFormValues)[]);
     if (valid) {
+      markFormStarted();
+      trackEvent(analyticsEvents.bookingStep2, { location: "booking_page" });
       setStep(2);
       setTimeout(() => formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
     } else {
@@ -186,6 +195,7 @@ export function BookingForm({ className, preselectedService, preselectedDate, pr
     if (!valid) return;
     const data = getValues();
     trackEvent(analyticsEvents.whatsappClick, { location: "booking_form" });
+    trackEvent(analyticsEvents.bookingWhatsappSubmit, { location: "booking_page" });
     window.open(getBookingWhatsAppUrl(data, zones), "_blank", "noopener,noreferrer");
 
     const zoneLabel = getZoneLabel(data.travelZone);
@@ -321,6 +331,7 @@ export function BookingForm({ className, preselectedService, preselectedDate, pr
     <form
       ref={formRef}
       onSubmit={handleSubmit(onSubmit)}
+      onChange={markFormStarted}
       noValidate
       className={cn(
         "rounded-2xl border border-border bg-card p-5 md:p-8 shadow-card overflow-hidden scroll-mt-24 max-w-full",
@@ -422,11 +433,15 @@ export function BookingForm({ className, preselectedService, preselectedDate, pr
               blockedDates={blockedDates}
               selectedDate={watchedDate}
               onSelectDate={(date) => {
+                markFormStarted();
                 setValue("eventDate", date, { shouldValidate: true });
                 setShowCalendar(false);
               }}
               selectedTime={watchedTime}
-              onSelectTime={(time) => setValue("preferredTime", time)}
+              onSelectTime={(time) => {
+                markFormStarted();
+                setValue("preferredTime", time);
+              }}
             />
           )}
         </FormField>
