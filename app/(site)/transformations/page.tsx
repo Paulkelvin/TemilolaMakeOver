@@ -30,8 +30,8 @@ export default async function TransformationsPage() {
             {transformations.map((pair) => (
               <BeforeAfterSlider
                 key={pair.id}
-                before={{ src: pair.beforeUrl, alt: pair.beforeAlt, position: pair.beforePosition }}
-                after={{ src: pair.afterUrl, alt: pair.afterAlt, position: pair.afterPosition }}
+                before={{ src: pair.beforeUrl, alt: pair.beforeAlt }}
+                after={{ src: pair.afterUrl, alt: pair.afterAlt }}
               />
             ))}
           </div>
