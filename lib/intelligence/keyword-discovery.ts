@@ -13,8 +13,11 @@ import {
   matchContent,
   topicKeyFor,
   computePriorityScore,
+  deriveConfidenceLevel,
+  CONFIDENCE_SCORE,
   QUESTION_PATTERN,
   VISUAL_PATTERN,
+  type ConfidenceLevel,
   type ClusterableQuery,
   type Intent,
   type IntentClassification,
@@ -259,7 +262,6 @@ async function discoverQueries(
 // ─── Types ──────────────────────────────────────────────────────────────────
 
 export type QueryBreadth = "head" | "long-tail";
-export type ConfidenceLevel = "high" | "medium" | "low";
 export type RecommendedAction =
   | "create_new_pillar"
   | "create_cluster_article"
@@ -384,8 +386,6 @@ const INTENT_VALUE: Record<Intent, number> = {
   navigational: 15,
 };
 
-const CONFIDENCE_SCORE: Record<ConfidenceLevel, number> = { high: 90, medium: 60, low: 30 };
-
 // Favors genuine content gaps (nothing to lose by creating something new)
 // over topics where strong content already exists — the opposite emphasis
 // from the GSC-driven engine, which favors topics already ranking.
@@ -460,10 +460,7 @@ export async function computeKeywordDiscoveryTopics(fetchClient: FetchClient = c
       confirmedByDuckDuckGo && "DuckDuckGo",
     ].filter(Boolean) as string[];
 
-    let confidenceLevel: ConfidenceLevel;
-    if (sourceCount >= 2) confidenceLevel = "high";
-    else if (sourceCount === 1) confidenceLevel = "medium";
-    else confidenceLevel = "low";
+    const confidenceLevel: ConfidenceLevel = deriveConfidenceLevel(sourceCount);
 
     const confidenceReasons: string[] = [];
     if (sourceCount >= 4) {

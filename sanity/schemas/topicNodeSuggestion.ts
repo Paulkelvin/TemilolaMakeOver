@@ -37,6 +37,14 @@ export const topicNodeSuggestionSchema = defineType({
     defineField({ name: "sourceCount", title: "Distinct sources", type: "number" }),
     defineField({ name: "priorityScore", title: "Combined priority score", type: "number" }),
     defineField({
+      name: "confidenceLabel",
+      title: "Confidence",
+      type: "string",
+      description: "How many independent evidence sources support this — high/medium/low, distinct from priority (how impactful it would be).",
+      options: { list: [{ title: "High", value: "high" }, { title: "Medium", value: "medium" }, { title: "Low", value: "low" }] },
+    }),
+    defineField({ name: "confidenceScore", title: "Confidence score", type: "number" }),
+    defineField({
       name: "decisionTrace",
       title: "Decision trace",
       type: "array",
