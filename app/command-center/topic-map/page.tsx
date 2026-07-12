@@ -2,18 +2,28 @@ import Link from "next/link";
 import { getTopicMap, type TopicMapNode } from "@/lib/intelligence/topic-map";
 import { getClusterAuthorities, type StoredClusterAuthority } from "@/lib/intelligence/cluster-authority";
 import { getPendingTopicSuggestionCount } from "@/lib/intelligence/topic-suggestions";
+import { computeLifecyclesForTree, LIFECYCLE_STAGE_LABEL, type ClusterLifecycle } from "@/lib/intelligence/topic-lifecycle";
+
+const STAGE_COLOR: Record<string, string> = {
+  needs_refresh: "var(--cc-critical)",
+  mature_authority: "var(--cc-good)",
+  growing_authority: "var(--cc-accent)",
+};
 
 function TopicRow({
   node,
   depth,
   clustersById,
+  lifecyclesById,
 }: {
   node: TopicMapNode;
   depth: number;
   clustersById: Map<string, StoredClusterAuthority>;
+  lifecyclesById: Map<string, ClusterLifecycle>;
 }) {
   const isCluster = node.children.length > 0;
   const cluster = clustersById.get(node.id);
+  const lifecycle = lifecyclesById.get(node.id);
 
   return (
     <div>
@@ -29,6 +39,21 @@ function TopicRow({
       >
         <div>
           <span style={{ color: "var(--cc-text)", fontWeight: isCluster ? 600 : 400 }}>{node.label}</span>
+          {isCluster && lifecycle && (
+            <span
+              style={{
+                marginLeft: 8,
+                fontSize: "0.6875rem",
+                fontWeight: 600,
+                padding: "1px 8px",
+                borderRadius: 999,
+                border: "1px solid var(--cc-border)",
+                color: STAGE_COLOR[lifecycle.result.stage] ?? "var(--cc-text-muted)",
+              }}
+            >
+              {LIFECYCLE_STAGE_LABEL[lifecycle.result.stage]}
+            </span>
+          )}
           {node.notes && (
             <span style={{ marginLeft: 8, fontSize: "0.75rem", color: "var(--cc-text-muted)" }}>{node.notes}</span>
           )}
@@ -60,17 +85,18 @@ function TopicRow({
         </div>
       </div>
       {node.children.map((child) => (
-        <TopicRow key={child.id} node={child} depth={depth + 1} clustersById={clustersById} />
+        <TopicRow key={child.id} node={child} depth={depth + 1} clustersById={clustersById} lifecyclesById={lifecyclesById} />
       ))}
     </div>
   );
 }
 
 export default async function TopicMapPage() {
-  const [tree, clusters, pendingSuggestionCount] = await Promise.all([
-    getTopicMap(),
+  const tree = await getTopicMap();
+  const [clusters, pendingSuggestionCount, lifecyclesById] = await Promise.all([
     getClusterAuthorities(),
     getPendingTopicSuggestionCount(),
+    computeLifecyclesForTree(tree),
   ]);
   const clustersById = new Map(clusters.map((c) => [c.clusterNodeId, c]));
 
@@ -104,7 +130,7 @@ export default async function TopicMapPage() {
             the hierarchy — each topic can either link to a real page or stand alone as a planning idea.
           </div>
         ) : (
-          tree.map((node) => <TopicRow key={node.id} node={node} depth={0} clustersById={clustersById} />)
+          tree.map((node) => <TopicRow key={node.id} node={node} depth={0} clustersById={clustersById} lifecyclesById={lifecyclesById} />)
         )}
       </div>
     </div>
