@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getClusterAuthorityByNodeId } from "@/lib/intelligence/cluster-authority";
+import { computeLifecycleForCluster, LIFECYCLE_STAGE_LABEL } from "@/lib/intelligence/topic-lifecycle";
 import { TimeSeriesChart } from "@/components/command-center/TimeSeriesChart";
 
 const SOURCE_LABELS: Record<string, string> = {
@@ -37,6 +38,7 @@ export default async function ClusterDetailPage({
   const { clusterId } = await params;
   const cluster = await getClusterAuthorityByNodeId(clusterId);
   if (!cluster) notFound();
+  const lifecycle = await computeLifecycleForCluster(clusterId, cluster.clusterLabel);
 
   return (
     <div>
@@ -70,6 +72,13 @@ export default async function ClusterDetailPage({
           <div className="cc-tile__label">Open gaps</div>
           <div className="cc-tile__value">{cluster.openGapCount}</div>
         </div>
+      </div>
+
+      <div className="cc-card">
+        <h2 style={{ margin: "0 0 4px", fontSize: "1.0625rem" }}>Lifecycle: {LIFECYCLE_STAGE_LABEL[lifecycle.result.stage]}</h2>
+        <ol style={{ margin: "8px 0 0", paddingLeft: "1.2em", fontSize: "0.8125rem", color: "var(--cc-text-muted)", lineHeight: 1.8 }}>
+          {lifecycle.result.decisionTrace.map((step, i) => <li key={i}>{step}</li>)}
+        </ol>
       </div>
 
       <div className="cc-card">
