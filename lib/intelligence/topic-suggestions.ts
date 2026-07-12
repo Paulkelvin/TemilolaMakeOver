@@ -7,7 +7,7 @@ import { getCompetitorGaps } from "./competitor-gap";
 import { getKeywordDiscoveryTopics } from "./keyword-discovery";
 import { getGoogleAutocomplete } from "./sources/keyword-discovery-sources";
 import { getQueryPageMatrix, isSearchConsoleConfigured } from "./sources/search-console";
-import { normalizeQuery, overlapScore, topicKeyFor } from "./keyword-utils";
+import { normalizeQuery, overlapScore, topicKeyFor, deriveConfidenceLevel, CONFIDENCE_SCORE, OVERLAP_THRESHOLDS, type ConfidenceLevel } from "./keyword-utils";
 import { blockText, type PortableTextBlockLite } from "./evidence-scan";
 
 /**
@@ -37,13 +37,11 @@ export interface TopicNodeSuggestion {
   evidence: SuggestionEvidence[];
   sourceCount: number;
   priorityScore: number;
+  confidenceLabel: ConfidenceLevel;
+  confidenceScore: number;
   decisionTrace: string[];
 }
 
-// Stricter than matchTopicToCluster's 0.25 cluster-membership floor — this
-// asks "is this basically the same node already," not "does it belong
-// under the same cluster," so it needs much stronger evidence to suppress.
-const ALREADY_COVERED_OVERLAP = 0.45;
 const MERGE_OVERLAP = 0.5; // candidates from different sources merge into one suggestion above this
 const MAX_SUGGESTIONS = 40;
 const MIN_SC_IMPRESSIONS = 50;
@@ -179,7 +177,7 @@ function flattenAllNodes(nodes: TopicMapNode[]): TopicMapNode[] {
 }
 
 function isAlreadyCovered(tokens: string[], existingNodeTokenSets: string[][]): boolean {
-  return existingNodeTokenSets.some((nodeTokens) => overlapScore(tokens, nodeTokens) >= ALREADY_COVERED_OVERLAP);
+  return existingNodeTokenSets.some((nodeTokens) => overlapScore(tokens, nodeTokens) >= OVERLAP_THRESHOLDS.alreadyDuplicate);
 }
 
 interface SuggestionBucket {
@@ -271,11 +269,13 @@ export async function computeTopicSuggestions(fetchClient: FetchClient = client)
       const tokens = bucket.representative.tokens;
       const evidence = dedupeEvidence(bucket.evidence);
       const priorityScore = computeSuggestionPriority(evidence, bucket.sources.size);
+      const confidenceLabel = deriveConfidenceLevel(bucket.sources.size);
+      const confidenceScore = CONFIDENCE_SCORE[confidenceLabel];
       const parentMatch = await matchTopicToCluster(tokens);
 
       const trace: string[] = [
-        `Surfaced by ${bucket.sources.size} source${bucket.sources.size === 1 ? "" : "s"}: ${Array.from(bucket.sources).join(", ")}.`,
-        `Not already represented in the Topic Map — no existing node's label overlaps this by ${Math.round(ALREADY_COVERED_OVERLAP * 100)}% or more.`,
+        `Surfaced by ${bucket.sources.size} source${bucket.sources.size === 1 ? "" : "s"}: ${Array.from(bucket.sources).join(", ")} — confidence ${confidenceLabel} (${confidenceScore}%).`,
+        `Not already represented in the Topic Map — no existing node's label overlaps this by ${Math.round(OVERLAP_THRESHOLDS.alreadyDuplicate * 100)}% or more.`,
         parentMatch
           ? `Best fits under the existing "${parentMatch.clusterLabel}" cluster (overlap ${parentMatch.overlap.toFixed(2)}).`
           : `Doesn't overlap any existing cluster closely enough — candidate for a brand new top-level topic.`,
@@ -289,6 +289,8 @@ export async function computeTopicSuggestions(fetchClient: FetchClient = client)
         evidence,
         sourceCount: bucket.sources.size,
         priorityScore,
+        confidenceLabel,
+        confidenceScore,
         decisionTrace: trace,
       };
     })

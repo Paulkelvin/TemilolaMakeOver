@@ -5,7 +5,7 @@ import { getKeywordDiscoveryTopics } from "./keyword-discovery";
 import { getCompetitorGaps } from "./competitor-gap";
 import { getKnowledgeGraphGaps } from "./knowledge-graph";
 import { getInternalLinkGaps } from "./internal-links";
-import { normalizeQuery, overlapScore } from "./keyword-utils";
+import { normalizeQuery, overlapScore, OVERLAP_THRESHOLDS } from "./keyword-utils";
 
 /**
  * Cluster Authority — the site's topical authority tracked at the level a
@@ -18,7 +18,6 @@ import { normalizeQuery, overlapScore } from "./keyword-utils";
  * existing ones viewed one level up.
  */
 
-const MIN_GAP_OVERLAP = 0.25; // same floor internal-links.ts/editorial-brief.ts use for "real match"
 const MAX_RECOMMENDATIONS = 5;
 
 export type GapSource = "keyword-discovery" | "competitor-gap" | "knowledge-graph";
@@ -89,7 +88,7 @@ export async function matchTopicToCluster(topicTokens: string[]): Promise<Cluste
       const descendants = flattenDescendants(node);
       const tokens = clusterTokens(node.label, descendants);
       const overlap = overlapScore(topicTokens, tokens);
-      if (overlap >= MIN_GAP_OVERLAP && (!best || overlap > best.overlap)) {
+      if (overlap >= OVERLAP_THRESHOLDS.clusterMembership && (!best || overlap > best.overlap)) {
         best = { clusterNodeId: node.id, clusterLabel: node.label, overlap };
       }
     }
@@ -140,7 +139,7 @@ export async function computeClusterAuthority(): Promise<ClusterAuthority[]> {
     const rankedKeywordGaps = keywordTopics
       .filter((t) => t.contentCoverage !== "existing-strong")
       .map((t) => ({ t, overlap: overlapScore(tokens, normalizeQuery(t.topicLabel).tokens) }))
-      .filter((x) => x.overlap >= MIN_GAP_OVERLAP)
+      .filter((x) => x.overlap >= OVERLAP_THRESHOLDS.clusterMembership)
       .sort((a, b) => b.t.priorityScore - a.t.priorityScore);
     const missingSubtopics: ClusterGapRef[] = rankedKeywordGaps.slice(0, MAX_RECOMMENDATIONS).map((x) => ({
       label: x.t.topicLabel,
@@ -151,7 +150,7 @@ export async function computeClusterAuthority(): Promise<ClusterAuthority[]> {
 
     const rankedCompetitorGaps = competitorGapTopics
       .map((g) => ({ g, overlap: overlapScore(tokens, normalizeQuery(g.topicLabel).tokens) }))
-      .filter((x) => x.overlap >= MIN_GAP_OVERLAP)
+      .filter((x) => x.overlap >= OVERLAP_THRESHOLDS.clusterMembership)
       .sort((a, b) => b.g.priorityScore - a.g.priorityScore);
     const competitorGaps: ClusterGapRef[] = rankedCompetitorGaps.slice(0, MAX_RECOMMENDATIONS).map((x) => ({
       label: x.g.topicLabel,
@@ -162,7 +161,7 @@ export async function computeClusterAuthority(): Promise<ClusterAuthority[]> {
 
     const rankedKnowledgeGaps = knowledgeGaps
       .map((g) => ({ g, overlap: overlapScore(tokens, normalizeQuery(`${g.serviceName} ${g.occasionName}`).tokens) }))
-      .filter((x) => x.overlap >= MIN_GAP_OVERLAP)
+      .filter((x) => x.overlap >= OVERLAP_THRESHOLDS.clusterMembership)
       .sort((a, b) => b.g.priorityScore - a.g.priorityScore);
     const knowledgeGraphGaps: ClusterGapRef[] = rankedKnowledgeGaps.slice(0, MAX_RECOMMENDATIONS).map((x) => ({
       label: `${x.g.serviceName} × ${x.g.occasionName}`,

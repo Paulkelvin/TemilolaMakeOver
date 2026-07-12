@@ -25,7 +25,8 @@ function SuggestionCard({ suggestion, showActions }: { suggestion: StoredTopicNo
               "New top-level topic — doesn't fit an existing cluster"
             )}
             {" · "}
-            {suggestion.sourceCount} source{suggestion.sourceCount === 1 ? "" : "s"} · priority {suggestion.priorityScore}
+            priority {suggestion.priorityScore} · confidence {suggestion.confidenceScore}% ({suggestion.confidenceLabel},{" "}
+            {suggestion.sourceCount} source{suggestion.sourceCount === 1 ? "" : "s"})
           </p>
         </div>
         <span

@@ -256,6 +256,20 @@ export const CORE_BUSINESS_VOCAB = new Set([
 
 const THIN_THRESHOLD = 60;
 
+// Three different questions, all answered by the same overlapScore() — named
+// and centralized here instead of as unexplained magic numbers scattered
+// across cluster-authority.ts/topic-suggestions.ts, so the relationship
+// between them (contentMatch < clusterMembership... no: alreadyDuplicate is
+// the strictest, contentMatch the loosest) is visible in one place.
+export const OVERLAP_THRESHOLDS = {
+  /** "Does an existing page already cover this topic?" — matchContent() below. */
+  contentMatch: 0.3,
+  /** "Which existing Topic Map cluster does this topic belong to?" — cluster-authority.ts's matchTopicToCluster(). */
+  clusterMembership: 0.25,
+  /** "Is this basically the same node as one that already exists?" — topic-suggestions.ts's isAlreadyCovered(). Stricter than clusterMembership on purpose: belonging to a cluster is a much lower bar than being a duplicate of it. */
+  alreadyDuplicate: 0.45,
+} as const;
+
 // Plain Jaccard penalizes a short real page name (e.g. "Bridal Makeup" ->
 // {makeup, wedding}) against a much longer, keyword-stuffed query/title
 // (e.g. a competitor's SEO-optimized page title with 8-12 tokens) even when
@@ -316,11 +330,11 @@ export function matchContent(
     }
   }
 
-  const matchesTaxonomyVocab = bestOverlap >= 0.3;
+  const matchesTaxonomyVocab = bestOverlap >= OVERLAP_THRESHOLDS.contentMatch;
   const matchesCoreVocab = tokenSets.some((tokens) => tokens.some((t) => CORE_BUSINESS_VOCAB.has(t)));
   const topicalRelevanceScore = matchesTaxonomyVocab ? 100 : matchesCoreVocab ? 70 : 15;
 
-  if (!best || bestOverlap < 0.3) {
+  if (!best || bestOverlap < OVERLAP_THRESHOLDS.contentMatch) {
     return { coverage: "none", topicalRelevanceScore };
   }
   const coverage: ContentCoverage = best.coverageScore >= THIN_THRESHOLD ? "existing-strong" : "thin";
@@ -377,6 +391,25 @@ export function topicKeyFor(sharedTokens: string[], fallbackLabel: string): stri
   if (fromTokens) return fromTokens;
   const fromLabel = fallbackLabel.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
   return fromLabel || `topic-${Buffer.from(fallbackLabel).toString("hex").slice(0, 12)}`;
+}
+
+// ─── Evidence-source confidence ────────────────────────────────────────────
+// Shared by keyword-discovery.ts and topic-suggestions.ts, which both ask the
+// same underlying question — "how many independent evidence sources support
+// this candidate" — even though each surfaces its own richer, source-specific
+// reasons alongside the level. Deliberately NOT shared with seo-opportunities.ts
+// (whose own ConfidenceLevel is derived from impressions/cluster-size/relevance,
+// not source count) or health-score.ts's sample-size-based ConfidenceTier —
+// those measure genuinely different things, and forcing one scale on all three
+// would lose information rather than simplify anything.
+
+export type ConfidenceLevel = "high" | "medium" | "low";
+export const CONFIDENCE_SCORE: Record<ConfidenceLevel, number> = { high: 90, medium: 60, low: 30 };
+
+export function deriveConfidenceLevel(sourceCount: number): ConfidenceLevel {
+  if (sourceCount >= 2) return "high";
+  if (sourceCount === 1) return "medium";
+  return "low";
 }
 
 // ─── Cross-engine convergence (C2) ────────────────────────────────────────
