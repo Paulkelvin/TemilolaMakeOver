@@ -254,6 +254,19 @@ export const CORE_BUSINESS_VOCAB = new Set([
   "gele", "owambe", "event", "party", "trial", "training", "course", "mobile", "home service",
 ]);
 
+// Stricter than CORE_BUSINESS_VOCAB — single-word tokens only (tokens from
+// normalizeQuery are always single words, so multi-word CORE_BUSINESS_VOCAB
+// entries like "makeup artist" can never match one anyway). Broad terms like
+// "wedding"/"event"/"party" are legitimately core vocabulary but too generic
+// alone to prove a candidate is actually ABOUT makeup — an autocomplete
+// completion for a broad seed like "Corporate" or "Traditional Wedding" can
+// easily return "corporate lawyer salary" or "wedding invitations", which
+// share a taxonomy word but aren't makeup topics at all.
+export const MAKEUP_SPECIFIC_VOCAB = new Set([
+  "makeup", "glam", "beauty", "bridal", "bride", "gele", "cosmetics", "cosmetic",
+  "lash", "lashes", "brow", "brows", "foundation", "concealer", "lipstick", "contour", "highlighter",
+]);
+
 const THIN_THRESHOLD = 60;
 
 // Three different questions, all answered by the same overlapScore() — named

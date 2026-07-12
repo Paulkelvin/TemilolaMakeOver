@@ -111,6 +111,17 @@ export default async function TopicMapPage() {
         hierarchy in Sanity Studio (Taxonomy → Topic Map).
       </p>
 
+      {tree.length === 0 && (
+        <Link href="/command-center/topic-map/wizard" className="cc-card" style={{ display: "block", marginBottom: 16 }}>
+          <strong style={{ color: "var(--cc-accent)" }}>Topic Map is empty — generate an initial structure →</strong>
+          <p style={{ margin: "4px 0 0", fontSize: "0.8125rem", color: "var(--cc-text-muted)" }}>
+            The Initial Topic Map Wizard proposes a whole starting hierarchy from Competitor Gaps, Search Console,
+            Keyword Discovery, Google Autocomplete, verified articles, and the site&rsquo;s real taxonomy — review and
+            approve the whole structure in one pass instead of building it node by node.
+          </p>
+        </Link>
+      )}
+
       {pendingSuggestionCount > 0 && (
         <Link href="/command-center/topic-map/suggestions" className="cc-card" style={{ display: "block", marginBottom: 16 }}>
           <strong style={{ color: "var(--cc-accent)" }}>
