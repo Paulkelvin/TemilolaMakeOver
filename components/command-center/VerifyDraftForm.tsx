@@ -7,6 +7,7 @@ import type { EvidenceGap, EvidenceSummary } from "@/lib/intelligence/evidence-s
 import type { CoverageRecheckResult } from "@/lib/intelligence/coverage-recheck";
 import type { ReadabilityResult, KeywordStuffingResult, OpportunityFlags } from "@/lib/intelligence/seo-mechanics";
 import type { StrategicFitResult } from "@/lib/intelligence/strategic-fit";
+import type { AuthoritySimulationResult } from "@/lib/intelligence/authority-simulator";
 
 interface VerifyReport {
   originality: OriginalityResult;
@@ -17,6 +18,7 @@ interface VerifyReport {
   stuffing: KeywordStuffingResult;
   opportunities: OpportunityFlags;
   strategicFit: StrategicFitResult;
+  simulation: AuthoritySimulationResult;
   qualityScore: QualityScoreResult;
 }
 
@@ -254,6 +256,42 @@ export function VerifyDraftForm({
                 {report.strategicFit.decisionTrace.map((step, i) => <li key={i}>{step}</li>)}
               </ol>
             </details>
+          </div>
+
+          <div className="cc-card">
+            <h2 style={{ margin: "0 0 4px", fontSize: "1.0625rem" }}>Topical Authority Simulator</h2>
+            {!report.simulation.applicable ? (
+              <p style={{ margin: 0, fontSize: "0.8125rem", color: "var(--cc-text-muted)" }}>
+                {report.simulation.decisionTrace[0]}
+              </p>
+            ) : (
+              <>
+                <p style={{ margin: "0 0 10px", fontSize: "0.8125rem", color: "var(--cc-text-muted)" }}>
+                  Publishing this article is expected to:
+                </p>
+                {report.simulation.metrics.map((m, i) => {
+                  const up = m.after > m.before;
+                  const down = m.after < m.before;
+                  return (
+                    <div key={i} className="cc-pending-row">
+                      <span style={{ color: "var(--cc-text)" }}>{m.label}</span>
+                      <span style={{ fontFamily: "var(--cc-mono)", fontSize: "0.8125rem", color: up ? "var(--cc-good)" : down ? "var(--cc-critical)" : "var(--cc-text-muted)" }}>
+                        {m.before}{m.unit === "%" ? "%" : ""} → {m.after}{m.unit === "%" ? "%" : ""}
+                      </span>
+                    </div>
+                  );
+                })}
+                <details style={{ marginTop: 10 }}>
+                  <summary style={{ fontSize: "0.8125rem", color: "var(--cc-text-muted)", cursor: "pointer" }}>How this was estimated</summary>
+                  <ol style={{ margin: "8px 0 0", paddingLeft: "1.2em", fontSize: "0.8125rem", color: "var(--cc-text-muted)", lineHeight: 1.8 }}>
+                    {report.simulation.decisionTrace.map((step, i) => <li key={i}>{step}</li>)}
+                  </ol>
+                </details>
+                <p style={{ margin: "10px 0 0", fontSize: "0.75rem", color: "var(--cc-text-muted)", fontStyle: "italic" }}>
+                  {report.simulation.disclaimer}
+                </p>
+              </>
+            )}
           </div>
 
           <div className="cc-card">

@@ -7,6 +7,7 @@ import { recheckCoverage } from "@/lib/intelligence/coverage-recheck";
 import { checkKeywordStuffing, scoreReadability, detectOpportunities } from "@/lib/intelligence/seo-mechanics";
 import { computeQualityScore } from "@/lib/intelligence/quality-score";
 import { computeStrategicFit } from "@/lib/intelligence/strategic-fit";
+import { simulateArticleImpact } from "@/lib/intelligence/authority-simulator";
 
 interface VerifyRequestBody {
   topicKey: string;
@@ -65,6 +66,15 @@ export async function POST(req: NextRequest) {
       draftLinkedPaths: body.draftLinkedPaths,
     });
 
+    const simulation = await simulateArticleImpact({
+      clusterId: brief.clusterId,
+      clusterLabel: brief.clusterLabel,
+      topicLabel: brief.topicLabel,
+      draftHeadings,
+      draftBodyText: plainBodyText,
+      draftLinkedPaths: body.draftLinkedPaths,
+    });
+
     const readability = scoreReadability(plainBodyText);
     const stuffing = checkKeywordStuffing(plainBodyText);
     const opportunities = detectOpportunities(
@@ -99,6 +109,7 @@ export async function POST(req: NextRequest) {
       stuffing,
       opportunities,
       strategicFit,
+      simulation,
       qualityScore,
     });
   } catch (err) {
