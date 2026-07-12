@@ -39,6 +39,7 @@ import { knowledgeGraphGapSchema } from "./knowledgeGraphGap";
 import { contentBriefSchema } from "./contentBrief";
 import { clusterAuthoritySchema } from "./clusterAuthority";
 import { topicNodeSuggestionSchema } from "./topicNodeSuggestion";
+import { topicMapWizardProposalSchema } from "./topicMapWizardProposal";
 
 export const schemaTypes = [
   serviceSchema,
@@ -82,4 +83,5 @@ export const schemaTypes = [
   contentBriefSchema,
   clusterAuthoritySchema,
   topicNodeSuggestionSchema,
+  topicMapWizardProposalSchema,
 ];

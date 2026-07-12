@@ -7,8 +7,17 @@ import { getCompetitorGaps } from "./competitor-gap";
 import { getKeywordDiscoveryTopics } from "./keyword-discovery";
 import { getGoogleAutocomplete } from "./sources/keyword-discovery-sources";
 import { getQueryPageMatrix, isSearchConsoleConfigured } from "./sources/search-console";
-import { normalizeQuery, overlapScore, topicKeyFor, deriveConfidenceLevel, CONFIDENCE_SCORE, OVERLAP_THRESHOLDS, type ConfidenceLevel } from "./keyword-utils";
+import { normalizeQuery, overlapScore, topicKeyFor, OVERLAP_THRESHOLDS, MAKEUP_SPECIFIC_VOCAB, type ConfidenceLevel } from "./keyword-utils";
 import { blockText, type PortableTextBlockLite } from "./evidence-scan";
+import {
+  candidate,
+  mergeCandidates,
+  dedupeEvidence,
+  scoreBucket,
+  type SuggestionSource,
+  type SuggestionEvidence,
+  type RawCandidate,
+} from "./topic-clustering";
 
 /**
  * Topic Node Suggestion Engine — the Topic Map's "living knowledge graph"
@@ -20,14 +29,6 @@ import { blockText, type PortableTextBlockLite } from "./evidence-scan";
  * rejects each suggestion via approveTopicSuggestion/rejectTopicSuggestion
  * below — data-driven discovery, human-controlled editing.
  */
-
-export type SuggestionSource = "competitor-gap" | "search-console" | "keyword-discovery" | "autocomplete" | "recurring-entity";
-
-export interface SuggestionEvidence {
-  source: SuggestionSource;
-  detail: string;
-  priorityScore: number;
-}
 
 export interface TopicNodeSuggestion {
   suggestionKey: string;
@@ -48,21 +49,9 @@ const MIN_SC_IMPRESSIONS = 50;
 const MIN_ENTITY_ARTICLE_COUNT = 3;
 const MAX_AUTOCOMPLETE_SEEDS = 20;
 
-interface RawCandidate {
-  label: string;
-  tokens: string[];
-  source: SuggestionSource;
-  detail: string;
-  priorityScore: number;
-}
-
-function candidate(label: string, source: SuggestionSource, detail: string, priorityScore: number): RawCandidate {
-  return { label, tokens: normalizeQuery(label).tokens, source, detail, priorityScore: Math.round(Math.max(0, Math.min(100, priorityScore))) };
-}
-
 // ─── Source miners ──────────────────────────────────────────────────────────
 
-async function mineCompetitorGaps(): Promise<RawCandidate[]> {
+export async function mineCompetitorGaps(): Promise<RawCandidate[]> {
   const gaps = await getCompetitorGaps();
   return gaps
     .filter((g) => g.status !== "dismissed")
@@ -76,7 +65,7 @@ async function mineCompetitorGaps(): Promise<RawCandidate[]> {
     );
 }
 
-async function mineSearchConsole(): Promise<RawCandidate[]> {
+export async function mineSearchConsole(): Promise<RawCandidate[]> {
   if (!isSearchConsoleConfigured()) return [];
   const matrix = await getQueryPageMatrix(90);
   const byQuery = new Map<string, { impressions: number; positionSum: number; rows: number }>();
@@ -104,7 +93,7 @@ async function mineSearchConsole(): Promise<RawCandidate[]> {
   return candidates;
 }
 
-async function mineKeywordDiscovery(): Promise<RawCandidate[]> {
+export async function mineKeywordDiscovery(): Promise<RawCandidate[]> {
   const topics = await getKeywordDiscoveryTopics();
   return topics
     .filter((t) => t.status !== "dismissed")
@@ -122,7 +111,7 @@ async function mineKeywordDiscovery(): Promise<RawCandidate[]> {
 // Map labels, so this surfaces direct expansions of topics the business
 // actually has ("Owambe Makeup" -> "owambe makeup for aso ebi guests")
 // rather than re-running Keyword Discovery's own broader net.
-async function mineAutocomplete(seeds: string[]): Promise<RawCandidate[]> {
+export async function mineAutocomplete(seeds: string[]): Promise<RawCandidate[]> {
   const uniqueSeeds = Array.from(new Set(seeds.map((s) => s.trim()).filter(Boolean))).slice(0, MAX_AUTOCOMPLETE_SEEDS);
   const results = await Promise.all(
     uniqueSeeds.map(async (seed) => {
@@ -132,14 +121,18 @@ async function mineAutocomplete(seeds: string[]): Promise<RawCandidate[]> {
         .map((s) => candidate(s, "autocomplete", `Google Autocomplete suggests this for "${seed}".`, 35));
     })
   );
-  return results.flat();
+  // A broad seed (an occasion/wedding-type name like "Corporate" or
+  // "Traditional Wedding") can pull back autocomplete noise that shares only
+  // the seed's own generic word ("corporate lawyer salary", "wedding rings")
+  // — require at least one genuinely makeup-specific token before keeping it.
+  return results.flat().filter((c) => c.tokens.some((t) => MAKEUP_SPECIFIC_VOCAB.has(t)));
 }
 
 // No NLP library in this codebase — Title Case bigram/trigram matching is
 // the same heuristic-first approach every other engine here uses. A phrase
 // only counts once it recurs across multiple distinct verified (qualityScore
 // present) articles, not just multiple times within one.
-async function mineRecurringEntities(fetchClient: FetchClient): Promise<RawCandidate[]> {
+export async function mineRecurringEntities(fetchClient: FetchClient): Promise<RawCandidate[]> {
   const posts = await fetchClient.fetch<{ title: string; body?: PortableTextBlockLite[] }[]>(
     `*[_type == "blogPost" && defined(qualityScore)]{ title, body }`
   );
@@ -172,68 +165,12 @@ async function mineRecurringEntities(fetchClient: FetchClient): Promise<RawCandi
 
 // ─── Already-covered filter + cross-source merge ───────────────────────────
 
-function flattenAllNodes(nodes: TopicMapNode[]): TopicMapNode[] {
+export function flattenAllNodes(nodes: TopicMapNode[]): TopicMapNode[] {
   return nodes.flatMap((n) => [n, ...flattenAllNodes(n.children)]);
 }
 
-function isAlreadyCovered(tokens: string[], existingNodeTokenSets: string[][]): boolean {
+export function isAlreadyCovered(tokens: string[], existingNodeTokenSets: string[][]): boolean {
   return existingNodeTokenSets.some((nodeTokens) => overlapScore(tokens, nodeTokens) >= OVERLAP_THRESHOLDS.alreadyDuplicate);
-}
-
-interface SuggestionBucket {
-  representative: RawCandidate;
-  evidence: SuggestionEvidence[];
-  sources: Set<SuggestionSource>;
-}
-
-// Greedy single-pass clustering, same tradeoff matchContent's tiebreak
-// documents elsewhere in this codebase: not exhaustive, but simple and
-// transparent, and good enough given every source already scores its own
-// candidates independently.
-function mergeCandidates(candidates: RawCandidate[]): SuggestionBucket[] {
-  const buckets: SuggestionBucket[] = [];
-  for (const c of candidates) {
-    const bucket = buckets.find((b) => overlapScore(c.tokens, b.representative.tokens) >= MERGE_OVERLAP);
-    const target = bucket ?? { representative: c, evidence: [], sources: new Set<SuggestionSource>() };
-    if (!bucket) buckets.push(target);
-    target.evidence.push({ source: c.source, detail: c.detail, priorityScore: c.priorityScore });
-    target.sources.add(c.source);
-    if (c.priorityScore > target.representative.priorityScore) target.representative = c;
-  }
-  return buckets;
-}
-
-// Distinct autocomplete completions (or SC query variants) from the same
-// seed routinely merge into one bucket carrying the identical detail
-// string several times over — real signal, but showing a human reviewer
-// the same evidence line 6+ times reads as broken. One line per unique
-// (source, detail) pair, counted, is the honest summary.
-function dedupeEvidence(evidence: SuggestionEvidence[]): SuggestionEvidence[] {
-  const byKey = new Map<string, SuggestionEvidence & { count: number }>();
-  for (const e of evidence) {
-    const key = `${e.source}::${e.detail}`;
-    const existing = byKey.get(key);
-    if (existing) {
-      existing.count += 1;
-      existing.priorityScore = Math.max(existing.priorityScore, e.priorityScore);
-    } else {
-      byKey.set(key, { ...e, count: 1 });
-    }
-  }
-  return Array.from(byKey.values()).map(({ count, ...e }) => ({
-    ...e,
-    detail: count > 1 ? `${e.detail} (×${count})` : e.detail,
-  }));
-}
-
-// Scored from the deduped evidence, not the raw bucket — otherwise a
-// candidate that happened to collapse many identical autocomplete
-// completions into one bucket would have its average pulled toward that
-// one repeated score far more than its actual distinct signal warrants.
-function computeSuggestionPriority(evidence: SuggestionEvidence[], sourceCount: number): number {
-  const avg = evidence.reduce((sum, e) => sum + e.priorityScore, 0) / evidence.length;
-  const convergenceBonus = Math.min(45, (sourceCount - 1) * 15);
-  return Math.round(Math.min(100, avg + convergenceBonus));
 }
 
 export async function computeTopicSuggestions(fetchClient: FetchClient = client): Promise<TopicNodeSuggestion[]> {
@@ -261,16 +198,14 @@ export async function computeTopicSuggestions(fetchClient: FetchClient = client)
     ...entityCandidates,
   ].filter((c) => c.tokens.length > 0 && !isAlreadyCovered(c.tokens, existingNodeTokenSets));
 
-  const buckets = mergeCandidates(allCandidates);
+  const buckets = mergeCandidates(allCandidates, MERGE_OVERLAP);
 
   const suggestions = await Promise.all(
     buckets.map(async (bucket): Promise<TopicNodeSuggestion> => {
       const label = bucket.representative.label;
       const tokens = bucket.representative.tokens;
       const evidence = dedupeEvidence(bucket.evidence);
-      const priorityScore = computeSuggestionPriority(evidence, bucket.sources.size);
-      const confidenceLabel = deriveConfidenceLevel(bucket.sources.size);
-      const confidenceScore = CONFIDENCE_SCORE[confidenceLabel];
+      const { priorityScore, confidenceLabel, confidenceScore } = scoreBucket(evidence, bucket.sources.size);
       const parentMatch = await matchTopicToCluster(tokens);
 
       const trace: string[] = [

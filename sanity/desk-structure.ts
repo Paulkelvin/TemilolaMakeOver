@@ -274,6 +274,13 @@ export const deskStructure = (S: StructureBuilder) =>
                     .title("Topic Suggestions")
                     .defaultOrdering([{ field: "priorityScore", direction: "desc" }])
                 ),
+              S.documentTypeListItem("topicMapWizardProposal")
+                .title("Topic Map Wizard Proposals")
+                .child(
+                  S.documentTypeList("topicMapWizardProposal")
+                    .title("Topic Map Wizard Proposals")
+                    .defaultOrdering([{ field: "generatedAt", direction: "desc" }])
+                ),
             ])
         ),
     ]);
