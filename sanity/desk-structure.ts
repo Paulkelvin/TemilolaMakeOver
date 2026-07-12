@@ -281,6 +281,13 @@ export const deskStructure = (S: StructureBuilder) =>
                     .title("Topic Map Wizard Proposals")
                     .defaultOrdering([{ field: "generatedAt", direction: "desc" }])
                 ),
+              S.documentTypeListItem("editorialObjective")
+                .title("Editorial Roadmap")
+                .child(
+                  S.documentTypeList("editorialObjective")
+                    .title("Editorial Roadmap")
+                    .defaultOrdering([{ field: "priorityScore", direction: "desc" }])
+                ),
             ])
         ),
     ]);
