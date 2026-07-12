@@ -296,6 +296,12 @@ export async function getPendingTopicSuggestionCount(): Promise<number> {
   return client.fetch<number>(`count(*[_type == "topicNodeSuggestion" && status == "pending"])`);
 }
 
+export async function getTopPendingSuggestion(): Promise<StoredTopicNodeSuggestion | null> {
+  return client.fetch<StoredTopicNodeSuggestion | null>(
+    `*[_type == "topicNodeSuggestion" && status == "pending"] | order(priorityScore desc)[0]`
+  );
+}
+
 export async function getTopicSuggestionById(id: string): Promise<StoredTopicNodeSuggestion | null> {
   return client.fetch<StoredTopicNodeSuggestion | null>(`*[_id == $id][0]`, { id });
 }
