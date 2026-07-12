@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { computeBusinessHealthScore, CONFIDENCE_LABELS } from "@/lib/intelligence/health-score";
+import { computeTopRecommendation } from "@/lib/intelligence/editor-in-chief";
 import { getBookingFunnel, getRevenueSummary } from "@/lib/intelligence/sources/sanity";
 import { getLatestSnapshot } from "@/lib/intelligence/sources/snapshots";
 import { generateOpportunities } from "@/lib/intelligence/opportunities";
@@ -28,7 +29,8 @@ const ENGINE_LABEL_MAP: Record<string, string> = {
 };
 
 export default async function CommandCenterOverviewPage() {
-  const [health, funnel, revenue, sessionsSnap, opportunities, unreadNotifs, convergence, engineRows] = await Promise.all([
+  const [recommendation, health, funnel, revenue, sessionsSnap, opportunities, unreadNotifs, convergence, engineRows] = await Promise.all([
+    computeTopRecommendation(),
     computeBusinessHealthScore(),
     getBookingFunnel(client),
     getRevenueSummary(client),
@@ -68,6 +70,23 @@ export default async function CommandCenterOverviewPage() {
         Six health sub-scores across content, bookings, portfolio, customers, SEO, and website performance.
         {unreadNotifs > 0 && <> — <strong style={{ color: "var(--cc-accent)" }}>{unreadNotifs} unread notification{unreadNotifs > 1 ? "s" : ""}</strong>.</>}
       </p>
+
+      <div className="cc-card" style={{ marginBottom: 16, border: "1px solid var(--cc-accent)" }}>
+        <p style={{ margin: "0 0 4px", fontSize: "0.75rem", fontWeight: 600, color: "var(--cc-accent)", textTransform: "uppercase", letterSpacing: "0.03em" }}>
+          Editor-in-Chief — highest-impact next action
+        </p>
+        <h2 style={{ margin: "0 0 6px", fontSize: "1.1875rem" }}>{recommendation.headline}</h2>
+        <p style={{ margin: "0 0 10px", fontSize: "0.875rem", color: "var(--cc-text-muted)" }}>{recommendation.detail}</p>
+        <Link href={recommendation.actionHref} style={{ fontSize: "0.875rem", fontWeight: 600, color: "var(--cc-accent)" }}>
+          {recommendation.actionLabel} →
+        </Link>
+        <details style={{ marginTop: 10 }}>
+          <summary style={{ fontSize: "0.8125rem", color: "var(--cc-text-muted)", cursor: "pointer" }}>Why this, not something else</summary>
+          <ol style={{ margin: "8px 0 0", paddingLeft: "1.2em", fontSize: "0.8125rem", color: "var(--cc-text-muted)", lineHeight: 1.8 }}>
+            {recommendation.decisionTrace.map((step, i) => <li key={i}>{step}</li>)}
+          </ol>
+        </details>
+      </div>
 
       <div className="cc-tiles">
         <div className="cc-tile">
