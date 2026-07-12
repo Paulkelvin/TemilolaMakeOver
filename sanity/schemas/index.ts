@@ -40,6 +40,7 @@ import { contentBriefSchema } from "./contentBrief";
 import { clusterAuthoritySchema } from "./clusterAuthority";
 import { topicNodeSuggestionSchema } from "./topicNodeSuggestion";
 import { topicMapWizardProposalSchema } from "./topicMapWizardProposal";
+import { editorialObjectiveSchema } from "./editorialObjective";
 
 export const schemaTypes = [
   serviceSchema,
@@ -84,4 +85,5 @@ export const schemaTypes = [
   clusterAuthoritySchema,
   topicNodeSuggestionSchema,
   topicMapWizardProposalSchema,
+  editorialObjectiveSchema,
 ];

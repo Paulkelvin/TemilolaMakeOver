@@ -14,6 +14,7 @@ import { computeInternalLinkGaps, persistInternalLinkGaps } from "@/lib/intellig
 import { computeKnowledgeGraphGaps, persistKnowledgeGraphGaps } from "@/lib/intelligence/knowledge-graph";
 import { computeClusterAuthority, persistClusterAuthority } from "@/lib/intelligence/cluster-authority";
 import { computeTopicSuggestions, persistTopicSuggestions } from "@/lib/intelligence/topic-suggestions";
+import { computeEditorialRoadmap, persistEditorialRoadmap } from "@/lib/intelligence/editorial-roadmap";
 import { client } from "@/sanity/client";
 
 export const dynamic = "force-dynamic";
@@ -273,6 +274,24 @@ export async function runSnapshot(options?: { force?: boolean }) {
     errors.push(`topic-suggestions: ${err instanceof Error ? err.message : String(err)}`);
   }
 
+  // ─── Editorial Roadmap (weekly-gated, runs after Cluster Authority since
+  // it's a narration layer over that data, not a new scoring engine) ─────
+  let editorialRoadmapResult: { upserted: number } | undefined;
+  try {
+    const lastComputed = await client.fetch<string | null>(
+      `*[_type == "editorialObjective"] | order(lastComputedAt desc)[0].lastComputedAt`
+    );
+    const daysSinceLastRun = lastComputed
+      ? (Date.now() - new Date(lastComputed).getTime()) / 86_400_000
+      : Infinity;
+    if (force || daysSinceLastRun >= 7) {
+      const objectives = await computeEditorialRoadmap();
+      editorialRoadmapResult = await persistEditorialRoadmap(objectives);
+    }
+  } catch (err) {
+    errors.push(`editorial-roadmap: ${err instanceof Error ? err.message : String(err)}`);
+  }
+
   // ─── Metric-drop notifications ─────────────────────────────────────────
   try {
     const alertChecks: { source: string; metric: string; label: string; dropThreshold: number }[] = [
@@ -343,6 +362,7 @@ export async function runSnapshot(options?: { force?: boolean }) {
     knowledgeGraph: knowledgeGraphResult,
     clusterAuthority: clusterAuthorityResult,
     topicSuggestions: topicSuggestionsResult,
+    editorialRoadmap: editorialRoadmapResult,
     errors: errors.length > 0 ? errors : undefined,
   };
 }

@@ -29,6 +29,7 @@ export const COMMAND_CENTER_MODULES: CommandCenterModule[] = [
   { key: "editorial", label: "Editorial", href: "/command-center/editorial", status: "live" },
   { key: "topical-authority", label: "Topical Authority", href: "/command-center/topical-authority", status: "live" },
   { key: "topic-map", label: "Topic Map", href: "/command-center/topic-map", status: "live" },
+  { key: "roadmap", label: "Editorial Roadmap", href: "/command-center/roadmap", status: "live" },
   { key: "topic-suggestions", label: "Topic Suggestions", href: "/command-center/topic-map/suggestions", status: "live" },
   { key: "topic-map-wizard", label: "Topic Map Wizard", href: "/command-center/topic-map/wizard", status: "live" },
   { key: "competitor-gaps", label: "Competitor Gaps", href: "/command-center/competitor-gaps", status: "live" },
