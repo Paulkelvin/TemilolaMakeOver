@@ -2,26 +2,30 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { postCommandCenterAction } from "@/lib/command-center/client";
 
-async function call(body: Record<string, unknown>) {
-  const res = await fetch("/api/command-center/roadmap-action", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
-  });
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.error ?? `Request failed (${res.status})`);
-  return data;
+function call(body: Record<string, unknown>) {
+  return postCommandCenterAction("/api/command-center/roadmap-action", body);
 }
 
-export function ActionCheckbox({ objectiveId, label, done }: { objectiveId: string; label: string; done: boolean }) {
+export function ActionCheckbox({
+  objectiveId,
+  actionIndex,
+  label,
+  done,
+}: {
+  objectiveId: string;
+  actionIndex: number;
+  label: string;
+  done: boolean;
+}) {
   const router = useRouter();
   const [pending, setPending] = useState(false);
 
   async function handleToggle() {
     setPending(true);
     try {
-      await call({ objectiveId, action: "toggle-action", actionLabel: label });
+      await call({ objectiveId, action: "toggle-action", actionIndex });
       router.refresh();
     } finally {
       setPending(false);

@@ -26,7 +26,7 @@ function ObjectiveCard({ objective, hero }: { objective: StoredEditorialObjectiv
 
       <div style={{ marginBottom: 12 }}>
         {objective.actions.map((a, i) => (
-          <ActionCheckbox key={i} objectiveId={objective._id} label={a.label} done={a.done} />
+          <ActionCheckbox key={i} objectiveId={objective._id} actionIndex={i} label={a.label} done={a.done} />
         ))}
       </div>
 

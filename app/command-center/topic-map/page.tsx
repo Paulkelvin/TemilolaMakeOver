@@ -93,12 +93,15 @@ function TopicRow({
 
 export default async function TopicMapPage() {
   const tree = await getTopicMap();
-  const [clusters, pendingSuggestionCount, lifecyclesById] = await Promise.all([
+  const [clusters, pendingSuggestionCount] = await Promise.all([
     getClusterAuthorities(),
     getPendingTopicSuggestionCount(),
-    computeLifecyclesForTree(tree),
   ]);
   const clustersById = new Map(clusters.map((c) => [c.clusterNodeId, c]));
+  // Reuses the same clusterAuthority list just fetched above, instead of
+  // computeLifecyclesForTree independently point-fetching each cluster's doc
+  // a second time.
+  const lifecyclesById = await computeLifecyclesForTree(tree, clustersById);
 
   return (
     <div>

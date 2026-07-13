@@ -12,11 +12,11 @@ export async function POST(req: NextRequest) {
     }
 
     if (action === "toggle-action") {
-      const { actionLabel } = body;
-      if (!actionLabel || typeof actionLabel !== "string") {
-        return NextResponse.json({ error: "actionLabel is required" }, { status: 400 });
+      const { actionIndex } = body;
+      if (typeof actionIndex !== "number") {
+        return NextResponse.json({ error: "actionIndex is required" }, { status: 400 });
       }
-      await toggleRoadmapAction(objectiveId, actionLabel);
+      await toggleRoadmapAction(objectiveId, actionIndex);
       return NextResponse.json({ ok: true });
     }
 

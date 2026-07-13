@@ -19,6 +19,7 @@ import {
   mineRecurringEntities,
   flattenAllNodes,
   isAlreadyCovered,
+  MERGE_OVERLAP,
 } from "./topic-suggestions";
 
 /**
@@ -40,6 +41,23 @@ const TAXONOMY_CANDIDATE_PRIORITY = 60; // flat baseline — real business taxon
 const MAX_TOP_LEVEL = 12;
 const MAX_CHILDREN_PER_TOP_LEVEL = 8;
 
+// Same "best overlap in a list" shape used twice in this file (matching a
+// candidate to a top-level anchor, and to a taxonomy node) — a single
+// generic helper instead of two hand-rolled max-search loops that could
+// silently disagree on tie-breaking if one drifted from the other.
+function bestOverlapMatch<T>(tokens: string[], items: T[], getTokens: (item: T) => string[]): { item: T; overlap: number } | null {
+  let best: T | null = null;
+  let bestOverlap = 0;
+  for (const item of items) {
+    const overlap = overlapScore(tokens, getTokens(item));
+    if (overlap > bestOverlap) {
+      bestOverlap = overlap;
+      best = item;
+    }
+  }
+  return best ? { item: best, overlap: bestOverlap } : null;
+}
+
 export interface ProposedNode {
   tempId: string;
   label: string;
@@ -52,11 +70,9 @@ export interface ProposedNode {
 }
 
 export async function computeInitialTopicMapProposal(fetchClient: FetchClient = client): Promise<ProposedNode[]> {
-  const tree = await getTopicMap();
+  const [tree, allTaxonomyNodes] = await Promise.all([getTopicMap(), fetchAllTaxonomyNodes(fetchClient)]);
   const existingNodes = flattenAllNodes(tree);
   const existingNodeTokenSets = existingNodes.map((n) => normalizeQuery(n.label).tokens);
-
-  const allTaxonomyNodes = await fetchAllTaxonomyNodes(fetchClient);
   const anchorTaxonomyNodes = allTaxonomyNodes.filter((n) => TAXONOMY_ANCHOR_TYPES.has(n.type));
 
   const taxonomyCandidates = anchorTaxonomyNodes.map((n) =>
@@ -83,7 +99,7 @@ export async function computeInitialTopicMapProposal(fetchClient: FetchClient = 
     ...entityCandidates,
   ].filter((c) => c.tokens.length > 0 && !isAlreadyCovered(c.tokens, existingNodeTokenSets));
 
-  const buckets = mergeCandidates(allCandidates, 0.5);
+  const buckets = mergeCandidates(allCandidates, MERGE_OVERLAP);
 
   const isTaxonomyAnchored = (b: CandidateBucket) => b.sources.has("taxonomy");
   const topLevelBuckets = buckets.filter(isTaxonomyAnchored);
@@ -95,17 +111,9 @@ export async function computeInitialTopicMapProposal(fetchClient: FetchClient = 
   const looseTopLevelBuckets: CandidateBucket[] = [];
   const childBuckets: { bucket: CandidateBucket; parentBucket: CandidateBucket }[] = [];
   for (const bucket of otherBuckets) {
-    let best: CandidateBucket | null = null;
-    let bestOverlap = 0;
-    for (const anchor of topLevelBuckets) {
-      const overlap = overlapScore(bucket.representative.tokens, anchor.representative.tokens);
-      if (overlap > bestOverlap) {
-        bestOverlap = overlap;
-        best = anchor;
-      }
-    }
-    if (best && bestOverlap >= OVERLAP_THRESHOLDS.clusterMembership) {
-      childBuckets.push({ bucket, parentBucket: best });
+    const match = bestOverlapMatch(bucket.representative.tokens, topLevelBuckets, (b) => b.representative.tokens);
+    if (match && match.overlap >= OVERLAP_THRESHOLDS.clusterMembership) {
+      childBuckets.push({ bucket, parentBucket: match.item });
     } else {
       looseTopLevelBuckets.push(bucket);
     }
@@ -118,27 +126,26 @@ export async function computeInitialTopicMapProposal(fetchClient: FetchClient = 
   }
 
   function findLinkedTaxonomy(bucket: CandidateBucket): { type: string; refId: string } | undefined {
-    let best: (typeof anchorTaxonomyNodes)[number] | null = null;
-    let bestOverlap = 0;
-    for (const node of anchorTaxonomyNodes) {
-      const overlap = overlapScore(bucket.representative.tokens, normalizeQuery(node.name).tokens);
-      if (overlap > bestOverlap) {
-        bestOverlap = overlap;
-        best = node;
-      }
-    }
-    return best && bestOverlap >= OVERLAP_THRESHOLDS.alreadyDuplicate ? { type: best.type, refId: best.id } : undefined;
+    const match = bestOverlapMatch(bucket.representative.tokens, anchorTaxonomyNodes, (n) => normalizeQuery(n.name).tokens);
+    return match && match.overlap >= OVERLAP_THRESHOLDS.alreadyDuplicate ? { type: match.item.type, refId: match.item.id } : undefined;
   }
 
-  const allTopLevel = [...topLevelBuckets, ...looseTopLevelBuckets]
-    .sort((a, b) => b.representative.priorityScore - a.representative.priorityScore)
+  // Ranked by the real, evidence-weighted scoreBucket() result — not by
+  // bucket.representative.priorityScore, which is pinned at the flat
+  // TAXONOMY_CANDIDATE_PRIORITY (60) for every taxonomy-anchored bucket
+  // regardless of how much corroborating evidence it actually merged in.
+  // Sorting by the raw representative score would make the MAX_TOP_LEVEL /
+  // MAX_CHILDREN_PER_TOP_LEVEL caps keep whichever buckets happened to be
+  // fetched first, not the ones the system itself scored highest.
+  const scoredTopLevel = [...topLevelBuckets, ...looseTopLevelBuckets]
+    .map((bucket) => ({ bucket, scored: toScoredNode(bucket) }))
+    .sort((a, b) => b.scored.priorityScore - a.scored.priorityScore)
     .slice(0, MAX_TOP_LEVEL);
 
   const proposedNodes: ProposedNode[] = [];
   let counter = 0;
-  for (const bucket of allTopLevel) {
+  for (const { bucket, scored } of scoredTopLevel) {
     const tempId = `node-${counter++}`;
-    const scored = toScoredNode(bucket);
     proposedNodes.push({
       tempId,
       label: bucket.representative.label,
@@ -148,10 +155,10 @@ export async function computeInitialTopicMapProposal(fetchClient: FetchClient = 
 
     const children = childBuckets
       .filter((c) => c.parentBucket === bucket)
-      .sort((a, b) => b.bucket.representative.priorityScore - a.bucket.representative.priorityScore)
+      .map((c) => ({ ...c, scored: toScoredNode(c.bucket) }))
+      .sort((a, b) => b.scored.priorityScore - a.scored.priorityScore)
       .slice(0, MAX_CHILDREN_PER_TOP_LEVEL);
-    for (const { bucket: childBucket } of children) {
-      const childScored = toScoredNode(childBucket);
+    for (const { bucket: childBucket, scored: childScored } of children) {
       proposedNodes.push({
         tempId: `node-${counter++}`,
         label: childBucket.representative.label,
@@ -199,6 +206,10 @@ export async function getTopicNodeCount(): Promise<number> {
 
 // ─── Approval workflow — the one place this ever writes topicNode docs ────
 
+function buildTopicNodeDoc(realId: string, node: ProposedNode, order: number, extra: Record<string, unknown>) {
+  return { _id: realId, _type: "topicNode", label: node.label, order, ...extra };
+}
+
 export async function approveWizardProposal(proposalId: string): Promise<{ createdNodeCount: number }> {
   const proposal = await getWizardProposalById(proposalId);
   if (!proposal) throw new Error(`Proposal ${proposalId} not found.`);
@@ -213,15 +224,10 @@ export async function approveWizardProposal(proposalId: string): Promise<{ creat
   topLevel.forEach((node, index) => {
     const realId = `topicNode-wizard-${proposalId}-${node.tempId}`;
     realIdByTempId.set(node.tempId, realId);
-    tx = tx.createIfNotExists({
-      _id: realId,
-      _type: "topicNode",
-      label: node.label,
-      order: index,
-      ...(node.linkedTaxonomy
-        ? { linkedTaxonomy: { type: node.linkedTaxonomy.type, ref: { _type: "reference", _ref: node.linkedTaxonomy.refId } } }
-        : {}),
-    });
+    const extra = node.linkedTaxonomy
+      ? { linkedTaxonomy: { type: node.linkedTaxonomy.type, ref: { _type: "reference", _ref: node.linkedTaxonomy.refId } } }
+      : {};
+    tx = tx.createIfNotExists(buildTopicNodeDoc(realId, node, index, extra));
   });
 
   const childrenByParent = new Map<string, ProposedNode[]>();
@@ -235,13 +241,7 @@ export async function approveWizardProposal(proposalId: string): Promise<{ creat
     if (!parentRealId) continue;
     siblings.forEach((node, index) => {
       const realId = `topicNode-wizard-${proposalId}-${node.tempId}`;
-      tx = tx.createIfNotExists({
-        _id: realId,
-        _type: "topicNode",
-        label: node.label,
-        order: index,
-        parent: { _type: "reference", _ref: parentRealId },
-      });
+      tx = tx.createIfNotExists(buildTopicNodeDoc(realId, node, index, { parent: { _type: "reference", _ref: parentRealId } }));
     });
   }
 
