@@ -45,6 +45,14 @@ export interface CandidateBucket {
 // documents elsewhere in this codebase: not exhaustive, but simple and
 // transparent, and good enough given every source already scores its own
 // candidates independently.
+//
+// Representative-label selection is NOT a pure highest-priority-score pick:
+// a "taxonomy" candidate is the site's real, already-published, human-approved
+// name for that topic (e.g. "Photoshoot Makeup"), so it always wins the
+// representative slot over raw mined phrasing ("Baby Girl Makeup Photoshoot
+// Quotes Funny") even when the mined candidate's own priority score is
+// higher — otherwise the Topic Map ends up labeled with search-query noise
+// instead of the real service/style/occasion name it's anchored to.
 export function mergeCandidates(candidates: RawCandidate[], mergeOverlapThreshold: number): CandidateBucket[] {
   const buckets: CandidateBucket[] = [];
   for (const c of candidates) {
@@ -53,7 +61,12 @@ export function mergeCandidates(candidates: RawCandidate[], mergeOverlapThreshol
     if (!bucket) buckets.push(target);
     target.evidence.push({ source: c.source, detail: c.detail, priorityScore: c.priorityScore });
     target.sources.add(c.source);
-    if (c.priorityScore > target.representative.priorityScore) target.representative = c;
+    const representativeIsTaxonomy = target.representative.source === "taxonomy";
+    if (c.source === "taxonomy" && !representativeIsTaxonomy) {
+      target.representative = c;
+    } else if (!representativeIsTaxonomy && c.priorityScore > target.representative.priorityScore) {
+      target.representative = c;
+    }
   }
   return buckets;
 }
