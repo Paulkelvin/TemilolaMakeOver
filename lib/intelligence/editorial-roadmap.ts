@@ -1,9 +1,10 @@
 import { client } from "@/sanity/client";
 import { writeClient } from "@/sanity/write-client";
 import { getTopicMap, type TopicMapNode } from "./topic-map";
-import { getClusterAuthorityByNodeId, type StoredClusterAuthority } from "./cluster-authority";
+import { getClusterAuthorities, type StoredClusterAuthority } from "./cluster-authority";
 import { getTopicalAuthorityNode, type DimensionKey } from "./topical-authority";
 import { computeLifecyclesForTree, LIFECYCLE_STAGE_LABEL, type LifecycleStage } from "./topic-lifecycle";
+import { flattenAllNodes } from "./topic-suggestions";
 
 /**
  * Editorial Roadmap — turns the site's already-computed cluster data into
@@ -48,13 +49,17 @@ export interface EditorialObjective {
   decisionTrace: string[];
 }
 
-function flattenAllNodes(nodes: TopicMapNode[]): TopicMapNode[] {
-  return nodes.flatMap((n) => [n, ...flattenAllNodes(n.children)]);
-}
-
 async function collectDimensionGapActions(node: TopicMapNode): Promise<string[]> {
+  // Includes the cluster root itself, not just its descendants — the root is
+  // very often the one real, taxonomy-linked anchor page in the subtree (the
+  // Wizard's standard shape: a linked service/style/occasion at the root,
+  // unlinked keyword-discovery candidates as children), so excluding it here
+  // meant this function returned [] for exactly the clusters most likely to
+  // have a real coverage gap on their own anchor page — the same root-
+  // exclusion bug cluster-authority.ts's scorableNodes fix already addressed
+  // for authority/coverage scoring, just not mirrored here.
   const descendants = node.children.flatMap((c) => [c, ...flattenAllNodes(c.children)]);
-  const linked = descendants.filter((d) => d.linkedTaxonomy);
+  const linked = [node, ...descendants].filter((d) => d.linkedTaxonomy);
   const nodes = await Promise.all(
     linked.map((d) => getTopicalAuthorityNode(d.linkedTaxonomy!.type, d.linkedTaxonomy!.refId))
   );
@@ -150,20 +155,25 @@ export async function computeEditorialRoadmap(): Promise<EditorialObjective[]> {
   const tree = await getTopicMap();
   const clusters = flattenAllNodes(tree).filter((n) => n.children.length > 0);
 
-  const businessPriorityRows = await client.fetch<{ _id: string; businessPriority?: string }[]>(
-    `*[_type == "topicNode" && _id in $ids]{ _id, businessPriority }`,
-    { ids: clusters.map((c) => c.id) }
-  );
+  const [businessPriorityRows, clusterAuthorities] = await Promise.all([
+    client.fetch<{ _id: string; businessPriority?: string }[]>(
+      `*[_type == "topicNode" && _id in $ids]{ _id, businessPriority }`,
+      { ids: clusters.map((c) => c.id) }
+    ),
+    getClusterAuthorities(),
+  ]);
   const businessPriorityById = new Map(businessPriorityRows.map((r) => [r._id, r.businessPriority ?? "medium"]));
+  // Fetched once here and reused below — computeLifecyclesForTree used to
+  // independently point-fetch the same clusterAuthority doc per cluster a
+  // second time.
+  const clusterAuthorityById = new Map(clusterAuthorities.map((c) => [c.clusterNodeId, c]));
 
-  const lifecyclesById = await computeLifecyclesForTree(tree);
+  const lifecyclesById = await computeLifecyclesForTree(tree, clusterAuthorityById);
 
   const objectives = await Promise.all(
     clusters.map(async (node) => {
-      const [clusterAuthority, dimensionActions] = await Promise.all([
-        getClusterAuthorityByNodeId(node.id),
-        collectDimensionGapActions(node),
-      ]);
+      const clusterAuthority = clusterAuthorityById.get(node.id) ?? null;
+      const dimensionActions = await collectDimensionGapActions(node);
       const lifecycleStage = lifecyclesById.get(node.id)?.result.stage ?? "approved";
       const businessPriority = businessPriorityById.get(node.id) ?? "medium";
       return buildObjective(node, clusterAuthority, lifecycleStage, businessPriority, dimensionActions);
@@ -236,10 +246,18 @@ export async function getCurrentTopPriorityObjective(): Promise<StoredEditorialO
   );
 }
 
-export async function toggleRoadmapAction(objectiveId: string, actionLabel: string): Promise<void> {
+// Matched by array index, not label text — recommendedNextContent merges
+// gaps from three independent engines (keyword-discovery, competitor-gap,
+// knowledge-graph), so two actions can legitimately share the exact same
+// "Publish: ${label}" text. Matching by label would toggle every action
+// with that text at once instead of just the one checkbox the user clicked.
+export async function toggleRoadmapAction(objectiveId: string, actionIndex: number): Promise<void> {
   const objective = await client.fetch<StoredEditorialObjective | null>(`*[_id == $id][0]`, { id: objectiveId });
   if (!objective) throw new Error(`Objective ${objectiveId} not found.`);
-  const actions = objective.actions.map((a) => (a.label === actionLabel ? { ...a, done: !a.done } : a));
+  if (actionIndex < 0 || actionIndex >= objective.actions.length) {
+    throw new Error(`Action index ${actionIndex} out of range for objective ${objectiveId}.`);
+  }
+  const actions = objective.actions.map((a, i) => (i === actionIndex ? { ...a, done: !a.done } : a));
   await writeClient.patch(objectiveId).set({ actions }).commit();
 }
 

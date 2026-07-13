@@ -51,7 +51,6 @@ export interface LifecycleResult {
 }
 
 interface ClusterBriefRow {
-  status: "new" | "drafting" | "verified" | "published";
   firstSeenAt: string;
   blogUpdatedAt: string | null;
 }
@@ -59,7 +58,7 @@ interface ClusterBriefRow {
 async function fetchPublishedBriefs(clusterNodeId: string): Promise<ClusterBriefRow[]> {
   const rows = await client.fetch<ClusterBriefRow[]>(
     `*[_type == "contentBrief" && clusterId == $clusterNodeId && status == "published"] | order(firstSeenAt asc) {
-      status, firstSeenAt, "blogUpdatedAt": linkedBlogPost->_updatedAt
+      firstSeenAt, "blogUpdatedAt": linkedBlogPost->_updatedAt
     }`,
     { clusterNodeId }
   );
@@ -91,10 +90,19 @@ export function computeLifecycleStage(
 
   trace.push(`${publishedCount} published articles — a pillar plus ${publishedCount - 1} supporting article${publishedCount === 2 ? "" : "s"}.`);
 
-  const linkedDescendantCount = clusterAuthority?.linkedDescendantCount ?? 0;
+  // linkedPaths (not linkedDescendantCount) is the right "is there anything
+  // to have linking health computed over" guard — linkedDescendantCount is
+  // deliberately descendants-only (it feeds the public "N of M" UI count),
+  // so for the common Wizard shape (the cluster's own root is the one real
+  // taxonomy-linked page, with unlinked candidate topics as children) it's
+  // always 0, which would cap every such cluster at
+  // "supporting_articles_published" forever regardless of real authority.
+  // linkedPaths is already root-inclusive (cluster-authority.ts's
+  // scorableNodes), so it stays accurate as a "nothing to link" guard.
+  const hasScorableContent = (clusterAuthority?.linkedPaths.length ?? 0) > 0;
   const internalLinkingComplete =
     clusterAuthority !== null &&
-    linkedDescendantCount > 0 &&
+    hasScorableContent &&
     clusterAuthority.internalLinkHealth.underlinkedCount === 0 &&
     clusterAuthority.internalLinkHealth.orphanCount === 0;
 
@@ -143,7 +151,16 @@ export interface ClusterLifecycle {
 // given tree — callers pass in the SAME tree they already fetched from
 // getTopicMap() rather than this function re-fetching it, so a page that
 // needs both the raw tree and lifecycle info only pays for one fetch.
-export async function computeLifecyclesForTree(tree: TopicMapNode[]): Promise<Map<string, ClusterLifecycle>> {
+//
+// clusterAuthorityById is also caller-supplied (e.g. from getClusterAuthorities())
+// rather than point-fetched per cluster here — every current caller already
+// fetches the full cluster-authority list for its own purposes, so having
+// this function independently re-fetch the same doc per cluster on top of
+// that was pure duplicate Sanity I/O.
+export async function computeLifecyclesForTree(
+  tree: TopicMapNode[],
+  clusterAuthorityById: Map<string, StoredClusterAuthority>
+): Promise<Map<string, ClusterLifecycle>> {
   const clusters: TopicMapNode[] = [];
   function collect(nodes: TopicMapNode[]) {
     for (const node of nodes) {
@@ -161,10 +178,8 @@ export async function computeLifecyclesForTree(tree: TopicMapNode[]): Promise<Ma
 
   const results = await Promise.all(
     clusters.map(async (node): Promise<ClusterLifecycle> => {
-      const [publishedBriefs, clusterAuthority] = await Promise.all([
-        fetchPublishedBriefs(node.id),
-        getClusterAuthorityByNodeId(node.id),
-      ]);
+      const publishedBriefs = await fetchPublishedBriefs(node.id);
+      const clusterAuthority = clusterAuthorityById.get(node.id) ?? null;
       const result = computeLifecycleStage(node, plannedNextByClusterId.get(node.id) ?? false, publishedBriefs, clusterAuthority);
       return { clusterNodeId: node.id, clusterLabel: node.label, result };
     })

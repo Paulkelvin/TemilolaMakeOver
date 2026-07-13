@@ -43,7 +43,10 @@ export interface TopicNodeSuggestion {
   decisionTrace: string[];
 }
 
-const MERGE_OVERLAP = 0.5; // candidates from different sources merge into one suggestion above this
+// Exported so the Initial Topic Map Wizard (a one-shot version of this same
+// mining+merging) uses the identical merge sensitivity rather than
+// hardcoding its own copy of this number.
+export const MERGE_OVERLAP = 0.5; // candidates from different sources merge into one suggestion above this
 const MAX_SUGGESTIONS = 40;
 const MIN_SC_IMPRESSIONS = 50;
 const MIN_ENTITY_ARTICLE_COUNT = 3;

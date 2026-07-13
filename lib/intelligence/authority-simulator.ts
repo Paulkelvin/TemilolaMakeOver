@@ -1,7 +1,5 @@
-import { client } from "@/sanity/client";
-import type { FetchClient } from "./content";
-import { getClusterAuthorities, getClusterAuthorityByNodeId } from "./cluster-authority";
-import { computeStrategicFit } from "./strategic-fit";
+import { getClusterAuthorities } from "./cluster-authority";
+import type { StrategicFitResult } from "./strategic-fit";
 
 /**
  * Topical Authority Simulator — a bounded, transparent estimate of what
@@ -39,6 +37,15 @@ export interface SimulationInput {
   draftLinkedPaths: string[];
 }
 
+export interface SimulationInputWithFit extends SimulationInput {
+  // Callers already compute this via computeStrategicFit() for their own
+  // needs (the Verification Suite route scores it as its own quality
+  // category) — accepting it here instead of recomputing avoids running
+  // computeStrategicFit()'s full-site content scan twice per Verify Draft
+  // click.
+  strategicFit: StrategicFitResult;
+}
+
 export interface AuthoritySimulationResult {
   applicable: boolean;
   clusterLabel?: string;
@@ -49,7 +56,8 @@ export interface AuthoritySimulationResult {
 
 const DISCLAIMER = "These are bounded estimates from the same signals the rest of the Command Center already tracks, not a guarantee — the real numbers only update once the article is actually published and the weekly snapshot recomputes them.";
 
-export async function simulateArticleImpact(input: SimulationInput, fetchClient: FetchClient = client): Promise<AuthoritySimulationResult> {
+export async function simulateArticleImpact(input: SimulationInputWithFit): Promise<AuthoritySimulationResult> {
+  const { strategicFit } = input;
   if (!input.clusterId) {
     return {
       applicable: false,
@@ -59,14 +67,8 @@ export async function simulateArticleImpact(input: SimulationInput, fetchClient:
     };
   }
 
-  const [cluster, strategicFit, allClusters] = await Promise.all([
-    getClusterAuthorityByNodeId(input.clusterId),
-    computeStrategicFit(
-      { clusterId: input.clusterId, clusterLabel: input.clusterLabel, topicLabel: input.topicLabel, draftHeadings: input.draftHeadings, draftBodyText: input.draftBodyText, draftLinkedPaths: input.draftLinkedPaths },
-      fetchClient
-    ),
-    getClusterAuthorities(),
-  ]);
+  const allClusters = await getClusterAuthorities();
+  const cluster = allClusters.find((c) => c.clusterNodeId === input.clusterId) ?? null;
 
   if (!cluster) {
     return {
@@ -110,8 +112,7 @@ export async function simulateArticleImpact(input: SimulationInput, fetchClient:
   const linksIntoClusterCount = input.draftLinkedPaths.filter((p) => cluster.linkedPaths.includes(p.replace(/\/$/, ""))).length;
   const totalLinkSlots = cluster.internalLinkHealth.healthyCount + cluster.internalLinkHealth.underlinkedCount + cluster.internalLinkHealth.orphanCount;
   const beforeHealthPct = totalLinkSlots > 0 ? Math.round((cluster.internalLinkHealth.healthyCount / totalLinkSlots) * 100) : 100;
-  const newUnderlinked = Math.max(0, cluster.internalLinkHealth.underlinkedCount - linksIntoClusterCount);
-  const newHealthy = cluster.internalLinkHealth.healthyCount + (cluster.internalLinkHealth.underlinkedCount - newUnderlinked);
+  const newHealthy = cluster.internalLinkHealth.healthyCount + Math.min(linksIntoClusterCount, cluster.internalLinkHealth.underlinkedCount);
   const afterHealthPct = totalLinkSlots > 0 ? Math.round((newHealthy / totalLinkSlots) * 100) : 100;
   if (linksIntoClusterCount > 0) {
     trace.push(`Links to ${linksIntoClusterCount} page${linksIntoClusterCount === 1 ? "" : "s"} already in this cluster — modeled as improving internal link health for that many under-linked pages.`);

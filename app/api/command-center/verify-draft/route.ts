@@ -66,6 +66,9 @@ export async function POST(req: NextRequest) {
       draftLinkedPaths: body.draftLinkedPaths,
     });
 
+    // strategicFit is already computed above — simulateArticleImpact reuses
+    // it instead of recomputing computeStrategicFit()'s full-site content
+    // scan a second time for the same draft.
     const simulation = await simulateArticleImpact({
       clusterId: brief.clusterId,
       clusterLabel: brief.clusterLabel,
@@ -73,6 +76,7 @@ export async function POST(req: NextRequest) {
       draftHeadings,
       draftBodyText: plainBodyText,
       draftLinkedPaths: body.draftLinkedPaths,
+      strategicFit,
     });
 
     const readability = scoreReadability(plainBodyText);
