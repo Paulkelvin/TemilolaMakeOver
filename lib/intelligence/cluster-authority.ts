@@ -113,7 +113,18 @@ export async function computeClusterAuthority(): Promise<ClusterAuthority[]> {
   function buildCluster(node: TopicMapNode): ClusterAuthority {
     const descendants = flattenDescendants(node);
     const linkedDescendants = descendants.filter((d) => d.linkedTaxonomy);
-    const scoredDescendants = linkedDescendants.filter((d) => d.authority);
+    // A cluster's own root is very often the one real, taxonomy-linked anchor
+    // in the subtree (exactly how the Initial Topic Map Wizard builds every
+    // cluster: a linked service/style/occasion at the root, with unlinked
+    // keyword-discovery candidates as children) — flattenDescendants excludes
+    // the node itself, so without a separate self-inclusive pool the root's
+    // own authority/coverage and public path would never count toward its
+    // own cluster's score, leaving avgAuthorityScore stuck at 0 forever no
+    // matter how much real content gets published and tagged to it. Kept
+    // distinct from linkedDescendants, which stays descendants-only for the
+    // public "N of M topics linked" count.
+    const scorableNodes = [node, ...descendants].filter((d) => d.linkedTaxonomy);
+    const scoredDescendants = scorableNodes.filter((d) => d.authority);
 
     const avgCoverageScore =
       scoredDescendants.length > 0
@@ -126,7 +137,7 @@ export async function computeClusterAuthority(): Promise<ClusterAuthority[]> {
 
     const tokens = clusterTokens(node.label, descendants);
     const descendantPaths = new Set(
-      linkedDescendants.map((d) => d.authority?.publicPath).filter((p): p is string => Boolean(p))
+      scorableNodes.map((d) => d.authority?.publicPath).filter((p): p is string => Boolean(p))
     );
 
     const clusterLinkGaps = internalLinkGaps.filter((g) => descendantPaths.has(g.targetPath));
