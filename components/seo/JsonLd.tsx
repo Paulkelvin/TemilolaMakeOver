@@ -1,23 +1,7 @@
 import { siteConfig } from "@/lib/site-config";
-import { testimonials } from "@/data/testimonials";
 import { getServices } from "@/sanity/fetch";
 
-function computeAggregateRating() {
-  const count = testimonials.length;
-  if (count === 0) return undefined;
-  const avg = testimonials.reduce((sum, t) => sum + t.rating, 0) / count;
-  return {
-    "@type": "AggregateRating",
-    ratingValue: avg.toFixed(1),
-    bestRating: "5",
-    worstRating: "1",
-    ratingCount: count,
-    reviewCount: count,
-  };
-}
-
 export async function JsonLd() {
-  const aggregateRating = computeAggregateRating();
   const services = await getServices();
 
   const schema = {
@@ -31,7 +15,6 @@ export async function JsonLd() {
     telephone: siteConfig.phoneRaw,
     email: siteConfig.email,
     image: `${siteConfig.url}/opengraph-image`,
-    logo: `${siteConfig.url}/opengraph-image`,
     founder: {
       "@type": "Person",
       name: "Temilola Shyllon",
@@ -69,21 +52,6 @@ export async function JsonLd() {
     currenciesAccepted: "NGN",
     paymentAccepted: "Bank Transfer, Cash",
     sameAs: [siteConfig.instagram, siteConfig.tiktok],
-    ...(aggregateRating && { aggregateRating }),
-    review: testimonials.map((t) => ({
-      "@type": "Review",
-      author: { "@type": "Person", name: t.name },
-      reviewRating: {
-        "@type": "Rating",
-        ratingValue: t.rating,
-        bestRating: "5",
-      },
-      reviewBody: t.text,
-      itemReviewed: {
-        "@type": "BeautySalon",
-        name: siteConfig.brand,
-      },
-    })),
     hasOfferCatalog: {
       "@type": "OfferCatalog",
       name: "Makeup Services",

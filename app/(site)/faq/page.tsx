@@ -2,6 +2,7 @@ import { getFaqItems } from "@/sanity/fetch";
 import { faqItems as staticFaqItems } from "@/data/faq";
 import { seoCopy } from "@/data/copy";
 import { createPageMetadata } from "@/lib/metadata";
+import { FAQPageJsonLd } from "@/lib/seo/structured-data";
 import { PageHero } from "@/components/sections/PageHero";
 import { FAQAccordion } from "@/components/sections/FAQAccordion";
 import { CTASection } from "@/components/sections/CTASection";
@@ -22,6 +23,7 @@ export default async function FAQPage() {
 
   return (
     <>
+      <FAQPageJsonLd items={items} />
       <PageHero
         label="FAQ"
         title="Frequently Asked Questions"

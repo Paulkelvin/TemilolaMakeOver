@@ -1,4 +1,5 @@
-import { getPortfolioItems, getBlockedDates, getInstagramFeed, getSiteSettings, getPageCopy, findSection } from "@/sanity/fetch";
+import { getPortfolioItems, getBlockedDates, getInstagramFeed, getSiteSettings, getPageCopy, findSection, getFaqItemsByCategory } from "@/sanity/fetch";
+import { FAQPageJsonLd } from "@/lib/seo/structured-data";
 import { Hero } from "@/components/sections/Hero";
 import { TrustStrip } from "@/components/sections/TrustStrip";
 import { PortfolioPreview } from "@/components/sections/PortfolioPreview";
@@ -14,12 +15,13 @@ import { CTASection } from "@/components/sections/CTASection";
 import { BlogPreview } from "@/components/sections/BlogPreview";
 
 export default async function HomePage() {
-  const [portfolioItems, blockedDates, instagramItems, siteSettings, pageCopy] = await Promise.all([
+  const [portfolioItems, blockedDates, instagramItems, siteSettings, pageCopy, faqItems] = await Promise.all([
     getPortfolioItems(),
     getBlockedDates(),
     getInstagramFeed(),
     getSiteSettings(),
     getPageCopy("home"),
+    getFaqItemsByCategory("general"),
   ]);
 
   const portfolioSec = findSection(pageCopy, "portfolio");
@@ -30,6 +32,8 @@ export default async function HomePage() {
 
   return (
     <>
+      {/* Matches the first 8 items FAQSection actually renders below */}
+      <FAQPageJsonLd items={faqItems.slice(0, 8)} />
       <Hero portfolioItems={portfolioItems} blockedDates={blockedDates} siteSettings={siteSettings} pageCopy={pageCopy} />
       <TrustStrip />
       <PortfolioPreview sectionCopy={portfolioSec} />
