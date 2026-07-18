@@ -113,7 +113,7 @@ function NotConnected() {
               <li><code>GOOGLE_OAUTH_CLIENT_ID</code></li>
               <li><code>GOOGLE_OAUTH_CLIENT_SECRET</code></li>
               <li><code>GOOGLE_OAUTH_REFRESH_TOKEN</code></li>
-              <li><code>SEARCH_CONSOLE_SITE_URL</code> (e.g. <code>https://temilolomakeup.com</code>)</li>
+              <li><code>SEARCH_CONSOLE_SITE_URL</code> (e.g. <code>https://www.gleambytemi.com</code>)</li>
             </ul>
           </li>
           <li>Redeploy. Data starts flowing on the next daily snapshot (or trigger manually via the snapshot API).</li>

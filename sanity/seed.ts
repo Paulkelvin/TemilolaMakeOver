@@ -60,7 +60,7 @@ const siteConfig = {
     "Skin-prep focused, camera-ready finish",
     "Calm, punctual service for every event",
   ],
-  url: "https://temilolomakeup.com",
+  url: "https://www.gleambytemi.com",
   location: "Lagos, Nigeria",
   serviceArea:
     "Lagos & nearby areas (Ikeja, Lekki, Victoria Island, Mainland)",

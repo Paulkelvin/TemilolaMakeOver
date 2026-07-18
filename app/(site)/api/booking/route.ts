@@ -48,7 +48,7 @@ function isAllowedOrigin(request: Request): boolean {
   if (!origin) return true;
   const requestOrigin = new URL(request.url).origin;
   if (origin === requestOrigin) return true;
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://temilolomakeup.com";
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.gleambytemi.com";
   const allowed = [siteUrl, "http://localhost:3000", "http://localhost:3001"];
   return allowed.some((u) => origin === u.replace(/\/$/, ""));
 }

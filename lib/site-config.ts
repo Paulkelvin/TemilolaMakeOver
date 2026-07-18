@@ -18,7 +18,7 @@ export const siteConfig = {
   // sometimes configured with one, which silently double-slashes every
   // consumer that does `${siteConfig.url}/path` (sitemap, canonical tags,
   // JSON-LD, robots.txt).
-  url: (process.env.NEXT_PUBLIC_SITE_URL ?? "https://temilolomakeup.com").replace(/\/+$/, ""),
+  url: (process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.gleambytemi.com").replace(/\/+$/, ""),
   location: "Lagos, Nigeria",
   serviceArea: "Lagos & nearby areas (Ikeja, Lekki, Victoria Island, Mainland)",
   phone: "+234 705 859 6531",
