@@ -28,7 +28,30 @@ export async function runSnapshot(options?: { force?: boolean }) {
   const snapshots: { source: string; metric: string; date: string; value: number }[] = [];
   const errors: string[] = [];
 
-  if (isSearchConsoleConfigured()) {
+  // Shared "has this doc type gone stale enough to recompute" gate — every
+  // weekly-gated engine below used to repeat this exact fetch-and-compare
+  // inline with only the _type differing.
+  async function isDueForRecompute(docType: string): Promise<boolean> {
+    const lastComputed = await client.fetch<string | null>(
+      `*[_type == $docType] | order(lastComputedAt desc)[0].lastComputedAt`,
+      { docType }
+    );
+    const daysSinceLastRun = lastComputed ? (Date.now() - new Date(lastComputed).getTime()) / 86_400_000 : Infinity;
+    return force || daysSinceLastRun >= 7;
+  }
+
+  // ─── Layer 1: metric fetches + fully independent intelligence engines ──
+  // None of these read another engine's persisted Sanity doc — each only
+  // reads its own external API or its own doc type's recompute gate — so
+  // they run concurrently. Running all ~13 steps in this file strictly
+  // sequentially, one full await at a time, was what pushed a forced run
+  // past even the 300s Fluid Compute ceiling and got the request killed
+  // mid-flight (surfacing as "Load failed" in the browser — a severed
+  // connection, not a returned error — rather than a real failure of any
+  // individual engine).
+
+  async function runSearchConsoleMetrics() {
+    if (!isSearchConsoleConfigured()) return;
     try {
       const summary = await gscSummary();
       snapshots.push(
@@ -42,7 +65,8 @@ export async function runSnapshot(options?: { force?: boolean }) {
     }
   }
 
-  if (isAnalyticsConfigured()) {
+  async function runGa4Metrics() {
+    if (!isAnalyticsConfigured()) return;
     try {
       const traffic = await getTrafficSummary();
       snapshots.push(
@@ -56,12 +80,11 @@ export async function runSnapshot(options?: { force?: boolean }) {
     }
   }
 
-  if (isVercelConfigured()) {
+  async function runVercelMetrics() {
+    if (!isVercelConfigured()) return;
     try {
       const [deploys, vitals] = await Promise.all([getDeploymentSummary(), getWebVitals()]);
-      snapshots.push(
-        { source: "vercel", metric: "deploy_success_rate", date: today, value: deploys.successRate },
-      );
+      snapshots.push({ source: "vercel", metric: "deploy_success_rate", date: today, value: deploys.successRate });
       if (deploys.avgBuildTimeMs !== null) {
         snapshots.push({ source: "vercel", metric: "avg_build_time_ms", date: today, value: deploys.avgBuildTimeMs });
       }
@@ -75,15 +98,117 @@ export async function runSnapshot(options?: { force?: boolean }) {
     }
   }
 
-  try {
-    const usage = await getSanityUsageSnapshot(client);
-    snapshots.push(
-      { source: "sanity-usage", metric: "documents", date: today, value: usage.totalDocuments },
-      { source: "sanity-usage", metric: "asset-bytes", date: today, value: usage.assetBytes },
-    );
-  } catch (err) {
-    errors.push(`sanity-usage: ${err instanceof Error ? err.message : String(err)}`);
+  async function runSanityUsageMetrics() {
+    try {
+      const usage = await getSanityUsageSnapshot(client);
+      snapshots.push(
+        { source: "sanity-usage", metric: "documents", date: today, value: usage.totalDocuments },
+        { source: "sanity-usage", metric: "asset-bytes", date: today, value: usage.assetBytes },
+      );
+    } catch (err) {
+      errors.push(`sanity-usage: ${err instanceof Error ? err.message : String(err)}`);
+    }
   }
+
+  let seoOpportunityResult: { upserted: number; notifications: number } | undefined;
+  async function runSeoOpportunities() {
+    if (!isSearchConsoleConfigured()) return;
+    try {
+      if (await isDueForRecompute("seoOpportunity")) {
+        const topics = await computeSeoOpportunities(client);
+        seoOpportunityResult = await persistSeoOpportunities(topics);
+      }
+    } catch (err) {
+      errors.push(`seo-opportunities: ${err instanceof Error ? err.message : String(err)}`);
+    }
+  }
+
+  let keywordDiscoveryResult: { upserted: number; linked: number } | undefined;
+  async function runKeywordDiscovery() {
+    try {
+      if (await isDueForRecompute("keywordDiscoveryTopic")) {
+        const topics = await computeKeywordDiscoveryTopics(client);
+        keywordDiscoveryResult = await persistKeywordDiscoveryTopics(topics);
+      }
+    } catch (err) {
+      errors.push(`keyword-discovery: ${err instanceof Error ? err.message : String(err)}`);
+    }
+  }
+
+  let topicalAuthorityResult: { upserted: number } | undefined;
+  async function runTopicalAuthority() {
+    try {
+      if (await isDueForRecompute("topicalAuthorityNode")) {
+        const nodes = await computeTopicalAuthority(client);
+        topicalAuthorityResult = await persistTopicalAuthority(nodes);
+      }
+    } catch (err) {
+      errors.push(`topical-authority: ${err instanceof Error ? err.message : String(err)}`);
+    }
+  }
+
+  let competitorGapResult: { upserted: number } | undefined;
+  async function runCompetitorGap() {
+    try {
+      if (await isDueForRecompute("competitorGapTopic")) {
+        const gaps = await computeCompetitorGaps(client);
+        competitorGapResult = await persistCompetitorGaps(gaps);
+      }
+    } catch (err) {
+      errors.push(`competitor-gap: ${err instanceof Error ? err.message : String(err)}`);
+    }
+  }
+
+  let cannibalizationResult: { upserted: number; notifications: number } | undefined;
+  async function runCannibalizationEngine() {
+    if (!isSearchConsoleConfigured()) return;
+    try {
+      if (await isDueForRecompute("cannibalizationIssue")) {
+        const issues = await computeCannibalization();
+        cannibalizationResult = await persistCannibalization(issues);
+      }
+    } catch (err) {
+      errors.push(`cannibalization: ${err instanceof Error ? err.message : String(err)}`);
+    }
+  }
+
+  let internalLinkResult: { upserted: number; notifications: number } | undefined;
+  async function runInternalLinksEngine() {
+    try {
+      if (await isDueForRecompute("internalLinkGap")) {
+        const gaps = await computeInternalLinkGaps(client);
+        internalLinkResult = await persistInternalLinkGaps(gaps);
+      }
+    } catch (err) {
+      errors.push(`internal-links: ${err instanceof Error ? err.message : String(err)}`);
+    }
+  }
+
+  let knowledgeGraphResult: { upserted: number; notifications: number } | undefined;
+  async function runKnowledgeGraphEngine() {
+    try {
+      if (await isDueForRecompute("knowledgeGraphGap")) {
+        const gaps = await computeKnowledgeGraphGaps(client);
+        knowledgeGraphResult = await persistKnowledgeGraphGaps(gaps);
+      }
+    } catch (err) {
+      errors.push(`knowledge-graph: ${err instanceof Error ? err.message : String(err)}`);
+    }
+  }
+
+  await Promise.all([
+    runSearchConsoleMetrics(),
+    runGa4Metrics(),
+    runVercelMetrics(),
+    runSanityUsageMetrics(),
+    runSeoOpportunities(),
+    runKeywordDiscovery(),
+    runTopicalAuthority(),
+    runCompetitorGap(),
+    runCannibalizationEngine(),
+    runInternalLinksEngine(),
+    runKnowledgeGraphEngine(),
+  ]);
 
   if (snapshots.length > 0) {
     try {
@@ -93,198 +218,49 @@ export async function runSnapshot(options?: { force?: boolean }) {
     }
   }
 
-  // ─── SEO Opportunity Engine (weekly-gated — query-level GSC analysis is
-  // comparatively expensive and doesn't need daily recomputation) ─────────
-  let seoOpportunityResult: { upserted: number; notifications: number } | undefined;
-  if (isSearchConsoleConfigured()) {
-    try {
-      const lastComputed = await client.fetch<string | null>(
-        `*[_type == "seoOpportunity"] | order(lastComputedAt desc)[0].lastComputedAt`
-      );
-      const daysSinceLastRun = lastComputed
-        ? (Date.now() - new Date(lastComputed).getTime()) / 86_400_000
-        : Infinity;
-      if (force || daysSinceLastRun >= 7) {
-        const topics = await computeSeoOpportunities(client);
-        seoOpportunityResult = await persistSeoOpportunities(topics);
-      }
-    } catch (err) {
-      errors.push(`seo-opportunities: ${err instanceof Error ? err.message : String(err)}`);
-    }
-  }
-
-  // ─── Keyword Discovery Engine (weekly-gated — external autocomplete calls
-  // add up; runs unconditionally, no Search Console dependency) ───────────
-  let keywordDiscoveryResult: { upserted: number; linked: number } | undefined;
-  try {
-    const lastComputed = await client.fetch<string | null>(
-      `*[_type == "keywordDiscoveryTopic"] | order(lastComputedAt desc)[0].lastComputedAt`
-    );
-    const daysSinceLastRun = lastComputed
-      ? (Date.now() - new Date(lastComputed).getTime()) / 86_400_000
-      : Infinity;
-    if (force || daysSinceLastRun >= 7) {
-      const topics = await computeKeywordDiscoveryTopics(client);
-      keywordDiscoveryResult = await persistKeywordDiscoveryTopics(topics);
-    }
-  } catch (err) {
-    errors.push(`keyword-discovery: ${err instanceof Error ? err.message : String(err)}`);
-  }
-
-  // ─── Topical Authority Engine (weekly-gated — real evidence counts per
-  // taxonomy node don't change fast enough to need daily recomputation) ───
-  let topicalAuthorityResult: { upserted: number } | undefined;
-  try {
-    const lastComputed = await client.fetch<string | null>(
-      `*[_type == "topicalAuthorityNode"] | order(lastComputedAt desc)[0].lastComputedAt`
-    );
-    const daysSinceLastRun = lastComputed
-      ? (Date.now() - new Date(lastComputed).getTime()) / 86_400_000
-      : Infinity;
-    if (force || daysSinceLastRun >= 7) {
-      const nodes = await computeTopicalAuthority(client);
-      topicalAuthorityResult = await persistTopicalAuthority(nodes);
-    }
-  } catch (err) {
-    errors.push(`topical-authority: ${err instanceof Error ? err.message : String(err)}`);
-  }
-
-  // ─── Competitor Content Gap Engine (weekly-gated — real crawling of a
-  // real competitor site respecting their crawl-delay; runs unconditionally,
-  // no Search Console dependency) ─────────────────────────────────────────
-  let competitorGapResult: { upserted: number } | undefined;
-  try {
-    const lastComputed = await client.fetch<string | null>(
-      `*[_type == "competitorGapTopic"] | order(lastComputedAt desc)[0].lastComputedAt`
-    );
-    const daysSinceLastRun = lastComputed
-      ? (Date.now() - new Date(lastComputed).getTime()) / 86_400_000
-      : Infinity;
-    if (force || daysSinceLastRun >= 7) {
-      const gaps = await computeCompetitorGaps(client);
-      competitorGapResult = await persistCompetitorGaps(gaps);
-    }
-  } catch (err) {
-    errors.push(`competitor-gap: ${err instanceof Error ? err.message : String(err)}`);
-  }
-
-  // ─── Cannibalization Detection Engine (weekly-gated — query-level GSC
-  // analysis is comparatively expensive; needs Search Console, same as SEO
-  // Opportunities) ─────────────────────────────────────────────────────────
-  let cannibalizationResult: { upserted: number; notifications: number } | undefined;
-  if (isSearchConsoleConfigured()) {
-    try {
-      const lastComputed = await client.fetch<string | null>(
-        `*[_type == "cannibalizationIssue"] | order(lastComputedAt desc)[0].lastComputedAt`
-      );
-      const daysSinceLastRun = lastComputed
-        ? (Date.now() - new Date(lastComputed).getTime()) / 86_400_000
-        : Infinity;
-      if (force || daysSinceLastRun >= 7) {
-        const issues = await computeCannibalization();
-        cannibalizationResult = await persistCannibalization(issues);
-      }
-    } catch (err) {
-      errors.push(`cannibalization: ${err instanceof Error ? err.message : String(err)}`);
-    }
-  }
-
-  // ─── Internal Link Intelligence Engine (weekly-gated — Sanity-only, no
-  // external API dependency, but content doesn't change fast enough to need
-  // daily recomputation) ───────────────────────────────────────────────────
-  let internalLinkResult: { upserted: number; notifications: number } | undefined;
-  try {
-    const lastComputed = await client.fetch<string | null>(
-      `*[_type == "internalLinkGap"] | order(lastComputedAt desc)[0].lastComputedAt`
-    );
-    const daysSinceLastRun = lastComputed
-      ? (Date.now() - new Date(lastComputed).getTime()) / 86_400_000
-      : Infinity;
-    if (force || daysSinceLastRun >= 7) {
-      const gaps = await computeInternalLinkGaps(client);
-      internalLinkResult = await persistInternalLinkGaps(gaps);
-    }
-  } catch (err) {
-    errors.push(`internal-links: ${err instanceof Error ? err.message : String(err)}`);
-  }
-
-  // ─── Knowledge Graph Utilization Engine (weekly-gated — Sanity-only, pure
-  // reference counting over the site's own existing taxonomy relationships) ─
-  let knowledgeGraphResult: { upserted: number; notifications: number } | undefined;
-  try {
-    const lastComputed = await client.fetch<string | null>(
-      `*[_type == "knowledgeGraphGap"] | order(lastComputedAt desc)[0].lastComputedAt`
-    );
-    const daysSinceLastRun = lastComputed
-      ? (Date.now() - new Date(lastComputed).getTime()) / 86_400_000
-      : Infinity;
-    if (force || daysSinceLastRun >= 7) {
-      const gaps = await computeKnowledgeGraphGaps(client);
-      knowledgeGraphResult = await persistKnowledgeGraphGaps(gaps);
-    }
-  } catch (err) {
-    errors.push(`knowledge-graph: ${err instanceof Error ? err.message : String(err)}`);
-  }
-
-  // ─── Cluster Authority Engine (weekly-gated, runs last — it only rolls up
-  // what Topical Authority / Keyword Discovery / Competitor Gaps / Knowledge
-  // Graph / Internal Links already computed above in this same run, so it
-  // needs those to have already persisted) ───────────────────────────────
+  // ─── Layer 2: engines that roll up Layer 1's persisted Sanity data ─────
+  // Cluster Authority rolls up Topical Authority / Keyword Discovery /
+  // Competitor Gaps / Knowledge Graph / Internal Links; Topic Suggestions
+  // mines Competitor Gaps / Keyword Discovery among its sources — both
+  // genuinely need Layer 1 to have already persisted, but not each other.
   let clusterAuthorityResult: { upserted: number } | undefined;
-  try {
-    const lastComputed = await client.fetch<string | null>(
-      `*[_type == "clusterAuthority"] | order(lastComputedAt desc)[0].lastComputedAt`
-    );
-    const daysSinceLastRun = lastComputed
-      ? (Date.now() - new Date(lastComputed).getTime()) / 86_400_000
-      : Infinity;
-    if (force || daysSinceLastRun >= 7) {
-      const clusters = await computeClusterAuthority();
-      clusterAuthorityResult = await persistClusterAuthority(clusters);
-    }
-  } catch (err) {
-    errors.push(`cluster-authority: ${err instanceof Error ? err.message : String(err)}`);
-  }
-
-  // ─── Topic Node Suggestions (weekly-gated) — mines Competitor Gaps,
-  // Search Console, Keyword Discovery, Google Autocomplete, and recurring
-  // entities in verified articles for Topic Map candidates. Never writes a
-  // topicNode itself; only ever produces pending suggestions for a human to
-  // approve or reject in the Command Center. ─────────────────────────────
-  let topicSuggestionsResult: { upserted: number; newCount: number } | undefined;
-  try {
-    const lastComputed = await client.fetch<string | null>(
-      `*[_type == "topicNodeSuggestion"] | order(lastComputedAt desc)[0].lastComputedAt`
-    );
-    const daysSinceLastRun = lastComputed
-      ? (Date.now() - new Date(lastComputed).getTime()) / 86_400_000
-      : Infinity;
-    if (force || daysSinceLastRun >= 7) {
-      const suggestions = await computeTopicSuggestions();
-      topicSuggestionsResult = await persistTopicSuggestions(suggestions);
-      if (topicSuggestionsResult.newCount > 0) {
-        await createNotification({
-          kind: "topic_suggestion",
-          title: `${topicSuggestionsResult.newCount} new Topic Map suggestion${topicSuggestionsResult.newCount === 1 ? "" : "s"} ready for review`,
-          body: "Mined from Competitor Gaps, Search Console, Keyword Discovery, Google Autocomplete, and recurring entities in verified articles — each needs your approval before it becomes a real Topic Map node.",
-        });
+  async function runClusterAuthority() {
+    try {
+      if (await isDueForRecompute("clusterAuthority")) {
+        const clusters = await computeClusterAuthority();
+        clusterAuthorityResult = await persistClusterAuthority(clusters);
       }
+    } catch (err) {
+      errors.push(`cluster-authority: ${err instanceof Error ? err.message : String(err)}`);
     }
-  } catch (err) {
-    errors.push(`topic-suggestions: ${err instanceof Error ? err.message : String(err)}`);
   }
 
-  // ─── Editorial Roadmap (weekly-gated, runs after Cluster Authority since
-  // it's a narration layer over that data, not a new scoring engine) ─────
+  let topicSuggestionsResult: { upserted: number; newCount: number } | undefined;
+  async function runTopicSuggestions() {
+    try {
+      if (await isDueForRecompute("topicNodeSuggestion")) {
+        const suggestions = await computeTopicSuggestions();
+        topicSuggestionsResult = await persistTopicSuggestions(suggestions);
+        if (topicSuggestionsResult.newCount > 0) {
+          await createNotification({
+            kind: "topic_suggestion",
+            title: `${topicSuggestionsResult.newCount} new Topic Map suggestion${topicSuggestionsResult.newCount === 1 ? "" : "s"} ready for review`,
+            body: "Mined from Competitor Gaps, Search Console, Keyword Discovery, Google Autocomplete, and recurring entities in verified articles — each needs your approval before it becomes a real Topic Map node.",
+          });
+        }
+      }
+    } catch (err) {
+      errors.push(`topic-suggestions: ${err instanceof Error ? err.message : String(err)}`);
+    }
+  }
+
+  await Promise.all([runClusterAuthority(), runTopicSuggestions()]);
+
+  // ─── Layer 3: Editorial Roadmap — a narration layer over Cluster
+  // Authority's just-persisted data, not a new scoring engine ─────────────
   let editorialRoadmapResult: { upserted: number } | undefined;
   try {
-    const lastComputed = await client.fetch<string | null>(
-      `*[_type == "editorialObjective"] | order(lastComputedAt desc)[0].lastComputedAt`
-    );
-    const daysSinceLastRun = lastComputed
-      ? (Date.now() - new Date(lastComputed).getTime()) / 86_400_000
-      : Infinity;
-    if (force || daysSinceLastRun >= 7) {
+    if (await isDueForRecompute("editorialObjective")) {
       const objectives = await computeEditorialRoadmap();
       editorialRoadmapResult = await persistEditorialRoadmap(objectives);
     }
