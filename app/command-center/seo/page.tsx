@@ -12,6 +12,7 @@ const ACTION_LABELS: Record<string, string> = {
   improve_existing_page: "Improve existing page",
   create_new_blog_article: "Create new blog article",
   add_faqs: "Add FAQs",
+  improve_existing_faq: "Improve an existing FAQ",
   add_portfolio_examples: "Add portfolio examples",
   strengthen_internal_links: "Strengthen internal links",
   expand_pillar_page: "Expand pillar page",

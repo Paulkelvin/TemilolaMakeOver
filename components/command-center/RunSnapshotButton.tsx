@@ -9,10 +9,10 @@ interface SnapshotResult {
   // Set when Sanity write access failed the upfront check, meaning the run
   // stopped before computing anything rather than failing at every save.
   writeBlocked?: string;
-  seoOpportunities?: { upserted: number; notifications: number };
-  keywordDiscovery?: { upserted: number; linked: number };
+  seoOpportunities?: { upserted: number; notifications: number; pruned?: number };
+  keywordDiscovery?: { upserted: number; linked: number; pruned?: number };
   topicalAuthority?: { upserted: number };
-  competitorGaps?: { upserted: number };
+  competitorGaps?: { upserted: number; pruned?: number };
   cannibalization?: { upserted: number; notifications: number };
   internalLinks?: { upserted: number; notifications: number };
   knowledgeGraph?: { upserted: number; notifications: number };
@@ -80,7 +80,12 @@ export function RunSnapshotButton() {
             result.competitorGaps || result.cannibalization || result.internalLinks || result.knowledgeGraph) && (
             <ul style={{ margin: "4px 0 0", paddingLeft: 20 }}>
               {result.seoOpportunities && <li>{result.seoOpportunities.upserted} SEO opportunities recomputed</li>}
-              {result.keywordDiscovery && <li>{result.keywordDiscovery.upserted} keyword discovery topics recomputed</li>}
+              {result.keywordDiscovery && (
+                <li>
+                  {result.keywordDiscovery.upserted} keyword discovery topics recomputed
+                  {result.keywordDiscovery.pruned ? ` (${result.keywordDiscovery.pruned} stale topics pruned)` : ""}
+                </li>
+              )}
               {result.topicalAuthority && <li>{result.topicalAuthority.upserted} topical authority nodes recomputed</li>}
               {result.competitorGaps && <li>{result.competitorGaps.upserted} competitor gap topics recomputed</li>}
               {result.cannibalization && <li>{result.cannibalization.upserted} cannibalization issues recomputed</li>}

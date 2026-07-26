@@ -16,8 +16,10 @@ import {
   matchContent,
   topicKeyFor,
   computePriorityScore,
-  QUESTION_PATTERN,
+  isQuestionCluster,
   VISUAL_PATTERN,
+  buildFaqIndex,
+  findCoveringFaq,
   type Intent,
   type IntentClassification,
   type ContentCoverage,
@@ -29,6 +31,7 @@ export type RecommendedAction =
   | "improve_existing_page"
   | "create_new_blog_article"
   | "add_faqs"
+  | "improve_existing_faq"
   | "add_portfolio_examples"
   | "strengthen_internal_links"
   | "expand_pillar_page";
@@ -155,7 +158,8 @@ const INTENT_VALUE: Record<Intent, number> = {
 function recommendAction(
   rawQueries: string[],
   coverage: ContentCoverage,
-  matchedPath: string | undefined
+  matchedPath: string | undefined,
+  coveringFaq: string | undefined
 ): { action: RecommendedAction; detail: string; trace: string[] } {
   const joined = rawQueries.join(" | ");
   const trace: string[] = [];
@@ -170,19 +174,28 @@ function recommendAction(
     };
   }
 
-  const isQuestion = QUESTION_PATTERN.test(joined);
-  trace.push(`2. Question-form query (matches /${QUESTION_PATTERN.source}/)? ${isQuestion ? "YES" : "no"}`);
+  const isQuestion = isQuestionCluster(rawQueries);
+  trace.push(`2. Question-form query (a member query leads with an interrogative)? ${isQuestion ? "YES" : "no"}`);
   if (isQuestion) {
+    trace.push(`3. Already answered by an existing FAQ? ${coveringFaq ? `YES — "${coveringFaq}"` : "no"}`);
+    if (coveringFaq) {
+      trace.push("-> improve_existing_faq (a second FAQ on the same question would compete with the first)");
+      return {
+        action: "improve_existing_faq",
+        detail: `An existing FAQ already answers this — "${coveringFaq}". Strengthen that answer to cover these searches rather than adding another FAQ that competes with it.`,
+        trace,
+      };
+    }
     trace.push("-> add_faqs (questions are best answered as FAQs, not a full rewrite)");
     return {
       action: "add_faqs",
-      detail: `These are question-form searches. Add FAQ entries answering them directly${matchedPath ? ` on ${matchedPath}` : ""}.`,
+      detail: `These are question-form searches not yet covered by any existing FAQ. Add an FAQ entry answering them directly${matchedPath ? ` on ${matchedPath}` : ""}.`,
       trace,
     };
   }
 
   const wantsVisual = VISUAL_PATTERN.test(joined);
-  trace.push(`3. Visual/proof language (matches /${VISUAL_PATTERN.source}/)? ${wantsVisual ? "YES" : "no"}`);
+  trace.push(`4. Visual/proof language (matches /${VISUAL_PATTERN.source}/)? ${wantsVisual ? "YES" : "no"}`);
   if (wantsVisual) {
     trace.push("-> add_portfolio_examples (searcher wants to see results, not read more text)");
     return {
@@ -192,10 +205,10 @@ function recommendAction(
     };
   }
 
-  trace.push(`4. Coverage === "thin"? ${coverage === "thin" ? "YES" : "no"}`);
+  trace.push(`5. Coverage === "thin"? ${coverage === "thin" ? "YES" : "no"}`);
   if (coverage === "thin") {
     const isPillar = matchedPath && !matchedPath.startsWith("/blog/");
-    trace.push(`5. Matched path is a pillar page, not a blog post? ${isPillar ? "YES" : "no"} (matchedPath = "${matchedPath ?? "none"}")`);
+    trace.push(`6. Matched path is a pillar page, not a blog post? ${isPillar ? "YES" : "no"} (matchedPath = "${matchedPath ?? "none"}")`);
     if (isPillar) {
       trace.push("-> expand_pillar_page (the page itself just needs more depth)");
       return { action: "expand_pillar_page", detail: `${matchedPath} is thin for this topic — expand its content depth (more detail, FAQs, proof).`, trace };
@@ -204,7 +217,7 @@ function recommendAction(
     return { action: "strengthen_internal_links", detail: `Existing content on this topic is thin and scattered. Link related posts to each other and to the relevant service/location page.`, trace };
   }
 
-  trace.push('5. Coverage is "existing-strong" and no other rule fired -> improve_existing_page (closest to ranking well already)');
+  trace.push('7. Coverage is "existing-strong" and no other rule fired -> improve_existing_page (closest to ranking well already)');
   return {
     action: "improve_existing_page",
     detail: `${matchedPath ?? "The matching page"} already ranks reasonably — improve its title/meta description and on-page depth to close the remaining gap.`,
@@ -235,9 +248,10 @@ const MIN_TOPICAL_RELEVANCE = 30; // below this, treat as noise and drop entirel
 export async function computeSeoOpportunities(fetchClient: FetchClient = client): Promise<SeoOpportunityTopic[]> {
   if (!isSearchConsoleConfigured()) return [];
 
-  const [matrix, contentIndex] = await Promise.all([
+  const [matrix, contentIndex, faqIndex] = await Promise.all([
     getQueryPageMatrix(90),
     buildContentIndex(fetchClient),
+    buildFaqIndex(fetchClient),
   ]);
 
   const aggregated = aggregateByQuery(matrix.current);
@@ -257,6 +271,7 @@ export async function computeSeoOpportunities(fetchClient: FetchClient = client)
 
     const clusterTokens = cluster.sharedTokens.length > 0 ? cluster.sharedTokens : cluster.members[0].tokens;
     const { coverage, matchedPath, topicalRelevanceScore } = matchContent([clusterTokens], contentIndex);
+    const coveringFaq = findCoveringFaq([clusterTokens], faqIndex);
     if (topicalRelevanceScore < MIN_TOPICAL_RELEVANCE) continue; // drop noise
 
     const intentClassification = classifyIntentDetailed(rawQueries);
@@ -293,7 +308,7 @@ export async function computeSeoOpportunities(fetchClient: FetchClient = client)
     if (impressions >= 50 && cluster.members.length >= 2 && topicalRelevanceScore >= 70) confidenceLevel = "high";
     else if (impressions >= 15 && topicalRelevanceScore >= 70) confidenceLevel = "medium";
 
-    const { action, detail, trace } = recommendAction(rawQueries, coverage, matchedPath);
+    const { action, detail, trace } = recommendAction(rawQueries, coverage, matchedPath, coveringFaq);
     const priorityScore = computePriorityScore(totalScore, action);
     const isQuickWin = position >= 8 && position <= 20;
 
@@ -365,7 +380,7 @@ function docIdForTopic(topicKey: string): string {
 
 export async function persistSeoOpportunities(
   topics: SeoOpportunityTopic[]
-): Promise<{ upserted: number; notifications: number }> {
+): Promise<{ upserted: number; notifications: number; pruned: number }> {
   const today = new Date().toISOString().slice(0, 10);
   const nowIso = new Date().toISOString();
 
@@ -470,7 +485,21 @@ export async function persistSeoOpportunities(
   }
 
   await tx.commit();
-  return { upserted: topics.length, notifications };
+  // Prune entries that are no longer produced, so the list reflects current
+  // reality instead of accumulating every topic ever seen. Anything the user
+  // has triaged is kept regardless — pruning must never discard a decision.
+  const KEEP_STATUSES = new Set(["acknowledged", "in_progress", "done", "dismissed"]);
+  const liveKeys = new Set(topics.map((t) => t.topicKey));
+  const orphans = existing.filter(
+    (e) => !liveKeys.has(e.topicKey) && !KEEP_STATUSES.has(e.status ?? "new")
+  );
+  if (orphans.length > 0) {
+    let pruneTx = writeClient.transaction();
+    for (const orphan of orphans) pruneTx = pruneTx.delete(orphan._id);
+    await pruneTx.commit();
+  }
+
+  return { upserted: topics.length, notifications, pruned: orphans.length };
 }
 
 // ─── Read helpers (for the UI — no recomputation, just what's stored) ──────

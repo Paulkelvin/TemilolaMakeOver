@@ -9,6 +9,7 @@ const ACTION_LABELS: Record<string, string> = {
   create_new_pillar: "Create new pillar",
   create_cluster_article: "Create cluster article",
   add_faqs: "Add FAQs",
+  improve_existing_faq: "Improve an existing FAQ",
   add_portfolio: "Add portfolio",
 };
 

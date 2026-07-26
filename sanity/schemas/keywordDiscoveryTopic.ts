@@ -165,6 +165,7 @@ export const keywordDiscoveryTopicSchema = defineType({
           { title: "Create a cluster article", value: "create_cluster_article" },
           { title: "Improve existing page", value: "improve_existing_page" },
           { title: "Add FAQs", value: "add_faqs" },
+          { title: "Improve an existing FAQ", value: "improve_existing_faq" },
           { title: "Add portfolio", value: "add_portfolio" },
           { title: "Add internal links", value: "add_internal_links" },
         ],

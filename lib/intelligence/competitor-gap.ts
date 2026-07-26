@@ -16,7 +16,9 @@ import {
   matchContent,
   topicKeyFor,
   computePriorityScore,
-  QUESTION_PATTERN,
+  isQuestionCluster,
+  buildFaqIndex,
+  findCoveringFaq,
   VISUAL_PATTERN,
   type ContentIndexEntry,
 } from "./keyword-utils";
@@ -104,7 +106,7 @@ function extractSubtopicGaps(signal: PageSignal, contentIndex: ContentIndexEntry
   return gaps;
 }
 
-export type RecommendedAction = "create_new_pillar" | "create_cluster_article" | "add_faqs" | "add_portfolio";
+export type RecommendedAction = "create_new_pillar" | "create_cluster_article" | "add_faqs" | "improve_existing_faq" | "add_portfolio";
 
 export interface CompetitorGapTopic {
   topicKey: string;
@@ -126,7 +128,7 @@ export interface CompetitorGapTopic {
 
 const MIN_TOPICAL_RELEVANCE = 30; // same noise floor as the other two engines
 
-function recommendAction(title: string, h1: string, breadth: "head" | "long-tail"): { action: RecommendedAction; detail: string; trace: string[] } {
+function recommendAction(title: string, h1: string, breadth: "head" | "long-tail", coveringFaq: string | undefined): { action: RecommendedAction; detail: string; trace: string[] } {
   const joined = `${title} ${h1}`;
   const label = title || h1;
   const trace: string[] = [];
@@ -135,9 +137,14 @@ function recommendAction(title: string, h1: string, breadth: "head" | "long-tail
   // reach this function — see crawlCompetitor's `if (coverage !== "none" ...) continue`),
   // so unlike the other two engines' recommendAction, this one only chooses
   // among the content-creation actions, never "improve"/"add links".
-  const isQuestion = QUESTION_PATTERN.test(joined);
-  trace.push(`1. Question-form title? ${isQuestion ? "YES" : "no"}`);
+  const isQuestion = isQuestionCluster([title, h1]);
+  trace.push(`1. Question-form title (leads with an interrogative)? ${isQuestion ? "YES" : "no"}`);
   if (isQuestion) {
+    trace.push(`1b. Already answered by an existing FAQ? ${coveringFaq ? `YES — "${coveringFaq}"` : "no"}`);
+    if (coveringFaq) {
+      trace.push("-> improve_existing_faq (we already answer this; a second FAQ would compete with the first)");
+      return { action: "improve_existing_faq", detail: `A competitor covers this as a question, and an existing FAQ already answers it — "${coveringFaq}". Strengthen that answer rather than adding a competing FAQ.`, trace };
+    }
     trace.push("-> add_faqs");
     return { action: "add_faqs", detail: `A competitor answers this as a question that this site doesn't yet. Add an FAQ entry covering: ${label}.`, trace };
   }
@@ -161,6 +168,7 @@ function recommendAction(title: string, h1: string, breadth: "head" | "long-tail
 async function crawlCompetitor(
   competitor: (typeof COMPETITOR_SITES)[number],
   ourContentIndex: Awaited<ReturnType<typeof buildContentIndex>>,
+  faqIndex: Awaited<ReturnType<typeof buildFaqIndex>>,
   // Shared across every competitor in the same run, not just this one — two
   // different competitor sites can easily cover the same generic topic (e.g.
   // both are Lagos bridal makeup businesses), and topicKeyFor() is a pure
@@ -213,7 +221,8 @@ async function crawlCompetitor(
 
     const adjustedRelevance = topicalRelevanceScore * (0.6 + 0.4 * contentStrength.totalScore / 100);
     const breadth: "head" | "long-tail" = tokens.length <= 3 ? "head" : "long-tail";
-    const { action, detail, trace } = recommendAction(signal.title, signal.h1, breadth);
+    const coveringFaq = findCoveringFaq([tokens], faqIndex);
+    const { action, detail, trace } = recommendAction(signal.title, signal.h1, breadth, coveringFaq);
     const priorityScore = computePriorityScore(adjustedRelevance, action);
 
     gaps.push({
@@ -239,12 +248,15 @@ async function crawlCompetitor(
 }
 
 export async function computeCompetitorGaps(fetchClient: FetchClient = client): Promise<CompetitorGapTopic[]> {
-  const ourContentIndex = await buildContentIndex(fetchClient);
+  const [ourContentIndex, faqIndex] = await Promise.all([
+    buildContentIndex(fetchClient),
+    buildFaqIndex(fetchClient),
+  ]);
   // One shared set across every competitor — see crawlCompetitor's
   // gapKeysSeen parameter comment for why a per-competitor set isn't enough.
   const gapKeysSeen = new Set<string>();
   const results = await Promise.all(
-    COMPETITOR_SITES.map((c) => crawlCompetitor(c, ourContentIndex, gapKeysSeen))
+    COMPETITOR_SITES.map((c) => crawlCompetitor(c, ourContentIndex, faqIndex, gapKeysSeen))
   );
   return results.flat().sort((a, b) => b.priorityScore - a.priorityScore);
 }
@@ -264,7 +276,7 @@ function docIdForTopic(topicKey: string): string {
   return `competitor-gap-${topicKey}`;
 }
 
-export async function persistCompetitorGaps(gaps: CompetitorGapTopic[]): Promise<{ upserted: number }> {
+export async function persistCompetitorGaps(gaps: CompetitorGapTopic[]): Promise<{ upserted: number; pruned: number }> {
   const today = new Date().toISOString().slice(0, 10);
   const nowIso = new Date().toISOString();
 
@@ -309,7 +321,21 @@ export async function persistCompetitorGaps(gaps: CompetitorGapTopic[]): Promise
   }
 
   await tx.commit();
-  return { upserted: gaps.length };
+  // Prune entries that are no longer produced, so the list reflects current
+  // reality instead of accumulating every topic ever seen. Anything the user
+  // has triaged is kept regardless — pruning must never discard a decision.
+  const KEEP_STATUSES = new Set(["acknowledged", "in_progress", "done", "dismissed"]);
+  const liveKeys = new Set(gaps.map((g) => g.topicKey));
+  const orphans = existing.filter(
+    (e) => !liveKeys.has(e.topicKey) && !KEEP_STATUSES.has(e.status ?? "new")
+  );
+  if (orphans.length > 0) {
+    let pruneTx = writeClient.transaction();
+    for (const orphan of orphans) pruneTx = pruneTx.delete(orphan._id);
+    await pruneTx.commit();
+  }
+
+  return { upserted: gaps.length, pruned: orphans.length };
 }
 
 // ─── Read helpers ───────────────────────────────────────────────────────────

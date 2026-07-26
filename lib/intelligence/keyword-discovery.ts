@@ -15,8 +15,11 @@ import {
   computePriorityScore,
   deriveConfidenceLevel,
   CONFIDENCE_SCORE,
-  QUESTION_PATTERN,
+  isQuestionCluster,
   VISUAL_PATTERN,
+  buildFaqIndex,
+  findCoveringFaq,
+  disqualifyingToken,
   type ConfidenceLevel,
   type ClusterableQuery,
   type Intent,
@@ -267,6 +270,7 @@ export type RecommendedAction =
   | "create_cluster_article"
   | "improve_existing_page"
   | "add_faqs"
+  | "improve_existing_faq"
   | "add_portfolio"
   | "add_internal_links";
 
@@ -313,9 +317,9 @@ function recommendAction(
   coverage: ContentCoverage,
   matchedPath: string | undefined,
   breadth: QueryBreadth,
-  topicalRelevanceScore: number
+  topicalRelevanceScore: number,
+  coveringFaq: string | undefined
 ): { action: RecommendedAction; detail: string; trace: string[] } {
-  const joined = rawQueries.join(" | ");
   const trace: string[] = [];
 
   trace.push(`1. Coverage === "none"? ${coverage === "none" ? "YES" : "no"} (coverage = "${coverage}")`);
@@ -338,19 +342,29 @@ function recommendAction(
     };
   }
 
-  const isQuestion = QUESTION_PATTERN.test(joined);
-  trace.push(`2. Question-form query? ${isQuestion ? "YES" : "no"}`);
+  const isQuestion = isQuestionCluster(rawQueries);
+  trace.push(`2. Question-form query (a member query leads with an interrogative)? ${isQuestion ? "YES" : "no"}`);
   if (isQuestion) {
+    trace.push(`3. Already answered by an existing FAQ? ${coveringFaq ? `YES — "${coveringFaq}"` : "no"}`);
+    if (coveringFaq) {
+      trace.push("-> improve_existing_faq (a second FAQ on the same question would compete with the first)");
+      return {
+        action: "improve_existing_faq",
+        detail: `An existing FAQ already answers this — "${coveringFaq}". Strengthen that answer to cover these searches rather than adding another FAQ that competes with it.`,
+        trace,
+      };
+    }
     trace.push("-> add_faqs");
     return {
       action: "add_faqs",
-      detail: `These are question-form searches. Add FAQ entries answering them directly${matchedPath ? ` on ${matchedPath}` : ""}.`,
+      detail: `These are question-form searches not yet covered by any existing FAQ. Add an FAQ entry answering them directly${matchedPath ? ` on ${matchedPath}` : ""}.`,
       trace,
     };
   }
 
+  const joined = rawQueries.join(" | ");
   const wantsVisual = VISUAL_PATTERN.test(joined);
-  trace.push(`3. Visual/proof language? ${wantsVisual ? "YES" : "no"}`);
+  trace.push(`4. Visual/proof language? ${wantsVisual ? "YES" : "no"}`);
   if (wantsVisual) {
     trace.push("-> add_portfolio");
     return {
@@ -360,7 +374,7 @@ function recommendAction(
     };
   }
 
-  trace.push(`4. Coverage === "thin"? ${coverage === "thin" ? "YES" : "no"}`);
+  trace.push(`5. Coverage === "thin"? ${coverage === "thin" ? "YES" : "no"}`);
   if (coverage === "thin") {
     trace.push("-> improve_existing_page");
     return {
@@ -369,7 +383,7 @@ function recommendAction(
       trace,
     };
   }
-  trace.push('5. Coverage is "existing-strong" and no other rule fired -> add_internal_links (well-covered but isolated)');
+  trace.push('6. Coverage is "existing-strong" and no other rule fired -> add_internal_links (well-covered but isolated)');
   return {
     action: "add_internal_links",
     detail: `${matchedPath ?? "The matching page"} already covers this well but appears isolated — add internal links to and from it.`,
@@ -406,9 +420,10 @@ const MIN_TOPICAL_RELEVANCE = 30; // below this, treat as noise and drop entirel
 // ─── Main computation ───────────────────────────────────────────────────────
 
 export async function computeKeywordDiscoveryTopics(fetchClient: FetchClient = client): Promise<KeywordDiscoveryTopic[]> {
-  const [taxonomyNodes, contentIndex] = await Promise.all([
+  const [taxonomyNodes, contentIndex, faqIndex] = await Promise.all([
     fetchAllTaxonomyNodes(fetchClient),
     buildContentIndex(fetchClient),
+    buildFaqIndex(fetchClient),
   ]);
 
   const seeds = buildSeeds(taxonomyNodes);
@@ -418,8 +433,15 @@ export async function computeKeywordDiscoveryTopics(fetchClient: FetchClient = c
   const topics: KeywordDiscoveryTopic[] = [];
 
   for (const cluster of clusters) {
-    const rawQueries = cluster.members.map((m) => m.query);
-    const clusterTokens = cluster.sharedTokens.length > 0 ? cluster.sharedTokens : cluster.members[0].tokens;
+    // Disqualified members are stripped individually rather than used to drop
+    // the whole cluster: one stray "bridal makeup jobs lagos" shouldn't kill an
+    // otherwise-real "bridal makeup lagos" topic. A cluster that is entirely
+    // noise (an e.l.f. product-shade set, say) empties out and disappears here.
+    const members = cluster.members.filter((m) => !disqualifyingToken([m.tokens]));
+    if (members.length === 0) continue;
+
+    const rawQueries = members.map((m) => m.query);
+    const clusterTokens = cluster.sharedTokens.length > 0 ? cluster.sharedTokens : members[0].tokens;
 
     // The cluster's shared tokens can be much narrower than the topic's own
     // display label once a cluster spans many differently-worded queries
@@ -427,7 +449,7 @@ export async function computeKeywordDiscoveryTopics(fetchClient: FetchClient = c
     // labeled "Soft Glam Makeup Tutorial For Beginners") — checking content
     // coverage against both catches an existing page that matches the
     // specific topic even when it doesn't match the broad shared vocabulary.
-    const topLabelMember = [...cluster.members].sort((a, b) => {
+    const topLabelMember = [...members].sort((a, b) => {
       const aOverlap = a.tokens.filter((t) => clusterTokens.includes(t)).length;
       const bOverlap = b.tokens.filter((t) => clusterTokens.includes(t)).length;
       if (aOverlap !== bOverlap) return bOverlap - aOverlap;
@@ -435,8 +457,10 @@ export async function computeKeywordDiscoveryTopics(fetchClient: FetchClient = c
     })[0];
     const topLabel = topLabelMember.query;
 
-    const { coverage, matchedPath, topicalRelevanceScore } = matchContent([clusterTokens, topLabelMember.tokens], contentIndex);
+    const tokenSets = [clusterTokens, topLabelMember.tokens];
+    const { coverage, matchedPath, topicalRelevanceScore } = matchContent(tokenSets, contentIndex);
     if (topicalRelevanceScore < MIN_TOPICAL_RELEVANCE) continue; // drop noise
+    const coveringFaq = findCoveringFaq(tokenSets, faqIndex);
 
     const intentClassification = classifyIntentDetailed(rawQueries);
     const intent = intentClassification.intent;
@@ -444,7 +468,7 @@ export async function computeKeywordDiscoveryTopics(fetchClient: FetchClient = c
 
     const allSources = new Set<DiscoverySource>();
     let minDepth = Infinity;
-    for (const m of cluster.members) {
+    for (const m of members) {
       for (const s of m.sources) allSources.add(s);
       minDepth = Math.min(minDepth, m.depth);
     }
@@ -473,7 +497,7 @@ export async function computeKeywordDiscoveryTopics(fetchClient: FetchClient = c
       confidenceReasons.push("Seed topic generated from site taxonomy — not yet confirmed by any autocomplete source.");
     }
     if (minDepth >= 1) confidenceReasons.push("Surfaced via one round of recursive expansion, not a direct seed suggestion.");
-    confidenceReasons.push(`Based on ${cluster.members.length} distinct sample quer${cluster.members.length === 1 ? "y" : "ies"}.`);
+    confidenceReasons.push(`Based on ${members.length} distinct sample quer${members.length === 1 ? "y" : "ies"}.`);
     if (matchedPath) confidenceReasons.push(`Matched to existing content at ${matchedPath}.`);
     else confidenceReasons.push("No matching content found on the site — flagged as a content gap.");
 
@@ -491,10 +515,10 @@ export async function computeKeywordDiscoveryTopics(fetchClient: FetchClient = c
       confidenceScore * WEIGHTS.confidence +
       seasonalBoostScore * WEIGHTS.seasonalBoost;
 
-    const { action, detail, trace } = recommendAction(rawQueries, coverage, matchedPath, breadth, topicalRelevanceScore);
+    const { action, detail, trace } = recommendAction(rawQueries, coverage, matchedPath, breadth, topicalRelevanceScore, coveringFaq);
     const priorityScore = computePriorityScore(totalScore, action);
 
-    const sampleQueries: SampleQuery[] = cluster.members.flatMap((m) =>
+    const sampleQueries: SampleQuery[] = members.flatMap((m) =>
       Array.from(m.sources).map((source) => ({ query: m.query, source, depth: m.depth }))
     );
 
@@ -553,7 +577,7 @@ function bumpConfidence(level: ConfidenceLevel): ConfidenceLevel {
 
 export async function persistKeywordDiscoveryTopics(
   topics: KeywordDiscoveryTopic[]
-): Promise<{ upserted: number; linked: number }> {
+): Promise<{ upserted: number; linked: number; pruned: number }> {
   const today = new Date().toISOString().slice(0, 10);
   const nowIso = new Date().toISOString();
 
@@ -614,8 +638,22 @@ export async function persistKeywordDiscoveryTopics(
     });
   }
 
+  // Prune topics that are no longer discovered. Without this the collection
+  // only ever grows: each run createOrReplace'd the topics it found and left
+  // everything else untouched, so a topic that stopped appearing in
+  // autocomplete — or whose key changed — sat in the roadmap forever. 26 of 92
+  // stored topics were stale leftovers from three earlier runs when this was
+  // added. Topics the user has explicitly engaged with are kept regardless, so
+  // pruning can never discard someone's own triage decision.
+  const KEEP_STATUSES = new Set(["acknowledged", "in_progress", "done", "dismissed"]);
+  const liveKeys = new Set(topics.map((t) => t.topicKey));
+  const orphans = existing.filter(
+    (e) => !liveKeys.has(e.topicKey) && !KEEP_STATUSES.has(e.status ?? "new")
+  );
+  for (const orphan of orphans) tx = tx.delete(orphan._id);
+
   await tx.commit();
-  return { upserted: topics.length, linked };
+  return { upserted: topics.length, linked, pruned: orphans.length };
 }
 
 // ─── Read helpers (for the UI — no recomputation, just what's stored) ──────

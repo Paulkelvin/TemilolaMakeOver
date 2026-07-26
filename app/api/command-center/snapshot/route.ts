@@ -120,7 +120,7 @@ export async function runSnapshot(options?: { force?: boolean }) {
     }
   }
 
-  let seoOpportunityResult: { upserted: number; notifications: number } | undefined;
+  let seoOpportunityResult: { upserted: number; notifications: number; pruned: number } | undefined;
   async function runSeoOpportunities() {
     if (!isSearchConsoleConfigured()) return;
     try {
@@ -133,7 +133,7 @@ export async function runSnapshot(options?: { force?: boolean }) {
     }
   }
 
-  let keywordDiscoveryResult: { upserted: number; linked: number } | undefined;
+  let keywordDiscoveryResult: { upserted: number; linked: number; pruned: number } | undefined;
   async function runKeywordDiscovery() {
     try {
       if (await isDueForRecompute("keywordDiscoveryTopic")) {
@@ -157,7 +157,7 @@ export async function runSnapshot(options?: { force?: boolean }) {
     }
   }
 
-  let competitorGapResult: { upserted: number } | undefined;
+  let competitorGapResult: { upserted: number; pruned: number } | undefined;
   async function runCompetitorGap() {
     try {
       if (await isDueForRecompute("competitorGapTopic")) {

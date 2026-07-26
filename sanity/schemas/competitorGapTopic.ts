@@ -42,6 +42,7 @@ export const competitorGapTopicSchema = defineType({
           { title: "Create new pillar", value: "create_new_pillar" },
           { title: "Create cluster article", value: "create_cluster_article" },
           { title: "Add FAQs", value: "add_faqs" },
+          { title: "Improve an existing FAQ", value: "improve_existing_faq" },
           { title: "Add portfolio", value: "add_portfolio" },
         ],
       },

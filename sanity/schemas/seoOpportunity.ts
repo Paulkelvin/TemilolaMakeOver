@@ -151,6 +151,7 @@ export const seoOpportunitySchema = defineType({
           { title: "Improve existing page", value: "improve_existing_page" },
           { title: "Create new blog article", value: "create_new_blog_article" },
           { title: "Add FAQs", value: "add_faqs" },
+          { title: "Improve an existing FAQ", value: "improve_existing_faq" },
           { title: "Add portfolio examples", value: "add_portfolio_examples" },
           { title: "Strengthen internal links", value: "strengthen_internal_links" },
           { title: "Expand pillar page", value: "expand_pillar_page" },

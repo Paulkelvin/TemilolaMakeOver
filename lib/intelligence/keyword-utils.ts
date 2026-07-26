@@ -1,5 +1,6 @@
 import { fetchAllTaxonomyNodes, detectThinContent, detectStaleContent, computeCoverage, type FetchClient } from "./content";
 import { TAXONOMY_TYPES } from "./registry";
+import { COMPETITOR_SITES } from "./competitor-registry";
 import { computeCoverageScore } from "./topical-authority";
 
 /**
@@ -31,6 +32,11 @@ const SYNONYMS: Record<string, string> = {
   gele: "gele",
   owambe: "owambe",
   glam: "glam",
+  // Folded so the makeup-specific vocabulary check sees them. Without this,
+  // "Event Owambe Glams" — an actual service name on this site — scored as
+  // generic-only vocabulary and was dropped as noise.
+  glams: "glam",
+  makeovers: "makeover",
 };
 
 export function normalizeQuery(query: string): { tokens: string[]; raw: string } {
@@ -162,8 +168,24 @@ export function classifyIntent(rawQueries: string[]): Intent {
 // Shared regexes for recommendation logic (each engine has its own
 // recommendedAction vocabulary, but "is this a question" / "does this want
 // visual proof" are generic query-text signals, not specific to either).
-export const QUESTION_PATTERN = /\b(how|what|why|when|does|is|can)\b/;
+//
+// Anchored at the start of a query on purpose. Matching an interrogative
+// ANYWHERE (the old \b(how|what|...)\b applied to every query joined into one
+// string) meant a single stray "is" or "can" in any one member of a large
+// cluster flipped the whole cluster to add_faqs — which is how commercial
+// clusters like "bridal makeup artist near me" ended up recommended as FAQ
+// entries. A real question search leads with its interrogative.
+export const QUESTION_PATTERN = /^(how|what|why|when|where|which|who|does|do|is|are|can|should)\b/;
 export const VISUAL_PATTERN = /\b(photo|photos|picture|pictures|example|examples|before and after|look|looks)\b/;
+
+/**
+ * True when the searcher is actually asking a question, rather than when the
+ * word "is" happens to appear somewhere in a cluster. Requires a *member
+ * query* to lead with an interrogative, so the signal survives clustering.
+ */
+export function isQuestionCluster(rawQueries: string[]): boolean {
+  return rawQueries.some((q) => QUESTION_PATTERN.test(q.trim().toLowerCase()));
+}
 
 // ─── Seasonal detection ─────────────────────────────────────────────────────
 
@@ -265,7 +287,111 @@ export const CORE_BUSINESS_VOCAB = new Set([
 export const MAKEUP_SPECIFIC_VOCAB = new Set([
   "makeup", "glam", "beauty", "bridal", "bride", "gele", "cosmetics", "cosmetic",
   "lash", "lashes", "brow", "brows", "foundation", "concealer", "lipstick", "contour", "highlighter",
+  "mua", "makeover", "eyeshadow", "eyeliner", "mascara", "blush", "bronzer", "primer",
 ]);
+
+/**
+ * Negative keywords — the standard way real keyword tools stop autocomplete
+ * noise, and hand-maintained here by the same convention as PRIORITY_KEYWORDS
+ * (registry.ts) and COMPETITOR_SITES (competitor-registry.ts).
+ *
+ * Necessary because a positive vocabulary check alone cannot separate these
+ * from real demand: an e.l.f. product query like "soft glam satin foundation
+ * elf" contains BOTH "glam" and "foundation" and so passes even the strict
+ * MAKEUP_SPECIFIC_VOCAB above. All of the following were observed live at the
+ * very top of the priority queue, ranked above real work:
+ *
+ *  - retail/product intent — this is a service business; someone shopping for
+ *    a drugstore foundation shade is not a potential booking
+ *  - adjacent wedding trades — "how much do wedding venues make" shares
+ *    "wedding" but is someone researching the venue business
+ *  - social-media filler — "baby girl makeup photoshoot quotes funny"
+ *  - job seeking — a searcher looking for employment, not to hire
+ *
+ * Competitor business names are disqualified separately, off COMPETITOR_SITES,
+ * so this list never has to be kept in sync with that one by hand.
+ */
+export const DISQUALIFYING_VOCAB = new Set([
+  // Cosmetics brands that dominate autocomplete for any product-shaped query.
+  // "elf" is deliberately included: in makeup autocomplete it is overwhelmingly
+  // e.l.f. Cosmetics, and the cost of losing a hypothetical Halloween-elf look
+  // is far lower than the cost of ranking SKU searches as top priorities.
+  "elf", "maybelline", "nyx", "fenty", "mac", "revlon", "loreal", "huda", "morphe",
+  "rimmel", "sephora", "ulta", "nars", "clinique", "estee", "lauder", "zaron", "zikel",
+  // "Soft Glam" is both one of this site's own makeupStyle names AND the name
+  // of Anastasia Beverly Hills' best-known palette, so seeding "soft glam"
+  // pulls in a flood of palette-shade queries. The brand and product-form
+  // tokens are what separate the two.
+  "anastasia", "abh", "tarte", "colourpop", "jaclyn", "jeffree", "benefit", "smashbox",
+  "palette", "palettes",
+  // Product-shopping intent rather than service-hire intent. Deliberately NOT
+  // including "shade"/"shades" — "best foundation shades for dark skin" is a
+  // perfectly good article for a makeup artist to own; the brand tokens above
+  // are what actually identify SKU noise.
+  "swatch", "swatches", "dupe", "dupes", "ingredients", "spf",
+  "amazon", "jumia", "konga", "aliexpress", "shein", "walmart", "boots", "superdrug",
+  // Someone else's physical premises. "academy" is excluded on purpose: this
+  // business teaches, so "makeup academy lagos" may well be its own service.
+  "parlour", "parlor", "salon", "spa", "boutique",
+  // Adjacent wedding trades — shares "wedding"/"event", not about makeup.
+  "venue", "venues", "invitation", "invitations", "cake", "cakes", "decor",
+  "caterer", "catering", "florist", "flowers", "usher", "ushers",
+  // Other-business research, not a client.
+  "salary", "salaries", "franchise", "wholesale", "wholesalers", "distributor",
+  "supplier", "suppliers", "profit", "revenue",
+  // Job seeking, not hiring.
+  "job", "jobs", "vacancy", "vacancies", "hiring", "recruitment", "cv", "resume", "internship",
+  // Wrong market. This is a Lagos business; "makeup artist long island ny" is
+  // a real query with real volume and zero value here. Note the absence of
+  // "island" — Victoria Island and Lagos Island are core local areas.
+  "ny", "nyc", "nj", "usa", "uk", "london", "dubai", "atlanta", "houston",
+  "chicago", "toronto", "canada", "america", "california", "texas", "florida",
+  // Lagos prime areas (Lekki, Ikoyi, VI) are also prime property markets, so
+  // location seeds pull in real-estate autocomplete.
+  "estate", "rent", "apartment", "property", "duplex", "bedroom", "plot",
+  // Social-media filler. "quote"/"quotes" are deliberately absent — "quote" is
+  // already a TRANSACTIONAL_WORD ("get a quote"), so disqualifying it would
+  // throw away the most valuable intent there is. The caption markers below
+  // identify the filler on their own.
+  "caption", "captions", "funny", "meme", "memes", "hashtag",
+  "hashtags", "lyrics", "wallpaper", "pfp", "emoji", "anime", "cartoon", "drawing",
+]);
+
+// Words that appear inside competitor business names but identify nobody —
+// "House of Tara" must not make "makeup house call" a competitor match, and
+// this business genuinely does home service.
+const GENERIC_NAME_WORDS = new Set([
+  "house", "of", "the", "and", "by", "beauty", "makeup", "artist", "studio",
+  "salon", "parlour", "parlor", "spa", "academy", "ltd", "limited", "nigeria", "lagos",
+]);
+
+// Competitor business names are legitimate *competitor* signals but must never
+// become our own content recommendations ("add an FAQ about House of Tara").
+// Derived from the curated registry so the two never drift apart, then reduced
+// to each competitor's genuinely distinctive tokens.
+const COMPETITOR_NAME_TOKENS: Set<string> = new Set(
+  COMPETITOR_SITES.flatMap((site) =>
+    [
+      ...normalizeQuery(site.name).tokens,
+      ...normalizeQuery(site.domain.replace(/\.[a-z.]+$/, "")).tokens,
+    ].filter((t) => !GENERIC_NAME_WORDS.has(t) && t.length > 2)
+  )
+);
+
+/**
+ * A hard drop, not a score penalty — these aren't weak opportunities, they're
+ * the wrong business entirely, and any weighted score can be outvoted by a
+ * high enough commercial/coverage component.
+ */
+export function disqualifyingToken(tokenSets: string[][]): string | undefined {
+  for (const tokens of tokenSets) {
+    for (const t of tokens) {
+      if (DISQUALIFYING_VOCAB.has(t)) return t;
+      if (COMPETITOR_NAME_TOKENS.has(t)) return t;
+    }
+  }
+  return undefined;
+}
 
 const THIN_THRESHOLD = 60;
 
@@ -281,7 +407,48 @@ export const OVERLAP_THRESHOLDS = {
   clusterMembership: 0.25,
   /** "Is this basically the same node as one that already exists?" — topic-suggestions.ts's isAlreadyCovered(). Stricter than clusterMembership on purpose: belonging to a cluster is a much lower bar than being a duplicate of it. */
   alreadyDuplicate: 0.45,
+  /** "Does one of our existing FAQs already answer this question?" — findCoveringFaq() below. Between contentMatch and alreadyDuplicate: an FAQ needn't be a word-for-word duplicate to make a second one redundant, but a shared topic word isn't enough either. */
+  faqAlreadyAnswers: 0.4,
 } as const;
+
+// ─── FAQ saturation ─────────────────────────────────────────────────────────
+
+export interface FaqIndexEntry {
+  question: string;
+  tokens: string[];
+}
+
+export async function buildFaqIndex(fetchClient: FetchClient): Promise<FaqIndexEntry[]> {
+  const rows = await fetchClient.fetch<{ question?: string }[]>(`*[_type == "faq"]{ question }`);
+  return rows
+    .filter((r): r is { question: string } => Boolean(r.question))
+    .map((r) => ({ question: r.question, tokens: normalizeQuery(r.question).tokens }));
+}
+
+/**
+ * The existing FAQ that already answers this topic, if any.
+ *
+ * Every engine recommended add_faqs purely from query shape, never checking
+ * what the site already answers — so three separate FAQs on wedding cost
+ * ("How much does bridal makeup cost?", "…in Lagos?", "How much does a makeup
+ * session cost in Lagos?") did nothing to stop a fourth being recommended.
+ * Left unchecked that compounds indefinitely: an FAQ page of hundreds of
+ * near-duplicates that competes with itself for the same query.
+ */
+export function findCoveringFaq(tokenSets: string[][], faqIndex: FaqIndexEntry[]): string | undefined {
+  let best: string | undefined;
+  let bestScore: number = OVERLAP_THRESHOLDS.faqAlreadyAnswers;
+  for (const entry of faqIndex) {
+    for (const tokens of tokenSets) {
+      const score = overlapScore(tokens, entry.tokens);
+      if (score >= bestScore) {
+        bestScore = score;
+        best = entry.question;
+      }
+    }
+  }
+  return best;
+}
 
 // Plain Jaccard penalizes a short real page name (e.g. "Bridal Makeup" ->
 // {makeup, wedding}) against a much longer, keyword-stuffed query/title
@@ -303,7 +470,7 @@ export function overlapScore(a: string[], b: string[]): number {
 export function matchContent(
   tokenSets: string[][],
   index: ContentIndexEntry[]
-): { coverage: ContentCoverage; matchedPath?: string; topicalRelevanceScore: number; matchedCoverageScore?: number } {
+): { coverage: ContentCoverage; matchedPath?: string; topicalRelevanceScore: number; matchedCoverageScore?: number; disqualifiedBy?: string } {
   // Multiple token sets (e.g. a topic's broad shared vocabulary AND its own
   // specific representative query) are checked against every indexed page —
   // a narrow shared-vocabulary set alone can under-match: two words shared
@@ -343,10 +510,37 @@ export function matchContent(
     }
   }
 
+  // Four tiers, not three. The old middle tier scored any topic containing a
+  // single CORE_BUSINESS_VOCAB word at 70 — comfortably above every engine's
+  // relevance floor — which is what let "how much do wedding venues make"
+  // ("wedding") and "baby girl makeup photoshoot quotes funny" ("makeup")
+  // through as top-priority recommendations. Generic business vocabulary alone
+  // now scores below the floor; proving a topic is about *makeup* requires
+  // makeup-specific vocabulary or a real matching page.
+  const disqualifier = disqualifyingToken(tokenSets);
   const matchesTaxonomyVocab = bestOverlap >= OVERLAP_THRESHOLDS.contentMatch;
+  const matchesMakeupVocab = tokenSets.some((tokens) => tokens.some((t) => MAKEUP_SPECIFIC_VOCAB.has(t)));
   const matchesCoreVocab = tokenSets.some((tokens) => tokens.some((t) => CORE_BUSINESS_VOCAB.has(t)));
-  const topicalRelevanceScore = matchesTaxonomyVocab ? 100 : matchesCoreVocab ? 70 : 15;
+  // The top tier requires a matching page AND makeup vocabulary, not a page
+  // match alone. Location pages match on the place name by itself, so
+  // "picture of house in lekki" scored a perfect 100 off /locations/lekki
+  // without containing a single makeup word — real-estate noise ranked as a
+  // top content opportunity.
+  const topicalRelevanceScore = disqualifier
+    ? 0
+    : matchesTaxonomyVocab && matchesMakeupVocab
+      ? 100
+      : matchesMakeupVocab
+        ? 70
+        : matchesCoreVocab
+          ? 25 // generic ("wedding", "event", "party") with nothing makeup-specific
+          : 15;
 
+  if (disqualifier) {
+    // Reported so the drop is explainable in a decision trace rather than a
+    // topic silently vanishing from the roadmap.
+    return { coverage: "none", topicalRelevanceScore, disqualifiedBy: disqualifier };
+  }
   if (!best || bestOverlap < OVERLAP_THRESHOLDS.contentMatch) {
     return { coverage: "none", topicalRelevanceScore };
   }
@@ -361,7 +555,14 @@ export function matchContent(
 // differs) — a 30-minute FAQ addition and a multi-day new pillar page
 // shouldn't be ranked on the same scale as pure "value" alone implies.
 export const EFFORT_WEIGHTS: Record<string, number> = {
-  add_faqs: 1,
+  // Writing a genuinely good FAQ answer is not as cheap as adding a link, and
+  // at weight 1 it was mathematically unbeatable: since priority is value ÷
+  // effort, an 87-value FAQ scored 87 while an identical-value cluster article
+  // (weight 5) scored 17.4. add_faqs held 12 of the top 15 slots while being
+  // only 13% of all recommendations. Weight 2 keeps it correctly cheap without
+  // letting it monopolise the queue.
+  add_faqs: 2,
+  improve_existing_faq: 1,
   add_internal_links: 1,
   strengthen_internal_links: 1,
   strengthen_primary_links: 1,
@@ -400,7 +601,12 @@ export function computePriorityScore(totalScore: number, action: string): number
 // externally and the same topic later confirmed by real GSC clicks converge
 // on the same key.
 export function topicKeyFor(sharedTokens: string[], fallbackLabel: string): string {
-  const fromTokens = sharedTokens.slice(0, 4).join("-").toLowerCase().replace(/[^a-z0-9-]/g, "");
+  // Sorted before slicing: token ORDER used to change the key, so one topic
+  // could occupy several rows under permutations of the same words — live
+  // examples were "how-cost-makeup-wedding" and "cost-makeup-wedding-how",
+  // both the same {how, cost, makeup, wedding} set, each recommending its own
+  // separate FAQ. Sorting also makes cross-engine convergence order-independent.
+  const fromTokens = [...sharedTokens].sort().slice(0, 4).join("-").toLowerCase().replace(/[^a-z0-9-]/g, "");
   if (fromTokens) return fromTokens;
   const fromLabel = fallbackLabel.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
   return fromLabel || `topic-${Buffer.from(fallbackLabel).toString("hex").slice(0, 12)}`;
