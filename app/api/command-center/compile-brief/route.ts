@@ -16,6 +16,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ id, topicKey: brief.topicKey });
   } catch (err) {
+    console.error("[compile-brief]", err);
     return NextResponse.json(
       { error: err instanceof Error ? err.message : String(err) },
       { status: 500 }

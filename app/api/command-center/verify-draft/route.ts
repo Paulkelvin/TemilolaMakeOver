@@ -117,9 +117,7 @@ export async function POST(req: NextRequest) {
       qualityScore,
     });
   } catch (err) {
-    return NextResponse.json(
-      { error: err instanceof Error ? err.message : String(err) },
-      { status: 500 }
-    );
+    console.error("[verify-draft]", err);
+    return NextResponse.json({ error: "Verification failed. Please try again or check server logs." }, { status: 500 });
   }
 }

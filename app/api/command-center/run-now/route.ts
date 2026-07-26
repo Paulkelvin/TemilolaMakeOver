@@ -19,9 +19,7 @@ export async function POST() {
     const result = await runSnapshot({ force: true });
     return NextResponse.json(result);
   } catch (err) {
-    return NextResponse.json(
-      { error: err instanceof Error ? err.message : String(err) },
-      { status: 500 }
-    );
+    console.error("[run-now]", err);
+    return NextResponse.json({ error: "Recompute failed. Please try again or check server logs." }, { status: 500 });
   }
 }

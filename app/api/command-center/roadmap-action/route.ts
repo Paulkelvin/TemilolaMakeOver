@@ -31,6 +31,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ error: 'action must be "toggle-action" or "set-status"' }, { status: 400 });
   } catch (err) {
+    console.error("[roadmap-action]", err);
     return NextResponse.json(
       { error: err instanceof Error ? err.message : String(err) },
       { status: 500 }

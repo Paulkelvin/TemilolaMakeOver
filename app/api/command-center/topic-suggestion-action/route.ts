@@ -22,6 +22,10 @@ export async function POST(req: NextRequest) {
     await rejectTopicSuggestion(suggestionId);
     return NextResponse.json({ ok: true });
   } catch (err) {
+    // err.message here is always our own deliberately-authored, safe text
+    // (e.g. "Suggestion is already approved.") — logged too so a genuinely
+    // unexpected exception is still visible server-side.
+    console.error("[topic-suggestion-action]", err);
     return NextResponse.json(
       { error: err instanceof Error ? err.message : String(err) },
       { status: 500 }

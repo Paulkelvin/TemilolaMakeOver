@@ -46,9 +46,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ ok: true, blogPostId: brief.linkedBlogPost._ref });
   } catch (err) {
-    return NextResponse.json(
-      { error: err instanceof Error ? err.message : String(err) },
-      { status: 500 }
-    );
+    console.error("[save-quality-score]", err);
+    return NextResponse.json({ error: "Unable to save the quality score. Please try again." }, { status: 500 });
   }
 }

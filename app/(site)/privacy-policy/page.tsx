@@ -21,7 +21,7 @@ export default function PrivacyPolicyPage() {
           <Reveal>
             <div className="prose prose-neutral max-w-none space-y-6 text-text-muted leading-relaxed">
               <p className="text-sm text-text-muted">
-                Last updated: 6 July 2026
+                Last updated: 26 July 2026
               </p>
 
               <section>
@@ -33,6 +33,23 @@ export default function PrivacyPolicyPage() {
                   may collect your name, phone number, email (if provided), event
                   details, and any message you share with us.
                 </p>
+                <p>
+                  When you ask a question through our website&apos;s question form,
+                  we collect your name (optional), email address, and the question
+                  you submit, so we can reply to you directly.
+                </p>
+                <p>
+                  If you sign up for our newsletter, we collect your email address
+                  to send you updates you&apos;ve opted into.
+                </p>
+                <p>
+                  If you pay a deposit online, our payment processor (Paystack)
+                  collects your email address, the payment amount, and related
+                  booking details (your name, service, and event date) to process
+                  the transaction. We do not collect or store your card details
+                  ourselves &mdash; that happens entirely on Paystack&apos;s
+                  secure payment page.
+                </p>
               </section>
 
               <section>
@@ -40,9 +57,10 @@ export default function PrivacyPolicyPage() {
                   How We Use Your Information
                 </h2>
                 <p>
-                  We use your information solely to respond to booking inquiries,
-                  confirm availability, provide quotes, and deliver makeup
-                  services. We do not sell your personal data.
+                  We use your information solely to respond to booking inquiries
+                  and questions, confirm availability, provide quotes, process
+                  deposit payments, and deliver makeup services. We do not sell
+                  your personal data.
                 </p>
               </section>
 
@@ -54,7 +72,16 @@ export default function PrivacyPolicyPage() {
                   Our website may use analytics tools (such as Google Analytics
                   or Meta Pixel) when configured. WhatsApp is used for direct
                   communication and is subject to WhatsApp&apos;s own privacy
-                  policy.
+                  policy. Online deposit payments are processed by{" "}
+                  <a
+                    href="https://paystack.com/terms"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-accent-rose hover:underline"
+                  >
+                    Paystack
+                  </a>
+                  , subject to Paystack&apos;s own privacy policy and terms.
                 </p>
               </section>
 

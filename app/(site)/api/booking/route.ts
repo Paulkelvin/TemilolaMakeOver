@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { sendBookingNotification, sendBookingConfirmation } from "@/lib/email";
 import { writeClient } from "@/sanity/write-client";
+import { isRateLimited, getClientIp } from "@/lib/rate-limit";
 
 interface BookingPayload {
   name: string;
@@ -53,23 +54,6 @@ function isAllowedOrigin(request: Request): boolean {
   return allowed.some((u) => origin === u.replace(/\/$/, ""));
 }
 
-const rateLimit = new Map<string, { count: number; resetAt: number }>();
-const RATE_LIMIT_WINDOW = 60_000;
-const RATE_LIMIT_MAX = 5;
-
-function isRateLimited(ip: string): boolean {
-  const now = Date.now();
-  const entry = rateLimit.get(ip);
-
-  if (!entry || now > entry.resetAt) {
-    rateLimit.set(ip, { count: 1, resetAt: now + RATE_LIMIT_WINDOW });
-    return false;
-  }
-
-  entry.count++;
-  return entry.count > RATE_LIMIT_MAX;
-}
-
 export async function POST(request: Request) {
   try {
     if (!isAllowedOrigin(request)) {
@@ -79,11 +63,9 @@ export async function POST(request: Request) {
       );
     }
 
-    const ip =
-      request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
-      "unknown";
+    const ip = getClientIp(request);
 
-    if (isRateLimited(ip)) {
+    if (isRateLimited(`booking:${ip}`, { windowMs: 60_000, max: 5 })) {
       return NextResponse.json(
         { error: "Too many requests. Please try again in a minute." },
         { status: 429 }
