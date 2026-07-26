@@ -61,6 +61,18 @@ export function proxy(request: NextRequest) {
     return NextResponse.redirect(url, 308);
   }
 
+  // Four service slugs were stored with a leading capital ("/services/Soft-glam")
+  // before being normalised to lowercase in Sanity. URLs are case-sensitive to
+  // Google and to Next's router, so the old forms would 404 for anything already
+  // indexed or linked. Comparing against the lowercase form (rather than listing
+  // the four paths) also covers any future slug that picks up stray casing, and
+  // only fires when the casing genuinely differs — so it can never loop.
+  if (pathname.startsWith("/services/") && pathname !== pathname.toLowerCase()) {
+    const url = request.nextUrl.clone();
+    url.pathname = pathname.toLowerCase();
+    return NextResponse.redirect(url, 308);
+  }
+
   if (pathname.startsWith("/studio")) {
     const denied = requireBasicAuth(request, process.env.SANITY_STUDIO_PASSWORD, "Sanity Studio");
     if (denied) return denied;
@@ -87,5 +99,6 @@ export const config = {
     "/command-center/:path*",
     "/api/command-center/:path*",
     "/:page([Tt][Ee][Mm][Ii][Ll][Oo][Ll][Aa][Ss][Hh][Yy][Ll][Ll][Oo][Nn])",
+    "/services/:path*",
   ],
 };

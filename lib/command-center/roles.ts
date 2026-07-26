@@ -6,7 +6,6 @@ export interface ModuleAccess {
 
 const STAFF_BLOCKED: ReadonlySet<string> = new Set([
   "settings",
-  "ai-insights",
 ]);
 
 export function canAccessModule(role: CCRole, moduleKey: string): boolean {

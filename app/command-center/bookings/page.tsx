@@ -10,6 +10,7 @@ import {
 import { isAnalyticsConfigured, getBookingFunnelEvents } from "@/lib/intelligence/sources/analytics";
 import { MetricBadge } from "@/components/command-center/MetricBadge";
 import { formatPrice } from "@/lib/utils";
+import { getRecentReviews } from "@/lib/intelligence/weekly-review";
 
 function dropOffRow(label: string, count: number, priorCount: number | null) {
   const pct = priorCount && priorCount > 0 ? Math.round((count / priorCount) * 100) : null;
@@ -23,7 +24,7 @@ function dropOffRow(label: string, count: number, priorCount: number | null) {
 
 export default async function BookingsPage() {
   const analyticsOk = isAnalyticsConfigured();
-  const [funnel, revenue, topServices, topLocations, leadTime, upcoming, trafficFunnel] = await Promise.all([
+  const [funnel, revenue, topServices, topLocations, leadTime, upcoming, trafficFunnel, recentReviews] = await Promise.all([
     getBookingFunnel(client),
     getRevenueSummary(client),
     getMostBookedServices(client),
@@ -31,6 +32,7 @@ export default async function BookingsPage() {
     getAverageLeadTime(client),
     getUpcomingBookings(client),
     analyticsOk ? getBookingFunnelEvents() : Promise.resolve(null),
+    getRecentReviews(),
   ]);
 
   return (
@@ -110,6 +112,25 @@ export default async function BookingsPage() {
         {topLocations.map((l) => (
           <div key={l.label} className="cc-pending-row"><span style={{ color: "var(--cc-text)" }}>{l.label}</span><span>{l.count}</span></div>
         ))}
+      </div>
+
+      <div className="cc-card">
+        <h2 style={{ margin: "0 0 6px", fontSize: "1.0625rem" }}>Weekly Business Reviews</h2>
+        <p style={{ margin: "0 0 12px", fontSize: "0.8125rem", color: "var(--cc-text-muted)" }}>
+          Generated weekly via <code>POST /api/command-center/weekly-review</code>.
+        </p>
+        {recentReviews.length === 0 ? (
+          <div className="cc-empty">No reviews generated yet.</div>
+        ) : (
+          recentReviews.map((r) => (
+            <div key={r._id} className="cc-pending-row">
+              <span style={{ color: "var(--cc-text)" }}>{r.weekStart} → {r.weekEnd}</span>
+              <span style={{ fontFamily: "var(--cc-mono)" }}>
+                {r.healthScore !== null ? `Health: ${r.healthScore}/100` : "—"}
+              </span>
+            </div>
+          ))
+        )}
       </div>
 
       <div className="cc-card">

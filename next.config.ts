@@ -58,6 +58,18 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  // Four service slugs were stored with a leading capital ("Soft-glam"), one
+  // was lowercase ("bridal-makeup"). The slugs are now all lowercase in
+  // Sanity, but URLs are case-sensitive to search engines and to Next's own
+  // router, so the old capitalised paths would 404 for anything already
+  // indexed or linked. Permanent redirects preserve that link equity.
+  // Note: the /services/<Mixed-Case> -> lowercase redirect lives in proxy.ts,
+  // not here. next.config's redirects() matches sources case-INSENSITIVELY and
+  // offers no per-rule opt-out in this version, so "/services/Soft-glam" would
+  // also match the already-correct "/services/soft-glam" and redirect it to
+  // itself — an infinite loop on the very URLs the rule exists to protect
+  // (observed live: 308 to the identical path). Middleware sees the real
+  // casing, so it can compare and redirect only when they actually differ.
   async headers() {
     return [
       {

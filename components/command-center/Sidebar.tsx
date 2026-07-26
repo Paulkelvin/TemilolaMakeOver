@@ -3,9 +3,11 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import type { CommandCenterModule } from "@/lib/command-center/modules";
-import { PHASE_LABEL } from "@/lib/command-center/modules";
+import type { CommandCenterModule, ModuleGroup } from "@/lib/command-center/modules";
+import { PHASE_LABEL, GROUP_LABEL, COLLAPSED_GROUPS } from "@/lib/command-center/modules";
 import type { CCRole } from "@/lib/command-center/roles";
+
+const GROUP_ORDER: ModuleGroup[] = ["loop", "business", "diagnostics", "system"];
 
 interface SidebarProps {
   modules: CommandCenterModule[];
@@ -15,6 +17,13 @@ interface SidebarProps {
 export function Sidebar({ modules, role }: SidebarProps) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  // A collapsed group opens automatically when you're already inside it, so
+  // navigating to a diagnostics page never leaves the sidebar showing no
+  // active item.
+  const activeGroup = modules.find((m) =>
+    m.href === "/command-center" ? pathname === m.href : pathname?.startsWith(m.href)
+  )?.group;
+  const [expanded, setExpanded] = useState<ModuleGroup[]>([]);
 
   useEffect(() => {
     setOpen(false);
@@ -53,19 +62,54 @@ export function Sidebar({ modules, role }: SidebarProps) {
         <div className="cc-brand">
           Gleam <span>Command Center</span>
         </div>
-        {modules.map((mod) => {
-          const isActive = mod.href === "/command-center" ? pathname === mod.href : pathname?.startsWith(mod.href);
-          const phaseLabel = PHASE_LABEL[mod.status];
+        {GROUP_ORDER.map((group) => {
+          const groupModules = modules.filter((m) => m.group === group);
+          if (groupModules.length === 0) return null;
+
+          const heading = GROUP_LABEL[group];
+          const collapsible = COLLAPSED_GROUPS.includes(group);
+          const isOpen = !collapsible || expanded.includes(group) || activeGroup === group;
+
           return (
-            <Link
-              key={mod.key}
-              href={mod.href}
-              className="cc-nav-item"
-              aria-current={isActive ? "page" : undefined}
-            >
-              <span>{mod.label}</span>
-              {phaseLabel && <span className="cc-nav-item__phase">{phaseLabel}</span>}
-            </Link>
+            <div key={group} className="cc-nav-group">
+              {heading && collapsible && (
+                <button
+                  type="button"
+                  className="cc-nav-group__toggle"
+                  aria-expanded={isOpen}
+                  onClick={() =>
+                    setExpanded((prev) =>
+                      prev.includes(group) ? prev.filter((g) => g !== group) : [...prev, group]
+                    )
+                  }
+                >
+                  <span>{heading}</span>
+                  <span aria-hidden="true">{isOpen ? "−" : "+"}</span>
+                </button>
+              )}
+              {heading && !collapsible && <div className="cc-nav-group__heading">{heading}</div>}
+
+              {isOpen &&
+                groupModules.map((mod) => {
+                  const isActive =
+                    mod.href === "/command-center" ? pathname === mod.href : pathname?.startsWith(mod.href);
+                  const phaseLabel = PHASE_LABEL[mod.status];
+                  return (
+                    <Link
+                      key={mod.key}
+                      href={mod.href}
+                      className="cc-nav-item"
+                      aria-current={isActive ? "page" : undefined}
+                    >
+                      <span>
+                        {mod.label}
+                        {mod.hint && <span className="cc-nav-item__hint">{mod.hint}</span>}
+                      </span>
+                      {phaseLabel && <span className="cc-nav-item__phase">{phaseLabel}</span>}
+                    </Link>
+                  );
+                })}
+            </div>
           );
         })}
         {role === "staff" && (

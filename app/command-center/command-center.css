@@ -105,6 +105,38 @@ body.cc-body {
   text-align: left;
 }
 
+.cc-nav-group__heading,
+.cc-nav-group__toggle {
+  font-family: var(--cc-mono);
+  font-size: 0.625rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--cc-text-muted);
+  padding: 14px 10px 4px;
+}
+.cc-nav-group__toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+}
+.cc-nav-group__toggle:hover { color: var(--cc-text); }
+
+/* Each loop step says what it's for, so the sequence reads as a workflow
+   rather than a list of tools. */
+.cc-nav-item__hint {
+  display: block;
+  font-size: 0.6875rem;
+  font-weight: 400;
+  color: var(--cc-text-muted);
+  margin-top: 1px;
+}
+.cc-nav-item[aria-current="page"] .cc-nav-item__hint { color: var(--cc-accent-strong); opacity: 0.8; }
+
 .cc-nav-item__phase {
   font-family: var(--cc-mono);
   font-size: 0.625rem;
