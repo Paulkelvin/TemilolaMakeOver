@@ -16,6 +16,7 @@ import { computeClusterAuthority, persistClusterAuthority } from "@/lib/intellig
 import { computeTopicSuggestions, persistTopicSuggestions } from "@/lib/intelligence/topic-suggestions";
 import { computeEditorialRoadmap, persistEditorialRoadmap } from "@/lib/intelligence/editorial-roadmap";
 import { client } from "@/sanity/client";
+import { checkWriteAccess } from "@/sanity/write-client";
 
 export const dynamic = "force-dynamic";
 // See run-now/route.ts for why this is raised — same underlying computation,
@@ -27,6 +28,15 @@ export async function runSnapshot(options?: { force?: boolean }) {
   const today = new Date().toISOString().slice(0, 10);
   const snapshots: { source: string; metric: string; date: string; value: number }[] = [];
   const errors: string[] = [];
+
+  // Nothing below can persist without Sanity write access, and several of the
+  // metric fetches burn real third-party API quota (Search Console, GA4,
+  // Vercel) — so check once and bail before spending any of it, rather than
+  // doing the whole run and failing at every save.
+  const writeAccess = await checkWriteAccess();
+  if (!writeAccess.ok) {
+    return { date: today, snapshotsWritten: 0, writeBlocked: writeAccess.reason };
+  }
 
   // Shared "has this doc type gone stale enough to recompute" gate — every
   // weekly-gated engine below used to repeat this exact fetch-and-compare
@@ -210,9 +220,14 @@ export async function runSnapshot(options?: { force?: boolean }) {
     runKnowledgeGraphEngine(),
   ]);
 
+  // Counted only after the write actually lands — reporting snapshots.length
+  // regardless meant a failed save still cheerfully claimed "12 metric
+  // snapshots written" while the real error sat further down the list.
+  let snapshotsPersisted = 0;
   if (snapshots.length > 0) {
     try {
       await upsertSnapshots(snapshots);
+      snapshotsPersisted = snapshots.length;
     } catch (err) {
       errors.push(`sanity-write: ${err instanceof Error ? err.message : String(err)}`);
     }
@@ -328,7 +343,7 @@ export async function runSnapshot(options?: { force?: boolean }) {
 
   return {
     date: today,
-    snapshotsWritten: snapshots.length,
+    snapshotsWritten: snapshotsPersisted,
     seoOpportunities: seoOpportunityResult,
     keywordDiscovery: keywordDiscoveryResult,
     topicalAuthority: topicalAuthorityResult,

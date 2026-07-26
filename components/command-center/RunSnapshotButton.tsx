@@ -6,6 +6,9 @@ import { useRouter } from "next/navigation";
 interface SnapshotResult {
   date: string;
   snapshotsWritten: number;
+  // Set when Sanity write access failed the upfront check, meaning the run
+  // stopped before computing anything rather than failing at every save.
+  writeBlocked?: string;
   seoOpportunities?: { upserted: number; notifications: number };
   keywordDiscovery?: { upserted: number; linked: number };
   topicalAuthority?: { upserted: number };
@@ -59,7 +62,16 @@ export function RunSnapshotButton() {
         {state === "running" ? "Running…" : "Run now"}
       </button>
 
-      {state === "done" && result && (
+      {state === "done" && result?.writeBlocked && (
+        <div style={{ margin: "10px 0 0", fontSize: "0.8125rem" }}>
+          <p style={{ margin: "0 0 4px", color: "var(--cc-critical)", fontWeight: 600 }}>
+            Nothing was saved — Sanity rejected the write.
+          </p>
+          <p style={{ margin: 0, color: "var(--cc-text-muted)" }}>{result.writeBlocked}</p>
+        </div>
+      )}
+
+      {state === "done" && result && !result.writeBlocked && (
         <div style={{ margin: "10px 0 0", fontSize: "0.8125rem", color: "var(--cc-text-muted)" }}>
           <p style={{ margin: "0 0 4px" }}>
             Done — {result.snapshotsWritten} metric snapshot{result.snapshotsWritten === 1 ? "" : "s"} written.
