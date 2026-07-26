@@ -343,13 +343,37 @@ export async function runSnapshot(options?: { force?: boolean }) {
   };
 }
 
-export async function POST(request: Request) {
+function isAuthorizedCronCall(request: Request): boolean {
   const secret = process.env.CRON_SECRET;
-  if (secret) {
-    const auth = request.headers.get("authorization");
-    if (auth !== `Bearer ${secret}`) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+  // No secret configured means no check — preserved from the original
+  // implementation, but note this leaves the endpoint world-triggerable,
+  // so CRON_SECRET should always be set in production. Vercel sends it
+  // automatically as `Authorization: Bearer <CRON_SECRET>` for scheduled
+  // invocations when the env var exists.
+  if (!secret) return true;
+  return request.headers.get("authorization") === `Bearer ${secret}`;
+}
+
+// Vercel Cron Jobs invoke the scheduled path with a GET request, not POST
+// (see the `crons` entry in vercel.json). Without this handler the daily
+// job would have hit the POST-only route and silently 405'd every day.
+//
+// Deliberately never forces: the scheduled run relies on each engine's own
+// weekly gate, so a normal day is just the cheap metric fetches plus ten
+// "not due yet" checks. force=true stays POST-only, since that's the
+// expensive full recompute the dashboard's "Run now" button triggers.
+export async function GET(request: Request) {
+  if (!isAuthorizedCronCall(request)) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const result = await runSnapshot({ force: false });
+  return NextResponse.json(result);
+}
+
+export async function POST(request: Request) {
+  if (!isAuthorizedCronCall(request)) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const url = new URL(request.url);
