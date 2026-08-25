@@ -20,6 +20,7 @@ const jakarta = Plus_Jakarta_Sans({
 export const metadata: Metadata = {
   title: `${siteConfig.brand} | Book Your Glam`,
   description: siteConfig.tagline,
+  alternates: { canonical: `${siteConfig.url}/links` },
 };
 
 export default function LinksLayout({
