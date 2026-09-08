@@ -181,7 +181,12 @@ function mapPortfolioItem(p: RawPortfolioItem): PortfolioItem {
     alt: p.alt,
     category: p.category,
     aspect: p.aspect,
-    src: imgUrl(p.image, 1200),
+    // Baking a 3:4 crop server-side (via each image's Studio-set
+    // hotspot/crop) means every consumer — grid cards, homepage preview
+    // tiles, lightbox — gets a frame already centered on the subject,
+    // instead of relying on CSS object-position to guess where the face
+    // is. Matches the grid's fixed aspect-[3/4] exactly.
+    src: imgUrlCropped(p.image, 1200, 3 / 4),
     service: p.service,
     style: p.style,
     occasion: p.occasion,

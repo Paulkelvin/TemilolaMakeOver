@@ -98,7 +98,7 @@ export function PortfolioPreviewClient({ items, footnote, ctaLabel }: Props) {
                 alt={previewItems[0].alt}
                 fill
                 sizes="(max-width: 768px) 65vw, 60vw"
-                className="object-cover object-top transition-transform duration-700 group-hover:scale-105"
+                className="object-cover transition-transform duration-700 group-hover:scale-105"
               />
             )}
             <div className="absolute inset-0 bg-gradient-to-t from-luxury-dark/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
@@ -129,7 +129,7 @@ export function PortfolioPreviewClient({ items, footnote, ctaLabel }: Props) {
                       alt={item.alt}
                       fill
                       sizes="(max-width: 768px) 45vw, 45vw"
-                      className="object-cover object-top transition-transform duration-700 group-hover:scale-105"
+                      className="object-cover transition-transform duration-700 group-hover:scale-105"
                     />
                   )}
                   {isLast ? (
@@ -272,6 +272,7 @@ export function PortfolioPreviewClient({ items, footnote, ctaLabel }: Props) {
                         src={item.src}
                         alt={item.alt}
                         fill
+                        loading="eager"
                         sizes="64px"
                         className="object-cover"
                       />
