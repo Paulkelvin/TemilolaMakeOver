@@ -37,8 +37,8 @@ export const seoCopy = {
     description: `Answers to common questions about booking makeup in ${location} — pricing, bridal trials, home service, same-day availability, and more.`,
   },
   training: {
-    title: `Makeup Training & Courses`,
-    description: `Learn professional makeup artistry in ${location}. Beginner, advanced, and bridal specialty courses with hands-on training, professional kits, and certification.`,
+    title: `Makeup Training Classes in Lagos for Beginners | ${siteConfig.brand}`,
+    description: `Beginner makeup training in ${location}, plus advanced and bridal specialty courses. Hands-on, practical classes with small class sizes and certification.`,
   },
 } as const;
 
@@ -47,8 +47,8 @@ export const homeCopy = {
     eyebrow: `Premium Makeup Artist · ${location}`,
     headline: "Makeup That Makes You Feel Effortlessly Confident",
     subheadline:
-      "Soft, elegant makeup in Lagos — skin-prep focused, camera-ready, and designed to last beautifully from your first photo to your last dance.",
-    trustLine: `Trusted for soft glam, event, bridal, and photoshoot makeup across ${siteConfig.serviceArea}.`,
+      "Professional makeup artist in Lagos — skin-prep focused, camera-ready, and designed to last beautifully from your first photo to your last dance.",
+    trustLine: `Trusted as a professional makeup artist for soft glam, event, bridal, and photoshoot makeup, with home service across ${siteConfig.serviceArea}.`,
     badges: [
       "Makeup Artist",
       "Soft Glam",
@@ -247,13 +247,13 @@ export const bookPageCopy = {
 export const trainingPageCopy = {
   hero: {
     label: "Training",
-    title: "Learn Professional Makeup Artistry",
+    title: "Beginner Makeup Training in Lagos",
     subtitle:
       "Hands-on courses in Lagos — from beginner fundamentals to advanced bridal technique. Build real skills with a working artist.",
   },
   intro: {
     title: "Why Train With Gleam by Temi?",
-    body: "You learn in a real studio environment, working on real faces from day one. My courses focus on the skills Lagos clients actually pay for — bridal glam, skin prep, and long-wear technique. Small class sizes mean personal attention and honest feedback.",
+    body: "You learn hands-on, working on real faces from day one. My courses focus on the skills Lagos clients actually pay for — bridal glam, skin prep, and long-wear technique for Lagos heat and humidity. Small class sizes mean personal attention and honest feedback, whether you're just starting out or building toward a professional career.",
   },
   curriculum: {
     label: "What You'll Learn",

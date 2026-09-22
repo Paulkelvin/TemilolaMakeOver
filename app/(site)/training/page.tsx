@@ -6,6 +6,7 @@ import { SectionWrapper } from "@/components/ui/BackgroundDecor";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { TrainingTierCard } from "@/components/sections/TrainingTierCard";
 import { FAQSection } from "@/components/sections/FAQSection";
+import { FAQAccordion } from "@/components/sections/FAQAccordion";
 import { CTASection } from "@/components/sections/CTASection";
 import { Reveal, StaggerGrid, StaggerItem } from "@/components/ui/Reveal";
 import { Container } from "@/components/ui/Container";
@@ -96,6 +97,43 @@ export default async function TrainingPage() {
               ))}
             </div>
           </Reveal>
+        </Container>
+      </SectionWrapper>
+
+      <SectionWrapper>
+        <Container size="narrow">
+          <SectionHeading
+            label="Questions"
+            title="Beginner Training FAQs"
+          />
+          <FAQAccordion
+            items={[
+              {
+                id: "training-experience",
+                question: "Do I need experience to join?",
+                answer:
+                  "No. The Foundation Course starts from zero — it covers skin prep, foundation and concealer application, basic contouring and highlighting, everyday eye makeup, lip techniques, and setting for longevity.",
+              },
+              {
+                id: "training-duration",
+                question: "How long does beginner training take?",
+                answer:
+                  "The Foundation Course runs for 2 weeks, with a small class size of up to 6 students for hands-on attention.",
+              },
+              {
+                id: "training-certification",
+                question: "Is the training certified?",
+                answer:
+                  "Yes, certification is included with the Foundation Course, as well as the Advanced and Bridal Specialty courses.",
+              },
+              {
+                id: "training-bridal-progression",
+                question: "What if I want to specialise in bridal makeup later?",
+                answer:
+                  "After the Foundation Course, you can progress to the Bridal Intensive or the Professional Masterclass to build on your beginner skills.",
+              },
+            ]}
+          />
         </Container>
       </SectionWrapper>
 

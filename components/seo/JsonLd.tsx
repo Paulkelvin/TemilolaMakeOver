@@ -6,10 +6,14 @@ export async function JsonLd() {
 
   const schema = {
     "@context": "https://schema.org",
-    "@type": "BeautySalon",
+    // A service-area business with no premises customers visit must not
+    // use a physical-location type like BeautySalon, and must not publish
+    // an address/geo/opening-hours-at-that-address — all three assert a
+    // visitable storefront. areaServed is the correct way to express
+    // "serves these places" without implying one.
+    "@type": "LocalBusiness",
     "@id": `${siteConfig.url}/#organization`,
     name: siteConfig.brand,
-    alternateName: "Gleam by Temi Makeup Studio",
     description: siteConfig.description,
     url: siteConfig.url,
     telephone: siteConfig.phoneRaw,
@@ -19,17 +23,6 @@ export async function JsonLd() {
       "@type": "Person",
       name: "Temilola Shyllon",
       jobTitle: "Professional Makeup Artist",
-    },
-    address: {
-      "@type": "PostalAddress",
-      addressLocality: "Lagos",
-      addressRegion: "Lagos",
-      addressCountry: "NG",
-    },
-    geo: {
-      "@type": "GeoCoordinates",
-      latitude: "6.4541",
-      longitude: "3.4218",
     },
     areaServed: [
       { "@type": "City", name: "Lagos" },
@@ -42,12 +35,6 @@ export async function JsonLd() {
       { "@type": "Place", name: "Festac, Lagos" },
       { "@type": "Place", name: "Ikorodu, Lagos" },
     ],
-    openingHoursSpecification: {
-      "@type": "OpeningHoursSpecification",
-      dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
-      opens: "08:00",
-      closes: "20:00",
-    },
     priceRange: "₦₦₦",
     currenciesAccepted: "NGN",
     paymentAccepted: "Bank Transfer, Cash",

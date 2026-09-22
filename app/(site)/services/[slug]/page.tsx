@@ -16,6 +16,20 @@ import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 import Link from "next/link";
 import { Check, Clock, Home } from "lucide-react";
 
+// SEO title/H1 overrides for specific services, targeting confirmed
+// high-intent search terms without touching the underlying Sanity
+// `service.name` field — that field also drives nav menus, the pricing
+// table, and the booking dropdown, where "Bridal Makeup Artist in Lagos"
+// would be out of place.
+const SEO_OVERRIDES: Record<string, { title: string; h1: string; description: string }> = {
+  "bridal-makeup": {
+    title: "Bridal Makeup Artist in Lagos | Gleam by Temi",
+    h1: "Bridal Makeup Artist in Lagos",
+    description:
+      "Professional bridal makeup artist in Lagos for white weddings and traditional ceremonies. Home and venue service available, with bridal trials to get your look right before the big day.",
+  },
+};
+
 export async function generateStaticParams() {
   const services = await getServices();
   return services.map((s) => ({ slug: s.slug }));
@@ -29,9 +43,10 @@ export async function generateMetadata({
   const { slug } = await params;
   const service = await getServiceBySlug(slug);
   if (!service) return {};
+  const override = SEO_OVERRIDES[slug];
   return createPageMetadata({
-    title: `${service.name} — Makeup Service`,
-    description: service.shortDescription,
+    title: override?.title ?? `${service.name} — Makeup Service`,
+    description: override?.description ?? service.shortDescription,
     path: `/services/${slug}`,
   });
 }
@@ -48,6 +63,7 @@ export default async function ServiceDetailPage({
   const faqItems = await getFaqItemsByService(slug);
   const imageUrl = service.imageUrl;
   const bookUrl = `/book?service=${encodeURIComponent(service.slug)}#booking-form`;
+  const override = SEO_OVERRIDES[slug];
 
   return (
     <>
@@ -67,7 +83,7 @@ export default async function ServiceDetailPage({
       {faqItems.length > 0 && <FAQPageJsonLd items={faqItems} />}
       <PageHero
         label={service.bestFor}
-        title={service.name}
+        title={override?.h1 ?? service.name}
         subtitle={service.shortDescription}
       />
 
@@ -90,6 +106,25 @@ export default async function ServiceDetailPage({
                 <strong className="text-text-primary">Ideal for:</strong>{" "}
                 {service.whoFor}
               </p>
+
+              {slug === "bridal-makeup" && (
+                <p className="mt-4 text-text-muted leading-relaxed">
+                  Whether you&apos;re planning a white wedding or a
+                  traditional ceremony, I work with you to create a bridal
+                  look that lasts through every part of your day.{" "}
+                  {service.homeService && (
+                    <>
+                      Home and venue service is available{" "}
+                      <Link href="/locations" className="text-accent-rose font-medium hover:underline">
+                        across Lagos
+                      </Link>
+                      ,{" "}
+                    </>
+                  )}
+                  and a bridal trial is available to book alongside your
+                  wedding date &mdash; see the FAQs below for details.
+                </p>
+              )}
 
               {service.priceFrom && (
                 <p className="mt-4 font-display text-2xl md:text-3xl font-semibold text-accent-rose">

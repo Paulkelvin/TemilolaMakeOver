@@ -123,14 +123,9 @@ export function ServiceJsonLd({
     description,
     url: `${siteConfig.url}/services/${slug}`,
     provider: {
-      "@type": "BeautySalon",
+      "@type": "LocalBusiness",
       name: siteConfig.brand,
       url: siteConfig.url,
-      address: {
-        "@type": "PostalAddress",
-        addressLocality: "Lagos",
-        addressCountry: "NG",
-      },
     },
     areaServed: {
       "@type": "City",
