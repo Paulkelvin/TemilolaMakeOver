@@ -80,16 +80,15 @@ export default async function LocationPage({
             name: `Makeup Artist in ${location.name}`,
             description: location.seoDescription,
             url: `${siteConfig.url}/locations/${location.slug}`,
+            // No address here, same as the other Service schemas on the
+            // site: this is a service-area business with no physical
+            // premises, so publishing an address/BeautySalon type would
+            // falsely imply a visitable location.
             provider: {
-              "@type": "BeautySalon",
+              "@type": "LocalBusiness",
               name: siteConfig.brand,
               url: siteConfig.url,
               telephone: siteConfig.phoneRaw,
-              address: {
-                "@type": "PostalAddress",
-                addressLocality: "Lagos",
-                addressCountry: "NG",
-              },
             },
             areaServed: location.areas.map((area) => ({
               "@type": "Place",
