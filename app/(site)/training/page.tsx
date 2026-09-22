@@ -79,6 +79,37 @@ export default async function TrainingPage() {
       </SectionWrapper>
 
       <SectionWrapper variant="blush">
+        <Container size="narrow">
+          <Reveal>
+            <div className="grid gap-10 md:grid-cols-2">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-widest text-accent-rose mb-2">
+                  {copy.localSection.label}
+                </p>
+                <h2 className="font-display text-xl md:text-2xl font-medium text-text-primary mb-3">
+                  {copy.localSection.title}
+                </h2>
+                <p className="text-text-muted leading-relaxed text-sm">
+                  {copy.localSection.body}
+                </p>
+              </div>
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-widest text-accent-rose mb-2">
+                  {copy.internationalSection.label}
+                </p>
+                <h2 className="font-display text-xl md:text-2xl font-medium text-text-primary mb-3">
+                  {copy.internationalSection.title}
+                </h2>
+                <p className="text-text-muted leading-relaxed text-sm">
+                  {copy.internationalSection.body}
+                </p>
+              </div>
+            </div>
+          </Reveal>
+        </Container>
+      </SectionWrapper>
+
+      <SectionWrapper>
         <Container>
           <SectionHeading
             label={copy.curriculum.label}
@@ -104,7 +135,7 @@ export default async function TrainingPage() {
         <Container size="narrow">
           <SectionHeading
             label="Questions"
-            title="Beginner Training FAQs"
+            title="Training FAQs"
           />
           <FAQAccordion
             items={[
@@ -131,6 +162,12 @@ export default async function TrainingPage() {
                 question: "What if I want to specialise in bridal makeup later?",
                 answer:
                   "After the Foundation Course, you can progress to the Bridal Intensive or the Professional Masterclass to build on your beginner skills.",
+              },
+              {
+                id: "training-international",
+                question: "Can international students join?",
+                answer:
+                  "Yes. All training is delivered in person in Lagos, Nigeria — there's no remote or online format currently. International students are welcome for any course tier, as long as you can attend in Lagos for the full duration.",
               },
             ]}
           />

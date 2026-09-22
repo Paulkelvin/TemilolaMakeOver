@@ -37,8 +37,8 @@ export const seoCopy = {
     description: `Answers to common questions about booking makeup in ${location} — pricing, bridal trials, home service, same-day availability, and more.`,
   },
   training: {
-    title: `Makeup Training Classes in Lagos for Beginners | ${siteConfig.brand}`,
-    description: `Beginner makeup training in ${location}, plus advanced and bridal specialty courses. Hands-on, practical classes with small class sizes and certification.`,
+    title: `Professional Makeup Training in Lagos | ${siteConfig.brand}`,
+    description: `Hands-on professional makeup training from beginner to bridal specialty, with certification. Based in ${location}, open to local and international students who can attend in person.`,
   },
 } as const;
 
@@ -247,13 +247,23 @@ export const bookPageCopy = {
 export const trainingPageCopy = {
   hero: {
     label: "Training",
-    title: "Beginner Makeup Training in Lagos",
+    title: "Professional Makeup Training",
     subtitle:
-      "Hands-on courses in Lagos — from beginner fundamentals to advanced bridal technique. Build real skills with a working artist.",
+      "Hands-on courses from beginner fundamentals to advanced bridal technique. Build real, career-ready skills with a working artist — in person in Lagos, Nigeria.",
   },
   intro: {
     title: "Why Train With Gleam by Temi?",
-    body: "You learn hands-on, working on real faces from day one. My courses focus on the skills Lagos clients actually pay for — bridal glam, skin prep, and long-wear technique for Lagos heat and humidity. Small class sizes mean personal attention and honest feedback, whether you're just starting out or building toward a professional career.",
+    body: "You learn hands-on, working on real faces from day one — not just theory. My courses cover the skills that get you booked: bridal glam, skin prep for every skin tone, long-wear technique, and client consultation. Small class sizes mean personal attention and honest feedback, whether you're just starting out or building toward a professional career.",
+  },
+  localSection: {
+    label: "Local",
+    title: "Makeup Training in Lagos",
+    body: "All makeup classes are held in person in Lagos, Nigeria. If you're searching for a makeup course in Lagos or beginner makeup classes near you, this is hands-on, practical training — not video lessons — with a small class size for real feedback on your technique. Professional makeup training in Lagos here covers everything from foundation basics to bridal specialty work, taught by a working makeup artist who books real clients in the city.",
+  },
+  internationalSection: {
+    label: "International Students",
+    title: "International Makeup Training",
+    body: "Training is delivered in person in Lagos, Nigeria — there is currently no remote or online format. International students are welcome to enroll in any course tier below; you'll just need to be in Lagos for the full duration of the course you choose. Certification is included with every tier, as it is for local students.",
   },
   curriculum: {
     label: "What You'll Learn",
