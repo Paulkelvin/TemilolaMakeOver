@@ -193,12 +193,12 @@ export const aboutPageCopy = {
     label: "About",
     title: "The Artist Behind the Brush",
     subtitle:
-      "Temilola — the face behind Gleam by Temi. Lagos makeup artist devoted to making women feel prepared, polished, and genuinely themselves.",
+      "Temilola Shyllon — the face behind Gleam by Temi. Lagos makeup artist devoted to making women feel prepared, polished, and genuinely themselves.",
   },
   intro: {
     title: "Makeup Should Feel Like You — Just Elevated",
     paragraphs: [
-      "I'm Temilola, the artist behind Gleam by Temi — a professional makeup studio based in Lagos, specialising in soft glam, event, bridal, and traditional makeup.",
+      "I'm Temilola Shyllon, the makeup artist and founder behind Gleam by Temi — based in Lagos, specialising in soft glam, event, bridal, and traditional makeup.",
       "I started this work because I love the quiet confidence that appears when someone looks in the mirror and recognises themselves — just more radiant. That moment matters whether it's a wedding morning or a milestone birthday.",
       "On your day, I bring calm energy, punctual timing, and a kit that's clean, organised, and ready. No chaos. No rushing. Just focused glam that holds up to photos, dancing, and emotion.",
     ],

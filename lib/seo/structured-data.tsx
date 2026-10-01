@@ -88,6 +88,13 @@ export function BlogPostJsonLd({
     author: {
       "@type": "Person",
       name: author,
+      url: `${siteConfig.url}/about`,
+      jobTitle: "Professional Makeup Artist",
+      worksFor: {
+        "@type": "Organization",
+        name: siteConfig.brand,
+        url: siteConfig.url,
+      },
     },
     publisher: {
       "@type": "Organization",

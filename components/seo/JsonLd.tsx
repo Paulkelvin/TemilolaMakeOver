@@ -38,7 +38,7 @@ export async function JsonLd() {
     priceRange: "₦₦₦",
     currenciesAccepted: "NGN",
     paymentAccepted: "Bank Transfer, Cash",
-    sameAs: [siteConfig.instagram, siteConfig.tiktok],
+    sameAs: [siteConfig.instagram, siteConfig.tiktok, siteConfig.facebook],
     hasOfferCatalog: {
       "@type": "OfferCatalog",
       name: "Makeup Services",
