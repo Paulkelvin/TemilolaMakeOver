@@ -78,7 +78,7 @@ export function AvailabilityCalendar({
           onClick={goPrev}
           disabled={!canGoPrev}
           className={cn(
-            "p-1.5 rounded-full transition-colors",
+            "min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full transition-colors",
             canGoPrev
               ? "hover:bg-bg-blush text-text-primary"
               : "text-text-muted/30 cursor-not-allowed"
@@ -93,7 +93,7 @@ export function AvailabilityCalendar({
         <button
           type="button"
           onClick={goNext}
-          className="p-1.5 rounded-full hover:bg-bg-blush text-text-primary transition-colors"
+          className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full hover:bg-bg-blush text-text-primary transition-colors"
           aria-label="Next month"
         >
           <ChevronRight className="w-5 h-5" />

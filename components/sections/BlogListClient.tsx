@@ -181,7 +181,7 @@ export function BlogListClient({ posts, postsPerPage = POSTS_PER_PAGE }: BlogLis
               <button
                 onClick={() => goToPage(Math.max(1, page - 1))}
                 disabled={page === 1}
-                className="p-2 rounded-full border border-border bg-card text-text-muted hover:bg-bg-blush disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full border border-border bg-card text-text-muted hover:bg-bg-blush disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                 aria-label="Previous page"
               >
                 <ChevronLeft className="w-4 h-4" />
@@ -192,7 +192,7 @@ export function BlogListClient({ posts, postsPerPage = POSTS_PER_PAGE }: BlogLis
                   key={n}
                   onClick={() => goToPage(n)}
                   className={cn(
-                    "w-9 h-9 rounded-full text-sm font-medium transition-colors",
+                    "min-w-[44px] min-h-[44px] rounded-full text-sm font-medium transition-colors",
                     page === n
                       ? "bg-accent-rose text-white"
                       : "border border-border bg-card text-text-muted hover:bg-bg-blush"
@@ -207,7 +207,7 @@ export function BlogListClient({ posts, postsPerPage = POSTS_PER_PAGE }: BlogLis
               <button
                 onClick={() => goToPage(Math.min(totalPages, page + 1))}
                 disabled={page === totalPages}
-                className="p-2 rounded-full border border-border bg-card text-text-muted hover:bg-bg-blush disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full border border-border bg-card text-text-muted hover:bg-bg-blush disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                 aria-label="Next page"
               >
                 <ChevronRight className="w-4 h-4" />

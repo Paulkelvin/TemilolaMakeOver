@@ -71,7 +71,7 @@ export function AvailabilityModal({
         <div className="shrink-0 px-5 pt-5 pb-3">
           <button
             onClick={onClose}
-            className="absolute right-4 top-4 p-1.5 rounded-full hover:bg-bg-blush text-text-muted transition-colors"
+            className="absolute right-4 top-4 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full hover:bg-bg-blush text-text-muted transition-colors"
             aria-label="Close"
           >
             <X className="w-5 h-5" />
