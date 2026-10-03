@@ -56,24 +56,25 @@ export function Hero({ portfolioItems, blockedDates = [], siteSettings, pageCopy
       <Container className="relative z-10 w-full">
         <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center min-h-[calc(100svh-7rem)] md:min-h-[calc(100svh-8rem)]">
           <div>
-            <motion.div
-              initial={reduced ? false : { opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-            >
-              <Badge variant="gold" className="mb-6">
-                {hero.eyebrow}
-              </Badge>
-            </motion.div>
-
-            <motion.h1
-              className="font-display text-3xl sm:text-4xl lg:text-5xl font-medium leading-[1.08] text-text-primary"
-              initial={reduced ? false : { opacity: 0, y: 24 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
-            >
-              {hero.headline}
-            </motion.h1>
+            {/* Eyebrow lives inside the h1 so "Makeup Artist · Lagos" counts as heading text for search. */}
+            <h1>
+              <motion.span
+                className="block mb-6"
+                initial={reduced ? false : { opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+              >
+                <Badge variant="gold">{hero.eyebrow}</Badge>
+              </motion.span>
+              <motion.span
+                className="block font-display text-3xl sm:text-4xl lg:text-5xl font-medium leading-[1.08] text-text-primary"
+                initial={reduced ? false : { opacity: 0, y: 24 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+              >
+                {hero.headline}
+              </motion.span>
+            </h1>
 
             <motion.p
               className="mt-4 text-sm md:text-base text-text-muted leading-relaxed max-w-lg"
