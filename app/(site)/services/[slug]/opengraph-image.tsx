@@ -17,7 +17,12 @@ export default async function OgImage({
   const service = await getServiceBySlug(slug);
   const name = service?.name ?? "Service";
   const description = service?.shortDescription ?? "";
-  const logo = await readFile(join(process.cwd(), "public/brand/logo-dark.png"), "base64");
+  // The default OG font has no Naira sign glyph; the site's own font does.
+  const [logo, fontRegular, fontBold] = await Promise.all([
+    readFile(join(process.cwd(), "public/brand/logo-dark.png"), "base64"),
+    readFile(join(process.cwd(), "assets/fonts/PlusJakartaSans-Regular.ttf")),
+    readFile(join(process.cwd(), "assets/fonts/PlusJakartaSans-Bold.ttf")),
+  ]);
   const price = service?.priceFrom ? `From ${formatPrice(service.priceFrom)}` : "";
 
   return new ImageResponse(
@@ -31,7 +36,7 @@ export default async function OgImage({
           justifyContent: "center",
           background:
             "linear-gradient(135deg, #FFF8F2 0%, #F6EDE6 50%, #E8D8CE 100%)",
-          fontFamily: "Georgia, serif",
+          fontFamily: "Plus Jakarta Sans",
           padding: "60px 80px",
         }}
       >
@@ -109,6 +114,12 @@ export default async function OgImage({
         </div>
       </div>
     ),
-    { ...size }
+    {
+      ...size,
+      fonts: [
+        { name: "Plus Jakarta Sans", data: fontRegular, weight: 400, style: "normal" },
+        { name: "Plus Jakarta Sans", data: fontBold, weight: 700, style: "normal" },
+      ],
+    }
   );
 }
