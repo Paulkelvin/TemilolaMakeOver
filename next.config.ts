@@ -35,7 +35,7 @@ const csp = [
   "img-src 'self' data: https://cdn.sanity.io https://images.unsplash.com https://www.googletagmanager.com https://www.facebook.com",
   "font-src 'self' data:",
   "connect-src 'self' https://www.google-analytics.com https://analytics.google.com https://*.google-analytics.com https://connect.facebook.net https://www.facebook.com",
-  "frame-src https://www.youtube.com",
+  "frame-src https://www.youtube.com https://www.tiktok.com https://www.instagram.com",
   "object-src 'none'",
   "base-uri 'self'",
   "form-action 'self'",

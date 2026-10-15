@@ -12,6 +12,7 @@ import { bookingSchema } from "./booking";
 import { pageCopySchema } from "./pageCopy";
 import { trainingCourseSchema } from "./trainingCourse";
 import { shopLinkSchema } from "./shopLink";
+import { socialPostSchema } from "./socialPost";
 import { shopPageSettingsSchema } from "./shopPageSettings";
 import { bioLinkSchema } from "./bioLink";
 import { linksPageSettingsSchema } from "./linksPageSettings";
@@ -57,6 +58,7 @@ export const schemaTypes = [
   pageCopySchema,
   trainingCourseSchema,
   shopLinkSchema,
+  socialPostSchema,
   shopPageSettingsSchema,
   bioLinkSchema,
   linksPageSettingsSchema,

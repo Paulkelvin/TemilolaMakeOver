@@ -37,6 +37,7 @@ const INTERNAL_ONLY_TYPES = new Set([
 const NARROW_REVALIDATE_PATHS: Record<string, string[]> = {
   portfolioItem: ["/", "/about", "/portfolio"],
   testimonial: ["/"],
+  socialPost: ["/"],
   transformation: ["/transformations"],
   trainingCourse: ["/training"],
   bioLink: ["/links"],

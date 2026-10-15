@@ -16,7 +16,7 @@ import {
   SERVICES_QUERY,
   SERVICE_BY_SLUG_QUERY,
   PORTFOLIO_QUERY,
-  INSTAGRAM_FEED_QUERY,
+  SOCIAL_POSTS_QUERY,
   TESTIMONIALS_QUERY,
   FAQ_QUERY,
   FAQ_BY_CATEGORY_QUERY,
@@ -480,25 +480,25 @@ export const getBlogPostBySlug = cache(async (slug: string): Promise<BlogPost | 
   };
 });
 
-// ─── Instagram Feed ──────────────────────────────────────────────────────────
-export interface InstagramFeedItem {
+// ─── Social Posts (homepage) ─────────────────────────────────────────────────
+export interface SocialPost {
   id: string;
-  title: string;
-  alt: string;
-  imageUrl: string;
-  instagramUrl?: string;
+  url: string;
+  platform: "tiktok" | "instagram";
+  caption: string;
+  coverUrl: string;
 }
 
-export const getInstagramFeed = cache(async (): Promise<InstagramFeedItem[]> => {
+export const getSocialPosts = cache(async (): Promise<SocialPost[]> => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const raw: { _id: string; title: string; alt: string; image?: any; instagramUrl?: string }[] =
-    await client.fetch(INSTAGRAM_FEED_QUERY, {}, REVALIDATE);
+  const raw: { _id: string; url: string; caption: string; cover?: any }[] =
+    await client.fetch(SOCIAL_POSTS_QUERY, {}, REVALIDATE);
   return raw.map((p) => ({
     id: p._id,
-    title: p.title,
-    alt: p.alt,
-    imageUrl: imgUrl(p.image, 600),
-    instagramUrl: p.instagramUrl,
+    url: p.url,
+    platform: p.url.includes("tiktok.com") ? "tiktok" : "instagram",
+    caption: p.caption,
+    coverUrl: imgUrlCropped(p.cover, 480, 9 / 16),
   }));
 });
 
@@ -739,7 +739,6 @@ export async function hasMinimumTaggedProof(
 }
 
 export interface SiteSettings {
-  youtubeReelUrl?: string;
   heroImageMain?: string;
   heroImageSecondary?: string;
   heroImageDetail?: string;
@@ -751,7 +750,6 @@ export const getSiteSettings = cache(async (): Promise<SiteSettings> => {
   const data = await client.fetch(SITE_SETTINGS_QUERY, {}, REVALIDATE_FAST);
   if (!data) return {};
   return {
-    youtubeReelUrl: data.youtubeReelUrl,
     heroImageMain: imgUrl(data.heroImageMain, 1200),
     heroImageSecondary: imgUrl(data.heroImageSecondary, 800),
     heroImageDetail: imgUrl(data.heroImageDetail, 600),

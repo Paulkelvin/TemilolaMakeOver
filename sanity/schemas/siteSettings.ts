@@ -44,14 +44,6 @@ export const siteSettingsSchema = defineType({
       group: "about",
     }),
     defineField({
-      name: "youtubeReelUrl",
-      title: "Homepage Video URL (YouTube)",
-      type: "url",
-      description:
-        "Paste a YouTube link (e.g. https://www.youtube.com/watch?v=...). Leave empty to hide the video section.",
-      group: "media",
-    }),
-    defineField({
       name: "extraFaceDiscountPercent",
       title: "Extra Face Discount (%)",
       type: "number",

@@ -146,6 +146,7 @@ export const deskStructure = (S: StructureBuilder) =>
             .title("Blog & Pages")
             .items([
               S.documentTypeListItem("blogPost").title("Blog Posts"),
+              S.documentTypeListItem("socialPost").title("Social Posts (homepage)"),
               S.documentTypeListItem("faq").title("FAQs"),
               S.documentTypeListItem("bookingStep").title("Booking Steps"),
             ])

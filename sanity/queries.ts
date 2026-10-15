@@ -45,22 +45,12 @@ export const PORTFOLIO_QUERY = `*[_type == "portfolioItem"] | order(order asc) {
   category,
   aspect,
   image,
-  instagramFeatured,
-  instagramUrl,
   "service": service->name,
   "style": style->name,
   "occasion": occasion->name,
   "weddingType": weddingType->name,
   "location": location->name,
   "artist": artist->name
-}`;
-
-export const INSTAGRAM_FEED_QUERY = `*[_type == "portfolioItem" && instagramFeatured == true] | order(order asc) [0...9] {
-  _id,
-  title,
-  alt,
-  image,
-  instagramUrl
 }`;
 
 export const TESTIMONIALS_QUERY = `*[_type == "testimonial" && audienceType != "student"] | order(order asc) {
@@ -226,7 +216,6 @@ export const TRAVEL_ZONES_QUERY = `*[_type == "travelZone"] | order(order asc) {
 }`;
 
 export const SITE_SETTINGS_QUERY = `*[_type == "siteSettings"][0]{
-  youtubeReelUrl,
   heroImageMain,
   heroImageSecondary,
   heroImageDetail,
@@ -315,9 +304,16 @@ export const WEDDING_TYPES_QUERY = `*[_type == "weddingType"] | order(order asc)
 }`;
 
 export const PORTFOLIO_BY_LOCATION_QUERY = `*[_type == "portfolioItem" && location->slug.current == $slug] | order(order asc) {
-  _id, title, alt, category, aspect, image, instagramFeatured, instagramUrl
+  _id, title, alt, category, aspect, image
 }`;
 
 export const TESTIMONIALS_BY_LOCATION_QUERY = `*[_type == "testimonial" && location->slug.current == $slug] | order(order asc) {
   _id, name, event, text, rating, initials, avatar
+}`;
+
+export const SOCIAL_POSTS_QUERY = `*[_type == "socialPost" && defined(url) && defined(cover)] | order(order asc) [0...12] {
+  _id,
+  url,
+  caption,
+  cover
 }`;
