@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { ChevronDown } from "lucide-react";
 import { siteConfig, navLinks } from "@/lib/site-config";
 import { buildWhatsAppUrl } from "@/lib/whatsapp";
@@ -17,9 +18,14 @@ export async function Footer() {
       <div className="relative z-10 mx-auto max-w-7xl px-4 md:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12 mb-12">
           <div className="lg:col-span-1">
-            <Link href="/" className="font-display text-2xl font-semibold">
-              {siteConfig.shortBrand}
-              <span className="text-accent-rose">.</span>
+            <Link href="/" className="inline-flex items-center min-h-[44px]">
+              <Image
+                src="/brand/logo-light.png"
+                alt={siteConfig.brand}
+                width={800}
+                height={65}
+                className="h-5 w-auto"
+              />
             </Link>
             <p className="mt-4 text-sm text-white/60 leading-relaxed max-w-xs">
               Premium makeup artistry in {siteConfig.location} — soft glam, event,

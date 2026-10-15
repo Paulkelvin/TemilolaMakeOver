@@ -19,6 +19,7 @@ export async function JsonLd() {
     telephone: siteConfig.phoneRaw,
     email: siteConfig.email,
     image: `${siteConfig.url}/opengraph-image`,
+    logo: `${siteConfig.url}/brand/icon-512.png`,
     founder: {
       "@type": "Person",
       name: "Temilola Shyllon",

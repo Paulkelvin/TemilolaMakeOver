@@ -44,8 +44,14 @@ export default async function LinksPage() {
             </div>
           )}
         </div>
-        <h1 className="font-display text-2xl font-medium text-text-primary">
-          {siteConfig.brand}
+        <h1 className="flex justify-center py-1">
+          <Image
+            src="/brand/logo-dark.png"
+            alt={siteConfig.brand}
+            width={800}
+            height={65}
+            className="h-[18px] w-auto"
+          />
         </h1>
         <p className="mt-1 text-sm text-text-muted">
           Makeup that makes you glow

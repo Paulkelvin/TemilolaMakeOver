@@ -1,3 +1,5 @@
+import { readFile } from "node:fs/promises";
+import { join } from "node:path";
 import { ImageResponse } from "next/og";
 import { getServiceBySlug } from "@/sanity/fetch";
 import { formatPrice } from "@/lib/utils";
@@ -15,6 +17,7 @@ export default async function OgImage({
   const service = await getServiceBySlug(slug);
   const name = service?.name ?? "Service";
   const description = service?.shortDescription ?? "";
+  const logo = await readFile(join(process.cwd(), "public/brand/logo-dark.png"), "base64");
   const price = service?.priceFrom ? `From ${formatPrice(service.priceFrom)}` : "";
 
   return new ImageResponse(
@@ -32,6 +35,13 @@ export default async function OgImage({
           padding: "60px 80px",
         }}
       >
+        <img
+          src={`data:image/png;base64,${logo}`}
+          alt="Gleam by Temi"
+          width={360}
+          height={29}
+          style={{ marginBottom: 40 }}
+        />
         <p
           style={{
             fontSize: 20,

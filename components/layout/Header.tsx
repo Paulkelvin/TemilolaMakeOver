@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useState, useEffect, useRef } from "react";
 import { Menu, X, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -59,12 +60,15 @@ export function Header({ blockedDates = [], services = [] }: HeaderProps) {
         )}
       >
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 md:px-6 lg:px-8">
-          <Link
-            href="/"
-            className="font-display text-xl md:text-2xl font-semibold text-text-primary tracking-tight"
-          >
-            {siteConfig.shortBrand}
-            <span className="text-accent-rose">.</span>
+          <Link href="/" className="flex items-center min-h-[44px]">
+            <Image
+              src="/brand/logo-dark.png"
+              alt={siteConfig.brand}
+              width={800}
+              height={65}
+              priority
+              className="h-3.5 md:h-[18px] w-auto"
+            />
           </Link>
 
           <nav className="hidden lg:flex items-center gap-8" aria-label="Main navigation">

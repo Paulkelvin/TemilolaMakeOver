@@ -1,12 +1,14 @@
+import { readFile } from "node:fs/promises";
+import { join } from "node:path";
 import { ImageResponse } from "next/og";
 import { siteConfig } from "@/lib/site-config";
 
-export const runtime = "edge";
 export const alt = siteConfig.brand;
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
-export default function OgImage() {
+export default async function OgImage() {
+  const logo = await readFile(join(process.cwd(), "public/brand/logo-dark.png"), "base64");
   return new ImageResponse(
     (
       <div
@@ -40,16 +42,12 @@ export default function OgImage() {
           >
             Premium Makeup Artist
           </p>
-          <h1
-            style={{
-              fontSize: 72,
-              color: "#241A17",
-              margin: 0,
-              textAlign: "center",
-            }}
-          >
-            {siteConfig.shortBrand} Makeup
-          </h1>
+          <img
+            src={`data:image/png;base64,${logo}`}
+            alt={siteConfig.brand}
+            width={720}
+            height={58}
+          />
           <p
             style={{
               fontSize: 28,

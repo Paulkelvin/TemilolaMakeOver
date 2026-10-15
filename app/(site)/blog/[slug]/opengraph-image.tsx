@@ -1,3 +1,5 @@
+import { readFile } from "node:fs/promises";
+import { join } from "node:path";
 import { ImageResponse } from "next/og";
 import { getBlogPostBySlug } from "@/sanity/fetch";
 
@@ -14,6 +16,10 @@ export default async function OgImage({
   const post = await getBlogPostBySlug(slug);
   const title = post?.title ?? "Blog";
   const category = post?.category ?? "";
+  const [icon, logo] = await Promise.all([
+    readFile(join(process.cwd(), "public/brand/icon-192.png"), "base64"),
+    readFile(join(process.cwd(), "public/brand/logo-dark.png"), "base64"),
+  ]);
 
   return new ImageResponse(
     (
@@ -62,26 +68,19 @@ export default async function OgImage({
             marginTop: 40,
           }}
         >
-          <div
-            style={{
-              width: 48,
-              height: 48,
-              borderRadius: 999,
-              background: "#B76E79",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              color: "white",
-              fontSize: 20,
-              fontWeight: 700,
-            }}
-          >
-            T
-          </div>
-          <div style={{ display: "flex", flexDirection: "column" }}>
-            <span style={{ fontSize: 18, color: "#241A17", fontWeight: 600 }}>
-              Temilola Makeup
-            </span>
+          <img
+            src={`data:image/png;base64,${icon}`}
+            alt=""
+            width={48}
+            height={48}
+          />
+          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+            <img
+              src={`data:image/png;base64,${logo}`}
+              alt="Gleam by Temi"
+              width={220}
+              height={18}
+            />
             <span style={{ fontSize: 14, color: "#6F5A50" }}>
               Beauty Tips & Inspiration
             </span>
