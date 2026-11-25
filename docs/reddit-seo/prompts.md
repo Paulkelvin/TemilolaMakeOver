@@ -8,12 +8,15 @@
 ## 1. Free Alert Stack Setup (5 Minutes — Do Once)
 
 ### A. F5Bot (https://f5bot.com — Free Email Alerts)
-Track these exact phrases so you get notified within minutes when someone asks for what you sell:
+Start with these core phrases (and expand over time as new winners emerge):
 - `makeup artist lagos`
 - `bridal makeup lagos`
 - `nigerian wedding makeup`
+- `african wedding makeup`
+- `destination wedding africa makeup`
 - `makeup school lagos`
 - `makeup training nigeria`
+- `makeup academy africa`
 - `bibyonce`
 - `bm pro`
 - `house of tara`
@@ -46,7 +49,8 @@ Find fresh, Google-ranking Reddit threads relevant to Gleam by Temi, check them 
    - **Mode A (Brand Mention — GEO-Optimized):** ONLY in Tier 1 subreddits (`r/Nigeria`, `r/Lagos`) when OP explicitly asks for a Lagos MUA, Nigerian bridal makeup rec, or Lagos makeup training. Include transparent disclosure, clear category+differentiator framing ("Gleam by Temi..."), and NO hard Naira pricing unless Temi adds it.
    - **Mode B (Pure Value — Warm-Up):** For all Tier 2 subreddits or general advice threads. Zero brand mention, zero links—lead with concrete Lagos/bridal/dark-skin technical expertise so readers click the Profile Funnel.
 4. Aim for 60–70% Mode B (Pure Value) and 30–40% Mode A (when Tier 1 threads exist).
-5. Append newly processed URLs to `docs/reddit-seo/seen-threads.txt` and write today's dated batch to `docs/reddit-seo/daily-leads.md`.
+5. Append newly processed URLs to `docs/reddit-seo/seen-threads.txt`, prepend today's new leads to `docs/reddit-seo/leads.json` (and update `updatedAt`), and update `docs/reddit-seo/daily-leads.md`.
+6. Commit and push `docs/reddit-seo/` to `origin/main` so `https://www.gleambytemi.com/command-center/reddit-leads` updates automatically.
 
 ### Strict Constraints
 - READ-ONLY. Never log into Reddit, never post comments, never upvote, never send DMs.

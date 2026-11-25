@@ -64,6 +64,7 @@ export const COMMAND_CENTER_MODULES: CommandCenterModule[] = [
 
   { key: "bookings", label: "Bookings & Revenue", href: "/command-center/bookings", status: "live", group: "business" },
   { key: "customers", label: "Customers", href: "/command-center/customers", status: "live", group: "business" },
+  { key: "reddit-leads", label: "Reddit Leads", href: "/command-center/reddit-leads", status: "live", group: "business" },
 
   { key: "content", label: "Content", href: "/command-center/content", status: "live", group: "diagnostics" },
   { key: "seo", label: "Search Console", href: "/command-center/seo", status: "live", group: "diagnostics" },
