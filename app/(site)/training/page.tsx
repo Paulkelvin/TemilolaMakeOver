@@ -1,6 +1,11 @@
 import { getTrainingCourses } from "@/sanity/fetch";
 import { seoCopy, trainingPageCopy } from "@/data/copy";
 import { createPageMetadata } from "@/lib/metadata";
+import {
+  BreadcrumbJsonLd,
+  FAQPageJsonLd,
+  TrainingCoursesJsonLd,
+} from "@/lib/seo/structured-data";
 import { PageHero } from "@/components/sections/PageHero";
 import { SectionWrapper } from "@/components/ui/BackgroundDecor";
 import { SectionHeading } from "@/components/ui/SectionHeading";
@@ -18,6 +23,39 @@ export const metadata = createPageMetadata({
   description: seoCopy.training.description,
   path: "/training",
 });
+
+const trainingFaqs = [
+  {
+    id: "training-experience",
+    question: "Do I need experience to join?",
+    answer:
+      "No. The Foundation Course starts from zero — it covers skin prep, foundation and concealer application, basic contouring and highlighting, everyday eye makeup, lip techniques, and setting for longevity.",
+  },
+  {
+    id: "training-duration",
+    question: "How long does beginner training take?",
+    answer:
+      "The Foundation Course runs for 2 weeks, with a small class size of up to 6 students for hands-on attention.",
+  },
+  {
+    id: "training-certification",
+    question: "Is the training certified?",
+    answer:
+      "Yes, certification is included with the Foundation Course, as well as the Advanced and Bridal Specialty courses.",
+  },
+  {
+    id: "training-bridal-progression",
+    question: "What if I want to specialise in bridal makeup later?",
+    answer:
+      "After the Foundation Course, you can progress to the Bridal Intensive or the Professional Masterclass to build on your beginner skills.",
+  },
+  {
+    id: "training-international",
+    question: "Can international students join?",
+    answer:
+      "Yes. All training is delivered in person in Lagos, Nigeria — there's no remote or online format currently. International students are welcome for any course tier, as long as you can attend in Lagos for the full duration.",
+  },
+];
 
 export default async function TrainingPage() {
   const copy = trainingPageCopy;
@@ -39,6 +77,14 @@ export default async function TrainingPage() {
 
   return (
     <>
+      <BreadcrumbJsonLd
+        items={[
+          { name: "Home", href: "/" },
+          { name: "Training", href: "/training" },
+        ]}
+      />
+      <TrainingCoursesJsonLd courses={tiers} />
+      <FAQPageJsonLd items={trainingFaqs} />
       <PageHero
         label={copy.hero.label}
         title={copy.hero.title}
@@ -137,40 +183,7 @@ export default async function TrainingPage() {
             label="Questions"
             title="Training FAQs"
           />
-          <FAQAccordion
-            items={[
-              {
-                id: "training-experience",
-                question: "Do I need experience to join?",
-                answer:
-                  "No. The Foundation Course starts from zero — it covers skin prep, foundation and concealer application, basic contouring and highlighting, everyday eye makeup, lip techniques, and setting for longevity.",
-              },
-              {
-                id: "training-duration",
-                question: "How long does beginner training take?",
-                answer:
-                  "The Foundation Course runs for 2 weeks, with a small class size of up to 6 students for hands-on attention.",
-              },
-              {
-                id: "training-certification",
-                question: "Is the training certified?",
-                answer:
-                  "Yes, certification is included with the Foundation Course, as well as the Advanced and Bridal Specialty courses.",
-              },
-              {
-                id: "training-bridal-progression",
-                question: "What if I want to specialise in bridal makeup later?",
-                answer:
-                  "After the Foundation Course, you can progress to the Bridal Intensive or the Professional Masterclass to build on your beginner skills.",
-              },
-              {
-                id: "training-international",
-                question: "Can international students join?",
-                answer:
-                  "Yes. All training is delivered in person in Lagos, Nigeria — there's no remote or online format currently. International students are welcome for any course tier, as long as you can attend in Lagos for the full duration.",
-              },
-            ]}
-          />
+          <FAQAccordion items={trainingFaqs} />
         </Container>
       </SectionWrapper>
 

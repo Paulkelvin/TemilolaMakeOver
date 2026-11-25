@@ -160,3 +160,68 @@ export function ServiceJsonLd({
     />
   );
 }
+
+export function TrainingCoursesJsonLd({
+  courses,
+}: {
+  courses: readonly {
+    title: string;
+    description: string;
+    price?: number;
+    duration?: string;
+    level?: string;
+  }[];
+}) {
+  const schema = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    name: `Professional Makeup Training Courses in Lagos — ${siteConfig.brand}`,
+    url: `${siteConfig.url}/training`,
+    itemListElement: courses.map((course, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      item: {
+        "@type": "Course",
+        name: course.title,
+        description: course.description,
+        ...(course.level && { educationalLevel: course.level }),
+        provider: {
+          "@type": "Organization",
+          name: siteConfig.brand,
+          url: siteConfig.url,
+        },
+        hasCourseInstance: {
+          "@type": "CourseInstance",
+          courseMode: "onsite",
+          location: {
+            "@type": "Place",
+            name: "Lagos, Nigeria",
+            address: {
+              "@type": "PostalAddress",
+              addressLocality: "Lagos",
+              addressCountry: "NG",
+            },
+          },
+          ...(course.duration && { courseWorkload: course.duration }),
+        },
+        ...(typeof course.price === "number" &&
+          course.price > 0 && {
+            offers: {
+              "@type": "Offer",
+              category: "Paid",
+              priceCurrency: "NGN",
+              price: course.price,
+              availability: "https://schema.org/InStock",
+            },
+          }),
+      },
+    })),
+  };
+
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+    />
+  );
+}
