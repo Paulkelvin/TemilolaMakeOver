@@ -1,6 +1,58 @@
 {
-  "updatedAt": "2026-11-25",
+  "updatedAt": "2026-11-26",
   "leads": [
+    {
+      "id": "1qu66ir",
+      "date": "2026-11-26",
+      "title": "In Nigerian weddings, who pays for bridesmaids' hair and makeup?",
+      "subreddit": "r/Nigeria",
+      "tier": "Tier 1",
+      "mode": "Pure Value",
+      "discoveryType": "Google-Ranking",
+      "url": "https://www.reddit.com/r/Nigeria/comments/1qu66ir/in_nigerian_weddings_who_pays_for_bridesmaids/",
+      "ruleCheck": "Tier 1 local thread. No links, no hard pitch—speak as a Lagos bridal MUA who sees this every weekend.",
+      "context": "OP is asking about the norm in Nigerian weddings for who covers bridesmaids' hair and makeup costs.",
+      "draftReply": "Honestly it's split right down the middle these days. As a bridal MUA in Lagos, I see both—some brides cover the whole train as a thank-you gift, while a lot of modern brides let bridesmaids pay for their own glam (especially if the bride already subsidized the aso-ebi). The one thing that actually saves drama is telling your girls early and booking a single group team for the morning—when bridesmaids bring random outside MUAs, somebody always runs 2 hours late and throws off the whole bridal timeline."
+    },
+    {
+      "id": "1u7tijl",
+      "date": "2026-11-26",
+      "title": "Black and brown women, what are your holy grail makeup products?",
+      "subreddit": "r/MakeupAddiction",
+      "tier": "Tier 2",
+      "mode": "Pure Value",
+      "discoveryType": "Google-Ranking (Fresh 2026)",
+      "url": "https://www.reddit.com/r/MakeupAddiction/comments/1u7tijl/black_and_brown_women_what_are_your_holy_grail/",
+      "ruleCheck": "Strict Tier 2: zero links, zero brand mention. Pure insider holy-grail recs.",
+      "context": "OP is asking Black and brown women to share their holy grail makeup staples.",
+      "draftReply": "Working on deep skin tones in humid Lagos weather pretty much forced me to narrow my kit down to stuff that doesn't oxidize orange or flash grey. My non-negotiables: Huda Beauty Easy Bake (Cinnamon Bun / Coffee Cake depending on depth) or Laura Mercier Honey for zero flashback, Danessa Myricks / Pat McGrath for true olive and golden deep undertones that don't pull brick-red, and LA Girl blue pigment mixer for saving any foundation that leans too warm. Also layering cream blush under a rich berry or terracotta powder blush—it actually shows up in photos instead of disappearing."
+    },
+    {
+      "id": "1lrhi89",
+      "date": "2026-11-26",
+      "title": "How did you figure out your wedding hair and makeup?",
+      "subreddit": "r/weddingplanning",
+      "tier": "Tier 2 (Strict)",
+      "mode": "Pure Value",
+      "discoveryType": "Google-Ranking",
+      "url": "https://www.reddit.com/r/weddingplanning/comments/1lrhi89/how_did_you_figure_out_your_wedding_hair_and/",
+      "ruleCheck": "Strict zero vendor promo—do NOT mention your business or drop links. Pure helpful advice.",
+      "context": "Bride asking how others navigated choosing and deciding on their wedding hair and makeup artist.",
+      "draftReply": "Biggest tip is to stop looking at ring-light reels and look for unedited daylight + flash photos on people with your actual skin tone and texture. When you do your trial (ideally 1–2 months out), don't judge it in the chair—wear it for the rest of the day, take a rear-camera flash photo in a dim room, and see how it handles oil or sweat after 6 hours. Also ask upfront about exact timing per face so you're not rushed on the morning of."
+    },
+    {
+      "id": "1kul4cl",
+      "date": "2026-11-26",
+      "title": "Ideas on budget of low cost wedding in Lagos",
+      "subreddit": "r/Nigeria",
+      "tier": "Tier 1",
+      "mode": "Pure Value",
+      "discoveryType": "Google-Ranking",
+      "url": "https://www.reddit.com/r/Nigeria/comments/1kul4cl/ideas_on_budget_of_low_cost_wedding_in_lagos/",
+      "ruleCheck": "Tier 1 local thread. No links, no hard Naira pricing—helpful local vendor budgeting advice.",
+      "context": "OP is asking for practical ideas to keep a Lagos wedding budget manageable without looking cheap.",
+      "draftReply": "Trimming the guest list is honestly the biggest lever in Lagos—food and venue eat everything fast. On the beauty/vendor side (I do bridal makeup here in Lagos), you definitely don't need to pay celebrity-name markups to get clean, long-lasting glam. Look for solid mid-tier working artists whose unedited client photos look consistent in daylight and flash, skip unnecessary extra outfit changes that add touch-up fees, and lock your vendors early before peak December rates kick in."
+    },
     {
       "id": "1uh2tjk",
       "date": "2026-11-25",
