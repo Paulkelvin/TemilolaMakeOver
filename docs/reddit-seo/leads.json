@@ -1,6 +1,58 @@
 {
-  "updatedAt": "2026-11-26",
+  "updatedAt": "2026-11-27",
   "leads": [
+    {
+      "id": "1uxps22",
+      "date": "2026-11-27",
+      "title": "Bridal makeup prices",
+      "subreddit": "r/weddingplanning",
+      "tier": "Tier 2 (Strict)",
+      "mode": "Pure Value",
+      "discoveryType": "Google-Ranking (Fresh 2026)",
+      "url": "https://www.reddit.com/r/weddingplanning/comments/1uxps22/bridal_makeup_prices/",
+      "ruleCheck": "Strict Tier 2: zero links, zero brand mention, no hard prices. Pure insider MUA perspective.",
+      "context": "Brides discussing bridal makeup pricing and why wedding-day glam costs more than regular event makeup.",
+      "draftReply": "tbh as a bridal MUA I totally get the sticker shock at first, esp when regular event glam is way cheaper. The real diff is you're not just paying for 2 hrs in a chair—you're paying for zero margin for error, long-wear products that survive 12+ hrs of sun, tears & flash photos, timeline planning so you aren't late to your own ceremony, plus blocking off the whole peak Saturday. Biggest tip to save without getting burned tho: skip paying extra just for a huge celebrity name and look for a solid working artist with clean, unedited daylight + flash client pics."
+    },
+    {
+      "id": "1ta8oi4",
+      "date": "2026-11-27",
+      "title": "Bride doing my own makeup",
+      "subreddit": "r/weddingplanning",
+      "tier": "Tier 2 (Strict)",
+      "mode": "Pure Value",
+      "discoveryType": "Google-Ranking (Fresh 2026)",
+      "url": "https://www.reddit.com/r/weddingplanning/comments/1ta8oi4/bride_doing_my_own_makeup/",
+      "ruleCheck": "Strict Tier 2: zero links, zero brand mention. Encouraging, practical DIY bridal tips.",
+      "context": "Bride planning to do her own wedding makeup and looking for tips so it lasts and photographs well.",
+      "draftReply": "You can def pull off DIY bridal makeup if you practice it a few times first! Two things that trip up most DIY brides ngl: 1) putting on heavy SPF right before base (it causes crazy flashback in flash pics), and 2) going way too light on blush + brows bc cameras eat like 25% of your color. Keep your skincare layers super thin, let each one sink in for a few mins before foundation, layer a cream blush under a matching powder blush, and do a test pic with rear camera flash in a dark room so there's zero surprise on the day."
+    },
+    {
+      "id": "1s0r28p",
+      "date": "2026-11-27",
+      "title": "Bridal makeup DIYer — feedback please",
+      "subreddit": "r/MakeupAddiction",
+      "tier": "Tier 2",
+      "mode": "Pure Value",
+      "discoveryType": "Google-Ranking (Fresh 2026)",
+      "url": "https://www.reddit.com/r/MakeupAddiction/comments/1s0r28p/bridal_makeup_diyer_feedback_please/",
+      "ruleCheck": "Strict Tier 2: zero links, zero brand mention. Warm, constructive MUA feedback.",
+      "context": "DIY bride asking for honest feedback on her bridal trial look before the wedding.",
+      "draftReply": "Honestly you're already super close—the skin looks really fresh and not cakey at all! One quick tweak I always recommend as a bridal MUA: build up your blush + outer eye definition just a tiny bit more than feels normal in the mirror, bc wedding photography lighting softens everything down. Also if you're using lash clusters or strips, go with black lash glue instead of clear/white—clear glue can dry shiny and catch camera flash ngl. Looking gorgeous already tho!"
+    },
+    {
+      "id": "1s0l0vg",
+      "date": "2026-11-27",
+      "title": "Bridal make up",
+      "subreddit": "r/MakeupAddiction",
+      "tier": "Tier 2",
+      "mode": "Pure Value",
+      "discoveryType": "Google-Ranking (Fresh 2026)",
+      "url": "https://www.reddit.com/r/MakeupAddiction/comments/1s0l0vg/bridal_make_up/",
+      "ruleCheck": "Strict Tier 2: zero links, zero brand mention. Short, practical bridal advice.",
+      "context": "Bride asking for bridal makeup advice and what actually makes a wedding look hold up all day.",
+      "draftReply": "tbh the #1 secret to bridal makeup that lasts thru sweat, hugs & flash photos is thin layers + locking creams down with matching powders. Don't try any new strong skincare actives the week of the wedding bc peeling skin ruins foundation fast. Fill your whole lip in with a long-wear liner before lipstick so it doesn't vanish after eating, mist a real fix spray between your cream & powder steps, and keep blotting papers handy to press sweat instead of wiping!"
+    },
     {
       "id": "1qu66ir",
       "date": "2026-11-26",
@@ -12,7 +64,7 @@
       "url": "https://www.reddit.com/r/Nigeria/comments/1qu66ir/in_nigerian_weddings_who_pays_for_bridesmaids/",
       "ruleCheck": "Tier 1 local thread. No links, no hard pitch—speak as a Lagos bridal MUA who sees this every weekend.",
       "context": "OP is asking about the norm in Nigerian weddings for who covers bridesmaids' hair and makeup costs.",
-      "draftReply": "Honestly it's split right down the middle these days. As a bridal MUA in Lagos, I see both—some brides cover the whole train as a thank-you gift, while a lot of modern brides let bridesmaids pay for their own glam (especially if the bride already subsidized the aso-ebi). The one thing that actually saves drama is telling your girls early and booking a single group team for the morning—when bridesmaids bring random outside MUAs, somebody always runs 2 hours late and throws off the whole bridal timeline."
+      "draftReply": "Honestly it's split right down the middle these days. As a bridal MUA in Lagos, I see both—some brides cover the whole train as a thank-you gift, while a lot of modern brides let bridesmaids pay for their own glam (esp if the bride already subsidized the aso-ebi). The one thing that actually saves drama is telling your girls early and booking one group team for the morning—when bridesmaids bring random outside MUAs, somebody always runs 2 hrs late and throws off the whole bridal timeline."
     },
     {
       "id": "1u7tijl",
@@ -28,32 +80,6 @@
       "draftReply": "tbh as a Lagos MUA working on deep skin tones in this sun and heat, some of my biggest favs are Nigerian/African brands people really sleep on. For base + prep I use Blossom Makeup (their moisturizer, foundation & concealer sit so well), Avour Cosmetics, Zikel, and New Paris bc they actually get rich undertones right without looking grey. Dabota's The Grail Powder and City Series eyeshadows are staples in my kit, Tehila for brow gel + blush palettes, and Xclusive or New Paris fix spray to lock everything in thru sweat ngl"
     },
     {
-      "id": "1lrhi89",
-      "date": "2026-11-26",
-      "title": "How did you figure out your wedding hair and makeup?",
-      "subreddit": "r/weddingplanning",
-      "tier": "Tier 2 (Strict)",
-      "mode": "Pure Value",
-      "discoveryType": "Google-Ranking",
-      "url": "https://www.reddit.com/r/weddingplanning/comments/1lrhi89/how_did_you_figure_out_your_wedding_hair_and/",
-      "ruleCheck": "Strict zero vendor promo—do NOT mention your business or drop links. Pure helpful advice.",
-      "context": "Bride asking how others navigated choosing and deciding on their wedding hair and makeup artist.",
-      "draftReply": "Biggest tip is to stop looking at ring-light reels and look for unedited daylight + flash photos on people with your actual skin tone and texture. When you do your trial (ideally 1–2 months out), don't judge it in the chair—wear it for the rest of the day, take a rear-camera flash photo in a dim room, and see how it handles oil or sweat after 6 hours. Also ask upfront about exact timing per face so you're not rushed on the morning of."
-    },
-    {
-      "id": "1kul4cl",
-      "date": "2026-11-26",
-      "title": "Ideas on budget of low cost wedding in Lagos",
-      "subreddit": "r/Nigeria",
-      "tier": "Tier 1",
-      "mode": "Pure Value",
-      "discoveryType": "Google-Ranking",
-      "url": "https://www.reddit.com/r/Nigeria/comments/1kul4cl/ideas_on_budget_of_low_cost_wedding_in_lagos/",
-      "ruleCheck": "Tier 1 local thread. No links, no hard Naira pricing—helpful local vendor budgeting advice.",
-      "context": "OP is asking for practical ideas to keep a Lagos wedding budget manageable without looking cheap.",
-      "draftReply": "Trimming the guest list is honestly the biggest lever in Lagos—food and venue eat everything fast. On the beauty/vendor side (I do bridal makeup here in Lagos), you definitely don't need to pay celebrity-name markups to get clean, long-lasting glam. Look for solid mid-tier working artists whose unedited client photos look consistent in daylight and flash, skip unnecessary extra outfit changes that add touch-up fees, and lock your vendors early before peak December rates kick in."
-    },
-    {
       "id": "1uh2tjk",
       "date": "2026-11-25",
       "title": "I got my makeup done by a professional Nigerian makeup artist",
@@ -64,7 +90,7 @@
       "url": "https://www.reddit.com/r/MakeupAddiction/comments/1uh2tjk/i_got_my_makeup_done_by_a_professional_nigerian/",
       "ruleCheck": "No links, no brand name. Subtle credential drop only.",
       "context": "OP shared their experience getting makeup done by a pro Nigerian MUA and how long/clean it lasted.",
-      "draftReply": "tbh this makes me smile so much. I'm a bridal MUA in Lagos and people outside West Africa really underestimate how technical Nigerian glam is. When a face has to survive 10+ hours of crazy humidity, gele styling, dancing, and flash photos, you actually can't cake it on—it's all thin prep layers, setting creams with matching powders, and getting undertones right so there's zero grey flashback. Glad you got a good artist, when the skin work is done properly it shouldn't even feel heavy."
+      "draftReply": "tbh this makes me smile so much. I'm a bridal MUA in Lagos and people outside West Africa really underestimate how technical Nigerian glam is. When a face has to survive 10+ hrs of Lagos sun & heat, gele styling, dancing, and flash photos, you actually can't cake it on—it's all thin prep layers, setting creams with matching powders, and getting undertones right so there's zero grey flashback. Glad you got a good artist, when the skin work is done properly it shouldn't even feel heavy."
     },
     {
       "id": "1u76ez6",
@@ -76,8 +102,8 @@
       "discoveryType": "Google-Ranking",
       "url": "https://www.reddit.com/r/MakeupAddiction/comments/1u76ez6/how_do_idolsbrides_make_their_makeup_last_in/",
       "ruleCheck": "No links, no brand name. Pure technical advice.",
-      "context": "OP is asking how performers and brides keep makeup intact in heat and humidity without melting.",
-      "draftReply": "Working in humid weather taught me it's like 70% how thin your layers are and 30% the products. Most brides pile on heavy moisturizer and thick foundation thinking it'll stay longer, but sweat builds up underneath and lifts thick layers off in patches. Let every skincare step actually sink in first, match your primer base to your foundation (water with water, silicone with silicone), mist fixing spray *between* your cream and powder steps, and only press loose powder where you actually get oily. Oh and always blot sweat, never wipe."
+      "context": "OP is asking how performers and brides keep makeup intact in heat and sweat without melting.",
+      "draftReply": "Working in Lagos sun & heat taught me it's like 70% how thin your layers are and 30% the products. Most brides pile on heavy moisturizer and thick foundation thinking it'll stay longer, but sweat builds up underneath and lifts thick layers off in patches. Let every skincare step actually sink in first, match your primer base to your foundation (water with water, silicone with silicone), mist fix spray *between* your cream and powder steps, and only press loose powder where you actually get oily. Oh and always blot sweat, never wipe."
     },
     {
       "id": "1wrn6by",
@@ -104,19 +130,6 @@
       "ruleCheck": "No course/booking links. Peer-to-peer advice.",
       "context": "Aspiring MUA asking working artists how they actually learned the craft.",
       "draftReply": "Honestly practicing on your own face only takes you so far. Things only clicked for me when I started working on unfamiliar skin textures, undertones, and eye shapes under a real timer. If you're looking at classes, skip the huge demo-only rooms where 30 people just watch someone beat one model—look for small hands-on classes or 1:1 shadowing where a working artist actually corrects your brush pressure and shade matching on live faces. Assisting a busy bridal artist on weekends will also teach you more about timelines and clients in 2 months than a year of YouTube."
-    },
-    {
-      "id": "1o7zw4d",
-      "date": "2026-11-25",
-      "title": "Wedding makeup recs for a sweaty girl",
-      "subreddit": "r/beauty",
-      "tier": "Tier 2",
-      "mode": "Pure Value",
-      "discoveryType": "Google-Ranking",
-      "url": "https://www.reddit.com/r/beauty/comments/1o7zw4d/wedding_makeup_recs_for_a_sweaty_girl/",
-      "ruleCheck": "Strictly zero links, zero brand mention, zero handles.",
-      "context": "Bride who sweats easily asking for prep and product recs so her wedding makeup doesn't slide off.",
-      "draftReply": "Two things actually save sweaty brides: stopping moisture *before* primer, and keeping layers super thin. If you sweat heavy on your upper lip or forehead, swipe a little Mehron Skin Prep Pro on bare skin and let it dry completely before priming—total game changer. Then go in with thin layers of a long-wear foundation, set cream blush/contour with powder, and sandwich a real fixing spray between your cream step and final powder. Hand your maid of honor blotting papers and make sure you press, never drag."
     }
   ]
 }

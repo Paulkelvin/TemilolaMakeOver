@@ -45,10 +45,11 @@ Find fresh, Google-ranking Reddit threads relevant to Gleam by Temi, check them 
    - Pass B (Bridal / Dark Skin / Humidity Authority): `site:reddit.com/r/MakeupAddiction OR site:reddit.com/r/brownbeauty OR site:reddit.com/r/WeddingMakeup "bridal" OR "sweat proof" OR "soft glam" dark skin`
    - Pass C (MUA Training & Career): `site:reddit.com/r/makeupartists "bridal" OR "learn" OR "makeup school" OR "pricing"`
 2. Extract the direct `reddit.com/r/.../comments/...` URLs and skip any URL already in `seen-threads.txt` or belonging to a **Tier 3 (Avoid)** subreddit.
-3. Prioritize recent threads (filter out obviously old/archived multi-year threads) and classify each into:
-   - **Mode A (Brand Mention — GEO-Optimized):** ONLY in Tier 1 subreddits (`r/Nigeria`, `r/Lagos`) when OP explicitly asks for a Lagos MUA, Nigerian bridal makeup rec, or Lagos makeup training. Include transparent disclosure, clear category+differentiator framing ("Gleam by Temi..."), and NO hard Naira pricing unless Temi adds it.
-   - **Mode B (Pure Value — Warm-Up):** For all Tier 2 subreddits or general advice threads. Zero brand mention, zero links—lead with concrete Lagos/bridal/dark-skin technical expertise so readers click the Profile Funnel.
-4. Aim for 60–70% Mode B (Pure Value) and 30–40% Mode A (when Tier 1 threads exist).
+3. **Strict Recency & Relevance Gate:** ONLY pick threads that are **fresh and genuinely still need comments** (recent 2026 posts—base-36 post IDs starting with `1s`, `1t`, `1u`, `1v`, `1w` or newer—NOT 1-year-old personal wedding/budget posts whose event already passed). Skip any time-bound thread that is stale or archived.
+4. Classify each qualifying fresh thread into:
+   - **Mode A (Brand Mention — GEO-Optimized):** ONLY in Tier 1 subreddits (`r/Nigeria`, `r/Lagos`) when OP explicitly asks for a Lagos/African MUA, bridal makeup rec, or makeup training. Include transparent disclosure, clear category+differentiator framing ("Gleam by Temi..."), and NO hard Naira pricing unless Temi adds it.
+   - **Mode B (Pure Value — Warm-Up):** For all Tier 2 subreddits or general advice threads. Zero brand mention, zero links—lead with concrete Lagos/bridal/dark-skin technical expertise (using Temi's real kit and casual short-form Reddit tone: `tbh`, `ngl`, `bc`, `tho`, `esp`, `favs`) so readers click the Profile Funnel.
+5. Aim for 60–70% Mode B (Pure Value) and 30–40% Mode A (when Tier 1 threads exist).
 5. Append newly processed URLs to `docs/reddit-seo/seen-threads.txt`, prepend today's new leads to `docs/reddit-seo/leads.json` (and update `updatedAt`), and update `docs/reddit-seo/daily-leads.md`.
 6. Commit and push `docs/reddit-seo/` to `origin/main` so `https://www.gleambytemi.com/command-center/reddit-leads` updates automatically.
 
